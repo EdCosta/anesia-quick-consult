@@ -5,6 +5,7 @@ import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Section, { BulletList } from '@/components/anesia/Section';
+import IntubationGuide from '@/components/anesia/IntubationGuide';
 import DrugDoseRow from '@/components/anesia/DrugDoseRow';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -186,7 +187,7 @@ export default function ProcedurePage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="intraop" className="mt-3">
+          <TabsContent value="intraop" className="mt-3 space-y-3">
             <Card className="clinical-shadow">
               <CardContent className="p-4">
                 <Section title={t('intraop')} variant="intraop">
@@ -194,6 +195,7 @@ export default function ProcedurePage() {
                 </Section>
               </CardContent>
             </Card>
+            <IntubationGuide />
           </TabsContent>
 
           <TabsContent value="postop" className="mt-3">

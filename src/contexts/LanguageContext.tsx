@@ -261,6 +261,51 @@ const UI: Record<string, Record<Lang, string>> = {
   or: { fr: 'ou', pt: 'ou', en: 'or' },
   close: { fr: 'Fermer', pt: 'Fechar', en: 'Close' },
 
+  // ETT / Intubation keys
+  intubation_guide: {
+    fr: 'IOT / Intubation (guide rapide)',
+    en: 'IOT / Intubation (quick guide)',
+    pt: 'IOT / Intubação (guia rápido)',
+  },
+  ett_calculator: {
+    fr: 'Calculateur ETT',
+    en: 'ETT Calculator',
+    pt: 'Calculadora ETT',
+  },
+  age_years: { fr: 'Âge (années)', en: 'Age (years)', pt: 'Idade (anos)' },
+  age_months: { fr: 'Âge (mois)', en: 'Age (months)', pt: 'Idade (meses)' },
+  height_cm: { fr: 'Taille (cm)', en: 'Height (cm)', pt: 'Altura (cm)' },
+  sex: { fr: 'Sexe', en: 'Sex', pt: 'Sexo' },
+  male: { fr: 'Homme', en: 'Male', pt: 'Homem' },
+  female: { fr: 'Femme', en: 'Female', pt: 'Mulher' },
+  ett_cuffed: { fr: 'ETT cuffé', en: 'Cuffed ETT', pt: 'ETT cuffado' },
+  ett_uncuffed: { fr: 'ETT non cuffé', en: 'Uncuffed ETT', pt: 'ETT não cuffado' },
+  oral_depth: { fr: 'Prof. orale', en: 'Oral depth', pt: 'Prof. oral' },
+  nasal_depth: { fr: 'Prof. nasale', en: 'Nasal depth', pt: 'Prof. nasal' },
+  blade_size: { fr: 'Lame', en: 'Blade', pt: 'Lâmina' },
+  lma_size: { fr: 'ML (taille)', en: 'LMA (size)', pt: 'ML (tamanho)' },
+  ett_result: { fr: 'Résultat', en: 'Result', pt: 'Resultado' },
+  ett_disclaimer: {
+    fr: 'Confirmer cliniquement et par capnographie. Ajuster au patient. Outil éducatif uniquement.',
+    en: 'Confirm clinically and with capnography. Adjust to patient. Educational tool only.',
+    pt: 'Confirmar clinicamente e por capnografia. Ajustar ao doente. Ferramenta educativa apenas.',
+  },
+  pediatric: { fr: 'Pédiatrique', en: 'Pediatric', pt: 'Pediátrico' },
+  adult: { fr: 'Adulte', en: 'Adult', pt: 'Adulto' },
+  neonate: { fr: 'Néonatal / Nourrisson', en: 'Neonate / Infant', pt: 'Neonatal / Lactente' },
+  cuff_pressure: { fr: 'Pression cuff', en: 'Cuff pressure', pt: 'Pressão cuff' },
+  armed_tube: { fr: 'Tube armé', en: 'Reinforced tube', pt: 'Tubo armado' },
+  adjust_small_child: {
+    fr: 'Enfant petit pour l\'âge : taille réduite de 0.5 mm',
+    en: 'Child small for age: size reduced by 0.5 mm',
+    pt: 'Criança pequena para a idade: tamanho reduzido 0.5 mm',
+  },
+  adjust_large_child: {
+    fr: 'Enfant grand pour l\'âge : taille augmentée de 0.5 mm',
+    en: 'Child large for age: size increased by 0.5 mm',
+    pt: 'Criança grande para a idade: tamanho aumentado 0.5 mm',
+  },
+
   // Warnings for dilution
   warning_invalid_stock: {
     fr: 'Concentration stock invalide',
@@ -325,7 +370,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     (key: string): string => {
       const entry = UI[key];
       if (!entry) return key;
-      return entry[lang] ?? entry['fr'] ?? entry['pt'] ?? entry['en'] ?? key;
+      return entry[lang] ?? entry['fr'] ?? entry['en'] ?? entry['pt'] ?? key;
     },
     [lang]
   );
@@ -333,7 +378,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const resolve = useCallback(
     <T,>(obj: Partial<Record<Lang, T>> | undefined): T | undefined => {
       if (!obj) return undefined;
-      return obj[lang] ?? obj['fr'] ?? obj['pt'] ?? obj['en'];
+      return obj[lang] ?? obj['fr'] ?? obj['en'] ?? obj['pt'];
     },
     [lang]
   );
@@ -341,7 +386,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const resolveStr = useCallback(
     (obj: Partial<Record<Lang, string>> | undefined): string => {
       if (!obj) return '';
-      return obj[lang] ?? obj['fr'] ?? obj['pt'] ?? obj['en'] ?? '';
+      return obj[lang] ?? obj['fr'] ?? obj['en'] ?? obj['pt'] ?? '';
     },
     [lang]
   );

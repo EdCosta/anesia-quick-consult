@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, ArrowLeft } from 'lucide-react';
+import { Star, ArrowLeft, ClipboardCopy } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -9,26 +9,59 @@ import DrugDoseRow from '@/components/anesia/DrugDoseRow';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
 
 export default function ProcedurePage() {
   const { id } = useParams<{ id: string }>();
   const { t, resolve, resolveStr } = useLang();
   const { getProcedure, getDrug, loading } = useData();
   const [weightKg, setWeightKg] = useState<string>('');
-  const [favorites, setFavorites] = useLocalStorage<string[]>('anesia-favorites', []);
-  const [recents, setRecents] = useLocalStorage<string[]>('anesia-recents', []);
+  const [favorites, setFavorites] = useLocalStorage<string[]>(
+    'anesia-favorites',
+    []
+  );
+  const [recents, setRecents] = useLocalStorage<string[]>(
+    'anesia-recents',
+    []
+  );
 
   const procedure = getProcedure(id || '');
   const isFav = id ? favorites.includes(id) : false;
 
   useEffect(() => {
     if (id && procedure) {
-      setRecents(prev => {
-        const filtered = prev.filter(r => r !== id);
+      setRecents((prev) => {
+        const filtered = prev.filter((r) => r !== id);
         return [id, ...filtered].slice(0, 10);
       });
     }
   }, [id, procedure]);
+
+  const handleCopyChecklist = () => {
+    if (!quick) return;
+
+    const lines: string[] = [];
+    const addSection = (title: string, items: string[]) => {
+      if (items.length === 0) return;
+      lines.push(`## ${title}`);
+      items.forEach((item) => lines.push(`- ${item}`));
+      lines.push('');
+    };
+
+    lines.push(`# ${resolveStr(procedure!.titles)}`);
+    lines.push('');
+    addSection(t('preop'), quick.preop);
+    addSection(t('intraop'), quick.intraop);
+    addSection(t('postop'), quick.postop);
+
+    if (quick.red_flags.length > 0) {
+      addSection(t('red_flags'), quick.red_flags);
+    }
+
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      toast.success(t('copied'));
+    });
+  };
 
   if (loading) {
     return (
@@ -42,7 +75,12 @@ export default function ProcedurePage() {
     return (
       <div className="container max-w-2xl py-8 text-center">
         <p className="text-muted-foreground">Procédure introuvable.</p>
-        <Link to="/" className="mt-4 inline-block text-accent hover:underline">{t('back')}</Link>
+        <Link
+          to="/"
+          className="mt-4 inline-block text-accent hover:underline"
+        >
+          {t('back')}
+        </Link>
       </div>
     );
   }
@@ -54,8 +92,8 @@ export default function ProcedurePage() {
 
   const toggleFav = () => {
     if (!id) return;
-    setFavorites(prev =>
-      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
     );
   };
 
@@ -64,23 +102,45 @@ export default function ProcedurePage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <Link to="/" className="inline-flex items-center gap-1 text-sm text-accent hover:underline">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
+          >
             <ArrowLeft className="h-4 w-4" />
             {t('back')}
           </Link>
-          <h1 className="mt-2 text-xl font-bold text-foreground leading-tight">{title}</h1>
-          <Badge variant="secondary" className="mt-1.5">{procedure.specialty}</Badge>
+          <h1 className="mt-2 text-xl font-bold text-foreground leading-tight">
+            {title}
+          </h1>
+          <Badge variant="secondary" className="mt-1.5">
+            {procedure.specialty}
+          </Badge>
         </div>
-        <button onClick={toggleFav} className="mt-1 p-1.5">
-          <Star className={`h-6 w-6 ${isFav ? 'fill-accent text-accent' : 'text-muted-foreground hover:text-accent'}`} />
-        </button>
+        <div className="flex items-center gap-1">
+          {quick && (
+            <button
+              onClick={handleCopyChecklist}
+              className="mt-1 p-1.5 text-muted-foreground hover:text-accent transition-colors"
+              title={t('copy_checklist')}
+            >
+              <ClipboardCopy className="h-5 w-5" />
+            </button>
+          )}
+          <button onClick={toggleFav} className="mt-1 p-1.5">
+            <Star
+              className={`h-6 w-6 ${isFav ? 'fill-accent text-accent' : 'text-muted-foreground hover:text-accent'}`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Key Points card */}
       {quick && quick.preop.length > 0 && (
         <Card className="border-l-4 border-l-accent clinical-shadow">
           <CardContent className="p-4">
-            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-accent">{t('preop')}</h3>
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-accent">
+              {t('preop')}
+            </h3>
             <BulletList items={quick.preop.slice(0, 3)} />
           </CardContent>
         </Card>
@@ -90,7 +150,9 @@ export default function ProcedurePage() {
       {quick && quick.red_flags.length > 0 && (
         <Card className="border-l-4 border-l-clinical-danger clinical-shadow">
           <CardContent className="p-4">
-            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-clinical-danger">{t('red_flags')}</h3>
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-clinical-danger">
+              {t('red_flags')}
+            </h3>
             <BulletList items={quick.red_flags} />
           </CardContent>
         </Card>
@@ -100,10 +162,18 @@ export default function ProcedurePage() {
       {quick && (
         <Tabs defaultValue="preop" className="w-full">
           <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="preop" className="text-xs">{t('preop')}</TabsTrigger>
-            <TabsTrigger value="intraop" className="text-xs">{t('intraop')}</TabsTrigger>
-            <TabsTrigger value="postop" className="text-xs">{t('postop')}</TabsTrigger>
-            <TabsTrigger value="detail" className="text-xs">{t('detail')}</TabsTrigger>
+            <TabsTrigger value="preop" className="text-xs">
+              {t('preop')}
+            </TabsTrigger>
+            <TabsTrigger value="intraop" className="text-xs">
+              {t('intraop')}
+            </TabsTrigger>
+            <TabsTrigger value="postop" className="text-xs">
+              {t('postop')}
+            </TabsTrigger>
+            <TabsTrigger value="detail" className="text-xs">
+              {t('detail')}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="preop" className="mt-3">
@@ -159,10 +229,25 @@ export default function ProcedurePage() {
                       <Section title={t('references_title')} variant="info">
                         <ul className="space-y-2">
                           {deep.references.map((ref, i) => (
-                            <li key={i} className="text-xs text-card-foreground">
-                              <span className="font-semibold">{ref.source}</span>
-                              {ref.year && <span className="text-muted-foreground"> ({ref.year})</span>}
-                              {ref.note && <span className="text-muted-foreground"> — {ref.note}</span>}
+                            <li
+                              key={i}
+                              className="text-xs text-card-foreground"
+                            >
+                              <span className="font-semibold">
+                                {ref.source}
+                              </span>
+                              {ref.year && (
+                                <span className="text-muted-foreground">
+                                  {' '}
+                                  ({ref.year})
+                                </span>
+                              )}
+                              {ref.note && (
+                                <span className="text-muted-foreground">
+                                  {' '}
+                                  — {ref.note}
+                                </span>
+                              )}
                             </li>
                           ))}
                         </ul>
@@ -179,22 +264,28 @@ export default function ProcedurePage() {
       {/* Drugs & Doses */}
       {quick && quick.drugs.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-base font-bold text-foreground">{t('drugs_doses')}</h2>
+          <h2 className="text-base font-bold text-foreground">
+            {t('drugs_doses')}
+          </h2>
 
           <Card className="clinical-shadow">
             <CardContent className="flex items-center gap-3 p-3">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">{t('weight_kg')}</label>
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                {t('weight_kg')}
+              </label>
               <input
                 type="number"
                 value={weightKg}
-                onChange={e => setWeightKg(e.target.value)}
+                onChange={(e) => setWeightKg(e.target.value)}
                 placeholder="70"
                 min="1"
                 max="300"
                 className="w-24 rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
               />
               {!weight && (
-                <span className="text-xs text-muted-foreground">{t('enter_weight')}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t('enter_weight')}
+                </span>
               )}
             </CardContent>
           </Card>

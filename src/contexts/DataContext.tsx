@@ -111,18 +111,39 @@ async function loadFromSupabase(): Promise<{
       supabase.from('alr_blocks' as any).select('*'),
     ]);
 
-    // Check if any table returned data
     const procData = (procRes.data as any[]) || [];
     const drugData = (drugRes.data as any[]) || [];
     const guideData = (guideRes.data as any[]) || [];
     const protoData = (protoRes.data as any[]) || [];
     const alrData = (alrRes.data as any[]) || [];
 
-    // If procedures table is empty, fall back to JSON
     if (procData.length === 0) return null;
 
+    // Load JSON as fallback for missing drug data
+    let jsonProcedures: Procedure[] = [];
+    try {
+      const jsonRaw = await fetchJson('/data/procedures.v3.json');
+      jsonProcedures = validateArray<Procedure>(jsonRaw, ProcedureSchema, 'procedures-fallback');
+    } catch { /* ignore JSON fallback errors */ }
+
+    const dbProcedures = procData.map(dbRowToProcedure);
+
+    // Merge: fill missing quick.{lang}.drugs from JSON fallback
+    const jsonMap = new Map(jsonProcedures.map(p => [p.id, p]));
+    for (const proc of dbProcedures) {
+      const jsonProc = jsonMap.get(proc.id);
+      if (!jsonProc) continue;
+      for (const langKey of ['fr', 'en', 'pt'] as const) {
+        const qLang = (proc.quick as any)?.[langKey];
+        const jLang = (jsonProc.quick as any)?.[langKey];
+        if (qLang && (!qLang.drugs || qLang.drugs.length === 0) && jLang?.drugs?.length > 0) {
+          qLang.drugs = jLang.drugs;
+        }
+      }
+    }
+
     return {
-      procedures: procData.map(dbRowToProcedure),
+      procedures: dbProcedures,
       drugs: drugData.map(dbRowToDrug),
       guidelines: guideData.map(dbRowToGuideline),
       protocoles: protoData.map(dbRowToProtocole),

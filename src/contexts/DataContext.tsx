@@ -18,9 +18,12 @@ export type {
   DoseRule,
   Concentration,
   Drug,
+  Guideline,
+  Protocole,
+  ALRBlock,
 } from '@/lib/types';
 
-import type { Procedure, Drug } from '@/lib/types';
+import type { Procedure, Drug, Guideline, Protocole, ALRBlock } from '@/lib/types';
 
 // Lightweight zod schemas for validation
 const ProcedureSchema = z
@@ -39,9 +42,38 @@ const DrugSchema = z
   })
   .passthrough();
 
+const GuidelineSchema = z
+  .object({
+    id: z.string(),
+    category: z.string(),
+    titles: z.object({ fr: z.string() }).passthrough(),
+    items: z.object({ fr: z.array(z.string()) }).passthrough(),
+  })
+  .passthrough();
+
+const ProtocoleSchema = z
+  .object({
+    id: z.string(),
+    category: z.string(),
+    titles: z.object({ fr: z.string() }).passthrough(),
+    steps: z.object({ fr: z.array(z.string()) }).passthrough(),
+  })
+  .passthrough();
+
+const ALRBlockSchema = z
+  .object({
+    id: z.string(),
+    region: z.string(),
+    titles: z.object({ fr: z.string() }).passthrough(),
+  })
+  .passthrough();
+
 interface DataContextType {
   procedures: Procedure[];
   drugs: Drug[];
+  guidelines: Guideline[];
+  protocoles: Protocole[];
+  alrBlocks: ALRBlock[];
   loading: boolean;
   error: string | null;
   getDrug: (id: string) => Drug | undefined;
@@ -87,9 +119,19 @@ function validateArray<T>(
   return valid;
 }
 
+function fetchJson(path: string) {
+  return fetch(path).then((r) => {
+    if (!r.ok) throw new Error(`${path}: ${r.status}`);
+    return r.json();
+  });
+}
+
 export function DataProvider({ children }: { children: ReactNode }) {
   const [procedures, setProcedures] = useState<Procedure[]>([]);
   const [drugs, setDrugs] = useState<Drug[]>([]);
+  const [guidelines, setGuidelines] = useState<Guideline[]>([]);
+  const [protocoles, setProtocoles] = useState<Protocole[]>([]);
+  const [alrBlocks, setAlrBlocks] = useState<ALRBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,27 +139,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     Promise.all([
-      fetch('/data/procedures.v3.json').then((r) => {
-        if (!r.ok) throw new Error(`procedures: ${r.status}`);
-        return r.json();
-      }),
-      fetch('/data/drugs.v1.json').then((r) => {
-        if (!r.ok) throw new Error(`drugs: ${r.status}`);
-        return r.json();
-      }),
+      fetchJson('/data/procedures.v3.json'),
+      fetchJson('/data/drugs.v1.json'),
+      fetchJson('/data/guidelines.v1.json'),
+      fetchJson('/data/protocoles.v1.json'),
+      fetchJson('/data/alr.v1.json'),
     ])
-      .then(([procsRaw, drugsRaw]) => {
+      .then(([procsRaw, drugsRaw, guidelinesRaw, protocolesRaw, alrRaw]) => {
         if (cancelled) return;
 
-        const validProcs = validateArray<Procedure>(
-          procsRaw,
-          ProcedureSchema,
-          'procedures'
-        );
-        const validDrugs = validateArray<Drug>(drugsRaw, DrugSchema, 'drugs');
-
-        setProcedures(validProcs);
-        setDrugs(validDrugs);
+        setProcedures(validateArray<Procedure>(procsRaw, ProcedureSchema, 'procedures'));
+        setDrugs(validateArray<Drug>(drugsRaw, DrugSchema, 'drugs'));
+        setGuidelines(validateArray<Guideline>(guidelinesRaw, GuidelineSchema, 'guidelines'));
+        setProtocoles(validateArray<Protocole>(protocolesRaw, ProtocoleSchema, 'protocoles'));
+        setAlrBlocks(validateArray<ALRBlock>(alrRaw, ALRBlockSchema, 'alrBlocks'));
         setLoading(false);
       })
       .catch((err) => {
@@ -157,6 +192,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       value={{
         procedures,
         drugs,
+        guidelines,
+        protocoles,
+        alrBlocks,
         loading,
         error,
         getDrug,

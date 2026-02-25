@@ -1,16 +1,60 @@
-import { ClipboardCheck, ListChecks, ShieldAlert, HeartPulse } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { ClipboardCheck, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import Fuse from 'fuse.js';
 import { useLang } from '@/contexts/LanguageContext';
+import { useData } from '@/contexts/DataContext';
+import type { Protocole } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 
-const PROTOCOLS = [
-  { icon: ListChecks, label: { fr: 'Checklist pré-op OMS', pt: 'Checklist pré-op OMS', en: 'WHO pre-op checklist' } },
-  { icon: ShieldAlert, label: { fr: 'Protocole PONV', pt: 'Protocolo NVPO', en: 'PONV protocol' } },
-  { icon: HeartPulse, label: { fr: 'Protocole hémorragie massive', pt: 'Protocolo hemorragia maciça', en: 'Massive hemorrhage protocol' } },
-  { icon: ClipboardCheck, label: { fr: 'Checklist sécurité bloc', pt: 'Checklist segurança bloco', en: 'OR safety checklist' } },
-];
+const CATEGORY_MAP: Record<string, string> = {
+  safety: 'safety',
+  emergency: 'emergency',
+  preop: 'preop_cat',
+  ponv: 'ponv',
+};
 
 export default function Protocoles() {
-  const { t, resolveStr } = useLang();
+  const { t, lang, resolveStr } = useLang();
+  const { protocoles, loading } = useData();
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const fuse = useMemo(
+    () =>
+      new Fuse(protocoles, {
+        keys: [`titles.${lang}`, 'titles.fr', 'category'],
+        threshold: 0.4,
+        ignoreLocation: true,
+      }),
+    [protocoles, lang]
+  );
+
+  const categories = useMemo(() => {
+    const set = new Set(protocoles.map((p) => p.category));
+    return Array.from(set).sort();
+  }, [protocoles]);
+
+  const filtered = useMemo(() => {
+    let results: Protocole[] = search.trim()
+      ? fuse.search(search).map((r) => r.item)
+      : protocoles;
+    if (category) results = results.filter((p) => p.category === category);
+    return results;
+  }, [search, category, fuse, protocoles]);
+
+  const resolve = (obj: Partial<Record<string, string[]>> | undefined): string[] => {
+    if (!obj) return [];
+    return (obj as any)[lang] ?? (obj as any)['fr'] ?? (obj as any)['en'] ?? [];
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-muted-foreground">{t('loading')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8 space-y-6">
@@ -22,21 +66,94 @@ export default function Protocoles() {
         <p className="text-sm text-muted-foreground mt-1">{t('protocoles_desc')}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {PROTOCOLS.map((proto, i) => (
-          <div
-            key={i}
-            className="rounded-xl border bg-card p-5 clinical-shadow hover:clinical-shadow-md transition-shadow cursor-pointer"
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t('search_protocoles')}
+          className="h-10 w-full rounded-lg border border-border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
+        />
+      </div>
+
+      {/* Category chips */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setCategory(null)}
+          className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!category ? 'bg-accent text-accent-foreground border-accent' : 'bg-card text-muted-foreground border-border hover:border-accent/50'}`}
+        >
+          {t('all_categories')}
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setCategory(cat === category ? null : cat)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cat === category ? 'bg-accent text-accent-foreground border-accent' : 'bg-card text-muted-foreground border-border hover:border-accent/50'}`}
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="rounded-lg bg-accent/10 p-2">
-                <proto.icon className="h-5 w-5 text-accent" />
-              </div>
-              <h3 className="font-semibold text-foreground">{resolveStr(proto.label)}</h3>
-            </div>
-            <Badge variant="secondary" className="text-xs">{t('coming_soon')}</Badge>
-          </div>
+            {CATEGORY_MAP[cat] ? t(CATEGORY_MAP[cat]) : cat}
+          </button>
         ))}
+      </div>
+
+      {/* Protocoles list */}
+      <div className="space-y-3">
+        {filtered.length === 0 ? (
+          <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
+        ) : (
+          filtered.map((p) => {
+            const isOpen = expanded === p.id;
+            const steps = resolve(p.steps);
+            return (
+              <div key={p.id} className="rounded-xl border bg-card clinical-shadow overflow-hidden">
+                <button
+                  onClick={() => setExpanded(isOpen ? null : p.id)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors"
+                >
+                  <div>
+                    <h3 className="text-sm font-semibold text-card-foreground">
+                      {resolveStr(p.titles)}
+                    </h3>
+                    <Badge variant="secondary" className="mt-1 text-[11px]">
+                      {CATEGORY_MAP[p.category] ? t(CATEGORY_MAP[p.category]) : p.category}
+                    </Badge>
+                  </div>
+                  {isOpen ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                  )}
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 border-t pt-3 space-y-3">
+                    <ol className="space-y-1.5">
+                      {steps.map((step, i) => (
+                        <li key={i} className="text-xs text-card-foreground flex gap-2">
+                          <span className="text-accent font-semibold shrink-0 w-5 text-right">{i + 1}.</span>
+                          <span>{step.replace(/^\d+\.\s*/, '')}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    {p.references.length > 0 && (
+                      <div className="pt-2 border-t">
+                        <p className="text-[11px] font-semibold text-muted-foreground mb-1">
+                          {t('references_label')}
+                        </p>
+                        {p.references.map((ref, i) => (
+                          <p key={i} className="text-[11px] text-muted-foreground">
+                            {ref.source}
+                            {ref.year && ` (${ref.year})`}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

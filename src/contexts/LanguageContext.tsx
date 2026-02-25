@@ -342,6 +342,87 @@ const UI: Record<string, Record<Lang, string>> = {
     pt: 'O volume final excede a seringa',
     en: 'Final volume exceeds syringe',
   },
+
+  // Favorites & recents
+  no_favorites_hint: {
+    fr: 'Marque tes chirurgies fréquentes',
+    pt: 'Marca as tuas cirurgias frequentes',
+    en: 'Mark your frequent surgeries',
+  },
+  no_favorites_empty: {
+    fr: 'Aucun favori pour le moment',
+    pt: 'Ainda sem favoritos',
+    en: 'No favorites yet',
+  },
+  view_all_procedures: {
+    fr: 'Voir toutes les procédures',
+    pt: 'Ver todos os procedimentos',
+    en: 'View all procedures',
+  },
+  clear_recents: {
+    fr: 'Effacer récents',
+    pt: 'Limpar recentes',
+    en: 'Clear recents',
+  },
+  favorites_first: {
+    fr: 'Favoris en premier',
+    pt: 'Favoritos primeiro',
+    en: 'Favorites first',
+  },
+  only_favorites: {
+    fr: '⭐ Favoris uniquement',
+    pt: '⭐ Só favoritos',
+    en: '⭐ Favorites only',
+  },
+  open_ett_calculator: {
+    fr: 'Calculateur ETT',
+    pt: 'Calculadora ETT',
+    en: 'ETT Calculator',
+  },
+
+  // Guidelines / Protocoles / ALR
+  search_guidelines: {
+    fr: 'Rechercher une guideline...',
+    pt: 'Pesquisar uma guideline...',
+    en: 'Search guidelines...',
+  },
+  search_protocoles: {
+    fr: 'Rechercher un protocole...',
+    pt: 'Pesquisar um protocolo...',
+    en: 'Search protocols...',
+  },
+  search_alr: {
+    fr: 'Rechercher un bloc...',
+    pt: 'Pesquisar um bloqueio...',
+    en: 'Search a block...',
+  },
+  category: { fr: 'Catégorie', pt: 'Categoria', en: 'Category' },
+  steps: { fr: 'Étapes', pt: 'Passos', en: 'Steps' },
+  indications: { fr: 'Indications', pt: 'Indicações', en: 'Indications' },
+  contraindications_alr: {
+    fr: 'Contre-indications',
+    pt: 'Contra-indicações',
+    en: 'Contraindications',
+  },
+  technique: { fr: 'Technique', pt: 'Técnica', en: 'Technique' },
+  drugs_alr: { fr: 'Médicaments', pt: 'Medicamentos', en: 'Drugs' },
+  region: { fr: 'Région', pt: 'Região', en: 'Region' },
+  upper_limb: { fr: 'Membre supérieur', pt: 'Membro superior', en: 'Upper limb' },
+  lower_limb: { fr: 'Membre inférieur', pt: 'Membro inferior', en: 'Lower limb' },
+  trunk: { fr: 'Tronc', pt: 'Tronco', en: 'Trunk' },
+  head_neck: { fr: 'Tête & Cou', pt: 'Cabeça & Pescoço', en: 'Head & Neck' },
+  all_categories: { fr: 'Toutes', pt: 'Todas', en: 'All' },
+  all_regions: { fr: 'Toutes', pt: 'Todas', en: 'All' },
+  references_label: { fr: 'Références', pt: 'Referências', en: 'References' },
+  safety: { fr: 'Sécurité', pt: 'Segurança', en: 'Safety' },
+  emergency: { fr: 'Urgence', pt: 'Emergência', en: 'Emergency' },
+  preop_cat: { fr: 'Pré-opératoire', pt: 'Pré-operatório', en: 'Preoperative' },
+  airway_cat: { fr: 'Voies aériennes', pt: 'Via aérea', en: 'Airway' },
+  hemodynamics: { fr: 'Hémodynamique', pt: 'Hemodinâmica', en: 'Hemodynamics' },
+  temperature_cat: { fr: 'Température', pt: 'Temperatura', en: 'Temperature' },
+  ponv: { fr: 'NVPO', pt: 'NVPO', en: 'PONV' },
+  pain: { fr: 'Douleur', pt: 'Dor', en: 'Pain' },
+  fluid: { fr: 'Remplissage', pt: 'Reposição', en: 'Fluid' },
 };
 
 interface LanguageContextType {

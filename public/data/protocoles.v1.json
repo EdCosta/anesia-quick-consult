@@ -1,0 +1,517 @@
+[
+  {
+    "id": "who-surgical-safety",
+    "category": "safety",
+    "titles": {
+      "fr": "Checklist de sécurité chirurgicale OMS",
+      "en": "WHO Surgical Safety Checklist",
+      "pt": "Checklist de segurança cirúrgica OMS"
+    },
+    "steps": {
+      "fr": [
+        "SIGN IN (avant induction): confirmer identité, site opératoire, intervention, consentement",
+        "Vérifier marquage du site chirurgical",
+        "Contrôle de sécurité de l'appareil d'anesthésie et médicaments",
+        "Oxymètre de pouls fonctionnel sur le patient",
+        "Allergie connue? Voie aérienne difficile? Risque hémorragique?",
+        "TIME OUT (avant incision): tous les membres se présentent",
+        "Confirmer patient, site, procédure",
+        "Antibioprophylaxie administrée dans les 60 dernières minutes?",
+        "Imagerie disponible? Événements critiques anticipés?",
+        "SIGN OUT (avant sortie de salle): nom de l'intervention enregistré",
+        "Comptage instruments, compresses, aiguilles — correct",
+        "Étiquetage prélèvements anatomopathologiques",
+        "Problèmes d'équipement à signaler?",
+        "Points clés pour la prise en charge postopératoire"
+      ],
+      "en": [
+        "SIGN IN (before induction): confirm identity, site, procedure, consent",
+        "Verify surgical site marking",
+        "Anesthesia machine and medication safety check",
+        "Pulse oximeter on patient and functioning",
+        "Known allergy? Difficult airway? Bleeding risk?",
+        "TIME OUT (before incision): all team members introduce themselves",
+        "Confirm patient, site, procedure",
+        "Antibiotic prophylaxis given within last 60 minutes?",
+        "Imaging displayed? Critical events anticipated?",
+        "SIGN OUT (before leaving OR): procedure name recorded",
+        "Instrument, sponge, needle count — correct",
+        "Specimen labeling",
+        "Equipment problems to report?",
+        "Key concerns for postoperative care"
+      ],
+      "pt": [
+        "SIGN IN (antes da indução): confirmar identidade, local, intervenção, consentimento",
+        "Verificar marcação do local cirúrgico",
+        "Controlo de segurança do aparelho de anestesia e medicamentos",
+        "Oxímetro de pulso no doente e a funcionar",
+        "Alergia conhecida? Via aérea difícil? Risco hemorrágico?",
+        "TIME OUT (antes da incisão): todos os membros se apresentam",
+        "Confirmar doente, local, procedimento",
+        "Antibioterapia profilática administrada nos últimos 60 minutos?",
+        "Imagiologia disponível? Eventos críticos antecipados?",
+        "SIGN OUT (antes de sair da sala): nome da intervenção registado",
+        "Contagem de instrumentos, compressas, agulhas — correta",
+        "Etiquetagem de amostras anatomopatológicas",
+        "Problemas de equipamento a reportar?",
+        "Pontos chave para cuidados pós-operatórios"
+      ]
+    },
+    "references": [
+      { "source": "WHO Surgical Safety Checklist", "year": 2009 },
+      { "source": "Haynes AB et al. NEJM", "year": 2009 }
+    ]
+  },
+  {
+    "id": "ponv-protocol",
+    "category": "ponv",
+    "titles": {
+      "fr": "Protocole NVPO (nausées-vomissements postopératoires)",
+      "en": "PONV Protocol",
+      "pt": "Protocolo NVPO"
+    },
+    "steps": {
+      "fr": [
+        "1. Évaluer le score d'Apfel en préopératoire",
+        "2. Risque faible (0-1 facteurs): pas de prophylaxie systématique",
+        "3. Risque modéré (2 facteurs): dexaméthasone 4-8mg IV à l'induction",
+        "4. Risque élevé (3-4 facteurs): bithérapie dexaméthasone 4-8mg + ondansétron 4mg fin de chirurgie",
+        "5. Considérer TIVA propofol si risque élevé",
+        "6. Analgésie multimodale pour réduire les opioïdes",
+        "7. Traitement de secours en SSPI: ondansétron 4mg IV si pas déjà reçu",
+        "8. Si prophylaxie déjà reçue: utiliser une AUTRE classe (dropéridol 0.625mg, métoclopramide 10mg)",
+        "9. Documentation systématique du score NVPO et traitement dans le dossier"
+      ],
+      "en": [
+        "1. Assess Apfel score preoperatively",
+        "2. Low risk (0-1 factors): no routine prophylaxis",
+        "3. Moderate risk (2 factors): dexamethasone 4-8mg IV at induction",
+        "4. High risk (3-4 factors): dual therapy dexamethasone 4-8mg + ondansetron 4mg end of surgery",
+        "5. Consider TIVA propofol if high risk",
+        "6. Multimodal analgesia to reduce opioids",
+        "7. Rescue in PACU: ondansetron 4mg IV if not already given",
+        "8. If prophylaxis already given: use DIFFERENT class (droperidol 0.625mg, metoclopramide 10mg)",
+        "9. Systematic documentation of PONV score and treatment"
+      ],
+      "pt": [
+        "1. Avaliar score de Apfel no pré-operatório",
+        "2. Risco baixo (0-1 fatores): sem profilaxia de rotina",
+        "3. Risco moderado (2 fatores): dexametasona 4-8mg IV na indução",
+        "4. Risco alto (3-4 fatores): terapia dupla dexametasona 4-8mg + ondansetron 4mg no fim da cirurgia",
+        "5. Considerar TIVA propofol se risco alto",
+        "6. Analgesia multimodal para reduzir opióides",
+        "7. Resgate na UCPA: ondansetron 4mg IV se ainda não administrado",
+        "8. Se profilaxia já feita: usar OUTRA classe (droperidol 0.625mg, metoclopramida 10mg)",
+        "9. Documentação sistemática do score NVPO e tratamento"
+      ]
+    },
+    "references": [
+      { "source": "Consensus Guidelines on PONV (Gan et al.)", "year": 2020 }
+    ]
+  },
+  {
+    "id": "massive-hemorrhage",
+    "category": "emergency",
+    "titles": {
+      "fr": "Protocole d'hémorragie massive",
+      "en": "Massive Hemorrhage Protocol",
+      "pt": "Protocolo de hemorragia maciça"
+    },
+    "steps": {
+      "fr": [
+        "1. ALERTER: activer le protocole de transfusion massive (PTM)",
+        "2. Remplissage: cristalloïdes balancés en urgence, puis sang O négatif si immédiat",
+        "3. Prélèvements urgents: NFS, coagulation, fibrinogène, ionogramme, gazométrie",
+        "4. Acide tranexamique 1g IV en 10 min dès le diagnostic",
+        "5. Ratio transfusionnel: CGR:PFC:Plaquettes = 1:1:1 ou 2:1:1",
+        "6. Objectifs: Hb > 7 g/dL, fibrinogène > 1.5 g/L, plaquettes > 50 000, TP > 40%",
+        "7. Fibrinogène concentré 3-4g si fibrinogène < 1.5 g/L",
+        "8. Calcium: maintenir Ca²⁺ ionisé > 1.0 mmol/L (citrate des PSL)",
+        "9. Réchauffer patient et produits sanguins",
+        "10. Réévaluer toutes les 30-60 min avec biologie de contrôle",
+        "11. Considérer chirurgie de damage control si coagulopathie réfractaire"
+      ],
+      "en": [
+        "1. ALERT: activate massive transfusion protocol (MTP)",
+        "2. Resuscitation: balanced crystalloids, then O-negative blood if immediate need",
+        "3. Urgent labs: CBC, coagulation, fibrinogen, electrolytes, ABG",
+        "4. Tranexamic acid 1g IV over 10 min once diagnosed",
+        "5. Transfusion ratio: RBC:FFP:Platelets = 1:1:1 or 2:1:1",
+        "6. Targets: Hb > 7 g/dL, fibrinogen > 1.5 g/L, platelets > 50,000, PT > 40%",
+        "7. Concentrated fibrinogen 3-4g if fibrinogen < 1.5 g/L",
+        "8. Calcium: maintain Ca²⁺ ionized > 1.0 mmol/L (citrate from blood products)",
+        "9. Warm patient and blood products",
+        "10. Reassess every 30-60 min with repeat labs",
+        "11. Consider damage control surgery if refractory coagulopathy"
+      ],
+      "pt": [
+        "1. ALERTAR: ativar protocolo de transfusão maciça (PTM)",
+        "2. Reposição: cristalóides balanceados em urgência, depois sangue O negativo se imediato",
+        "3. Análises urgentes: hemograma, coagulação, fibrinogénio, ionograma, gasimetria",
+        "4. Ácido tranexâmico 1g IV em 10 min ao diagnóstico",
+        "5. Ratio transfusional: CE:PFC:Plaquetas = 1:1:1 ou 2:1:1",
+        "6. Objetivos: Hb > 7 g/dL, fibrinogénio > 1.5 g/L, plaquetas > 50.000, TP > 40%",
+        "7. Fibrinogénio concentrado 3-4g se fibrinogénio < 1.5 g/L",
+        "8. Cálcio: manter Ca²⁺ ionizado > 1.0 mmol/L (citrato dos PSL)",
+        "9. Aquecer doente e produtos sanguíneos",
+        "10. Reavaliar a cada 30-60 min com biologia de controlo",
+        "11. Considerar cirurgia de damage control se coagulopatia refratária"
+      ]
+    },
+    "references": [
+      { "source": "European Guidelines on Perioperative Bleeding", "year": 2023 },
+      { "source": "SFAR RFE Hémorragie massive", "year": 2019 }
+    ]
+  },
+  {
+    "id": "or-safety",
+    "category": "safety",
+    "titles": {
+      "fr": "Sécurité au bloc opératoire",
+      "en": "Operating Room Safety",
+      "pt": "Segurança no bloco operatório"
+    },
+    "steps": {
+      "fr": [
+        "1. Vérifier l'appareil d'anesthésie au début de chaque journée (checklist constructeur)",
+        "2. Test d'étanchéité du circuit",
+        "3. Vérifier l'aspiration murale fonctionnelle",
+        "4. Chariot d'intubation difficile: vérifié et scellé",
+        "5. Chariot d'urgence: défibrillateur, médicaments d'urgence vérifiés",
+        "6. Vérifier les alarmes du monitorage (limites SpO2, PA, FC)",
+        "7. Identification des médicaments: étiquetage systématique (norme ISO)",
+        "8. Bracelet d'identification patient vérifié",
+        "9. Positionnement du patient: prévention des lésions nerveuses et escarres",
+        "10. Communication structurée (SBAR) entre équipes"
+      ],
+      "en": [
+        "1. Check anesthesia machine at start of each day (manufacturer checklist)",
+        "2. Circuit leak test",
+        "3. Verify functional wall suction",
+        "4. Difficult airway cart: checked and sealed",
+        "5. Emergency cart: defibrillator, emergency drugs verified",
+        "6. Verify monitoring alarms (SpO2, BP, HR limits)",
+        "7. Drug identification: systematic labeling (ISO standard)",
+        "8. Patient ID bracelet verified",
+        "9. Patient positioning: prevention of nerve injury and pressure sores",
+        "10. Structured communication (SBAR) between teams"
+      ],
+      "pt": [
+        "1. Verificar aparelho de anestesia no início de cada dia (checklist do fabricante)",
+        "2. Teste de estanquicidade do circuito",
+        "3. Verificar aspiração de parede funcional",
+        "4. Carro de via aérea difícil: verificado e selado",
+        "5. Carro de emergência: desfibrilhador, medicamentos de emergência verificados",
+        "6. Verificar alarmes da monitorização (limites SpO2, PA, FC)",
+        "7. Identificação de medicamentos: etiquetagem sistemática (norma ISO)",
+        "8. Pulseira de identificação do doente verificada",
+        "9. Posicionamento do doente: prevenção de lesões nervosas e escaras",
+        "10. Comunicação estruturada (SBAR) entre equipas"
+      ]
+    },
+    "references": [
+      { "source": "AAGBI Safety Guidelines", "year": 2020 },
+      { "source": "HAS Checklist Bloc Opératoire", "year": 2018 }
+    ]
+  },
+  {
+    "id": "preop-fasting-protocol",
+    "category": "preop",
+    "titles": {
+      "fr": "Protocole de jeûne préopératoire",
+      "en": "Preoperative Fasting Protocol",
+      "pt": "Protocolo de jejum pré-operatório"
+    },
+    "steps": {
+      "fr": [
+        "1. Liquides clairs (eau, thé, café noir, jus sans pulpe): autorisés jusqu'à 2h avant",
+        "2. Lait maternel: autorisé jusqu'à 4h avant",
+        "3. Repas léger: autorisé jusqu'à 6h avant l'intervention",
+        "4. Repas riche en graisses: 8h de jeûne minimum",
+        "5. Médicaments: pris avec une gorgée d'eau le matin (sauf indication contraire)",
+        "6. ERAS: boisson glucidique (maltodextrine 12.5%) 400 mL la veille + 200 mL 2h avant",
+        "7. Contre-indication ERAS: diabète insulino-traité, gastroparésie, RGO sévère",
+        "8. Si estomac plein: ISR obligatoire, documenter le risque"
+      ],
+      "en": [
+        "1. Clear liquids (water, tea, black coffee, pulp-free juice): allowed up to 2h before",
+        "2. Breast milk: allowed up to 4h before",
+        "3. Light meal: allowed up to 6h before surgery",
+        "4. High-fat meal: minimum 8h fasting",
+        "5. Medications: taken with a sip of water in the morning (unless otherwise indicated)",
+        "6. ERAS: carbohydrate drink (maltodextrin 12.5%) 400 mL night before + 200 mL 2h before",
+        "7. ERAS contraindication: insulin-treated diabetes, gastroparesis, severe GERD",
+        "8. If full stomach: RSI mandatory, document the risk"
+      ],
+      "pt": [
+        "1. Líquidos claros (água, chá, café sem leite, sumo sem polpa): permitidos até 2h antes",
+        "2. Leite materno: permitido até 4h antes",
+        "3. Refeição ligeira: permitida até 6h antes da intervenção",
+        "4. Refeição rica em gorduras: mínimo 8h de jejum",
+        "5. Medicamentos: tomar com gole de água de manhã (salvo indicação contrária)",
+        "6. ERAS: bebida glicídica (maltodextrina 12.5%) 400 mL na véspera + 200 mL 2h antes",
+        "7. Contra-indicação ERAS: diabetes insulino-tratada, gastroparésia, RGE grave",
+        "8. Se estômago cheio: ISR obrigatória, documentar o risco"
+      ]
+    },
+    "references": [
+      { "source": "ESA Preoperative Fasting Guidelines", "year": 2022 }
+    ]
+  },
+  {
+    "id": "malignant-hyperthermia",
+    "category": "emergency",
+    "titles": {
+      "fr": "Hyperthermie maligne (protocole d'urgence)",
+      "en": "Malignant Hyperthermia (emergency protocol)",
+      "pt": "Hipertermia maligna (protocolo de emergência)"
+    },
+    "steps": {
+      "fr": [
+        "1. SUSPECTER: rigidité musculaire, tachycardie, hypercapnie inexpliquée, hyperthermie rapide",
+        "2. ARRÊTER immédiatement tous les agents déclencheurs (halogénés, succinylcholine)",
+        "3. Hyperventiler à FiO2 100% avec débit de gaz frais ≥ 10 L/min",
+        "4. DANTROLÈNE 2.5 mg/kg IV bolus, répéter chaque 5 min jusqu'à régression (max ~10 mg/kg)",
+        "5. Refroidissement actif: solutés froids IV, glace axillaire/inguinale, lavage gastrique froid",
+        "6. Traiter hyperkaliémie: bicarbonate, glucose-insuline, calcium",
+        "7. Traiter arythmies (éviter bloqueurs calciques avec dantrolène)",
+        "8. Monitorage: gazométrie, K+, CK, myoglobine, diurèse horaire",
+        "9. Assurer diurèse > 2 mL/kg/h (prévention IRA myoglobinurique)",
+        "10. Transférer en réanimation pour surveillance ≥ 24-48h",
+        "11. Signaler au centre de référence et proposer diagnostic familial"
+      ],
+      "en": [
+        "1. SUSPECT: muscle rigidity, tachycardia, unexplained hypercapnia, rapid hyperthermia",
+        "2. STOP immediately all triggering agents (volatiles, succinylcholine)",
+        "3. Hyperventilate at FiO2 100% with fresh gas flow ≥ 10 L/min",
+        "4. DANTROLENE 2.5 mg/kg IV bolus, repeat every 5 min until regression (max ~10 mg/kg)",
+        "5. Active cooling: cold IV fluids, axillary/inguinal ice, cold gastric lavage",
+        "6. Treat hyperkalemia: bicarbonate, glucose-insulin, calcium",
+        "7. Treat arrhythmias (avoid calcium channel blockers with dantrolene)",
+        "8. Monitoring: ABG, K+, CK, myoglobin, hourly urine output",
+        "9. Ensure urine output > 2 mL/kg/h (prevent myoglobinuric AKI)",
+        "10. Transfer to ICU for monitoring ≥ 24-48h",
+        "11. Report to reference center and offer family screening"
+      ],
+      "pt": [
+        "1. SUSPEITAR: rigidez muscular, taquicardia, hipercapnia inexplicada, hipertermia rápida",
+        "2. PARAR imediatamente todos os agentes desencadeadores (halogenados, succinilcolina)",
+        "3. Hiperventilar a FiO2 100% com fluxo de gás fresco ≥ 10 L/min",
+        "4. DANTROLENO 2.5 mg/kg IV bólus, repetir a cada 5 min até regressão (máx ~10 mg/kg)",
+        "5. Arrefecimento ativo: soluções frias IV, gelo axilar/inguinal, lavagem gástrica fria",
+        "6. Tratar hipercaliemia: bicarbonato, glicose-insulina, cálcio",
+        "7. Tratar arritmias (evitar bloqueadores de cálcio com dantroleno)",
+        "8. Monitorização: gasimetria, K+, CK, mioglobina, diurese horária",
+        "9. Assegurar diurese > 2 mL/kg/h (prevenção IRA mioglobinúrica)",
+        "10. Transferir para UCI para vigilância ≥ 24-48h",
+        "11. Reportar ao centro de referência e propor diagnóstico familiar"
+      ]
+    },
+    "references": [
+      { "source": "MHAUS Guidelines", "year": 2023 },
+      { "source": "SFAR Protocole HM", "year": 2019 }
+    ]
+  },
+  {
+    "id": "anaphylaxis",
+    "category": "emergency",
+    "titles": {
+      "fr": "Anaphylaxie peropératoire (protocole d'urgence)",
+      "en": "Perioperative Anaphylaxis (emergency protocol)",
+      "pt": "Anafilaxia perioperatória (protocolo de emergência)"
+    },
+    "steps": {
+      "fr": [
+        "1. RECONNAÎTRE: hypotension brutale, bronchospasme, urticaire/érythème, tachycardie",
+        "2. ARRÊTER l'agent suspecté, appeler à l'aide",
+        "3. Adrénaline IV: Grade II 10-20 µg, Grade III 100-200 µg, Grade IV 1-2 mg",
+        "4. Remplissage rapide cristalloïdes 20-30 mL/kg",
+        "5. FiO2 100%, ventilation adaptée (bronchospasme: pression augmentée)",
+        "6. Trendelenburg si hypotension",
+        "7. Adrénaline en perfusion continue si instabilité persistante",
+        "8. Bronchospasme réfractaire: salbutamol IV ou nébulisé",
+        "9. Prélèvements: tryptase à T0, T1h, T24h + histamine si possible",
+        "10. Corticoïdes: méthylprednisolone 1-2 mg/kg (prévention réaction biphasique)",
+        "11. Surveillance ≥ 6-24h, bilan allergologique dans 4-6 semaines"
+      ],
+      "en": [
+        "1. RECOGNIZE: sudden hypotension, bronchospasm, urticaria/erythema, tachycardia",
+        "2. STOP suspected agent, call for help",
+        "3. Epinephrine IV: Grade II 10-20 µg, Grade III 100-200 µg, Grade IV 1-2 mg",
+        "4. Rapid crystalloid bolus 20-30 mL/kg",
+        "5. FiO2 100%, adapted ventilation (bronchospasm: increased pressure)",
+        "6. Trendelenburg if hypotensive",
+        "7. Epinephrine infusion if persistent instability",
+        "8. Refractory bronchospasm: IV or nebulized salbutamol",
+        "9. Blood samples: tryptase at T0, T1h, T24h + histamine if possible",
+        "10. Corticosteroids: methylprednisolone 1-2 mg/kg (prevent biphasic reaction)",
+        "11. Monitoring ≥ 6-24h, allergy workup in 4-6 weeks"
+      ],
+      "pt": [
+        "1. RECONHECER: hipotensão súbita, broncoespasmo, urticária/eritema, taquicardia",
+        "2. PARAR o agente suspeito, pedir ajuda",
+        "3. Adrenalina IV: Grau II 10-20 µg, Grau III 100-200 µg, Grau IV 1-2 mg",
+        "4. Reposição rápida cristalóides 20-30 mL/kg",
+        "5. FiO2 100%, ventilação adaptada (broncoespasmo: pressão aumentada)",
+        "6. Trendelenburg se hipotensão",
+        "7. Adrenalina em perfusão contínua se instabilidade persistente",
+        "8. Broncoespasmo refratário: salbutamol IV ou nebulizado",
+        "9. Colheitas: triptase a T0, T1h, T24h + histamina se possível",
+        "10. Corticóides: metilprednisolona 1-2 mg/kg (prevenção reação bifásica)",
+        "11. Vigilância ≥ 6-24h, estudo alergológico em 4-6 semanas"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Anaphylaxie périopératoire", "year": 2016 },
+      { "source": "NAP6 - Anaphylaxis in Anaesthesia", "year": 2018 }
+    ]
+  },
+  {
+    "id": "antibioprophylaxis-protocol",
+    "category": "preop",
+    "titles": {
+      "fr": "Protocole d'antibioprophylaxie",
+      "en": "Antibiotic Prophylaxis Protocol",
+      "pt": "Protocolo de antibioterapia profilática"
+    },
+    "steps": {
+      "fr": [
+        "1. Identifier le type de chirurgie (propre, propre-contaminée, contaminée)",
+        "2. Injection 30-60 minutes avant l'incision (idéalement à l'induction)",
+        "3. Chirurgie propre standard: céfazoline 2g IV (3g si ≥ 80 kg)",
+        "4. Chirurgie colorectale: céfazoline 2g + métronidazole 500mg",
+        "5. Chirurgie urologique: céfazoline 2g ou ciprofloxacine 400mg selon ECBU",
+        "6. Allergie pénicillines: clindamycine 600mg + gentamicine 5 mg/kg",
+        "7. Réinjection: céfazoline toutes les 4h si chirurgie > 4h ou pertes > 1500 mL",
+        "8. Durée maximale: dose unique (sauf exceptions: cardio, prothèse)",
+        "9. Documenter heure d'injection dans le dossier anesthésique"
+      ],
+      "en": [
+        "1. Identify surgery type (clean, clean-contaminated, contaminated)",
+        "2. Inject 30-60 minutes before incision (ideally at induction)",
+        "3. Standard clean surgery: cefazolin 2g IV (3g if ≥ 80 kg)",
+        "4. Colorectal surgery: cefazolin 2g + metronidazole 500mg",
+        "5. Urologic surgery: cefazolin 2g or ciprofloxacin 400mg per urine culture",
+        "6. Penicillin allergy: clindamycin 600mg + gentamicin 5 mg/kg",
+        "7. Redosing: cefazolin every 4h if surgery > 4h or blood loss > 1500 mL",
+        "8. Maximum duration: single dose (exceptions: cardiac, prosthetic)",
+        "9. Document injection time in anesthetic record"
+      ],
+      "pt": [
+        "1. Identificar tipo de cirurgia (limpa, limpa-contaminada, contaminada)",
+        "2. Injeção 30-60 minutos antes da incisão (idealmente na indução)",
+        "3. Cirurgia limpa standard: cefazolina 2g IV (3g se ≥ 80 kg)",
+        "4. Cirurgia colorretal: cefazolina 2g + metronidazol 500mg",
+        "5. Cirurgia urológica: cefazolina 2g ou ciprofloxacina 400mg conforme urocultura",
+        "6. Alergia a penicilinas: clindamicina 600mg + gentamicina 5 mg/kg",
+        "7. Readministração: cefazolina a cada 4h se cirurgia > 4h ou perdas > 1500 mL",
+        "8. Duração máxima: dose única (exceções: cardíaca, prótese)",
+        "9. Documentar hora da injeção no processo anestésico"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Antibioprophylaxie", "year": 2018 }
+    ]
+  },
+  {
+    "id": "thromboprophylaxis-protocol",
+    "category": "preop",
+    "titles": {
+      "fr": "Protocole de thromboprophylaxie",
+      "en": "Thromboprophylaxis Protocol",
+      "pt": "Protocolo de tromboprofilaxia"
+    },
+    "steps": {
+      "fr": [
+        "1. Évaluer le risque thromboembolique (score de Caprini ou SFAR)",
+        "2. Risque faible: mobilisation précoce seule",
+        "3. Risque modéré: HBPM (énoxaparine 40 mg/j SC) débutée 6-12h post-op",
+        "4. Risque élevé: HBPM dose adaptée + bas de contention classe 2",
+        "5. PTH/PTG: prophylaxie 10-14 jours (HBPM ou rivaroxaban)",
+        "6. Fracture col fémoral: prophylaxie 35 jours",
+        "7. Chirurgie carcinologique majeure: prophylaxie 28 jours",
+        "8. Contre-indications HBPM: compression pneumatique intermittente",
+        "9. Vérifier plaquettes si HBPM > 5 jours (risque TIH)",
+        "10. Documenter la stratégie dans le dossier"
+      ],
+      "en": [
+        "1. Assess thromboembolic risk (Caprini score or similar)",
+        "2. Low risk: early mobilization only",
+        "3. Moderate risk: LMWH (enoxaparin 40 mg/day SC) starting 6-12h post-op",
+        "4. High risk: adjusted-dose LMWH + class 2 compression stockings",
+        "5. THR/TKR: prophylaxis 10-14 days (LMWH or rivaroxaban)",
+        "6. Hip fracture: prophylaxis 35 days",
+        "7. Major cancer surgery: prophylaxis 28 days",
+        "8. LMWH contraindications: intermittent pneumatic compression",
+        "9. Check platelets if LMWH > 5 days (HIT risk)",
+        "10. Document strategy in medical record"
+      ],
+      "pt": [
+        "1. Avaliar risco tromboembólico (score de Caprini ou similar)",
+        "2. Risco baixo: mobilização precoce apenas",
+        "3. Risco moderado: HBPM (enoxaparina 40 mg/dia SC) iniciada 6-12h pós-op",
+        "4. Risco alto: HBPM dose ajustada + meias de compressão classe 2",
+        "5. PTA/PTJ: profilaxia 10-14 dias (HBPM ou rivaroxabano)",
+        "6. Fratura do colo do fémur: profilaxia 35 dias",
+        "7. Cirurgia oncológica major: profilaxia 28 dias",
+        "8. Contra-indicações HBPM: compressão pneumática intermitente",
+        "9. Verificar plaquetas se HBPM > 5 dias (risco TIH)",
+        "10. Documentar a estratégia no processo"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Thromboprophylaxie", "year": 2019 },
+      { "source": "ACCP Guidelines", "year": 2021 }
+    ]
+  },
+  {
+    "id": "transfusion-protocol",
+    "category": "emergency",
+    "titles": {
+      "fr": "Protocole transfusionnel",
+      "en": "Transfusion Protocol",
+      "pt": "Protocolo transfusional"
+    },
+    "steps": {
+      "fr": [
+        "1. Vérifier indication: Hb < 7 g/dL (sain), < 8-9 g/dL (coronarien/âgé)",
+        "2. Vérifier groupe sanguin + RAI (validité < 72h)",
+        "3. Commander produits sanguins labiles au dépôt",
+        "4. Contrôle ultime au lit du patient (CUSP): identité + concordance",
+        "5. Régler débit: 1 CGR en 30-60 min (sauf urgence vitale)",
+        "6. Surveiller les 15 premières minutes (réaction hémolytique immédiate)",
+        "7. Monitorage: température, PA, FC, signes de réaction transfusionnelle",
+        "8. En cas de réaction: ARRÊTER la transfusion, prélever hémocultures + bilan hémolytique",
+        "9. Documentation: traçabilité dans le dossier (numéro PSL, heure début/fin)",
+        "10. NFS de contrôle 1h après la fin de la transfusion"
+      ],
+      "en": [
+        "1. Verify indication: Hb < 7 g/dL (healthy), < 8-9 g/dL (coronary disease/elderly)",
+        "2. Verify blood group + antibody screen (valid < 72h)",
+        "3. Order blood products from blood bank",
+        "4. Bedside compatibility check: identity + crossmatch verification",
+        "5. Set rate: 1 RBC unit in 30-60 min (unless life-threatening)",
+        "6. Monitor first 15 minutes (immediate hemolytic reaction)",
+        "7. Monitoring: temperature, BP, HR, signs of transfusion reaction",
+        "8. If reaction: STOP transfusion, blood cultures + hemolysis workup",
+        "9. Documentation: traceability in record (product number, start/end time)",
+        "10. CBC control 1h after transfusion completion"
+      ],
+      "pt": [
+        "1. Verificar indicação: Hb < 7 g/dL (saudável), < 8-9 g/dL (coronário/idoso)",
+        "2. Verificar grupo sanguíneo + pesquisa de anticorpos (validade < 72h)",
+        "3. Requisitar produtos sanguíneos ao serviço de sangue",
+        "4. Controlo final à cabeceira: identidade + concordância",
+        "5. Regular débito: 1 CE em 30-60 min (salvo urgência vital)",
+        "6. Vigiar os primeiros 15 minutos (reação hemolítica imediata)",
+        "7. Monitorização: temperatura, PA, FC, sinais de reação transfusional",
+        "8. Em caso de reação: PARAR transfusão, hemoculturas + estudo hemolítico",
+        "9. Documentação: rastreabilidade no processo (número PSL, hora início/fim)",
+        "10. Hemograma de controlo 1h após o fim da transfusão"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Transfusion", "year": 2019 }
+    ]
+  }
+]

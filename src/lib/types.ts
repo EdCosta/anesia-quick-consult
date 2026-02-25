@@ -54,3 +54,32 @@ export interface Drug {
   contraindications_notes: string[];
   renal_hepatic_notes: string[];
 }
+
+// Guidelines
+export interface Guideline {
+  id: string;
+  category: string;
+  titles: { fr: string; pt?: string; en?: string };
+  items: { fr: string[]; pt?: string[]; en?: string[] };
+  references: Reference[];
+}
+
+// Protocoles
+export interface Protocole {
+  id: string;
+  category: string;
+  titles: { fr: string; pt?: string; en?: string };
+  steps: { fr: string[]; pt?: string[]; en?: string[] };
+  references: Reference[];
+}
+
+// ALR Blocks
+export interface ALRBlock {
+  id: string;
+  region: string;
+  titles: { fr: string; pt?: string; en?: string };
+  indications: { fr: string[]; pt?: string[]; en?: string[] };
+  contraindications: { fr: string[]; pt?: string[]; en?: string[] };
+  technique: { fr: string[]; pt?: string[]; en?: string[] };
+  drugs: { fr: string[]; pt?: string[]; en?: string[] };
+}

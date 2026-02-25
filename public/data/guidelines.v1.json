@@ -1,0 +1,506 @@
+[
+  {
+    "id": "airway-management",
+    "category": "airway",
+    "titles": {
+      "fr": "Gestion des voies aériennes",
+      "en": "Airway management",
+      "pt": "Gestão da via aérea"
+    },
+    "items": {
+      "fr": [
+        "Évaluation systématique: Mallampati, ouverture buccale, distance thyro-mentonnière, mobilité cervicale",
+        "Prédicteurs d'intubation difficile: Mallampati III-IV, ouverture buccale < 3 cm, DTM < 6 cm",
+        "Plan A: laryngoscopie directe ou vidéo-laryngoscopie",
+        "Plan B: dispositif supra-glottique (masque laryngé)",
+        "Plan C: cricothyroïdotomie d'urgence (CICO)",
+        "Toujours vérifier capnographie après intubation",
+        "Chariot d'intubation difficile accessible dans chaque bloc"
+      ],
+      "en": [
+        "Systematic assessment: Mallampati, mouth opening, thyromental distance, cervical mobility",
+        "Difficult intubation predictors: Mallampati III-IV, mouth opening < 3 cm, TMD < 6 cm",
+        "Plan A: direct or video laryngoscopy",
+        "Plan B: supraglottic airway device (laryngeal mask)",
+        "Plan C: emergency cricothyroidotomy (CICO)",
+        "Always verify capnography after intubation",
+        "Difficult airway cart accessible in every OR"
+      ],
+      "pt": [
+        "Avaliação sistemática: Mallampati, abertura oral, distância tireo-mentoniana, mobilidade cervical",
+        "Preditores de intubação difícil: Mallampati III-IV, abertura oral < 3 cm, DTM < 6 cm",
+        "Plano A: laringoscopia direta ou videolaringoscopia",
+        "Plano B: dispositivo supraglótico (máscara laríngea)",
+        "Plano C: cricotiroidotomia de emergência (CICO)",
+        "Sempre verificar capnografia após intubação",
+        "Carro de via aérea difícil acessível em cada bloco"
+      ]
+    },
+    "references": [
+      { "source": "DAS Guidelines", "year": 2015 },
+      { "source": "ASA Practice Guidelines for Difficult Airway", "year": 2022 }
+    ]
+  },
+  {
+    "id": "hemodynamic-monitoring",
+    "category": "hemodynamics",
+    "titles": {
+      "fr": "Monitorage hémodynamique",
+      "en": "Hemodynamic monitoring",
+      "pt": "Monitorização hemodinâmica"
+    },
+    "items": {
+      "fr": [
+        "Standard: ECG, PA non invasive, SpO2, capnographie",
+        "Invasif: PA invasive si chirurgie majeure, instabilité hémodynamique ou besoin de gazométrie fréquente",
+        "Voie veineuse centrale: chirurgie cardiaque, accès veineux limité, drogues vasopressives",
+        "Débit cardiaque: considérer pour chirurgie à haut risque (œsophage, hépatique, transplantation)",
+        "Objectif PAM ≥ 65 mmHg en peropératoire",
+        "Optimisation volémique guidée par le monitorage (goal-directed therapy)"
+      ],
+      "en": [
+        "Standard: ECG, NIBP, SpO2, capnography",
+        "Invasive: arterial line if major surgery, hemodynamic instability, or frequent ABG needed",
+        "Central venous access: cardiac surgery, limited venous access, vasopressor infusions",
+        "Cardiac output: consider for high-risk surgery (esophageal, hepatic, transplant)",
+        "Target MAP ≥ 65 mmHg intraoperatively",
+        "Goal-directed fluid therapy with hemodynamic monitoring"
+      ],
+      "pt": [
+        "Standard: ECG, PA não invasiva, SpO2, capnografia",
+        "Invasivo: PA invasiva se cirurgia major, instabilidade hemodinâmica ou necessidade de gasimetrias frequentes",
+        "Acesso venoso central: cirurgia cardíaca, acessos limitados, perfusões vasopressoras",
+        "Débito cardíaco: considerar para cirurgia de alto risco (esófago, hepática, transplante)",
+        "Objetivo PAM ≥ 65 mmHg intraoperatório",
+        "Otimização volémica guiada por monitorização (goal-directed therapy)"
+      ]
+    },
+    "references": [
+      { "source": "ESA Guidelines on Intraoperative Monitoring", "year": 2023 },
+      { "source": "ASA Standards for Basic Anesthetic Monitoring", "year": 2020 }
+    ]
+  },
+  {
+    "id": "temperature-management",
+    "category": "temperature",
+    "titles": {
+      "fr": "Gestion de la température",
+      "en": "Temperature management",
+      "pt": "Gestão da temperatura"
+    },
+    "items": {
+      "fr": [
+        "Hypothermie peropératoire: T < 36°C — fréquente et sous-estimée",
+        "Conséquences: coagulopathie, infection du site opératoire, retard de réveil, frissons",
+        "Prévention: réchauffement actif par air pulsé (forced-air warming)",
+        "Monitorage continu: sonde œsophagienne, nasopharyngée ou vésicale",
+        "Réchauffer les solutés IV si perfusion > 500 mL/h",
+        "Objectif: maintenir T ≥ 36°C pendant toute l'intervention",
+        "Cas particulier: hypothermie thérapeutique en neurochirurgie (neuroprotection)"
+      ],
+      "en": [
+        "Perioperative hypothermia: T < 36°C — common and underestimated",
+        "Consequences: coagulopathy, surgical site infection, delayed recovery, shivering",
+        "Prevention: forced-air warming blanket",
+        "Continuous monitoring: esophageal, nasopharyngeal or bladder probe",
+        "Warm IV fluids if infusion > 500 mL/h",
+        "Target: maintain T ≥ 36°C throughout surgery",
+        "Special case: therapeutic hypothermia in neurosurgery (neuroprotection)"
+      ],
+      "pt": [
+        "Hipotermia perioperatória: T < 36°C — frequente e subestimada",
+        "Consequências: coagulopatia, infeção do local cirúrgico, despertar tardio, arrepios",
+        "Prevenção: aquecimento ativo por ar forçado (forced-air warming)",
+        "Monitorização contínua: sonda esofágica, nasofaríngea ou vesical",
+        "Aquecer soluções IV se perfusão > 500 mL/h",
+        "Objetivo: manter T ≥ 36°C durante toda a intervenção",
+        "Caso particular: hipotermia terapêutica em neurocirurgia (neuroproteção)"
+      ]
+    },
+    "references": [
+      { "source": "NICE CG65 - Inadvertent Perioperative Hypothermia", "year": 2016 },
+      { "source": "Sessler DI. Perioperative thermoregulation, NEJM", "year": 2018 }
+    ]
+  },
+  {
+    "id": "pain-multimodal",
+    "category": "pain",
+    "titles": {
+      "fr": "Analgésie multimodale",
+      "en": "Multimodal analgesia",
+      "pt": "Analgesia multimodal"
+    },
+    "items": {
+      "fr": [
+        "Principe: combiner plusieurs classes analgésiques pour réduire les opioïdes",
+        "Palier 1: paracétamol 1g/6h IV ou PO (systématique si pas de contre-indication)",
+        "AINS: kétoprofène 100mg ou ibuprofène, sauf si risque rénal/hémorragique",
+        "Néfopam: 20mg IV lent (hors contre-indications: convulsions, glaucome)",
+        "ALR: infiltration locale, bloc nerveux périphérique, péridurale selon chirurgie",
+        "Kétamine sub-anesthésique: 0.15-0.3 mg/kg bolus, puis 0.1-0.2 mg/kg/h pour chirurgie douloureuse",
+        "Lidocaïne IV: 1-1.5 mg/kg bolus, puis 1-2 mg/kg/h (chirurgie abdominale)",
+        "Évaluation: EVA/EN systématique en SSPI, objectif EVA < 4"
+      ],
+      "en": [
+        "Principle: combine multiple analgesic classes to reduce opioid consumption",
+        "Tier 1: acetaminophen 1g/6h IV or PO (routine if no contraindication)",
+        "NSAIDs: ketorolac 30mg or ibuprofen, unless renal/bleeding risk",
+        "Nefopam: 20mg slow IV (avoid if seizures, glaucoma)",
+        "Regional: local infiltration, peripheral nerve block, epidural as indicated",
+        "Sub-anesthetic ketamine: 0.15-0.3 mg/kg bolus, then 0.1-0.2 mg/kg/h for painful surgery",
+        "IV lidocaine: 1-1.5 mg/kg bolus, then 1-2 mg/kg/h (abdominal surgery)",
+        "Assessment: VAS/NRS systematic in PACU, target VAS < 4"
+      ],
+      "pt": [
+        "Princípio: combinar várias classes analgésicas para reduzir opióides",
+        "Nível 1: paracetamol 1g/6h IV ou PO (sistemático se sem contra-indicação)",
+        "AINEs: cetorolaco 30mg ou ibuprofeno, exceto se risco renal/hemorrágico",
+        "Nefopam: 20mg IV lento (evitar se convulsões, glaucoma)",
+        "ALR: infiltração local, bloqueio nervoso periférico, peridural conforme cirurgia",
+        "Cetamina sub-anestésica: 0.15-0.3 mg/kg bólus, depois 0.1-0.2 mg/kg/h para cirurgia dolorosa",
+        "Lidocaína IV: 1-1.5 mg/kg bólus, depois 1-2 mg/kg/h (cirurgia abdominal)",
+        "Avaliação: EVA/EN sistemática na UCPA, objetivo EVA < 4"
+      ]
+    },
+    "references": [
+      { "source": "SFAR - RFE Analgésie postopératoire", "year": 2016 },
+      { "source": "PROSPECT Guidelines", "year": 2023 }
+    ]
+  },
+  {
+    "id": "ponv-prevention",
+    "category": "ponv",
+    "titles": {
+      "fr": "Prévention des NVPO",
+      "en": "PONV prevention",
+      "pt": "Prevenção de NVPO"
+    },
+    "items": {
+      "fr": [
+        "Score d'Apfel: sexe féminin, non-fumeur, antécédent NVPO/mal des transports, opioïdes postop",
+        "Risque faible (0-1): pas de prophylaxie systématique",
+        "Risque modéré (2): monothérapie — dexaméthasone 4-8mg à l'induction OU ondansétron 4mg en fin d'intervention",
+        "Risque élevé (3-4): bithérapie — dexaméthasone + ondansétron ± dropéridol 0.625-1.25mg",
+        "TIVA propofol: réduit le risque de 30% vs halogénés",
+        "Minimiser les opioïdes: analgésie multimodale",
+        "Traitement curatif: utiliser une classe différente de la prophylaxie"
+      ],
+      "en": [
+        "Apfel score: female sex, non-smoker, PONV/motion sickness history, postop opioids",
+        "Low risk (0-1): no routine prophylaxis",
+        "Moderate risk (2): monotherapy — dexamethasone 4-8mg at induction OR ondansetron 4mg at end of surgery",
+        "High risk (3-4): dual therapy — dexamethasone + ondansetron ± droperidol 0.625-1.25mg",
+        "TIVA propofol: reduces risk by 30% vs volatile agents",
+        "Minimize opioids: multimodal analgesia",
+        "Rescue treatment: use a different class from prophylaxis"
+      ],
+      "pt": [
+        "Score de Apfel: sexo feminino, não fumador, antecedentes NVPO/cinetose, opióides pós-op",
+        "Risco baixo (0-1): sem profilaxia de rotina",
+        "Risco moderado (2): monoterapia — dexametasona 4-8mg na indução OU ondansetron 4mg no fim da cirurgia",
+        "Risco alto (3-4): terapia dupla — dexametasona + ondansetron ± droperidol 0.625-1.25mg",
+        "TIVA propofol: reduz risco em 30% vs halogenados",
+        "Minimizar opióides: analgesia multimodal",
+        "Tratamento de resgate: usar classe diferente da profilaxia"
+      ]
+    },
+    "references": [
+      { "source": "Consensus PONV (Gan et al.)", "year": 2020 },
+      { "source": "SFAR RFE NVPO", "year": 2022 }
+    ]
+  },
+  {
+    "id": "fluid-management",
+    "category": "fluid",
+    "titles": {
+      "fr": "Remplissage vasculaire peropératoire",
+      "en": "Perioperative fluid management",
+      "pt": "Reposição volémica perioperatória"
+    },
+    "items": {
+      "fr": [
+        "Cristalloïdes balancés (Ringer Lactate) en première intention",
+        "Éviter NaCl 0.9% en grandes quantités (acidose hyperchlorémique)",
+        "Chirurgie mineure: 1-3 mL/kg/h de cristalloïdes",
+        "Chirurgie majeure: optimisation goal-directed (VPP, SVV, delta PP)",
+        "Colloïdes (HEA contre-indiqués en sepsis): gélatines ou albumine si hypoalbuminémie",
+        "Transfusion: seuil Hb < 7-8 g/dL (variable selon comorbidités cardiaques)",
+        "Objectif diurèse ≥ 0.5 mL/kg/h"
+      ],
+      "en": [
+        "Balanced crystalloids (Ringer's Lactate) as first-line",
+        "Avoid large volumes of NaCl 0.9% (hyperchloremic acidosis)",
+        "Minor surgery: 1-3 mL/kg/h crystalloids",
+        "Major surgery: goal-directed optimization (PPV, SVV, delta PP)",
+        "Colloids (HES contraindicated in sepsis): gelatins or albumin if hypoalbuminemia",
+        "Transfusion: threshold Hb < 7-8 g/dL (varies with cardiac comorbidities)",
+        "Target urine output ≥ 0.5 mL/kg/h"
+      ],
+      "pt": [
+        "Cristalóides balanceados (Ringer Lactato) em primeira linha",
+        "Evitar NaCl 0.9% em grandes volumes (acidose hiperclorémica)",
+        "Cirurgia minor: 1-3 mL/kg/h de cristalóides",
+        "Cirurgia major: otimização goal-directed (VPP, SVV, delta PP)",
+        "Colóides (HEA contraindicados em sépsis): gelatinas ou albumina se hipoalbuminemia",
+        "Transfusão: limiar Hb < 7-8 g/dL (variável com comorbilidades cardíacas)",
+        "Objetivo diurese ≥ 0.5 mL/kg/h"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Remplissage vasculaire", "year": 2020 },
+      { "source": "Miller's Anesthesia, Ch. Fluid Management", "year": 2020 }
+    ]
+  },
+  {
+    "id": "preop-fasting",
+    "category": "safety",
+    "titles": {
+      "fr": "Jeûne préopératoire",
+      "en": "Preoperative fasting",
+      "pt": "Jejum pré-operatório"
+    },
+    "items": {
+      "fr": [
+        "Liquides clairs: 2h avant induction (eau, thé, café sans lait, jus sans pulpe)",
+        "Repas léger / lait maternel: 4h avant",
+        "Repas solide / lait non maternel: 6h avant",
+        "Repas riche en graisses: 8h avant",
+        "Chewing-gum: ne retarde PAS l'intervention",
+        "ERAS: boisson sucrée (maltodextrine) 2h avant si pas de diabète insulino-traité",
+        "Estomac plein: induction séquence rapide (ISR) avec Sellick"
+      ],
+      "en": [
+        "Clear liquids: 2h before induction (water, tea, black coffee, pulp-free juice)",
+        "Light meal / breast milk: 4h before",
+        "Solid meal / formula: 6h before",
+        "High-fat meal: 8h before",
+        "Chewing gum: does NOT delay surgery",
+        "ERAS: carbohydrate drink (maltodextrin) 2h before if not insulin-treated diabetic",
+        "Full stomach: rapid sequence induction (RSI) with cricoid pressure"
+      ],
+      "pt": [
+        "Líquidos claros: 2h antes da indução (água, chá, café sem leite, sumo sem polpa)",
+        "Refeição ligeira / leite materno: 4h antes",
+        "Refeição sólida / leite não materno: 6h antes",
+        "Refeição rica em gorduras: 8h antes",
+        "Pastilha elástica: NÃO atrasa a intervenção",
+        "ERAS: bebida açucarada (maltodextrina) 2h antes se não diabético insulino-tratado",
+        "Estômago cheio: indução de sequência rápida (ISR) com Sellick"
+      ]
+    },
+    "references": [
+      { "source": "ESA Preoperative Fasting Guidelines", "year": 2022 },
+      { "source": "ASA Practice Guidelines for Preoperative Fasting", "year": 2017 }
+    ]
+  },
+  {
+    "id": "blood-products",
+    "category": "hemodynamics",
+    "titles": {
+      "fr": "Transfusion et produits sanguins",
+      "en": "Transfusion and blood products",
+      "pt": "Transfusão e produtos sanguíneos"
+    },
+    "items": {
+      "fr": [
+        "Seuil transfusionnel: Hb < 7 g/dL (patient sain), < 8-9 g/dL (coronarien, > 65 ans)",
+        "Toujours vérifier groupe sanguin, RAI, consentement",
+        "Contrôle ultime au lit du patient (CUSP) OBLIGATOIRE avant chaque transfusion",
+        "PFC: ratio PFC/CGR ≥ 1:2 en hémorragie massive, cible TP > 40%",
+        "Plaquettes: si < 50 000/mm³ avec saignement actif, < 100 000 en neurochirurgie",
+        "Fibrinogène: cible > 1.5-2 g/L, fibrinogène concentré 3g ou cryoprécipité",
+        "Acide tranexamique: 1g IV en 10 min dès hémorragie significative"
+      ],
+      "en": [
+        "Transfusion threshold: Hb < 7 g/dL (healthy patient), < 8-9 g/dL (coronary disease, > 65y)",
+        "Always verify blood group, antibody screen, consent",
+        "Bedside compatibility check MANDATORY before each transfusion",
+        "FFP: ratio FFP/RBC ≥ 1:2 in massive hemorrhage, target PT > 40%",
+        "Platelets: if < 50,000/mm³ with active bleeding, < 100,000 in neurosurgery",
+        "Fibrinogen: target > 1.5-2 g/L, concentrated fibrinogen 3g or cryoprecipitate",
+        "Tranexamic acid: 1g IV over 10 min once significant hemorrhage"
+      ],
+      "pt": [
+        "Limiar transfusional: Hb < 7 g/dL (doente saudável), < 8-9 g/dL (coronário, > 65 anos)",
+        "Sempre verificar grupo sanguíneo, pesquisa de anticorpos, consentimento",
+        "Controlo final à cabeceira OBRIGATÓRIO antes de cada transfusão",
+        "PFC: ratio PFC/CE ≥ 1:2 em hemorragia maciça, alvo TP > 40%",
+        "Plaquetas: se < 50.000/mm³ com hemorragia ativa, < 100.000 em neurocirurgia",
+        "Fibrinogénio: alvo > 1.5-2 g/L, fibrinogénio concentrado 3g ou crioprecipitado",
+        "Ácido tranexâmico: 1g IV em 10 min quando hemorragia significativa"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Transfusion", "year": 2019 },
+      { "source": "European Guidelines on Perioperative Bleeding Management", "year": 2023 }
+    ]
+  },
+  {
+    "id": "neuromuscular-blockade",
+    "category": "airway",
+    "titles": {
+      "fr": "Curarisation et décurarisation",
+      "en": "Neuromuscular blockade and reversal",
+      "pt": "Curarização e descurarização"
+    },
+    "items": {
+      "fr": [
+        "Monitorage du TOF (Train-of-Four) obligatoire si curare utilisé",
+        "Intubation: succinylcholine 1 mg/kg (ISR) ou rocuronium 0.6-1.2 mg/kg",
+        "Entretien: rocuronium 0.1-0.2 mg/kg bolus ou cisatracurium perfusion",
+        "Décurarisation: TOF ratio ≥ 0.9 avant extubation",
+        "Néostigmine 40 µg/kg + atropine 20 µg/kg si TOF count ≥ 2",
+        "Sugammadex 2 mg/kg si TOF count ≥ 2, 4 mg/kg si PTC ≥ 1, 16 mg/kg si ISR",
+        "Curarisation résiduelle: risque majeur de complications respiratoires postop"
+      ],
+      "en": [
+        "TOF (Train-of-Four) monitoring mandatory if NMB agent used",
+        "Intubation: succinylcholine 1 mg/kg (RSI) or rocuronium 0.6-1.2 mg/kg",
+        "Maintenance: rocuronium 0.1-0.2 mg/kg bolus or cisatracurium infusion",
+        "Reversal: TOF ratio ≥ 0.9 before extubation",
+        "Neostigmine 40 µg/kg + atropine 20 µg/kg if TOF count ≥ 2",
+        "Sugammadex 2 mg/kg if TOF count ≥ 2, 4 mg/kg if PTC ≥ 1, 16 mg/kg for RSI",
+        "Residual paralysis: major risk of postop respiratory complications"
+      ],
+      "pt": [
+        "Monitorização do TOF (Train-of-Four) obrigatória se curare utilizado",
+        "Intubação: succinilcolina 1 mg/kg (ISR) ou rocurónio 0.6-1.2 mg/kg",
+        "Manutenção: rocurónio 0.1-0.2 mg/kg bólus ou cisatracúrio em perfusão",
+        "Descurarização: TOF ratio ≥ 0.9 antes da extubação",
+        "Neostigmina 40 µg/kg + atropina 20 µg/kg se TOF count ≥ 2",
+        "Sugamadex 2 mg/kg se TOF count ≥ 2, 4 mg/kg se PTC ≥ 1, 16 mg/kg se ISR",
+        "Curarização residual: risco major de complicações respiratórias pós-op"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Curares", "year": 2018 },
+      { "source": "European Guidelines on Neuromuscular Blockade", "year": 2023 }
+    ]
+  },
+  {
+    "id": "antibiotic-prophylaxis",
+    "category": "safety",
+    "titles": {
+      "fr": "Antibioprophylaxie chirurgicale",
+      "en": "Surgical antibiotic prophylaxis",
+      "pt": "Antibioterapia profilática cirúrgica"
+    },
+    "items": {
+      "fr": [
+        "Administration: 30-60 min avant incision (idéalement à l'induction)",
+        "Céfazoline 2g IV (< 80 kg) ou 3g IV (≥ 80 kg) pour la majorité des chirurgies",
+        "Allergie pénicillines: clindamycine 600-900mg + gentamicine 5 mg/kg",
+        "Réinjection: céfazoline toutes les 4h si chirurgie prolongée, ou si pertes sanguines > 1500 mL",
+        "Durée: dose unique dans la majorité des cas, max 24h postop",
+        "Chirurgie cardiaque: céfazoline poursuivie 24-48h",
+        "Ne pas utiliser vancomycine en prophylaxie de routine"
+      ],
+      "en": [
+        "Administration: 30-60 min before incision (ideally at induction)",
+        "Cefazolin 2g IV (< 80 kg) or 3g IV (≥ 80 kg) for most surgeries",
+        "Penicillin allergy: clindamycin 600-900mg + gentamicin 5 mg/kg",
+        "Redosing: cefazolin every 4h if prolonged surgery, or blood loss > 1500 mL",
+        "Duration: single dose in most cases, max 24h postop",
+        "Cardiac surgery: cefazolin continued 24-48h",
+        "Do not use vancomycin for routine prophylaxis"
+      ],
+      "pt": [
+        "Administração: 30-60 min antes da incisão (idealmente na indução)",
+        "Cefazolina 2g IV (< 80 kg) ou 3g IV (≥ 80 kg) para a maioria das cirurgias",
+        "Alergia a penicilinas: clindamicina 600-900mg + gentamicina 5 mg/kg",
+        "Readministração: cefazolina a cada 4h se cirurgia prolongada ou perdas > 1500 mL",
+        "Duração: dose única na maioria dos casos, máximo 24h pós-op",
+        "Cirurgia cardíaca: cefazolina mantida 24-48h",
+        "Não usar vancomicina em profilaxia de rotina"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Antibioprophylaxie", "year": 2018 },
+      { "source": "WHO Surgical Site Infection Prevention", "year": 2018 }
+    ]
+  },
+  {
+    "id": "thromboprophylaxis",
+    "category": "safety",
+    "titles": {
+      "fr": "Thromboprophylaxie périopératoire",
+      "en": "Perioperative thromboprophylaxis",
+      "pt": "Tromboprofilaxia perioperatória"
+    },
+    "items": {
+      "fr": [
+        "Évaluation du risque: score de Caprini ou score SFAR simplifié",
+        "Risque faible: mobilisation précoce, pas de prophylaxie médicamenteuse",
+        "Risque modéré à élevé: HBPM (énoxaparine 40 mg/j SC) débutée 6-12h postop",
+        "Risque très élevé: HBPM dose adaptée au poids + bas de contention",
+        "Chirurgie orthopédique majeure (PTH, PTG): 10-35 jours de prophylaxie",
+        "Chirurgie carcinologique abdominale: 28 jours de prophylaxie",
+        "Contre-indication HBPM: compression pneumatique intermittente"
+      ],
+      "en": [
+        "Risk assessment: Caprini score or simplified risk stratification",
+        "Low risk: early mobilization, no pharmacological prophylaxis",
+        "Moderate to high risk: LMWH (enoxaparin 40 mg/day SC) starting 6-12h postop",
+        "Very high risk: weight-adjusted LMWH + compression stockings",
+        "Major orthopedic surgery (THR, TKR): 10-35 days of prophylaxis",
+        "Abdominal cancer surgery: 28 days of prophylaxis",
+        "LMWH contraindication: intermittent pneumatic compression"
+      ],
+      "pt": [
+        "Avaliação do risco: score de Caprini ou estratificação simplificada",
+        "Risco baixo: mobilização precoce, sem profilaxia farmacológica",
+        "Risco moderado a alto: HBPM (enoxaparina 40 mg/dia SC) iniciada 6-12h pós-op",
+        "Risco muito alto: HBPM dose ajustada ao peso + meias de compressão",
+        "Cirurgia ortopédica major (PTA, PTJ): 10-35 dias de profilaxia",
+        "Cirurgia oncológica abdominal: 28 dias de profilaxia",
+        "Contra-indicação HBPM: compressão pneumática intermitente"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE Thromboprophylaxie", "year": 2019 },
+      { "source": "ACCP Guidelines on Antithrombotic Therapy", "year": 2021 }
+    ]
+  },
+  {
+    "id": "rapid-sequence-induction",
+    "category": "airway",
+    "titles": {
+      "fr": "Induction en séquence rapide (ISR)",
+      "en": "Rapid Sequence Induction (RSI)",
+      "pt": "Indução de sequência rápida (ISR)"
+    },
+    "items": {
+      "fr": [
+        "Indications: estomac plein, urgence, RGO sévère, occlusion, grossesse > 16 SA",
+        "Préoxygénation: 3-5 min FiO2 100% ou 8 respirations capacité vitale",
+        "Propofol 2-3 mg/kg ou kétamine 1.5-2 mg/kg (si instabilité hémodynamique)",
+        "Succinylcholine 1 mg/kg (délai 60s) OU rocuronium 1.2 mg/kg (délai 60-90s)",
+        "Pression cricoïde (Sellick): controversée mais encore pratiquée",
+        "Pas de ventilation au masque sauf désaturation < 95%",
+        "Matériel de recours immédiatement disponible: vidéolaryngoscope, ML, kit CICO"
+      ],
+      "en": [
+        "Indications: full stomach, emergency, severe GERD, bowel obstruction, pregnancy > 16 weeks",
+        "Preoxygenation: 3-5 min FiO2 100% or 8 vital capacity breaths",
+        "Propofol 2-3 mg/kg or ketamine 1.5-2 mg/kg (if hemodynamic instability)",
+        "Succinylcholine 1 mg/kg (onset 60s) OR rocuronium 1.2 mg/kg (onset 60-90s)",
+        "Cricoid pressure (Sellick): controversial but still practiced",
+        "No mask ventilation unless SpO2 < 95%",
+        "Rescue equipment immediately available: videolaryngoscope, LMA, CICO kit"
+      ],
+      "pt": [
+        "Indicações: estômago cheio, urgência, RGE grave, oclusão intestinal, gravidez > 16 sem",
+        "Pré-oxigenação: 3-5 min FiO2 100% ou 8 respirações de capacidade vital",
+        "Propofol 2-3 mg/kg ou cetamina 1.5-2 mg/kg (se instabilidade hemodinâmica)",
+        "Succinilcolina 1 mg/kg (início 60s) OU rocurónio 1.2 mg/kg (início 60-90s)",
+        "Pressão cricoide (Sellick): controversa mas ainda praticada",
+        "Sem ventilação por máscara exceto se SpO2 < 95%",
+        "Material de resgate imediatamente disponível: videolaringoscópio, ML, kit CICO"
+      ]
+    },
+    "references": [
+      { "source": "SFAR RFE ISR", "year": 2019 },
+      { "source": "DAS RSI Guidelines", "year": 2021 }
+    ]
+  }
+]

@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import {
@@ -9,6 +9,8 @@ import {
   X,
   Target,
   Calculator,
+  Star,
+  Trash2,
 } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
@@ -19,24 +21,9 @@ import ProcedureCard from '@/components/anesia/ProcedureCard';
 
 const QUICK_ACCESS = [
   { key: 'procedures_title', to: '/', icon: Activity, color: 'text-accent' },
-  {
-    key: 'calculateurs',
-    to: '/calculateurs',
-    icon: Calculator,
-    color: 'text-clinical-info',
-  },
-  {
-    key: 'guidelines',
-    to: '/guidelines',
-    icon: BookOpen,
-    color: 'text-clinical-warning',
-  },
-  {
-    key: 'alr',
-    to: '/alr',
-    icon: Target,
-    color: 'text-clinical-danger',
-  },
+  { key: 'calculateurs', to: '/calculateurs', icon: Calculator, color: 'text-clinical-info' },
+  { key: 'guidelines', to: '/guidelines', icon: BookOpen, color: 'text-clinical-warning' },
+  { key: 'alr', to: '/alr', icon: Target, color: 'text-clinical-danger' },
 ];
 
 export default function Index() {
@@ -46,12 +33,29 @@ export default function Index() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [specialty, setSpecialty] = useState<string | null>(null);
-  const [favorites, setFavorites] = useLocalStorage<string[]>(
-    'anesia-favorites',
-    []
-  );
-  const [recents] = useLocalStorage<string[]>('anesia-recents', []);
+  const [favorites, setFavorites] = useLocalStorage<string[]>('anesia-favorites', []);
+  const [recents, setRecents] = useLocalStorage<string[]>('anesia-recents', []);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  const [favoritesFirst, setFavoritesFirst] = useState(false);
+  const [showFloatingSearch, setShowFloatingSearch] = useState(false);
+
   const inputRef = useRef<HTMLInputElement>(null);
+  const heroSearchRef = useRef<HTMLDivElement>(null);
+  const favoritesRef = useRef<HTMLDivElement>(null);
+  const proceduresRef = useRef<HTMLDivElement>(null);
+  const specialtyRef = useRef<HTMLDivElement>(null);
+
+  // Floating search bar via IntersectionObserver
+  useEffect(() => {
+    const el = heroSearchRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowFloatingSearch(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const fuse = useMemo(() => {
     return new Fuse(procedures, {
@@ -80,24 +84,24 @@ export default function Index() {
   }, [searchQuery, fuse]);
 
   const filteredResults = useMemo(() => {
-    const source = searchResults ?? procedures;
-    if (!specialty) return source;
-    return source.filter((p) => p.specialty === specialty);
-  }, [searchResults, procedures, specialty]);
+    let source = searchResults ?? procedures;
+    if (specialty) source = source.filter((p) => p.specialty === specialty);
+    if (showOnlyFavorites) source = source.filter((p) => favorites.includes(p.id));
+    if (favoritesFirst) {
+      const favs = source.filter((p) => favorites.includes(p.id));
+      const rest = source.filter((p) => !favorites.includes(p.id));
+      return [...favs, ...rest];
+    }
+    return source;
+  }, [searchResults, procedures, specialty, showOnlyFavorites, favoritesFirst, favorites]);
 
   const favProcedures = useMemo(
-    () =>
-      favorites
-        .map((id) => procedures.find((p) => p.id === id))
-        .filter(Boolean) as Procedure[],
+    () => favorites.map((id) => procedures.find((p) => p.id === id)).filter(Boolean) as Procedure[],
     [favorites, procedures]
   );
 
   const recentProcedures = useMemo(
-    () =>
-      recents
-        .map((id) => procedures.find((p) => p.id === id))
-        .filter(Boolean) as Procedure[],
+    () => recents.map((id) => procedures.find((p) => p.id === id)).filter(Boolean) as Procedure[],
     [recents, procedures]
   );
 
@@ -112,6 +116,10 @@ export default function Index() {
     }
   };
 
+  const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -120,9 +128,59 @@ export default function Index() {
     );
   }
 
+  const searchInput = (
+    <div className="relative">
+      <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+      <input
+        ref={inputRef}
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={handleSearchKeyDown}
+        placeholder={t('search_placeholder')}
+        className="h-12 w-full rounded-xl border border-border bg-card pl-12 pr-10 text-base text-foreground placeholder:text-muted-foreground clinical-shadow focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
+      />
+      {searchQuery && (
+        <button
+          onClick={handleClearSearch}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div className="min-h-[calc(100vh-3.5rem)]">
-      {/* Hero section — always visible */}
+      {/* Floating search bar */}
+      {showFloatingSearch && (
+        <div className="sticky top-14 z-30 bg-background/95 backdrop-blur border-b px-4 py-2 clinical-shadow">
+          <div className="max-w-lg mx-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                placeholder={t('search_placeholder')}
+                className="h-10 w-full rounded-lg border border-border bg-card pl-10 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hero section */}
       <div className="flex flex-col items-center justify-center pt-16 pb-8 px-4 bg-gradient-to-b from-primary/5 to-background">
         <h1 className="text-4xl sm:text-5xl font-bold mb-2">
           <span className="text-accent">Anes</span>
@@ -130,41 +188,16 @@ export default function Index() {
         </h1>
         <p className="text-muted-foreground text-sm mb-8">{t('tagline')}</p>
 
-        <div className="w-full max-w-lg mb-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              placeholder={t('search_placeholder')}
-              className="h-12 w-full rounded-xl border border-border bg-card pl-12 pr-10 text-base text-foreground placeholder:text-muted-foreground clinical-shadow focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+        <div ref={heroSearchRef} className="w-full max-w-lg mb-6">
+          {searchInput}
         </div>
 
-        <div className="w-full max-w-lg mb-8">
-          <SpecialtyFilter
-            specialties={specialties}
-            selected={specialty}
-            onSelect={setSpecialty}
-          />
+        <div ref={specialtyRef} className="w-full max-w-lg mb-8">
+          <SpecialtyFilter specialties={specialties} selected={specialty} onSelect={setSpecialty} />
         </div>
 
         <div className="w-full max-w-lg">
-          <h2 className="text-sm font-semibold text-muted-foreground mb-3">
-            {t('quick_access')}
-          </h2>
+          <h2 className="text-sm font-semibold text-muted-foreground mb-3">{t('quick_access')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {QUICK_ACCESS.map((item) => (
               <Link
@@ -173,100 +206,91 @@ export default function Index() {
                 className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 clinical-shadow hover:clinical-shadow-md transition-shadow"
               >
                 <item.icon className={`h-6 w-6 ${item.color}`} />
-                <span className="text-xs font-medium text-foreground">
-                  {t(item.key)}
-                </span>
+                <span className="text-xs font-medium text-foreground">{t(item.key)}</span>
               </Link>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Dashboard content — always visible, natural scroll */}
+      {/* Dashboard content */}
       <div className="container py-6 space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="rounded-lg border bg-card p-4 clinical-shadow">
+        {/* Stats — clickable */}
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => scrollTo(proceduresRef)}
+            className="rounded-lg border bg-card p-4 clinical-shadow hover:clinical-shadow-md transition-shadow cursor-pointer text-left"
+          >
             <div className="flex items-center gap-2 text-accent">
               <Activity className="h-5 w-5" />
               <span className="text-2xl font-bold">{procedures.length}</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t('all_procedures')}
-            </p>
-          </div>
-          <div className="rounded-lg border bg-card p-4 clinical-shadow">
+            <p className="mt-1 text-xs text-muted-foreground">{t('all_procedures')}</p>
+          </button>
+          <button
+            onClick={() => scrollTo(specialtyRef)}
+            className="rounded-lg border bg-card p-4 clinical-shadow hover:clinical-shadow-md transition-shadow cursor-pointer text-left"
+          >
             <div className="flex items-center gap-2 text-accent">
               <Stethoscope className="h-5 w-5" />
               <span className="text-2xl font-bold">{specialties.length}</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t('all_specialties')}
-            </p>
-          </div>
-          <div className="rounded-lg border bg-card p-4 clinical-shadow hidden sm:block">
+            <p className="mt-1 text-xs text-muted-foreground">{t('all_specialties')}</p>
+          </button>
+          <button
+            onClick={() => scrollTo(favoritesRef)}
+            className="rounded-lg border bg-card p-4 clinical-shadow hover:clinical-shadow-md transition-shadow cursor-pointer text-left"
+          >
             <div className="flex items-center gap-2 text-accent">
-              <BookOpen className="h-5 w-5" />
+              <Star className="h-5 w-5" />
               <span className="text-2xl font-bold">{favorites.length}</span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {t('favorites')}
+              {favorites.length === 0 ? t('no_favorites_hint') : t('favorites')}
             </p>
-          </div>
+          </button>
         </div>
 
-        {/* Favorites & Recents */}
-        {(favProcedures.length > 0 || recentProcedures.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {favProcedures.length > 0 && (
-              <section>
-                <h2 className="mb-3 text-base font-bold text-foreground">
-                  {t('favorites')}
-                </h2>
-                <div className="space-y-2">
-                  {favProcedures.map((p) => (
-                    <ProcedureCard
-                      key={p.id}
-                      procedure={p}
-                      isFavorite
-                      onToggleFavorite={toggleFavorite}
-                    />
-                  ))}
-                </div>
-              </section>
+        {/* Favorites section — always visible */}
+        <div ref={favoritesRef}>
+          <section>
+            <h2 className="mb-3 text-base font-bold text-foreground">{t('favorites')}</h2>
+            {favProcedures.length > 0 ? (
+              <div className="space-y-2">
+                {favProcedures.map((p) => (
+                  <ProcedureCard key={p.id} procedure={p} isFavorite onToggleFavorite={toggleFavorite} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border bg-card p-6 text-center clinical-shadow">
+                <Star className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground mb-3">{t('no_favorites_empty')}</p>
+                <button
+                  onClick={() => scrollTo(proceduresRef)}
+                  className="text-sm font-medium text-accent hover:underline"
+                >
+                  {t('view_all_procedures')}
+                </button>
+              </div>
             )}
-            {recentProcedures.length > 0 && (
-              <section>
-                <h2 className="mb-3 text-base font-bold text-foreground">
-                  {t('recents')}
-                </h2>
-                <div className="space-y-2">
-                  {recentProcedures.map((p) => (
-                    <ProcedureCard
-                      key={p.id}
-                      procedure={p}
-                      isFavorite={favorites.includes(p.id)}
-                      onToggleFavorite={toggleFavorite}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        )}
+          </section>
+        </div>
 
-        {/* All procedures / search results */}
-        <section>
-          <h2 className="mb-3 text-base font-bold text-foreground">
-            {searchQuery ? t('results') : t('all_procedures')}
-          </h2>
-          {filteredResults.length === 0 ? (
-            <p className="text-center text-sm text-muted-foreground py-8">
-              {t('no_results')}
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {filteredResults.map((p) => (
+        {/* Recents */}
+        {recentProcedures.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-bold text-foreground">{t('recents')}</h2>
+              <button
+                onClick={() => setRecents([])}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {t('clear_recents')}
+              </button>
+            </div>
+            <div className="space-y-2">
+              {recentProcedures.map((p) => (
                 <ProcedureCard
                   key={p.id}
                   procedure={p}
@@ -275,8 +299,47 @@ export default function Index() {
                 />
               ))}
             </div>
-          )}
-        </section>
+          </section>
+        )}
+
+        {/* All procedures / search results */}
+        <div ref={proceduresRef}>
+          <section>
+            <div className="flex flex-wrap items-center gap-3 mb-3">
+              <h2 className="text-base font-bold text-foreground">
+                {searchQuery ? t('results') : t('all_procedures')}
+              </h2>
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+                  className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${showOnlyFavorites ? 'bg-accent text-accent-foreground border-accent' : 'bg-card text-muted-foreground border-border hover:border-accent/50'}`}
+                >
+                  {t('only_favorites')}
+                </button>
+                <button
+                  onClick={() => setFavoritesFirst(!favoritesFirst)}
+                  className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${favoritesFirst ? 'bg-accent text-accent-foreground border-accent' : 'bg-card text-muted-foreground border-border hover:border-accent/50'}`}
+                >
+                  {t('favorites_first')}
+                </button>
+              </div>
+            </div>
+            {filteredResults.length === 0 ? (
+              <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {filteredResults.map((p) => (
+                  <ProcedureCard
+                    key={p.id}
+                    procedure={p}
+                    isFavorite={favorites.includes(p.id)}
+                    onToggleFavorite={toggleFavorite}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );

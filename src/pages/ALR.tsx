@@ -1,16 +1,60 @@
-import { Target, Hand, Footprints, StretchHorizontal, CircleDot } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Target, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import Fuse from 'fuse.js';
 import { useLang } from '@/contexts/LanguageContext';
+import { useData } from '@/contexts/DataContext';
+import type { ALRBlock } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 
-const REGIONS = [
-  { icon: Hand, label: { fr: 'Membre supérieur', pt: 'Membro superior', en: 'Upper limb' }, blocks: ['Interscalénique', 'Supraclaviculaire', 'Axillaire'] },
-  { icon: Footprints, label: { fr: 'Membre inférieur', pt: 'Membro inferior', en: 'Lower limb' }, blocks: ['Fémoral', 'Sciatique', 'Adducteur'] },
-  { icon: StretchHorizontal, label: { fr: 'Tronc', pt: 'Tronco', en: 'Trunk' }, blocks: ['TAP block', 'Paravertébral', 'Érecteur du rachis'] },
-  { icon: CircleDot, label: { fr: 'Tête & Cou', pt: 'Cabeça & Pescoço', en: 'Head & Neck' }, blocks: ['Scalp block', 'Cervical superficiel'] },
-];
+const REGION_MAP: Record<string, string> = {
+  upper_limb: 'upper_limb',
+  lower_limb: 'lower_limb',
+  trunk: 'trunk',
+  head_neck: 'head_neck',
+};
 
 export default function ALR() {
-  const { t, resolveStr } = useLang();
+  const { t, lang, resolveStr } = useLang();
+  const { alrBlocks, loading } = useData();
+  const [search, setSearch] = useState('');
+  const [region, setRegion] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const fuse = useMemo(
+    () =>
+      new Fuse(alrBlocks, {
+        keys: [`titles.${lang}`, 'titles.fr', 'region'],
+        threshold: 0.4,
+        ignoreLocation: true,
+      }),
+    [alrBlocks, lang]
+  );
+
+  const regions = useMemo(() => {
+    const set = new Set(alrBlocks.map((b) => b.region));
+    return Array.from(set).sort();
+  }, [alrBlocks]);
+
+  const filtered = useMemo(() => {
+    let results: ALRBlock[] = search.trim()
+      ? fuse.search(search).map((r) => r.item)
+      : alrBlocks;
+    if (region) results = results.filter((b) => b.region === region);
+    return results;
+  }, [search, region, fuse, alrBlocks]);
+
+  const resolve = (obj: Partial<Record<string, string[]>> | undefined): string[] => {
+    if (!obj) return [];
+    return (obj as any)[lang] ?? (obj as any)['fr'] ?? (obj as any)['en'] ?? [];
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-muted-foreground">{t('loading')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8 space-y-6">
@@ -19,30 +63,107 @@ export default function ALR() {
           <Target className="h-6 w-6 text-accent" />
           {t('alr_full')}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">ALR</p>
+        <p className="text-sm text-muted-foreground mt-1">{t('alr')}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {REGIONS.map((region, i) => (
-          <div
-            key={i}
-            className="rounded-xl border bg-card p-5 clinical-shadow hover:clinical-shadow-md transition-shadow"
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t('search_alr')}
+          className="h-10 w-full rounded-lg border border-border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
+        />
+      </div>
+
+      {/* Region chips */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setRegion(null)}
+          className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!region ? 'bg-accent text-accent-foreground border-accent' : 'bg-card text-muted-foreground border-border hover:border-accent/50'}`}
+        >
+          {t('all_regions')}
+        </button>
+        {regions.map((r) => (
+          <button
+            key={r}
+            onClick={() => setRegion(r === region ? null : r)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${r === region ? 'bg-accent text-accent-foreground border-accent' : 'bg-card text-muted-foreground border-border hover:border-accent/50'}`}
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="rounded-lg bg-accent/10 p-2">
-                <region.icon className="h-5 w-5 text-accent" />
-              </div>
-              <h3 className="font-semibold text-foreground">{resolveStr(region.label)}</h3>
-            </div>
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {region.blocks.map(b => (
-                <Badge key={b} variant="outline" className="text-xs">{b}</Badge>
-              ))}
-            </div>
-            <Badge variant="secondary" className="text-xs">{t('coming_soon')}</Badge>
-          </div>
+            {REGION_MAP[r] ? t(REGION_MAP[r]) : r}
+          </button>
         ))}
       </div>
+
+      {/* ALR blocks list */}
+      <div className="space-y-3">
+        {filtered.length === 0 ? (
+          <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
+        ) : (
+          filtered.map((block) => {
+            const isOpen = expanded === block.id;
+            return (
+              <div key={block.id} className="rounded-xl border bg-card clinical-shadow overflow-hidden">
+                <button
+                  onClick={() => setExpanded(isOpen ? null : block.id)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors"
+                >
+                  <div>
+                    <h3 className="text-sm font-semibold text-card-foreground">
+                      {resolveStr(block.titles)}
+                    </h3>
+                    <Badge variant="secondary" className="mt-1 text-[11px]">
+                      {REGION_MAP[block.region] ? t(REGION_MAP[block.region]) : block.region}
+                    </Badge>
+                  </div>
+                  {isOpen ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                  )}
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 border-t pt-3 space-y-4">
+                    <ALRSection title={t('indications')} items={resolve(block.indications)} />
+                    <ALRSection title={t('contraindications_alr')} items={resolve(block.contraindications)} variant="danger" />
+                    <ALRSection title={t('technique')} items={resolve(block.technique)} />
+                    <ALRSection title={t('drugs_alr')} items={resolve(block.drugs)} variant="info" />
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ALRSection({
+  title,
+  items,
+  variant,
+}: {
+  title: string;
+  items: string[];
+  variant?: 'danger' | 'info';
+}) {
+  if (items.length === 0) return null;
+  const bulletColor =
+    variant === 'danger' ? 'text-clinical-danger' : variant === 'info' ? 'text-clinical-info' : 'text-accent';
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground mb-1">{title}</p>
+      <ul className="space-y-1">
+        {items.map((item, i) => (
+          <li key={i} className="text-xs text-card-foreground flex gap-2">
+            <span className={`${bulletColor} mt-0.5`}>•</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

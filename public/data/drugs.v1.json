@@ -1,0 +1,392 @@
+[
+  {
+    "id": "paracetamol",
+    "name": { "fr": "Paracétamol", "pt": "Paracetamol", "en": "Acetaminophen" },
+    "dose_rules": [
+      {
+        "indication_tag": "analgésie",
+        "route": "IV",
+        "mg_per_kg": 15,
+        "max_mg": 1000,
+        "notes": ["Intervalle minimum 6h entre doses", "Max 60 mg/kg/j ou 4g/j"]
+      }
+    ],
+    "concentrations": [{ "label": "IV 10 mg/mL", "mg_per_ml": 10 }],
+    "contraindications_notes": ["Insuffisance hépatique sévère", "Allergie connue"],
+    "renal_hepatic_notes": ["IHC : max 2g/j", "IRC sévère : espacer les prises (intervalle 8h)"]
+  },
+  {
+    "id": "ibuprofene",
+    "name": { "fr": "Ibuprofène", "pt": "Ibuprofeno", "en": "Ibuprofen" },
+    "dose_rules": [
+      {
+        "indication_tag": "analgésie",
+        "route": "PO / IV",
+        "mg_per_kg": 10,
+        "max_mg": 400,
+        "notes": ["Intervalle 6-8h", "CI si insuffisance rénale, ulcère GD, grossesse T3"]
+      }
+    ],
+    "concentrations": [],
+    "contraindications_notes": ["Insuffisance rénale sévère", "Ulcère gastroduodénal actif", "Grossesse 3e trimestre", "Allergie AINS/aspirine"],
+    "renal_hepatic_notes": ["Éviter si DFG < 30 mL/min", "CI si IHC sévère"]
+  },
+  {
+    "id": "ketorolac",
+    "name": { "fr": "Kétorolac", "pt": "Cetorolac", "en": "Ketorolac" },
+    "dose_rules": [
+      {
+        "indication_tag": "analgésie",
+        "route": "IV",
+        "mg_per_kg": 0.5,
+        "max_mg": 30,
+        "notes": ["Durée max 48h IV", "Sujet âgé > 65 ans : max 15 mg/dose"]
+      }
+    ],
+    "concentrations": [{ "label": "30 mg/mL", "mg_per_ml": 30 }],
+    "contraindications_notes": ["Insuffisance rénale", "Risque hémorragique élevé", "Ulcère GD actif"],
+    "renal_hepatic_notes": ["CI si DFG < 30 mL/min", "Réduire dose > 65 ans : max 15 mg"]
+  },
+  {
+    "id": "ondansetron",
+    "name": { "fr": "Ondansétron", "pt": "Ondansetron", "en": "Ondansetron" },
+    "dose_rules": [
+      {
+        "indication_tag": "PONV",
+        "route": "IV",
+        "mg_per_kg": 0.1,
+        "max_mg": 4,
+        "notes": ["Administrer en fin d'intervention", "Peut prolonger QTc — ECG si facteurs de risque"]
+      }
+    ],
+    "concentrations": [{ "label": "2 mg/mL", "mg_per_ml": 2 }],
+    "contraindications_notes": ["QT long congénital", "Utilisation concomitante d'apomorphine"],
+    "renal_hepatic_notes": ["Pas d'ajustement rénal", "IHC sévère : max 8 mg/j"]
+  },
+  {
+    "id": "dexamethasone",
+    "name": { "fr": "Dexaméthasone", "pt": "Dexametasona", "en": "Dexamethasone" },
+    "dose_rules": [
+      {
+        "indication_tag": "PONV_anti-oedème",
+        "route": "IV",
+        "mg_per_kg": 0.15,
+        "max_mg": 8,
+        "notes": ["Administrer à l'induction", "Double effet : anti-émétique + anti-inflammatoire", "Attention diabétiques : hyperglycémie transitoire"]
+      }
+    ],
+    "concentrations": [{ "label": "4 mg/mL", "mg_per_ml": 4 }],
+    "contraindications_notes": ["Infection systémique non contrôlée", "Diabète non équilibré (CI relative)"],
+    "renal_hepatic_notes": ["Pas d'ajustement habituel"]
+  },
+  {
+    "id": "propofol",
+    "name": { "fr": "Propofol", "pt": "Propofol", "en": "Propofol" },
+    "dose_rules": [
+      {
+        "indication_tag": "induction",
+        "route": "IV",
+        "mg_per_kg": 2,
+        "max_mg": 300,
+        "notes": ["Injection lente 30-60s", "Réduire chez sujet âgé/hypovolémique : 1-1.5 mg/kg", "Douleur injection : lidocaïne 20-40 mg IV avant"]
+      },
+      {
+        "indication_tag": "induction_ISR",
+        "route": "IV",
+        "mg_per_kg": 2,
+        "max_mg": 300,
+        "notes": ["Induction séquence rapide", "Ne pas réduire la dose en ISR"]
+      },
+      {
+        "indication_tag": "induction_AG",
+        "route": "IV",
+        "mg_per_kg": 2,
+        "max_mg": 300,
+        "notes": ["AG si échec/CI rachianesthésie"]
+      }
+    ],
+    "concentrations": [{ "label": "1% (10 mg/mL)", "mg_per_ml": 10 }, { "label": "2% (20 mg/mL)", "mg_per_ml": 20 }],
+    "contraindications_notes": ["Allergie soja/œuf (controversé, très rare)", "Choc hypovolémique non réanimé"],
+    "renal_hepatic_notes": ["Pas d'ajustement nécessaire"]
+  },
+  {
+    "id": "sevoflurane",
+    "name": { "fr": "Sévoflurane", "pt": "Sevoflurano", "en": "Sevoflurane" },
+    "dose_rules": [
+      {
+        "indication_tag": "entretien",
+        "route": "INH",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": ["MAC adulte ≈ 2.0%", "MAC enfant ≈ 2.5%", "Titrer selon BIS/entropie", "Réduire MAC avec opioïdes (≈ 0.7-1.0 MAC)"],
+        "unit_override": "MAC"
+      }
+    ],
+    "concentrations": [],
+    "contraindications_notes": ["Hyperthermie maligne (ATCD personnel ou familial)", "Myopathie sensible aux halogénés"],
+    "renal_hepatic_notes": ["Néphrotoxicité théorique Compound A (bas débit) — controversé"]
+  },
+  {
+    "id": "rocuronium",
+    "name": { "fr": "Rocuronium", "pt": "Rocurônio", "en": "Rocuronium" },
+    "dose_rules": [
+      {
+        "indication_tag": "intubation",
+        "route": "IV",
+        "mg_per_kg": 0.6,
+        "max_mg": null,
+        "notes": ["Délai d'action 60-90s", "Durée 30-40 min"]
+      },
+      {
+        "indication_tag": "ISR",
+        "route": "IV",
+        "mg_per_kg": 1.2,
+        "max_mg": null,
+        "notes": ["Dose ISR : 1.2 mg/kg", "Délai 45-60s", "Réversible par sugammadex 16 mg/kg si échec intubation"]
+      }
+    ],
+    "concentrations": [{ "label": "10 mg/mL", "mg_per_ml": 10 }],
+    "contraindications_notes": ["Allergie connue aux curares (rare)"],
+    "renal_hepatic_notes": ["IHC sévère : durée d'action prolongée"]
+  },
+  {
+    "id": "sugammadex",
+    "name": { "fr": "Sugammadex", "pt": "Sugamadex", "en": "Sugammadex" },
+    "dose_rules": [
+      {
+        "indication_tag": "reversal",
+        "route": "IV",
+        "mg_per_kg": 2,
+        "max_mg": null,
+        "notes": ["Réversion bloc modéré (TOF ≥ 2)", "Vérifier TOF avant administration"]
+      },
+      {
+        "indication_tag": "reversal_profond",
+        "route": "IV",
+        "mg_per_kg": 4,
+        "max_mg": null,
+        "notes": ["Réversion bloc profond (PTC ≥ 1)"]
+      },
+      {
+        "indication_tag": "reversal_urgence",
+        "route": "IV",
+        "mg_per_kg": 16,
+        "max_mg": null,
+        "notes": ["Réversion immédiate (can't intubate can't ventilate)", "Dose unique, injection rapide"]
+      }
+    ],
+    "concentrations": [{ "label": "100 mg/mL", "mg_per_ml": 100 }],
+    "contraindications_notes": ["Allergie connue (très rare, anaphylaxie décrite)"],
+    "renal_hepatic_notes": ["CI si DFG < 30 mL/min (élimination rénale)", "Non dialysable efficacement"]
+  },
+  {
+    "id": "lidocaine",
+    "name": { "fr": "Lidocaïne", "pt": "Lidocaína", "en": "Lidocaine" },
+    "dose_rules": [
+      {
+        "indication_tag": "analgésie_IV",
+        "route": "IV",
+        "mg_per_kg": 1.5,
+        "max_mg": 200,
+        "notes": ["Bolus à l'induction", "Effet anti-hyperalgésique et épargne morphinique", "Perfusion possible : 1-2 mg/kg/h"]
+      },
+      {
+        "indication_tag": "BIS_adjuvant",
+        "route": "Péri-nerveux",
+        "mg_per_kg": 5,
+        "max_mg": 300,
+        "notes": ["Dose max avec adrénaline : 7 mg/kg", "Mélange avec bupivacaïne : onset rapide"]
+      }
+    ],
+    "concentrations": [{ "label": "1% (10 mg/mL)", "mg_per_ml": 10 }, { "label": "2% (20 mg/mL)", "mg_per_ml": 20 }],
+    "contraindications_notes": ["BAV non appareillé", "Allergie aux amides", "Porphyrie"],
+    "renal_hepatic_notes": ["Réduire si IHC sévère (métabolisme hépatique)"]
+  },
+  {
+    "id": "bupivacaine",
+    "name": { "fr": "Bupivacaïne", "pt": "Bupivacaína", "en": "Bupivacaine" },
+    "dose_rules": [
+      {
+        "indication_tag": "rachianesthésie",
+        "route": "IT",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": ["Bupivacaïne hyperbare 0.5% : 10-15 mg selon chirurgie", "Dose fixe (non basée sur le poids)", "Ajuster selon taille et niveau souhaité"],
+        "unit_override": "mg (dose fixe)"
+      },
+      {
+        "indication_tag": "BIS",
+        "route": "Péri-nerveux",
+        "mg_per_kg": 2,
+        "max_mg": 150,
+        "notes": ["Dose max sans adrénaline : 2 mg/kg", "Dose max avec adrénaline : 3 mg/kg", "Durée bloc : 6-12h"]
+      }
+    ],
+    "concentrations": [{ "label": "0.25% (2.5 mg/mL)", "mg_per_ml": 2.5 }, { "label": "0.5% (5 mg/mL)", "mg_per_ml": 5 }, { "label": "0.5% hyperbare", "mg_per_ml": 5 }],
+    "contraindications_notes": ["Allergie aux amides", "Infection site de ponction", "Troubles coagulation (blocs centraux)"],
+    "renal_hepatic_notes": ["Réduire si IHC sévère"]
+  },
+  {
+    "id": "ephedrine",
+    "name": { "fr": "Éphédrine", "pt": "Efedrina", "en": "Ephedrine" },
+    "dose_rules": [
+      {
+        "indication_tag": "hypotension",
+        "route": "IV bolus",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": ["Bolus 6-12 mg IV (titrer par 3-6 mg)", "Effet mixte α+β : ↑ PA et FC", "Max cumulé ≈ 30 mg (tachyphylaxie)"],
+        "unit_override": "mg bolus"
+      }
+    ],
+    "concentrations": [{ "label": "Dilué 3 mg/mL", "mg_per_ml": 3 }, { "label": "30 mg/mL", "mg_per_ml": 30 }],
+    "contraindications_notes": ["HTA sévère non contrôlée", "Tachycardie sévère"],
+    "renal_hepatic_notes": ["Pas d'ajustement nécessaire"]
+  },
+  {
+    "id": "phenylephrine",
+    "name": { "fr": "Phényléphrine", "pt": "Fenilefrina", "en": "Phenylephrine" },
+    "dose_rules": [
+      {
+        "indication_tag": "hypotension",
+        "route": "IV bolus",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": ["Bolus 50-100 µg IV", "Pur α1-agoniste : ↑ PA sans tachycardie", "Risque bradycardie réflexe"],
+        "unit_override": "µg"
+      }
+    ],
+    "concentrations": [{ "label": "Dilué 50 µg/mL", "mg_per_ml": 0.05 }],
+    "contraindications_notes": ["HTA sévère", "Bradycardie préexistante sévère"],
+    "renal_hepatic_notes": ["Pas d'ajustement"]
+  },
+  {
+    "id": "noradrenaline",
+    "name": { "fr": "Noradrénaline", "pt": "Noradrenalina", "en": "Norepinephrine" },
+    "dose_rules": [
+      {
+        "indication_tag": "vasopresseur",
+        "route": "IVSE",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": ["Perfusion continue : 0.05-0.5 µg/kg/min", "Voie veineuse centrale de préférence", "Titrer selon PAM cible (≥ 65 mmHg)"],
+        "unit_override": "µg/kg/min"
+      }
+    ],
+    "concentrations": [{ "label": "Préparation IVSE variable", "mg_per_ml": null }],
+    "contraindications_notes": ["Pas de CI absolue en situation vitale"],
+    "renal_hepatic_notes": ["Pas d'ajustement"]
+  },
+  {
+    "id": "sufentanil",
+    "name": { "fr": "Sufentanil", "pt": "Sufentanil", "en": "Sufentanil" },
+    "dose_rules": [
+      {
+        "indication_tag": "analgésie_perop",
+        "route": "IV",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": ["Bolus : 0.2-0.5 µg/kg à l'induction", "Entretien : 0.15-0.7 µg/kg/h", "5-10× plus puissant que le fentanyl"],
+        "unit_override": "µg"
+      },
+      {
+        "indication_tag": "analgésie_IT",
+        "route": "IT",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": ["2.5-5 µg IT (adjuvant rachianesthésie)", "Attention dépression respiratoire tardive (surveillance ≥ 12h)"],
+        "unit_override": "µg"
+      }
+    ],
+    "concentrations": [{ "label": "5 µg/mL", "mg_per_ml": 0.005 }, { "label": "50 µg/mL", "mg_per_ml": 0.05 }],
+    "contraindications_notes": ["Dépression respiratoire sévère", "Insuffisance respiratoire aiguë"],
+    "renal_hepatic_notes": ["Réduire si IHC", "IRC : accumulation possible"]
+  },
+  {
+    "id": "morphine",
+    "name": { "fr": "Morphine", "pt": "Morfina", "en": "Morphine" },
+    "dose_rules": [
+      {
+        "indication_tag": "analgésie_postop",
+        "route": "IV titration",
+        "mg_per_kg": 0.1,
+        "max_mg": 10,
+        "notes": ["Titration : bolus 2-3 mg /5 min", "Objectif EVA < 3/10", "Surveillance respiratoire obligatoire"]
+      },
+      {
+        "indication_tag": "analgésie_secours",
+        "route": "IV titration",
+        "mg_per_kg": 0.05,
+        "max_mg": 5,
+        "notes": ["Dose réduite enfant/sujet âgé", "Titration prudente par bolus 1 mg"]
+      }
+    ],
+    "concentrations": [{ "label": "1 mg/mL (dilué)", "mg_per_ml": 1 }, { "label": "10 mg/mL", "mg_per_ml": 10 }],
+    "contraindications_notes": ["Insuffisance respiratoire sévère", "SAOS non appareillé (prudence)", "Obstruction intestinale"],
+    "renal_hepatic_notes": ["IRC : accumulation M6G → réduire dose et espacer", "IHC : réduire dose"]
+  },
+  {
+    "id": "ketamine",
+    "name": { "fr": "Kétamine", "pt": "Cetamina", "en": "Ketamine" },
+    "dose_rules": [
+      {
+        "indication_tag": "co-analgésie",
+        "route": "IV",
+        "mg_per_kg": 0.25,
+        "max_mg": 25,
+        "notes": ["Dose sub-anesthésique (anti-hyperalgésique)", "Perfusion relais : 0.1-0.2 mg/kg/h", "Intérêt : terrain douleur chronique, opioïdes long cours"]
+      }
+    ],
+    "concentrations": [{ "label": "10 mg/mL", "mg_per_ml": 10 }, { "label": "50 mg/mL", "mg_per_ml": 50 }],
+    "contraindications_notes": ["HTA non contrôlée", "HTIC", "Éclampsie", "Psychose (CI relative)"],
+    "renal_hepatic_notes": ["Pas d'ajustement habituel"]
+  },
+  {
+    "id": "atropine",
+    "name": { "fr": "Atropine", "pt": "Atropina", "en": "Atropine" },
+    "dose_rules": [
+      {
+        "indication_tag": "bradycardie",
+        "route": "IV",
+        "mg_per_kg": 0.01,
+        "max_mg": 0.5,
+        "notes": ["Dose minimale enfant : 0.1 mg (risque bradycardie paradoxale)", "Répéter /3-5 min si nécessaire", "Max total adulte : 3 mg"]
+      }
+    ],
+    "concentrations": [{ "label": "0.25 mg/mL", "mg_per_ml": 0.25 }, { "label": "1 mg/mL", "mg_per_ml": 1 }],
+    "contraindications_notes": ["Glaucome à angle fermé", "Obstacle urétro-prostatique sévère"],
+    "renal_hepatic_notes": ["Pas d'ajustement"]
+  },
+  {
+    "id": "cefazoline",
+    "name": { "fr": "Céfazoline", "pt": "Cefazolina", "en": "Cefazolin" },
+    "dose_rules": [
+      {
+        "indication_tag": "antibioprophylaxie",
+        "route": "IV",
+        "mg_per_kg": 25,
+        "max_mg": 2000,
+        "notes": ["30 min avant incision", "Réinjection 1g si chirurgie > 4h", "Alternative allergie : clindamycine 600 mg ou vancomycine"]
+      }
+    ],
+    "concentrations": [],
+    "contraindications_notes": ["Allergie céphalosporines confirmée", "Allergie pénicilline sévère (anaphylaxie)"],
+    "renal_hepatic_notes": ["Ajuster intervalle si IRC sévère"]
+  },
+  {
+    "id": "acide_tranexamique",
+    "name": { "fr": "Acide tranexamique", "pt": "Ácido tranexâmico", "en": "Tranexamic acid" },
+    "dose_rules": [
+      {
+        "indication_tag": "antifibrinolytique",
+        "route": "IV lente",
+        "mg_per_kg": 15,
+        "max_mg": 1000,
+        "notes": ["Injection lente 10-20 min (risque hypotension si rapide)", "Réduit pertes sanguines péri-opératoires", "Répétition possible à 3h si chirurgie prolongée"]
+      }
+    ],
+    "concentrations": [{ "label": "100 mg/mL", "mg_per_ml": 100 }],
+    "contraindications_notes": ["Thrombose artérielle/veineuse active", "Hématurie macro d'origine haute (risque caillotage urétéral)"],
+    "renal_hepatic_notes": ["Réduire dose si IRC (élimination rénale)"]
+  }
+]

@@ -1,0 +1,619 @@
+[
+  {
+    "id": "pth",
+    "specialty": "Orthopédie",
+    "titles": { "fr": "Prothèse totale de hanche (PTH)", "pt": "Prótese total da anca (PTA)", "en": "Total hip replacement (THR)" },
+    "synonyms": { "fr": ["PTH", "arthroplastie hanche", "prothèse hanche"], "en": ["THR", "hip arthroplasty"], "pt": ["PTA", "artroplastia anca"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "Évaluation cardiovasculaire et capacité fonctionnelle",
+          "Bilan : NFS, coagulation, groupage sanguin + RAI",
+          "Jeûne 6h solides / 2h liquides clairs",
+          "Prévoir culots globulaires (risque hémorragique)",
+          "Prophylaxie thromboembolique pré-opératoire"
+        ],
+        "intraop": [
+          "AG ou rachianesthésie (bupivacaïne hyperbare 10-12.5 mg)",
+          "Antibioprophylaxie : céfazoline 2g IV avant incision",
+          "Position décubitus latéral — vérifier points d'appui",
+          "Surveillance pertes sanguines (aspiration + compresses)",
+          "Acide tranexamique 1g IV si pas de CI",
+          "Maintien normothermie active"
+        ],
+        "postop": [
+          "Analgésie multimodale : paracétamol + AINS ± morphine titration",
+          "Prévention NVPO : ondansétron ± dexaméthasone",
+          "Thromboprophylaxie HBPM dès H6",
+          "Mobilisation précoce J0-J1",
+          "Surveillance neurovasculaire du membre opéré"
+        ],
+        "red_flags": [
+          "Syndrome du ciment : hypotension brutale + bradycardie à la cimentation",
+          "Choc hémorragique : surveiller hémodynamique et Hb",
+          "Fracture peropératoire du fémur",
+          "Embolie graisseuse (dyspnée, pétéchies, confusion)"
+        ],
+        "drugs": [
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ketorolac", "indication_tag": "analgésie" },
+          { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
+          { "drug_id": "cefazoline", "indication_tag": "antibioprophylaxie" },
+          { "drug_id": "acide_tranexamique", "indication_tag": "antifibrinolytique" },
+          { "drug_id": "morphine", "indication_tag": "analgésie_postop" },
+          { "drug_id": "ondansetron", "indication_tag": "PONV" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "Population souvent âgée avec comorbidités cardiovasculaires fréquentes.",
+          "La rachianesthésie réduit les pertes sanguines et le risque thromboembolique vs AG.",
+          "L'acide tranexamique réduit significativement les besoins transfusionnels.",
+          "Le bloc du nerf fémoral ou IPACK peut compléter l'analgésie."
+        ],
+        "pitfalls": [
+          "Ne pas sous-estimer les pertes sanguines cachées dans les tissus.",
+          "Le syndrome du ciment peut mimer un arrêt cardiaque — avoir éphédrine et adrénaline prêtes.",
+          "Attention au positionnement : lésions nerveuses par compression."
+        ],
+        "references": [
+          { "source": "ESA Guidelines — Hip Arthroplasty", "year": 2023, "note": "Recommandations péri-opératoires PTH" },
+          { "source": "SFAR — Antibioprophylaxie en chirurgie", "year": 2018, "note": "Céfazoline 2g dose unique" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "turp",
+    "specialty": "Urologie",
+    "titles": { "fr": "Résection transurétrale de prostate (TURP/RTUP)", "pt": "Ressecção transuretral da próstata (RTUP)", "en": "Transurethral resection of prostate (TURP)" },
+    "synonyms": { "fr": ["TURP", "RTUP", "résection prostate", "adénomectomie endoscopique"], "en": ["TURP", "prostate resection"], "pt": ["RTUP"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "Population âgée : évaluation cardiovasculaire approfondie",
+          "Bilan : NFS, ionogramme, créatinine, coagulation",
+          "Arrêt anticoagulants/antiagrégants selon recommandations",
+          "Groupage sanguin + RAI",
+          "Prévenir risque TURP syndrome (glycocolle)"
+        ],
+        "intraop": [
+          "Rachianesthésie (niveau T10) préférentielle — permet détecter signes TURP syndrome",
+          "Surveillance ionogramme peropératoire si durée > 60 min",
+          "Monitoring température — irrigation froide",
+          "Limiter durée résection < 90 min si possible",
+          "Antibioprophylaxie selon protocole"
+        ],
+        "postop": [
+          "Surveillance hématurie et irrigation vésicale",
+          "Ionogramme de contrôle (natrémie)",
+          "Analgésie : paracétamol ± antispasmodiques",
+          "Surveillance reprise mictionnelle après retrait sonde"
+        ],
+        "red_flags": [
+          "TURP syndrome : hyponatrémie de dilution (confusion, nausées, convulsions, troubles visuels)",
+          "Hémorragie massive avec choc",
+          "Perforation vésicale (douleur abdominale, distension)"
+        ],
+        "drugs": [
+          { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ephedrine", "indication_tag": "hypotension" },
+          { "drug_id": "ondansetron", "indication_tag": "PONV" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "La rachianesthésie est préférée : le patient conscient permet de détecter précocement les signes du TURP syndrome.",
+          "Le TURP syndrome est lié à l'absorption de glycocolle hypotonique — risque si durée > 60 min.",
+          "Les nouvelles techniques (laser, plasma) réduisent ce risque mais ne l'éliminent pas."
+        ],
+        "pitfalls": [
+          "Une natrémie < 120 mmol/L est une urgence vitale — traitement par NaCl hypertonique.",
+          "Ne pas confondre agitation per-rachianesthésie avec inconfort simple — penser TURP syndrome."
+        ],
+        "references": [
+          { "source": "EAU Guidelines — BPH Management", "year": 2023, "note": "Recommandations techniques et anesthésiques" },
+          { "source": "BJA Education — TURP syndrome", "year": 2019, "note": "Physiopathologie et prise en charge" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "ureteroscopie_dj",
+    "specialty": "Urologie",
+    "titles": { "fr": "Urétéroscopie avec pose de sonde double J", "pt": "Ureteroscopia com duplo J", "en": "Ureteroscopy with double-J stent" },
+    "synonyms": { "fr": ["URS", "double J", "urétéroscopie", "JJ"], "en": ["URS", "DJ stent", "ureteral stent"], "pt": ["ureteroscopia", "duplo J"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "ECBU stérile obligatoire (< 48h)",
+          "Bilan rénal (créatinine, DFG)",
+          "Jeûne standard",
+          "Information sur douleur post-JJ (coliques, dysurie)"
+        ],
+        "intraop": [
+          "AG courte ou rachianesthésie basse",
+          "Position gynécologique (lithotomie)",
+          "Antibioprophylaxie : céfazoline ou fluoroquinolone",
+          "Procédure courte (30-60 min habituel)"
+        ],
+        "postop": [
+          "Analgésie : paracétamol + AINS",
+          "Surveillance diurèse et hématurie",
+          "Sortie ambulatoire J0 si stable",
+          "Consignes : consulter si fièvre, anurie, douleur intense"
+        ],
+        "red_flags": [
+          "Perforation urétérale",
+          "Sepsis urinaire (fièvre, frissons post-procédure)",
+          "Colique néphrétique sur sonde JJ obstruée"
+        ],
+        "drugs": [
+          { "drug_id": "propofol", "indication_tag": "induction" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ibuprofene", "indication_tag": "analgésie" },
+          { "drug_id": "cefazoline", "indication_tag": "antibioprophylaxie" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "Procédure ambulatoire fréquente, courte durée — anesthésie légère souvent suffisante.",
+          "La rachianesthésie offre une bonne relaxation urétérale.",
+          "AINS très efficaces sur la douleur post-JJ (composante spastique)."
+        ],
+        "pitfalls": [
+          "Ne pas sous-estimer le risque infectieux si ECBU non vérifié.",
+          "La douleur post-sonde JJ est fréquente et peut nécessiter alpha-bloquants."
+        ],
+        "references": [
+          { "source": "EAU Guidelines — Urolithiasis", "year": 2023, "note": "Recommandations URS" },
+          { "source": "SFAR — Ambulatoire urologique", "year": 2020, "note": "Critères sortie J0" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "cesarienne_urgente",
+    "specialty": "Obstétrique",
+    "titles": { "fr": "Césarienne urgente", "pt": "Cesariana urgente", "en": "Emergency caesarean section" },
+    "synonyms": { "fr": ["césarienne", "césarienne code rouge", "c-section urgente"], "en": ["emergency c-section", "crash caesarean"], "pt": ["cesariana emergência"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "ÉVALUATION URGENTE voies aériennes (Mallampati, ouverture buccale, CDD)",
+          "RAI + NFS en urgence — groupage sanguin si non fait",
+          "VVP gros calibre (16-18G) × 2 si possible",
+          "Position DLG (décubitus latéral gauche) jusqu'au bloc",
+          "Préoxygénation 3 min O2 pur ou 8 respirations capacité vitale",
+          "Antiacide : citrate de sodium 30 mL PO"
+        ],
+        "intraop": [
+          "Rachianesthésie séquence rapide si délai > 5 min (bupivacaïne hyperbare 12 mg + sufentanil 2.5 µg IT)",
+          "Si code rouge / CI rachianesthésie : AG crash induction (propofol + rocuronium 1.2 mg/kg)",
+          "Cristalloïdes 500-1000 mL + éphédrine/phényléphrine prêts",
+          "Antibioprophylaxie : céfazoline 2g avant incision",
+          "Ocytocine 5 UI IV lente après extraction fœtale",
+          "Avoir sugammadex prêt si intubation difficile"
+        ],
+        "postop": [
+          "Analgésie multimodale : paracétamol + AINS + morphine IT si rachianesthésie",
+          "Prévention NVPO : ondansétron",
+          "Surveillance hémorragie du post-partum (globe utérin, pertes)",
+          "Thromboprophylaxie",
+          "Favoriser peau-à-peau et allaitement précoce"
+        ],
+        "red_flags": [
+          "Intubation difficile / impossible — algorithme can't intubate can't ventilate",
+          "Hémorragie du post-partum > 500 mL (> 1000 mL = sévère)",
+          "Éclampsie (convulsions → MgSO4)",
+          "Embolie amniotique (collapsus + CIVD)"
+        ],
+        "drugs": [
+          { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
+          { "drug_id": "sufentanil", "indication_tag": "analgésie_IT" },
+          { "drug_id": "propofol", "indication_tag": "induction_AG" },
+          { "drug_id": "rocuronium", "indication_tag": "ISR" },
+          { "drug_id": "sugammadex", "indication_tag": "reversal_urgence" },
+          { "drug_id": "ephedrine", "indication_tag": "hypotension" },
+          { "drug_id": "cefazoline", "indication_tag": "antibioprophylaxie" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ondansetron", "indication_tag": "PONV" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "La rachianesthésie est préférée même en urgence si le délai le permet (> 5 min) — meilleure sécurité maternelle.",
+          "L'AG expose au risque d'intubation difficile (modifications anatomiques grossesse) et d'inhalation.",
+          "Le rocuronium 1.2 mg/kg + sugammadex 16 mg/kg est l'alternative moderne à la succinylcholine en ISR.",
+          "L'hypotension post-rachianesthésie est quasi constante : prévention par co-remplissage + vasopresseurs."
+        ],
+        "pitfalls": [
+          "Ne jamais retarder l'extraction pour « optimiser » l'anesthésie en code rouge.",
+          "Estomac toujours considéré plein : ISR obligatoire si AG.",
+          "L'ocytocine en bolus rapide peut causer hypotension sévère + tachycardie."
+        ],
+        "references": [
+          { "source": "SFAR/CARO — Césarienne", "year": 2023, "note": "Recommandations anesthésie obstétricale" },
+          { "source": "NICE — Caesarean birth", "year": 2021, "note": "Classification urgence et prise en charge" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "cholecystectomie_lap",
+    "specialty": "Chirurgie générale",
+    "titles": { "fr": "Cholécystectomie laparoscopique", "pt": "Colecistectomia laparoscópica", "en": "Laparoscopic cholecystectomy" },
+    "synonyms": { "fr": ["cholécystectomie", "vésicule biliaire", "cœlioscopie vésicule"], "en": ["lap chole", "gallbladder removal"], "pt": ["colecistectomia", "vesícula biliar"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "Bilan hépatique (transaminases, bilirubine, GGT, PAL)",
+          "Évaluation standard, jeûne",
+          "Évaluation risque PONV (score d'Apfel)",
+          "Prémédication si anxiété"
+        ],
+        "intraop": [
+          "AG + intubation orotrachéale (IOT)",
+          "Infiltration trocarts bupivacaïne avant incision",
+          "Surveillance Pplateau (pneumopéritoine → ↑ pressions)",
+          "Prophylaxie NVPO multimodale (dexaméthasone + ondansétron)",
+          "Antibioprophylaxie si cholécystite aiguë"
+        ],
+        "postop": [
+          "RAAC (récupération améliorée après chirurgie)",
+          "Analgésie multimodale : paracétamol + AINS + infiltration",
+          "Sortie J0-J1 si critères RAAC remplis",
+          "Alimentation précoce"
+        ],
+        "red_flags": [
+          "Lésion des voies biliaires (ictère postopératoire, fuite biliaire)",
+          "Hémorragie sur artère cystique",
+          "Emphysème sous-cutané / pneumothorax (insufflation CO2)",
+          "Conversion en laparotomie"
+        ],
+        "drugs": [
+          { "drug_id": "propofol", "indication_tag": "induction" },
+          { "drug_id": "rocuronium", "indication_tag": "intubation" },
+          { "drug_id": "sugammadex", "indication_tag": "reversal" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ketorolac", "indication_tag": "analgésie" },
+          { "drug_id": "ondansetron", "indication_tag": "PONV" },
+          { "drug_id": "dexamethasone", "indication_tag": "PONV_anti-oedème" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "Chirurgie la plus fréquente en ambulatoire — excellente indication RAAC.",
+          "Le pneumopéritoine augmente les pressions d'insufflation et peut réduire le retour veineux.",
+          "Score d'Apfel élevé (femme, non-fumeuse, ATCD NVPO, morphine) → prophylaxie agressive."
+        ],
+        "pitfalls": [
+          "Douleur scapulaire post-cœlioscopie fréquente (irritation phrénique) — prévenir le patient.",
+          "L'infiltration des trocarts AVANT incision est plus efficace qu'après."
+        ],
+        "references": [
+          { "source": "SFAR — RAAC en chirurgie digestive", "year": 2021, "note": "Protocole RAAC cholécystectomie" },
+          { "source": "ESPA — Consensus PONV", "year": 2020, "note": "Prophylaxie multimodale" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "appendicectomie_urgente",
+    "specialty": "Chirurgie générale",
+    "titles": { "fr": "Appendicectomie urgente", "pt": "Apendicectomia urgente", "en": "Emergency appendectomy" },
+    "synonyms": { "fr": ["appendicectomie", "appendicite", "appendice"], "en": ["appendectomy", "appendicitis surgery"], "pt": ["apendicectomia"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "PATIENT NON À JEUN — estomac plein",
+          "Bilan inflammatoire (NFS, CRP)",
+          "Hydratation IV (compensation pertes + jeûne)",
+          "Évaluation douleur et analgésie pré-opératoire",
+          "Antibioprophylaxie ou antibiothérapie si péritonite"
+        ],
+        "intraop": [
+          "ISR (induction séquence rapide) — estomac plein",
+          "AG + IOT obligatoire",
+          "Cœlioscopie (standard) — même surveillance pneumopéritoine",
+          "Antibioprophylaxie : céfazoline ± métronidazole si péritonite"
+        ],
+        "postop": [
+          "Analgésie multimodale : paracétamol ± morphine titration",
+          "Reprise alimentaire précoce si pas de péritonite",
+          "Surveillance infectieuse (température, NFS)",
+          "Sortie J1-J2 selon évolution"
+        ],
+        "red_flags": [
+          "Inhalation bronchique (estomac plein) — surtout à l'induction",
+          "Péritonite généralisée (sepsis sévère)",
+          "Abcès post-opératoire"
+        ],
+        "drugs": [
+          { "drug_id": "propofol", "indication_tag": "induction_ISR" },
+          { "drug_id": "rocuronium", "indication_tag": "ISR" },
+          { "drug_id": "sugammadex", "indication_tag": "reversal" },
+          { "drug_id": "cefazoline", "indication_tag": "antibioprophylaxie" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "morphine", "indication_tag": "analgésie_postop" },
+          { "drug_id": "ondansetron", "indication_tag": "PONV" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "L'ISR est obligatoire : tout patient en urgence abdominale est considéré estomac plein.",
+          "Le rocuronium 1.2 mg/kg est l'alternative à la succinylcholine pour l'ISR, réversible par sugammadex.",
+          "L'antibiothérapie est thérapeutique (et non prophylactique) si appendicite compliquée."
+        ],
+        "pitfalls": [
+          "Ne pas retarder la chirurgie pour obtenir le jeûne — l'ISR sécurise l'induction.",
+          "Attention aux diagnostics différentiels chez la femme jeune (GEU, torsion ovarienne)."
+        ],
+        "references": [
+          { "source": "SFAR — Estomac plein et urgence", "year": 2019, "note": "ISR et gestion voies aériennes" },
+          { "source": "WSES — Acute Appendicitis Guidelines", "year": 2020, "note": "Prise en charge chirurgicale et antibiothérapie" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "hernie_discale_lombaire",
+    "specialty": "Neurochirurgie",
+    "titles": { "fr": "Hernie discale lombaire (discectomie)", "pt": "Hérnia discal lombar (discectomia)", "en": "Lumbar disc herniation (discectomy)" },
+    "synonyms": { "fr": ["hernie discale", "discectomie", "laminectomie", "sciatique chirurgie"], "en": ["lumbar discectomy", "herniated disc surgery"], "pt": ["hérnia discal", "discectomia lombar"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "Évaluation neurologique de référence (déficit sensitivo-moteur, ROT)",
+          "Bilan standard (NFS, coagulation)",
+          "Douleur chronique fréquente — évaluer consommation d'opioïdes",
+          "Prévenir le patient : position ventrale peropératoire"
+        ],
+        "intraop": [
+          "AG + IOT obligatoire",
+          "Position ventrale (genupectorale ou cadre de Wilson)",
+          "Protection points d'appui : yeux, nerfs, abdomen libre",
+          "Antibioprophylaxie : céfazoline 2g IV",
+          "Kétamine sub-anesthésique si patient douloureux chronique",
+          "Maintien normothermie"
+        ],
+        "postop": [
+          "Évaluation neurologique immédiate (comparaison pré-op)",
+          "Analgésie multimodale : paracétamol + AINS + kétamine perfusion si besoin",
+          "Mobilisation précoce avec kinésithérapie",
+          "Surveillance : nouveau déficit = urgence diagnostique"
+        ],
+        "red_flags": [
+          "Syndrome de la queue de cheval post-op (rétention urinaire, anesthésie périnéale)",
+          "Hématome épidural compressif (déficit progressif → IRM urgente)",
+          "Complications positionnement : compression oculaire, lésions plexus brachial"
+        ],
+        "drugs": [
+          { "drug_id": "propofol", "indication_tag": "induction" },
+          { "drug_id": "rocuronium", "indication_tag": "intubation" },
+          { "drug_id": "sugammadex", "indication_tag": "reversal" },
+          { "drug_id": "sufentanil", "indication_tag": "analgésie_perop" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ketamine", "indication_tag": "co-analgésie" },
+          { "drug_id": "dexamethasone", "indication_tag": "PONV_anti-oedème" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "La position ventrale modifie la mécanique ventilatoire : surveiller les pressions d'insufflation.",
+          "Les patients douloureux chroniques sous opioïdes nécessitent souvent une co-analgésie par kétamine.",
+          "La dexaméthasone a un double intérêt : anti-PONV et réduction de l'œdème radiculaire."
+        ],
+        "pitfalls": [
+          "Toujours vérifier les yeux après retournement — pas de compression directe.",
+          "L'abdomen doit être libre en DV pour éviter engorgement veineux épidural et saignement.",
+          "Un déficit neurologique nouveau en post-op est une urgence chirurgicale (reprise)."
+        ],
+        "references": [
+          { "source": "SFAR — Positionnement en neurochirurgie", "year": 2021, "note": "Prévention lésions positionnelles" },
+          { "source": "Spine Journal — Enhanced recovery disc surgery", "year": 2022, "note": "Protocoles RAAC rachis" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "arthroscopie_epaule",
+    "specialty": "Orthopédie",
+    "titles": { "fr": "Arthroscopie de l'épaule", "pt": "Artroscopia do ombro", "en": "Shoulder arthroscopy" },
+    "synonyms": { "fr": ["arthroscopie épaule", "coiffe rotateurs", "bankart", "acromioplastie"], "en": ["shoulder scope", "rotator cuff arthroscopy"], "pt": ["artroscopia ombro"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "Bilan standard + coagulation si bloc nerveux prévu",
+          "Consentement éclairé pour bloc interscalénique (BIS)",
+          "Évaluation voies aériennes (positionnement beach-chair)",
+          "Information : paralysie phrénique transitoire post-BIS"
+        ],
+        "intraop": [
+          "AG + IOT ± bloc interscalénique échoguidé",
+          "Position beach-chair ou décubitus latéral",
+          "Beach-chair : surveillance PA invasive recommandée (risque hypotension cérébrale)",
+          "BIS : bupivacaïne 0.375% (15-20 mL) ± lidocaïne adjuvant",
+          "Normothermie (irrigation arthroscopique froide)"
+        ],
+        "postop": [
+          "Analgésie excellente via BIS (6-12h) + multimodale relais",
+          "Écharpe immobilisation",
+          "Surveillance neurologique membre supérieur",
+          "AINS pour relais antalgique après levée du bloc"
+        ],
+        "red_flags": [
+          "Paralysie phrénique (BIS) : dyspnée chez insuffisant respiratoire → CI relative",
+          "Syndrome de Horner (myosis, ptosis) — transitoire",
+          "Hypotension cérébrale en beach-chair (AVC si PA non maintenue)",
+          "Pneumothorax post-BIS (rare, échoguidage réduit le risque)"
+        ],
+        "drugs": [
+          { "drug_id": "propofol", "indication_tag": "induction" },
+          { "drug_id": "rocuronium", "indication_tag": "intubation" },
+          { "drug_id": "sugammadex", "indication_tag": "reversal" },
+          { "drug_id": "bupivacaine", "indication_tag": "BIS" },
+          { "drug_id": "lidocaine", "indication_tag": "BIS_adjuvant" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ketorolac", "indication_tag": "analgésie" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "Le BIS est le gold standard analgésique pour la chirurgie de l'épaule.",
+          "En beach-chair, maintenir PAM ≥ 60 mmHg au niveau du cercle de Willis (ajuster pour hauteur).",
+          "L'échoguidage a réduit drastiquement les complications du BIS."
+        ],
+        "pitfalls": [
+          "La paralysie phrénique est quasi constante avec le BIS classique — attention BPCO/obèse.",
+          "Ne pas oublier la conversion PA bras-cerveau en beach-chair (- 15-20 mmHg).",
+          "Le BIS supra-claviculaire a moins de paralysie phrénique mais couvre moins bien C5-C6."
+        ],
+        "references": [
+          { "source": "ASRA — Peripheral Nerve Blocks Guidelines", "year": 2023, "note": "BIS échoguidé technique et complications" },
+          { "source": "SFAR — ALR membre supérieur", "year": 2019, "note": "Recommandations pratiques" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "hysteroscopie_ambulatoire",
+    "specialty": "Gynécologie",
+    "titles": { "fr": "Hystéroscopie ambulatoire", "pt": "Histeroscopia ambulatória", "en": "Outpatient hysteroscopy" },
+    "synonyms": { "fr": ["hystéroscopie", "résection hystéroscopique", "polype utérin"], "en": ["hysteroscopy", "uterine polypectomy"], "pt": ["histeroscopia"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "Test de grossesse (β-hCG) si femme en âge de procréer",
+          "Bilan standard minimal (ASA 1-2 souvent)",
+          "Jeûne standard",
+          "Information ambulatoire : sortie J0 avec accompagnant"
+        ],
+        "intraop": [
+          "AG masque laryngé (procédure courte, pas d'intubation nécessaire)",
+          "Propofol AIVOC ou bolus + entretien sévoflurane",
+          "Position gynécologique (lithotomie)",
+          "Surveillance volume irrigation (glycine/sérum physiologique)",
+          "Prophylaxie NVPO si facteurs de risque"
+        ],
+        "postop": [
+          "Sortie rapide (critères ambulatoires : Chung score ≥ 9)",
+          "Analgésie PO : paracétamol + ibuprofène",
+          "Surveillance saignement vaginal",
+          "Consignes de sortie avec numéro d'urgence"
+        ],
+        "red_flags": [
+          "Perforation utérine (douleur, saignement, instabilité)",
+          "Surcharge liquidienne (absorption irrigation → hyponatrémie si glycine)",
+          "Réaction vagale (bradycardie, hypotension)"
+        ],
+        "drugs": [
+          { "drug_id": "propofol", "indication_tag": "induction" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ibuprofene", "indication_tag": "analgésie" },
+          { "drug_id": "ondansetron", "indication_tag": "PONV" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "Procédure ambulatoire par excellence — durée courte, récupération rapide.",
+          "Le masque laryngé est suffisant : pas de curarisation nécessaire.",
+          "Avec sérum physiologique (NaCl 0.9%), le risque d'hyponatrémie est éliminé vs glycine."
+        ],
+        "pitfalls": [
+          "Toujours monitorer le bilan entrées/sorties de l'irrigation.",
+          "La réaction vagale est fréquente lors de la dilatation cervicale — atropine prête."
+        ],
+        "references": [
+          { "source": "RCOG — Best Practice in Outpatient Hysteroscopy", "year": 2019, "note": "Recommandations pratiques" },
+          { "source": "SFAR — Ambulatoire gynécologique", "year": 2020, "note": "Critères de sortie" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "amygdalectomie_enfant",
+    "specialty": "ORL",
+    "titles": { "fr": "Amygdalectomie chez l'enfant", "pt": "Amigdalectomia na criança", "en": "Pediatric tonsillectomy" },
+    "synonyms": { "fr": ["amygdalectomie", "amygdales", "adéno-amygdalectomie", "tonsillectomie"], "en": ["tonsillectomy", "T&A", "adenotonsillectomy"], "pt": ["amigdalectomia", "tonsilectomia"] },
+    "quick": {
+      "fr": {
+        "preop": [
+          "POIDS EXACT obligatoire (calcul doses pédiatriques)",
+          "Évaluation SAS/SAOS (polysomnographie si sévère → risque apnées post-op)",
+          "Bilan coagulation (TP, TCA ± PFA si ATCD hémorragique)",
+          "Jeûne adapté à l'âge (lait maternel 4h, lait artificiel 6h, solides 6h)",
+          "Crème anesthésiante (EMLA) sur sites ponction"
+        ],
+        "intraop": [
+          "AG + IOT (tube RAE oral) — taille tube selon âge/poids",
+          "Induction inhalatoire (sévoflurane) ou IV si VVP en place",
+          "Dexaméthasone 0.15 mg/kg IV (anti-PONV + anti-œdème)",
+          "PAS de codéine chez l'enfant < 12 ans",
+          "Analgésie : paracétamol + ibuprofène (si > 6 mois)",
+          "Ondansétron 0.1 mg/kg pour PONV"
+        ],
+        "postop": [
+          "Surveillance hémorragique 6h minimum en SSPI/UCA",
+          "Analgésie régulière (pas d'à-la-demande chez l'enfant)",
+          "Hydratation IV puis orale (liquides froids, glaces)",
+          "SAOS sévère : surveillance prolongée ≥ 24h (risque apnées post-op)",
+          "Morphine en secours si douleur non contrôlée (titration prudente)"
+        ],
+        "red_flags": [
+          "Hémorragie post-amygdalectomie précoce (< 24h) ou tardive (J5-J10)",
+          "Laryngospasme à l'extubation (enfant +++)",
+          "Dépression respiratoire (opioïdes + SAOS)",
+          "NVPO sévères (déshydratation)"
+        ],
+        "drugs": [
+          { "drug_id": "propofol", "indication_tag": "induction" },
+          { "drug_id": "sevoflurane", "indication_tag": "entretien" },
+          { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "ibuprofene", "indication_tag": "analgésie" },
+          { "drug_id": "dexamethasone", "indication_tag": "PONV_anti-oedème" },
+          { "drug_id": "ondansetron", "indication_tag": "PONV" },
+          { "drug_id": "morphine", "indication_tag": "analgésie_secours" }
+        ]
+      }
+    },
+    "deep": {
+      "fr": {
+        "clinical": [
+          "L'amygdalectomie est l'une des chirurgies pédiatriques les plus fréquentes et à plus haut risque de PONV.",
+          "Les enfants SAOS sévères sont très sensibles aux opioïdes : réduire doses et surveiller.",
+          "La dexaméthasone réduit PONV et œdème — bénéfice démontré sans augmentation du risque hémorragique.",
+          "L'ibuprofène est sûr et efficace post-amygdalectomie (études récentes réfutent le sur-risque hémorragique)."
+        ],
+        "pitfalls": [
+          "NE JAMAIS utiliser codéine < 12 ans (métaboliseurs ultra-rapides → dépression respiratoire fatale).",
+          "Le laryngospasme est plus fréquent si extubation en stade 2 d'anesthésie — extuber éveillé ou profond.",
+          "L'hémorragie tardive (J5-J10) est souvent plus grave que la précoce — information parentale cruciale."
+        ],
+        "references": [
+          { "source": "ADARPEF/SFAR — Amygdalectomie pédiatrique", "year": 2022, "note": "Recommandations anesthésie" },
+          { "source": "Cochrane — NSAIDs post-tonsillectomy", "year": 2021, "note": "Méta-analyse sécurité ibuprofène" }
+        ]
+      }
+    }
+  }
+]

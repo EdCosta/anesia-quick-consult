@@ -1,20 +1,21 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
 import Fuse from 'fuse.js';
+import { Activity, Stethoscope, BookOpen } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData, Procedure } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import SearchBar from '@/components/anesia/SearchBar';
 import SpecialtyFilter from '@/components/anesia/SpecialtyFilter';
 import ProcedureCard from '@/components/anesia/ProcedureCard';
-import Disclaimer from '@/components/anesia/Disclaimer';
+import { useState } from 'react';
 
-export default function Index() {
+interface IndexProps {
+  searchQuery: string;
+}
+
+export default function Index({ searchQuery }: IndexProps) {
   const { t, lang } = useLang();
   const { procedures, specialties, loading } = useData();
-  const navigate = useNavigate();
 
-  const [query, setQuery] = useState('');
   const [specialty, setSpecialty] = useState<string | null>(null);
   const [favorites, setFavorites] = useLocalStorage<string[]>('anesia-favorites', []);
   const [recents] = useLocalStorage<string[]>('anesia-recents', []);
@@ -41,9 +42,9 @@ export default function Index() {
   };
 
   const searchResults = useMemo(() => {
-    if (!query.trim()) return null;
-    return fuse.search(query).map(r => r.item);
-  }, [query, fuse]);
+    if (!searchQuery.trim()) return null;
+    return fuse.search(searchQuery).map(r => r.item);
+  }, [searchQuery, fuse]);
 
   const filteredResults = useMemo(() => {
     const source = searchResults ?? procedures;
@@ -70,58 +71,69 @@ export default function Index() {
   }
 
   return (
-    <div className="container max-w-2xl space-y-6 py-6">
-      <div className="space-y-1 text-center">
-        <h1 className="font-heading text-3xl font-bold text-primary">AnesIA</h1>
-        <p className="text-sm text-muted-foreground">{t('disclaimer')}</p>
+    <div className="container py-6 space-y-6">
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="rounded-lg border bg-card p-4 clinical-shadow">
+          <div className="flex items-center gap-2 text-accent">
+            <Activity className="h-5 w-5" />
+            <span className="text-2xl font-bold">{procedures.length}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">{t('all_procedures')}</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 clinical-shadow">
+          <div className="flex items-center gap-2 text-accent">
+            <Stethoscope className="h-5 w-5" />
+            <span className="text-2xl font-bold">{specialties.length}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">{t('all_specialties')}</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 clinical-shadow hidden sm:block">
+          <div className="flex items-center gap-2 text-accent">
+            <BookOpen className="h-5 w-5" />
+            <span className="text-2xl font-bold">{favorites.length}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">{t('favorites')}</p>
+        </div>
       </div>
 
-      <SearchBar value={query} onChange={setQuery} />
       <SpecialtyFilter specialties={specialties} selected={specialty} onSelect={setSpecialty} />
 
-      {/* Favorites */}
-      {favProcedures.length > 0 && !query && (
-        <section>
-          <h2 className="mb-3 font-heading text-base font-bold text-foreground">{t('favorites')}</h2>
-          <div className="space-y-2">
-            {favProcedures.map(p => (
-              <ProcedureCard
-                key={p.id}
-                procedure={p}
-                isFavorite={true}
-                onToggleFavorite={toggleFavorite}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Recents */}
-      {recentProcedures.length > 0 && !query && (
-        <section>
-          <h2 className="mb-3 font-heading text-base font-bold text-foreground">{t('recents')}</h2>
-          <div className="space-y-2">
-            {recentProcedures.map(p => (
-              <ProcedureCard
-                key={p.id}
-                procedure={p}
-                isFavorite={favorites.includes(p.id)}
-                onToggleFavorite={toggleFavorite}
-              />
-            ))}
-          </div>
-        </section>
+      {/* Favorites & Recents side by side */}
+      {!searchQuery && (favProcedures.length > 0 || recentProcedures.length > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {favProcedures.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-base font-bold text-foreground">{t('favorites')}</h2>
+              <div className="space-y-2">
+                {favProcedures.map(p => (
+                  <ProcedureCard key={p.id} procedure={p} isFavorite onToggleFavorite={toggleFavorite} />
+                ))}
+              </div>
+            </section>
+          )}
+          {recentProcedures.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-base font-bold text-foreground">{t('recents')}</h2>
+              <div className="space-y-2">
+                {recentProcedures.map(p => (
+                  <ProcedureCard key={p.id} procedure={p} isFavorite={favorites.includes(p.id)} onToggleFavorite={toggleFavorite} />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       )}
 
       {/* Results */}
       <section>
-        <h2 className="mb-3 font-heading text-base font-bold text-foreground">
-          {query ? t('results') : t('all_procedures')}
+        <h2 className="mb-3 text-base font-bold text-foreground">
+          {searchQuery ? t('results') : t('all_procedures')}
         </h2>
         {filteredResults.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {filteredResults.map(p => (
               <ProcedureCard
                 key={p.id}
@@ -133,8 +145,6 @@ export default function Index() {
           </div>
         )}
       </section>
-
-      <Disclaimer />
     </div>
   );
 }

@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["DM Sans", "system-ui", "sans-serif"],
-        heading: ["Space Grotesk", "system-ui", "sans-serif"],
+        heading: ["DM Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -60,6 +60,26 @@ export default {
           "postop-bg": "hsl(var(--section-postop-bg))",
           redflag: "hsl(var(--section-redflag))",
           "redflag-bg": "hsl(var(--section-redflag-bg))",
+        },
+        clinical: {
+          warning: "hsl(var(--clinical-warning))",
+          "warning-bg": "hsl(var(--clinical-warning-bg))",
+          success: "hsl(var(--clinical-success))",
+          "success-bg": "hsl(var(--clinical-success-bg))",
+          info: "hsl(var(--clinical-info))",
+          "info-bg": "hsl(var(--clinical-info-bg))",
+          danger: "hsl(var(--clinical-danger))",
+          "danger-bg": "hsl(var(--clinical-danger-bg))",
+        },
+        evidence: {
+          high: "hsl(var(--evidence-high))",
+          moderate: "hsl(var(--evidence-moderate))",
+          low: "hsl(var(--evidence-low))",
+        },
+        disclaimer: {
+          bg: "hsl(var(--disclaimer-bg))",
+          border: "hsl(var(--disclaimer-border))",
+          text: "hsl(var(--disclaimer-text))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

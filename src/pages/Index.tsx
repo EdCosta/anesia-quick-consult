@@ -4,11 +4,8 @@ import Fuse from 'fuse.js';
 import {
   Activity,
   Stethoscope,
-  BookOpen,
   Search,
   X,
-  Target,
-  Calculator,
   Star,
   Trash2,
 } from 'lucide-react';
@@ -18,13 +15,7 @@ import type { Procedure } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import SpecialtyFilter from '@/components/anesia/SpecialtyFilter';
 import ProcedureCard from '@/components/anesia/ProcedureCard';
-
-const QUICK_ACCESS = [
-  { key: 'procedures_title', to: '/', icon: Activity, color: 'text-accent' },
-  { key: 'calculateurs', to: '/calculateurs', icon: Calculator, color: 'text-clinical-info' },
-  { key: 'guidelines', to: '/guidelines', icon: BookOpen, color: 'text-clinical-warning' },
-  { key: 'alr', to: '/alr', icon: Target, color: 'text-clinical-danger' },
-];
+import { QUICK_ACCESS_ITEMS } from '@/config/nav';
 
 export default function Index() {
   const { t, lang } = useLang();
@@ -120,6 +111,18 @@ export default function Index() {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const handleQuickAccess = (item: typeof QUICK_ACCESS_ITEMS[0]) => {
+    if (item.to === '/') {
+      // 1st button: scroll to procedures, clear search
+      setSearchQuery('');
+      setSpecialty(null);
+      setShowOnlyFavorites(false);
+      scrollTo(proceduresRef);
+    } else {
+      navigate(item.to);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -198,16 +201,17 @@ export default function Index() {
 
         <div className="w-full max-w-lg">
           <h2 className="text-sm font-semibold text-muted-foreground mb-3">{t('quick_access')}</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {QUICK_ACCESS.map((item) => (
-              <Link
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {QUICK_ACCESS_ITEMS.map((item) => (
+              <button
                 key={item.key}
-                to={item.to}
-                className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 clinical-shadow hover:clinical-shadow-md transition-shadow"
+                onClick={() => handleQuickAccess(item)}
+                aria-label={t(item.key)}
+                className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 clinical-shadow hover:clinical-shadow-md active:scale-95 transition-all cursor-pointer"
               >
-                <item.icon className={`h-6 w-6 ${item.color}`} />
-                <span className="text-xs font-medium text-foreground">{t(item.key)}</span>
-              </Link>
+                <item.icon className="h-6 w-6 text-accent" />
+                <span className="text-xs font-medium text-foreground text-center">{t(item.key)}</span>
+              </button>
             ))}
           </div>
         </div>

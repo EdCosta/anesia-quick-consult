@@ -14,6 +14,7 @@ import Guidelines from "./pages/Guidelines";
 import ALR from "./pages/ALR";
 import Calculateurs from "./pages/Calculateurs";
 import Protocoles from "./pages/Protocoles";
+import PreAnest from "./pages/PreAnest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => {
                 <Route path="/alr" element={<ALR />} />
                 <Route path="/calculateurs" element={<Calculateurs />} />
                 <Route path="/protocoles" element={<Protocoles />} />
+                <Route path="/preanest" element={<PreAnest />} />
                 <Route path="/p/:id" element={<ProcedurePage />} />
                 <Route path="/admin-content" element={<AdminContent />} />
                 <Route path="*" element={<NotFound />} />

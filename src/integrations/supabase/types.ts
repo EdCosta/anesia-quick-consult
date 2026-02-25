@@ -14,16 +14,213 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alr_blocks: {
+        Row: {
+          contraindications: Json | null
+          created_at: string
+          drugs: Json | null
+          id: string
+          indications: Json | null
+          region: string
+          tags: Json | null
+          technique: Json | null
+          titles: Json
+          updated_at: string
+        }
+        Insert: {
+          contraindications?: Json | null
+          created_at?: string
+          drugs?: Json | null
+          id: string
+          indications?: Json | null
+          region: string
+          tags?: Json | null
+          technique?: Json | null
+          titles: Json
+          updated_at?: string
+        }
+        Update: {
+          contraindications?: Json | null
+          created_at?: string
+          drugs?: Json | null
+          id?: string
+          indications?: Json | null
+          region?: string
+          tags?: Json | null
+          technique?: Json | null
+          titles?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      drugs: {
+        Row: {
+          class: string | null
+          contraindications: Json | null
+          created_at: string
+          dosing: Json
+          id: string
+          names: Json
+          notes: Json | null
+          tags: Json | null
+          updated_at: string
+        }
+        Insert: {
+          class?: string | null
+          contraindications?: Json | null
+          created_at?: string
+          dosing?: Json
+          id: string
+          names: Json
+          notes?: Json | null
+          tags?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          class?: string | null
+          contraindications?: Json | null
+          created_at?: string
+          dosing?: Json
+          id?: string
+          names?: Json
+          notes?: Json | null
+          tags?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      guidelines: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          items: Json
+          refs: Json | null
+          tags: Json | null
+          titles: Json
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id: string
+          items: Json
+          refs?: Json | null
+          tags?: Json | null
+          titles: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          items?: Json
+          refs?: Json | null
+          tags?: Json | null
+          titles?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      procedures: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          specialty: string
+          synonyms: Json | null
+          tags: Json | null
+          titles: Json
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id: string
+          specialty: string
+          synonyms?: Json | null
+          tags?: Json | null
+          titles: Json
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          specialty?: string
+          synonyms?: Json | null
+          tags?: Json | null
+          titles?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      protocoles: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          refs: Json | null
+          steps: Json
+          tags: Json | null
+          titles: Json
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id: string
+          refs?: Json | null
+          steps: Json
+          tags?: Json | null
+          titles: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          refs?: Json | null
+          steps?: Json
+          tags?: Json | null
+          titles?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +347,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const

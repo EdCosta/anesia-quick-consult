@@ -1,22 +1,14 @@
 import { useState, ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, BookOpen, Target, Calculator, ClipboardCheck, Settings } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { HEADER_ITEMS } from '@/config/nav';
 
 interface AppLayoutProps {
   children: ReactNode;
 }
-
-const NAV_ITEMS = [
-  { key: 'home', to: '/', icon: Home },
-  { key: 'guidelines', to: '/guidelines', icon: BookOpen },
-  { key: 'alr', to: '/alr', icon: Target },
-  { key: 'calculateurs', to: '/calculateurs', icon: Calculator },
-  { key: 'protocoles', to: '/protocoles', icon: ClipboardCheck },
-  { key: 'admin', to: '/admin-content', icon: Settings },
-];
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const { t } = useLang();
@@ -45,7 +37,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {/* Desktop nav */}
           {!isMobile && (
             <nav className="flex-1 flex items-center justify-center gap-1">
-              {NAV_ITEMS.map(item => (
+              {HEADER_ITEMS.map(item => (
                 <Link
                   key={item.key}
                   to={item.to}
@@ -74,7 +66,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <button onClick={() => setMenuOpen(false)} className="absolute top-4 right-4 p-2 text-foreground">
             <X className="h-6 w-6" />
           </button>
-          {NAV_ITEMS.map(item => (
+          {HEADER_ITEMS.map(item => (
             <Link
               key={item.key}
               to={item.to}

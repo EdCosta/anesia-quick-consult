@@ -1,255 +1,125 @@
 
+# Plan: UI/UX Review, Bug Fix & New Procedures
 
-# Plan: Auditoria, Correcao e Migracao AnesIA Quick Consult
+## 1. Bug Fix: Double Back Arrow
 
-## Vista Geral
+**Root cause identified**: The i18n key `back` contains "← Retour" (with a left arrow character), AND `ProcedurePage.tsx` renders an `<ArrowLeft>` icon next to it (line 91-92). This produces two arrows side by side.
 
-5 blocos principais: (A) Quick access + NAV_ITEMS unificado, (B) Pagina /preanest MVP, (C) Migracao para database, (D) Melhorias extras, (E) Linguas (ja feito).
+**Fix**: Remove the "←" character from the i18n `back` key in all 3 languages. Keep only the `<ArrowLeft>` icon component.
 
----
+Also fix the console warnings about "Function components cannot be given refs" for `Section` and `Badge` -- these are caused by refs being passed to function components in `ProcedurePage`.
 
-## A. Quick Access e Navegacao Unificada
-
-### A1. Corrigir 1o botao
-
-O 1o botao do quick access aponta para `/` (a propria Home). Mudar para um `button` que faz scroll suave ate `proceduresRef`, limpa pesquisa activa e foca a lista.
-
-### A2. NAV_ITEMS centralizado
-
-Criar `src/config/nav.ts` com um unico array:
-
-```text
-{ key, to, icon, quickAccess, order }
-```
-
-Items:
-1. home (/) - quickAccess: true (scroll especial na Home)
-2. guidelines (/guidelines) - quickAccess: true
-3. alr (/alr) - quickAccess: true
-4. calculateurs (/calculateurs) - quickAccess: true
-5. protocoles (/protocoles) - quickAccess: true
-6. preanest (/preanest) - quickAccess: true (NOVO)
-7. admin (/admin-content) - quickAccess: false
-
-Usar este array em:
-- `AppLayout.tsx` (header + mobile menu)
-- `Index.tsx` (quick access cards)
-
-### A3. Acessibilidade
-
-- Adicionar `aria-label` aos botoes quick access
-- Garantir wrap correcto em mobile (ja e `grid grid-cols-2`)
-- Hover/active/pressed com `active:scale-95`
-
-**Ficheiros**: `src/config/nav.ts` (criar), `src/components/anesia/AppLayout.tsx`, `src/pages/Index.tsx`
+**File**: `src/contexts/LanguageContext.tsx` -- change `back` from `"← Retour"` to `"Retour"` (and EN/PT equivalents).
 
 ---
 
-## B. Pagina /preanest (MVP)
+## 2. Quick Access: Action-Oriented Shortcuts
 
-### B1. Rota
+Current quick access mirrors the header nav (Home, Guidelines, ALR, Calculateurs, Protocoles, Pre-Anest). The user wants action shortcuts instead.
 
-Adicionar `/preanest` em `App.tsx` com novo componente `PreAnest.tsx`.
+**New QUICK_ACCESS_ITEMS** (separate from HEADER_ITEMS in `src/config/nav.ts`):
 
-### B2. UI do formulario
+1. "Toutes les cirurgies" -- scroll to procedures list (Star icon replaced by Activity)
+2. "Favoritos" -- toggle show only favorites
+3. "Recentes" -- scroll to recents section
+4. "Calculadora ETT" -- navigate to /calculateurs
+5. "Pre-Anest Mode" -- navigate to /preanest
+6. "Limpar filtros" -- clear search + filters + scroll to list
 
-Pagina com formulario dividido em 2 seccoes:
+Update `src/config/nav.ts` to separate HEADER_ITEMS (nav links) from QUICK_ACCESS_ITEMS (action shortcuts).
 
-**Doente** (sem dados identificaveis):
-- Idade (anos), sexo, peso (kg), altura (cm)
-- ASA (select: I, II, III, IV, V)
-- Comorbilidades: checkboxes (HTA, diabetes, SAOS, obesidade IMC>35, cardiopatia, IRC, hepatopatia, asma/DPOC) + campo livre
-- Via aerea: Mallampati (I-IV select), abertura oral (normal/limitada), mobilidade cervical (normal/limitada)
-- Anticoagulacao (select: nenhuma, aspirina, clopidogrel, DOAC, AVK, HBPM, dupla antiagregacao)
-- Alergias (texto livre)
+Update `src/pages/Index.tsx` to handle the new action types.
 
-**Cirurgia**:
-- Seleccionar procedimento da lista existente (combobox com pesquisa Fuse)
-- OU especialidade + tipo manual
-- Contexto: ambulatorio / internamento / urgencia (radio)
-
-### B3. Motor de regras
-
-Criar `src/lib/preanest-rules.ts` com funcao `generateRecommendations(input)`:
-
-Regras deterministicas baseadas em:
-- ASA >= 3: alertas pre-op, considerar consulta especializada
-- SAOS: tubo armado, posicao, monitorizacao pos-op
-- Obesidade: doses ajustadas ao peso ideal, VAD provavel
-- Anticoagulacao: quando suspender, bridging
-- Cirurgia maior vs menor: nivel de monitorizacao
-- Ambulatorio: criterios de alta, NVPO profilaxia
-- Urgencia: estomago cheio, ISR
-
-Output em 4 blocos:
-1. Pre-op (exames, jejum, medicacao)
-2. Intra-op (plano anestesico, airway, monitorizacao, profilaxias)
-3. Pos-op (analgesia, NVPO, tromboprofilaxia, criterios de alta)
-4. Red flags / quando pedir ajuda senior
-
-### B4. Persistencia
-
-Guardar ultimo caso em `localStorage` (`anesia-preanest-last`) para repetir rapidamente.
-
-### B5. i18n
-
-Adicionar ~30 novas chaves em `LanguageContext.tsx` para a pagina /preanest.
-
-**Ficheiros**: `src/pages/PreAnest.tsx` (criar), `src/lib/preanest-rules.ts` (criar), `src/App.tsx`, `src/config/nav.ts`, `src/contexts/LanguageContext.tsx`
+**Files**: `src/config/nav.ts`, `src/pages/Index.tsx`
 
 ---
 
-## C. Migracao para Database (Supabase)
+## 3. UX Polish
 
-### C1. Tabelas (migracao SQL)
+### 3.1 Search improvements
+- Fuse.js already searches by synonyms and titles -- confirmed working.
+- No changes needed for search logic (already well configured).
 
-Criar 5 tabelas com RLS de leitura publica:
+### 3.2 Consistent procedure template
+- All existing 10 procedures already follow the template (preop/intraop/postop/red_flags/drugs/deep).
+- New procedures will follow the same structure.
 
-**procedures**
-- id text PRIMARY KEY
-- specialty text NOT NULL
-- titles jsonb NOT NULL
-- synonyms jsonb DEFAULT '{}'
-- content jsonb NOT NULL (inclui quick/deep)
-- tags jsonb DEFAULT '[]'
-- created_at, updated_at timestamps
+### 3.3 i18n consistency
+- Fix the `back` key (point 1).
+- Audit for any hardcoded strings in ProcedurePage and Index.
 
-**drugs**
-- id text PRIMARY KEY
-- names jsonb NOT NULL
-- class text
-- dosing jsonb NOT NULL (dose_rules, concentrations)
-- notes jsonb DEFAULT '{}'
-- contraindications jsonb DEFAULT '[]'
-- tags jsonb DEFAULT '[]'
-- created_at, updated_at timestamps
-
-**guidelines**
-- id text PRIMARY KEY
-- category text NOT NULL
-- titles jsonb NOT NULL
-- items jsonb NOT NULL
-- references jsonb DEFAULT '[]'
-- tags jsonb DEFAULT '[]'
-- created_at, updated_at timestamps
-
-**protocoles**
-- id text PRIMARY KEY
-- category text NOT NULL
-- titles jsonb NOT NULL
-- steps jsonb NOT NULL
-- references jsonb DEFAULT '[]'
-- tags jsonb DEFAULT '[]'
-- created_at, updated_at timestamps
-
-**alr_blocks**
-- id text PRIMARY KEY
-- region text NOT NULL
-- titles jsonb NOT NULL
-- indications jsonb DEFAULT '{}'
-- contraindications jsonb DEFAULT '{}'
-- technique jsonb DEFAULT '{}'
-- drugs jsonb DEFAULT '{}'
-- tags jsonb DEFAULT '[]'
-- created_at, updated_at timestamps
-
-### C2. RLS
-
-- SELECT publico (para utilizadores anonimos -- app publica)
-- INSERT/UPDATE/DELETE apenas para admins (via `has_role()`)
-- Criar tabela `user_roles` com enum `app_role`
-
-### C3. Seed
-
-Criar edge function `seed-data` que importa os JSON existentes para as tabelas. Executar uma vez.
-
-Alternativa mais simples: usar INSERT directo via migration com os dados dos JSON.
-
-### C4. DataContext com fallback
-
-Actualizar `DataContext.tsx`:
-
-```text
-1. Tentar carregar de Supabase (select * from procedures, etc.)
-2. Se erro de rede ou tabela vazia: fallback para JSON local
-3. Cache em estado React (ja existe)
-4. Loading states (ja existe)
-5. Erro amigavel (ja existe)
-```
-
-Manter os mesmos tipos TypeScript -- a estrutura jsonb mapeia directamente.
-
-### C5. Pesquisa Fuse
-
-Fuse.js continua a funcionar igual -- recebe o array de objectos independentemente da fonte.
-
-**Ficheiros**: Migration SQL, `src/contexts/DataContext.tsx`, edge function seed (opcional)
+### 3.4 Technical quality
+- Fix React ref warnings in ProcedurePage (Section and Badge components getting refs).
+- Loading states already implemented.
 
 ---
 
-## D. Melhorias Extras
+## 4. Database Seed
 
-### D1. Favoritos/Recentes (ja maioritariamente implementado)
+The database tables exist but are empty (confirmed via query). The DataContext already has Supabase-first logic with JSON fallback.
 
-Confirmar que tudo funciona:
-- Stats clicaveis com scroll (ja feito)
-- "Limpar recentes" (ja feito)
-- "So favoritos" toggle (ja feito)
-- Estrela no ProcedureCard (ja feito)
-- Empty state favoritos (ja feito)
+**Action**: Create a database migration that seeds all procedure data (existing 10 + new 15) into the `procedures` table, plus seed `drugs`, `guidelines`, `protocoles`, and `alr_blocks` from existing JSON files.
 
-### D2. Guidelines/Protocoles/ALR da BD
+This way the app reads from the database as primary source.
 
-As paginas ja funcionam com dados do DataContext. Ao mudar DataContext para ler da BD, estas paginas passam automaticamente a ler da BD sem alteracao.
-
-### D3. Recomendacoes nas cirurgias
-
-Na `ProcedurePage.tsx`, adicionar seccao "Recomendacoes" no tab Detail:
-- Consultar guidelines da BD por tags/categoria matching com a especialidade da cirurgia
-- Mostrar Top 3 recomendacoes relevantes com link para a guideline completa
-
-**Ficheiros**: `src/pages/ProcedurePage.tsx`
-
-### D4. Linguas
-
-Ja implementado: FR -> EN -> PT no switcher e fallback. Nada a alterar.
+**File**: New SQL migration with INSERT statements.
 
 ---
 
-## Resumo de Ficheiros
+## 5. Add 15+ New Procedures
 
-| Ficheiro | Accao |
-|----------|-------|
-| `src/config/nav.ts` | Criar -- NAV_ITEMS centralizado |
-| `src/components/anesia/AppLayout.tsx` | Modificar -- usar NAV_ITEMS de config |
-| `src/pages/Index.tsx` | Modificar -- quick access usa NAV_ITEMS, 1o botao faz scroll |
-| `src/pages/PreAnest.tsx` | Criar -- formulario + output do motor de regras |
-| `src/lib/preanest-rules.ts` | Criar -- motor de regras deterministico |
-| `src/App.tsx` | Modificar -- adicionar rota /preanest |
-| `src/contexts/LanguageContext.tsx` | Modificar -- ~30 novas chaves i18n |
-| `src/contexts/DataContext.tsx` | Modificar -- carregar de Supabase com fallback JSON |
-| `src/pages/ProcedurePage.tsx` | Modificar -- seccao Recomendacoes |
-| Migration SQL | Criar -- 5 tabelas + RLS + seed |
+Adding these procedures to `public/data/procedures.v3.json` (for fallback) AND to the database seed:
 
-## Sequencia de Implementacao
+| ID | Specialty | Title (FR) |
+|----|-----------|------------|
+| arthroscopie_genou | Orthopedie | Arthroscopie du genou (meniscectomie/ligamentoplastie) |
+| ptg | Orthopedie | Prothese totale de genou (PTG) |
+| fracture_radius | Orthopedie | Fixation fracture radius distal (ORIF) |
+| osteosynthese_cheville | Orthopedie | Osteosynthese de cheville |
+| laminectomie_lombaire | Neurochirurgie | Laminectomie lombaire |
+| arthrodese_cervicale | Neurochirurgie | Arthrodese cervicale anterieure (ACDF) |
+| rtu_bexiga | Urologie | Resection transurethrale de vessie (RTUV) |
+| nephrostomie_dj | Urologie | Nephrostomie percutanee / Double-J |
+| cesarienne_elective | Obstetrique | Cesarienne elective (programmee) |
+| conisation_leep | Gynecologie | Conisation / LEEP |
+| hernie_inguinale | Chirurgie generale | Hernie inguinale (laparoscopie/TEP) |
+| thyroidectomie | Chirurgie generale | Thyroidectomie |
+| mastectomie | Chirurgie generale | Mastectomie / tumorectomie |
+| septoplastie | ORL | Septoplastie / rhinoplastie fonctionnelle |
+| microlaryngoscopie | ORL | Microlaryngoscopie en suspension |
 
-1. Criar tabelas na database (migration SQL com seed dos JSON)
-2. Criar `src/config/nav.ts` e actualizar AppLayout + Index
-3. Actualizar DataContext para ler da BD com fallback
-4. Criar pagina /preanest com motor de regras
-5. Adicionar seccao Recomendacoes na ProcedurePage
-6. Adicionar todas as chaves i18n
+Each procedure will have:
+- titles in FR/EN/PT
+- synonyms in FR/EN/PT
+- Complete quick block (preop, intraop, postop, red_flags, drugs)
+- Deep block (clinical, pitfalls, references)
+- All following the same template as existing procedures
 
-## O que NAO muda
-- JSON files em `public/data/` -- mantidos como fallback
+**File**: `public/data/procedures.v3.json` (append 15 new entries)
+
+---
+
+## Summary of Files
+
+| File | Action |
+|------|--------|
+| `src/contexts/LanguageContext.tsx` | Fix `back` key (remove "←" character) |
+| `src/config/nav.ts` | Separate QUICK_ACCESS_ITEMS from HEADER_ITEMS as action shortcuts |
+| `src/pages/Index.tsx` | Update quick access to handle action types, add recentsRef |
+| `src/pages/ProcedurePage.tsx` | Remove duplicate arrow, fix ref warnings |
+| `public/data/procedures.v3.json` | Add 15 new procedures |
+| SQL migration | Seed all data into database tables |
+
+## What does NOT change
+- `AppLayout.tsx` (header nav stays the same, using HEADER_ITEMS)
+- `DataContext.tsx` (already has Supabase-first + JSON fallback)
+- Drug data, guidelines, protocoles, ALR blocks (unchanged)
 - `ETTCalculator.tsx`, `IntubationGuide.tsx`, `DrugDoseRow.tsx`
-- `ett.ts`, `dose.ts`, `dilution.ts`
-- `LanguageSwitcher.tsx` (ja correcto)
-- Componentes UI base (button, card, badge, etc.)
+- UI components (card, badge, button, etc.)
 
-## Testes Manuais
-1. Quick access: verificar que o 1o botao faz scroll para a lista e que a ordem e coerente com o header
-2. /preanest: preencher formulario com ASA III + SAOS e verificar que as recomendacoes aparecem nos 4 blocos
-3. Database: verificar que procedures/guidelines carregam da BD; desligar BD e confirmar fallback JSON
-4. Recomendacoes: abrir uma cirurgia e verificar que aparecem guidelines relevantes no tab Detail
-
+## Manual Tests
+1. Open a procedure page -- confirm only 1 back arrow, no overlap with title
+2. Home page -- click each quick access button and verify correct action
+3. Search for a new procedure (e.g. "genou") and confirm it appears
+4. Check mobile layout for procedure page header and quick access wrap
+5. Verify database has data after migration (procedures table no longer empty)

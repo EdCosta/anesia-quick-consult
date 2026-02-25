@@ -1,125 +1,67 @@
 
-# Plan: UI/UX Review, Bug Fix & New Procedures
 
-## 1. Bug Fix: Double Back Arrow
+# Plan: Home UX Overhaul + Drugs Section Resilience
 
-**Root cause identified**: The i18n key `back` contains "← Retour" (with a left arrow character), AND `ProcedurePage.tsx` renders an `<ArrowLeft>` icon next to it (line 91-92). This produces two arrows side by side.
+## 1. Search Results "Above the Fold" (Index.tsx)
 
-**Fix**: Remove the "←" character from the i18n `back` key in all 3 languages. Keep only the `<ArrowLeft>` icon component.
+When `searchQuery.trim()` is not empty:
+- Show results immediately below the search bar, inside the hero section
+- Hide: Quick Access grid, Stats row, Favorites section, Recents section
+- Show "Sem resultados" inline if `filteredResults.length === 0`
 
-Also fix the console warnings about "Function components cannot be given refs" for `Section` and `Badge` -- these are caused by refs being passed to function components in `ProcedurePage`.
+When `searchQuery` is empty:
+- Show normal layout (with improvements below)
 
-**File**: `src/contexts/LanguageContext.tsx` -- change `back` from `"← Retour"` to `"Retour"` (and EN/PT equivalents).
+**Implementation**: Wrap the quick access, stats, favorites, and recents sections in a conditional `{!searchQuery.trim() && (...)}`. Move the results rendering up, right after the search bar + specialty filter, inside the hero area.
 
----
+## 2. Quick Access: Replace Grid with FAB (Index.tsx)
 
-## 2. Quick Access: Action-Oriented Shortcuts
+Remove the 6-card grid from the hero section entirely. Replace with:
+- A floating action button (FAB) fixed at bottom-right corner (`fixed bottom-6 right-6`)
+- Icon: `Zap` (lightning bolt) from lucide-react
+- On click: opens a Popover menu with 5 compact action items (Favorites toggle, Recents scroll, ETT Calculator, Pre-Anest, Clear filters)
+- Popover closes on outside click (built-in Radix behavior)
+- Mobile-friendly: 56px touch target
 
-Current quick access mirrors the header nav (Home, Guidelines, ALR, Calculateurs, Protocoles, Pre-Anest). The user wants action shortcuts instead.
+**Files**: `src/pages/Index.tsx`, uses existing `Popover` component from `src/components/ui/popover.tsx`
 
-**New QUICK_ACCESS_ITEMS** (separate from HEADER_ITEMS in `src/config/nav.ts`):
+## 3. Recents: Horizontal Compact Scroll (Index.tsx)
 
-1. "Toutes les cirurgies" -- scroll to procedures list (Star icon replaced by Activity)
-2. "Favoritos" -- toggle show only favorites
-3. "Recentes" -- scroll to recents section
-4. "Calculadora ETT" -- navigate to /calculateurs
-5. "Pre-Anest Mode" -- navigate to /preanest
-6. "Limpar filtros" -- clear search + filters + scroll to list
+Replace the vertical `ProcedureCard` list with:
+- Horizontal scroll container (`flex overflow-x-auto gap-2 pb-2 snap-x`)
+- Small cards: title + specialty badge only, ~160px wide, clickable (Link to `/p/{id}`)
+- "Clear recents" as a small Trash icon button in the section header (no text label)
+- If no recents, hide the entire section (already done)
 
-Update `src/config/nav.ts` to separate HEADER_ITEMS (nav links) from QUICK_ACCESS_ITEMS (action shortcuts).
+## 4. Favorites: Compact + Collapsible (Index.tsx)
 
-Update `src/pages/Index.tsx` to handle the new action types.
+- Show max 3 favorites by default
+- Add "Show all" / "Collapse" toggle button if more than 3
+- Use `useState` for expanded state
+- Smaller empty state (remove large icon, keep just one-line text)
 
-**Files**: `src/config/nav.ts`, `src/pages/Index.tsx`
+## 5. Drugs Section Resilience (DataContext.tsx + ProcedurePage.tsx)
 
----
+**Current status**: Drugs work correctly when DB has data. The `dbRowToProcedure` correctly maps `content.quick` (which contains `{fr: {drugs: [...]}}`) to the `Procedure.quick` shape.
 
-## 3. UX Polish
+**Add resilience**:
+- In `DataContext.tsx`: after loading from DB, also load JSON as fallback. For each DB procedure, if `quick.fr.drugs` is empty/missing, merge drugs from the matching JSON procedure.
+- In `ProcedurePage.tsx`: if `quick` exists but `quick.drugs` is empty, show an info message "No drug doses configured for this procedure" instead of silently hiding the section.
 
-### 3.1 Search improvements
-- Fuse.js already searches by synonyms and titles -- confirmed working.
-- No changes needed for search logic (already well configured).
+## 6. Reduce Hero Height
 
-### 3.2 Consistent procedure template
-- All existing 10 procedures already follow the template (preop/intraop/postop/red_flags/drugs/deep).
-- New procedures will follow the same structure.
-
-### 3.3 i18n consistency
-- Fix the `back` key (point 1).
-- Audit for any hardcoded strings in ProcedurePage and Index.
-
-### 3.4 Technical quality
-- Fix React ref warnings in ProcedurePage (Section and Badge components getting refs).
-- Loading states already implemented.
-
----
-
-## 4. Database Seed
-
-The database tables exist but are empty (confirmed via query). The DataContext already has Supabase-first logic with JSON fallback.
-
-**Action**: Create a database migration that seeds all procedure data (existing 10 + new 15) into the `procedures` table, plus seed `drugs`, `guidelines`, `protocoles`, and `alr_blocks` from existing JSON files.
-
-This way the app reads from the database as primary source.
-
-**File**: New SQL migration with INSERT statements.
+- Reduce `pt-16` to `pt-8` and `pb-8` to `pb-4` on the hero gradient container
+- This pushes the procedure list closer to the search bar
 
 ---
 
-## 5. Add 15+ New Procedures
+## Technical Summary
 
-Adding these procedures to `public/data/procedures.v3.json` (for fallback) AND to the database seed:
+| File | Changes |
+|------|---------|
+| `src/pages/Index.tsx` | Search results above fold, FAB replaces quick access grid, horizontal recents, collapsible favorites, reduced hero padding |
+| `src/contexts/DataContext.tsx` | JSON fallback merge for missing drug data in DB procedures |
+| `src/pages/ProcedurePage.tsx` | Show "no drugs" message when drugs array is empty |
 
-| ID | Specialty | Title (FR) |
-|----|-----------|------------|
-| arthroscopie_genou | Orthopedie | Arthroscopie du genou (meniscectomie/ligamentoplastie) |
-| ptg | Orthopedie | Prothese totale de genou (PTG) |
-| fracture_radius | Orthopedie | Fixation fracture radius distal (ORIF) |
-| osteosynthese_cheville | Orthopedie | Osteosynthese de cheville |
-| laminectomie_lombaire | Neurochirurgie | Laminectomie lombaire |
-| arthrodese_cervicale | Neurochirurgie | Arthrodese cervicale anterieure (ACDF) |
-| rtu_bexiga | Urologie | Resection transurethrale de vessie (RTUV) |
-| nephrostomie_dj | Urologie | Nephrostomie percutanee / Double-J |
-| cesarienne_elective | Obstetrique | Cesarienne elective (programmee) |
-| conisation_leep | Gynecologie | Conisation / LEEP |
-| hernie_inguinale | Chirurgie generale | Hernie inguinale (laparoscopie/TEP) |
-| thyroidectomie | Chirurgie generale | Thyroidectomie |
-| mastectomie | Chirurgie generale | Mastectomie / tumorectomie |
-| septoplastie | ORL | Septoplastie / rhinoplastie fonctionnelle |
-| microlaryngoscopie | ORL | Microlaryngoscopie en suspension |
+No new files needed. No database changes needed.
 
-Each procedure will have:
-- titles in FR/EN/PT
-- synonyms in FR/EN/PT
-- Complete quick block (preop, intraop, postop, red_flags, drugs)
-- Deep block (clinical, pitfalls, references)
-- All following the same template as existing procedures
-
-**File**: `public/data/procedures.v3.json` (append 15 new entries)
-
----
-
-## Summary of Files
-
-| File | Action |
-|------|--------|
-| `src/contexts/LanguageContext.tsx` | Fix `back` key (remove "←" character) |
-| `src/config/nav.ts` | Separate QUICK_ACCESS_ITEMS from HEADER_ITEMS as action shortcuts |
-| `src/pages/Index.tsx` | Update quick access to handle action types, add recentsRef |
-| `src/pages/ProcedurePage.tsx` | Remove duplicate arrow, fix ref warnings |
-| `public/data/procedures.v3.json` | Add 15 new procedures |
-| SQL migration | Seed all data into database tables |
-
-## What does NOT change
-- `AppLayout.tsx` (header nav stays the same, using HEADER_ITEMS)
-- `DataContext.tsx` (already has Supabase-first + JSON fallback)
-- Drug data, guidelines, protocoles, ALR blocks (unchanged)
-- `ETTCalculator.tsx`, `IntubationGuide.tsx`, `DrugDoseRow.tsx`
-- UI components (card, badge, button, etc.)
-
-## Manual Tests
-1. Open a procedure page -- confirm only 1 back arrow, no overlap with title
-2. Home page -- click each quick access button and verify correct action
-3. Search for a new procedure (e.g. "genou") and confirm it appears
-4. Check mobile layout for procedure page header and quick access wrap
-5. Verify database has data after migration (procedures table no longer empty)

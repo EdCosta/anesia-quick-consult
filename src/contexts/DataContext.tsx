@@ -124,7 +124,7 @@ async function loadFromSupabase(): Promise<{
     try {
       const jsonRaw = await fetchJson('/data/procedures.v3.json');
       jsonProcedures = validateArray<Procedure>(jsonRaw, ProcedureSchema, 'procedures-fallback');
-    } catch { /* ignore JSON fallback errors */ }
+    } catch (_e) { /* ignore JSON fallback errors */ }
 
     const dbProcedures = procData.map(dbRowToProcedure);
 
@@ -228,11 +228,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return Array.from(set).sort();
   }, [procedures]);
 
-  if (error && !loading) return <DataErrorFallback error={error} />;
-
   return (
     <DataContext.Provider value={{ procedures, drugs, guidelines, protocoles, alrBlocks, loading, error, getDrug, getProcedure, specialties }}>
-      {children}
+      {error && !loading ? <DataErrorFallback error={error} /> : children}
     </DataContext.Provider>
   );
 }

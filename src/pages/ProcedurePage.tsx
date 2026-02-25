@@ -206,24 +206,34 @@ export default function ProcedurePage() {
       )}
 
       {/* Drugs & Doses */}
-      {quick && quick.drugs.length > 0 && (
+      {quick && (
         <div className="space-y-3">
           <h2 className="text-base font-bold text-foreground">{t('drugs_doses')}</h2>
-          <Card className="clinical-shadow">
-            <CardContent className="flex items-center gap-3 p-3">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">{t('weight_kg')}</label>
-              <input type="number" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="70" min="1" max="300"
-                className="w-24 rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30" />
-              {!weight && <span className="text-xs text-muted-foreground">{t('enter_weight')}</span>}
-            </CardContent>
-          </Card>
-          <div className="space-y-2">
-            {quick.drugs.map((drugRef, i) => {
-              const drug = getDrug(drugRef.drug_id);
-              if (!drug) return null;
-              return <DrugDoseRow key={`${drugRef.drug_id}-${drugRef.indication_tag}-${i}`} drug={drug} indicationTag={drugRef.indication_tag} weightKg={weight} />;
-            })}
-          </div>
+          {quick.drugs.length > 0 ? (
+            <>
+              <Card className="clinical-shadow">
+                <CardContent className="flex items-center gap-3 p-3">
+                  <label className="text-sm font-medium text-foreground whitespace-nowrap">{t('weight_kg')}</label>
+                  <input type="number" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="70" min="1" max="300"
+                    className="w-24 rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30" />
+                  {!weight && <span className="text-xs text-muted-foreground">{t('enter_weight')}</span>}
+                </CardContent>
+              </Card>
+              <div className="space-y-2">
+                {quick.drugs.map((drugRef, i) => {
+                  const drug = getDrug(drugRef.drug_id);
+                  if (!drug) return null;
+                  return <DrugDoseRow key={`${drugRef.drug_id}-${drugRef.indication_tag}-${i}`} drug={drug} indicationTag={drugRef.indication_tag} weightKg={weight} />;
+                })}
+              </div>
+            </>
+          ) : (
+            <Card className="clinical-shadow border-l-4 border-l-muted">
+              <CardContent className="p-4">
+                <p className="text-sm text-muted-foreground">Aucune dose configurée pour cette procédure.</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
     </div>

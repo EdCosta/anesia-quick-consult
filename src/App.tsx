@@ -18,39 +18,31 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function AppContent() {
-  return (
-    <>
-      <DisclaimerBanner />
-      <AppLayout>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/guidelines" element={<Guidelines />} />
-          <Route path="/alr" element={<ALR />} />
-          <Route path="/calculateurs" element={<Calculateurs />} />
-          <Route path="/protocoles" element={<Protocoles />} />
-          <Route path="/p/:id" element={<ProcedurePage />} />
-          <Route path="/admin-content" element={<AdminContent />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AppLayout>
-    </>
-  );
-}
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <LanguageProvider>
-        <DataProvider>
+    <LanguageProvider>
+      <DataProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
           <BrowserRouter>
-            <AppContent />
+            <DisclaimerBanner />
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/guidelines" element={<Guidelines />} />
+                <Route path="/alr" element={<ALR />} />
+                <Route path="/calculateurs" element={<Calculateurs />} />
+                <Route path="/protocoles" element={<Protocoles />} />
+                <Route path="/p/:id" element={<ProcedurePage />} />
+                <Route path="/admin-content" element={<AdminContent />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppLayout>
           </BrowserRouter>
-        </DataProvider>
-      </LanguageProvider>
-    </TooltipProvider>
+        </TooltipProvider>
+      </DataProvider>
+    </LanguageProvider>
   </QueryClientProvider>
 );
 

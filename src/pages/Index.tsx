@@ -15,7 +15,7 @@ import type { Procedure } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import SpecialtyFilter from '@/components/anesia/SpecialtyFilter';
 import ProcedureCard from '@/components/anesia/ProcedureCard';
-import { QUICK_ACCESS_ITEMS } from '@/config/nav';
+import { QUICK_ACCESS_ITEMS, type QuickAccessItem } from '@/config/nav';
 
 export default function Index() {
   const { t, lang } = useLang();
@@ -34,6 +34,7 @@ export default function Index() {
   const heroSearchRef = useRef<HTMLDivElement>(null);
   const favoritesRef = useRef<HTMLDivElement>(null);
   const proceduresRef = useRef<HTMLDivElement>(null);
+  const recentsRef = useRef<HTMLDivElement>(null);
   const specialtyRef = useRef<HTMLDivElement>(null);
 
   // Floating search bar via IntersectionObserver
@@ -111,15 +112,31 @@ export default function Index() {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleQuickAccess = (item: typeof QUICK_ACCESS_ITEMS[0]) => {
-    if (item.to === '/') {
-      // 1st button: scroll to procedures, clear search
-      setSearchQuery('');
-      setSpecialty(null);
-      setShowOnlyFavorites(false);
-      scrollTo(proceduresRef);
-    } else {
-      navigate(item.to);
+  const handleQuickAccess = (item: QuickAccessItem) => {
+    switch (item.action) {
+      case 'scroll_procedures':
+        setSearchQuery('');
+        setSpecialty(null);
+        setShowOnlyFavorites(false);
+        scrollTo(proceduresRef);
+        break;
+      case 'toggle_favorites':
+        setShowOnlyFavorites((prev) => !prev);
+        scrollTo(proceduresRef);
+        break;
+      case 'scroll_recents':
+        scrollTo(recentsRef);
+        break;
+      case 'navigate':
+        if (item.to) navigate(item.to);
+        break;
+      case 'clear_filters':
+        setSearchQuery('');
+        setSpecialty(null);
+        setShowOnlyFavorites(false);
+        setFavoritesFirst(false);
+        scrollTo(proceduresRef);
+        break;
     }
   };
 
@@ -282,7 +299,7 @@ export default function Index() {
 
         {/* Recents */}
         {recentProcedures.length > 0 && (
-          <section>
+          <section ref={recentsRef}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-bold text-foreground">{t('recents')}</h2>
               <button

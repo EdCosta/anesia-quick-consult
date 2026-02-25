@@ -91,7 +91,7 @@ const UI: Record<string, Record<Lang, string>> = {
     pt: 'Gestão de conteúdo',
     en: 'Content Management',
   },
-  back: { fr: '← Retour', pt: '← Voltar', en: '← Back' },
+  back: { fr: 'Retour', pt: 'Voltar', en: 'Back' },
   dose_calc: {
     fr: 'Dose calculée',
     pt: 'Dose calculada',
@@ -259,6 +259,7 @@ const UI: Record<string, Record<Lang, string>> = {
     en: 'at',
   },
   or: { fr: 'ou', pt: 'ou', en: 'or' },
+  clear_filters: { fr: 'Réinitialiser', pt: 'Limpar filtros', en: 'Clear filters' },
   close: { fr: 'Fermer', pt: 'Fechar', en: 'Close' },
 
   // ETT / Intubation keys

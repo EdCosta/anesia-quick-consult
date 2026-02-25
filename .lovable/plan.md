@@ -1,172 +1,167 @@
 
 
-# Redesign: Landing avec recherche animee + nouveau menu de navigation
+# Amelioration complete d'AnesIA -- Plan d'implementation
 
 ## Vue d'ensemble
 
-Transformer la page d'accueil en une experience en deux etapes :
-1. **Etat initial** : ecran epure avec logo "AnesIA" centre, barre de recherche grande et centree verticalement, et le menu de navigation en bas
-2. **Etat actif** : quand l'utilisateur clique sur la recherche (ou scroll), la barre glisse vers le haut pour devenir le header, et le contenu dashboard apparait en dessous avec une animation fade-in
+Ce plan couvre 7 axes : refactoring du DataContext, creation de librairies utilitaires (dose + dilution), amelioration du DrugDoseRow avec modal de dilution, audit multi-langue, validation des donnees, et optimisations UX.
 
-Ajouter de nouveaux onglets de navigation : **Accueil, Guidelines, ALR, Calculateurs, Protocoles**
+---
 
-## Architecture des pages
+## 1. Librairies utilitaires (`src/lib/`)
 
-```text
-/                -> Accueil (landing + dashboard)
-/guidelines      -> Guidelines (page placeholder structuree)
-/alr             -> ALR - Anesthesie Loco-Regionale (placeholder)
-/calculateurs    -> Calculateurs (page avec outils de calcul)
-/protocoles      -> Protocoles (checklists et protocoles)
-/p/:id           -> ProcedurePage (inchange)
-/admin-content   -> AdminContent (inchange)
-```
+### `src/lib/dose.ts` -- Creer
+Fonction pure `calculateDose(rule, weightKg, selectedConcentration)` :
+- Retourne `{ canCalc, doseMgRaw, doseMgFinal, volumeMl, reasonIfNoCalc }`
+- `canCalc = true` seulement si `mg_per_kg !== null && weightKg > 0`
+- Applique `max_mg` si defini
+- `volumeMl` calcule seulement si `mg_per_ml` est valide et > 0
+- Arrondis : `doseMgFinal` a 0.1 mg, `volumeMl` a 0.1 mL (parametres configurables)
+- `reasonIfNoCalc` : message cle i18n (`'protocol_local'` si mg_per_kg null, `'enter_weight'` si pas de poids)
 
-**Suggestion supplementaire** : "Protocoles" -- une section pour les checklists pre-op standardisees (type OMS/HAS), tres utile au bloc operatoire.
+### `src/lib/dilution.ts` -- Creer
+Fonction pure `calculateDilution({ stockConcentration_mg_per_ml, targetConcentration_mg_per_ml?, finalVolume_ml?, syringeVolume_ml?, desiredDose_mg? })` :
+- Retourne `{ volumeDrug_ml, volumeDiluent_ml, finalConcentration_mg_per_ml, warnings[] }`
+- Cas A : target + finalVol -> `volumeDrug = (targetConc * finalVol) / stockConc`
+- Cas B : dose + finalVol -> `targetConc = dose/finalVol`, puis Cas A
+- Si `syringeVolume_ml` fourni et pas de `finalVolume_ml` -> utiliser comme `finalVolume_ml`
+- Warnings : volume depasse seringue, valeurs negatives/invalides, stock insuffisant
+- Aucune valeur clinique suggeree -- calcul purement mathematique
 
-## 1. Refonte de la page Index (/)
+---
 
-### Etat "Hero" (initial, pas de recherche active)
-- Fond avec gradient subtil (primary vers background)
-- Logo "AnesIA" grand et centre avec tagline "Votre assistant d'anesthesie"
-- Barre de recherche grande (h-12, max-w-lg) centree verticalement
-- Specialty chips en dessous de la recherche
-- Section "Acces rapide" : 4 cards en grille (Procedures, Calculateurs, Guidelines, ALR)
-- Favoris et Recents visibles en bas
+## 2. Refactoring DataContext
 
-### Etat "Dashboard" (recherche active ou saisie en cours)
-- La barre de recherche glisse vers le haut (transition CSS `transform` + `top`) et reste sticky dans le header
-- Le hero disparait (opacity 0, height 0 avec transition)
-- Les resultats de recherche et le contenu dashboard apparaissent avec animation fade-in
-- Un bouton "X" ou clic sur le logo permet de revenir a l'etat hero
+### `src/lib/types.ts` -- Creer
+Extraire tous les types (`DrugRef`, `Reference`, `ProcedureQuick`, `ProcedureDeep`, `Procedure`, `DoseRule`, `Concentration`, `Drug`) dans un fichier dedie. DataContext les re-exporte pour ne rien casser.
 
-### Implementation technique
-- State `isSearchActive` dans Index.tsx
-- `onFocus` sur l'input active la transition
-- CSS transitions sur le container hero : `max-height`, `opacity`, `transform` avec `duration-500 ease-out`
-- La recherche reste dans Index.tsx (pas dans AppLayout) pour controler l'animation
+### `src/contexts/DataContext.tsx` -- Modifier
+- Importer les types depuis `src/lib/types.ts`
+- Ajouter validation legere avec zod (deja installe) :
+  - Verifier que `procedures` et `drugs` sont des arrays
+  - Verifier champs minimaux (`id`, `specialty`, `titles.fr`, `quick.fr`)
+  - Items invalides : filtrer + `console.warn` en dev
+- Ajouter un state `error` pour afficher un message UI propre si echec total du fetch
+- Le `DataContext.Provider` est deja correct (il rend bien `<DataContext.Provider value={...}>{children}`)
 
-## 2. Nouveau AppLayout avec navigation etendue
+---
 
-### Menu de navigation (6 items)
-| Item | Route | Icone | Description |
-|------|-------|-------|-------------|
-| Accueil | `/` | Home | Dashboard principal |
-| Guidelines | `/guidelines` | BookOpen | Recommandations et bonnes pratiques |
-| ALR | `/alr` | Target | Anesthesie Loco-Regionale |
-| Calculateurs | `/calculateurs` | Calculator | Outils de calcul (doses, scores) |
-| Protocoles | `/protocoles` | ClipboardCheck | Checklists et protocoles |
-| Admin | `/admin-content` | Settings | Gestion du contenu |
+## 3. DrugDoseRow ameliore + Modal Dilution
 
-### Desktop
-- Top bar sombre avec logo a gauche, nav items au centre, LanguageSwitcher a droite
-- Pas de search dans le header (il est dans la page Index avec l'animation)
-- Sur les pages autres que `/`, le search reste dans le header normalement
+### `src/components/anesia/DrugDoseRow.tsx` -- Modifier
+- Utiliser `calculateDose()` de `src/lib/dose.ts` au lieu du calcul inline
+- Gestion `unit_override` :
+  - Si `unit_override` existe ET `mg_per_kg === null` -> afficher unit_override + "A definir selon protocole local"
+  - Si `mg_per_kg` existe -> afficher mg/kg normalement, `unit_override` en info secondaire
+- Si poids absent mais `mg_per_kg` existe : afficher mg/kg + max_mg + "Entrer poids pour calcul"
+- Si concentration manquante : dose mg OK mais "Volume: non disponible (concentration non definie)"
+- Selecteur de concentration visible si >1 concentration valide (meme sans poids)
+- Ajouter bouton "Preparer dilution" dans le panel expanded -> ouvre DilutionModal
 
-### Mobile
-- Top bar avec hamburger + logo + LanguageSwitcher
-- Menu hamburger plein ecran avec les 6 items
-- Bottom tab bar optionnelle avec les 4 items principaux (Accueil, Guidelines, ALR, Calculateurs)
+### `src/components/anesia/DilutionModal.tsx` -- Creer
+- Dialog shadcn avec champs :
+  - Stock mg/mL (pre-rempli si concentration selectionnee)
+  - Volume final OU taille seringue (boutons 5/10/20/50 mL)
+  - Target mg/mL (optionnel)
+  - Dose mg (optionnel)
+- Calcul en live via `calculateDilution()`
+- Sortie : "Prelever X mL de produit + ajouter Y mL de diluant = Z mL a C mg/mL"
+- Avertissements en rouge si incoherent
+- Multi-langue via `t()`
 
-## 3. Nouvelles pages (placeholder structurees)
+---
 
-### /guidelines
-- Titre + description
-- Liste de categories de guidelines (Airway, Hemodynamique, Douleur, PONV, etc.)
-- Chaque categorie en card cliquable
-- Contenu "A venir" avec structure preparee pour le JSON futur
+## 4. Multi-langue : audit et completion
 
-### /alr
-- Titre "Anesthesie Loco-Regionale"
-- Grille de blocs par region anatomique (Membre superieur, Membre inferieur, Tronc, Tete/Cou)
-- Cards avec icones anatomiques
-- Contenu "A venir" -- structure preparee
+### `src/contexts/LanguageContext.tsx` -- Modifier
+Ajouter les cles manquantes :
+- `dilution_title` : "Preparer une dilution" / "Preparar uma diluicao" / "Prepare a dilution"
+- `stock_concentration` : "Concentration stock (mg/mL)" / ... / ...
+- `target_concentration` : "Concentration cible (mg/mL)" / ... / ...
+- `final_volume` : "Volume final (mL)" / ... / ...
+- `syringe_size` : "Taille seringue" / ... / ...
+- `desired_dose` : "Dose souhaitee (mg)" / ... / ...
+- `dilution_result` : "Prelever {X} mL + diluant {Y} mL = {Z} mL a {C} mg/mL" (templates)
+- `prepare_dilution` : "Preparer dilution" / ... / ...
+- `volume_unavailable` : "Volume: non disponible (concentration non definie)" / ... / ...
+- `copy_checklist` : "Copier checklist" / ... / ...
+- `copied` : "Copie !" / ... / ...
+- `warning` : "Attention" / ... / ...
+- `data_load_error` : "Erreur de chargement des donnees" / ... / ...
 
-### /calculateurs
-- Titre "Calculateurs"
-- Grille de calculateurs disponibles :
-  - Calculateur de doses (lien vers la fonctionnalite existante)
-  - Score de Mallampati (a venir)
-  - Score ASA (a venir)
-  - IMC (a venir)
-- Cards cliquables avec status "Disponible" ou "A venir"
+Verifier que toutes les cles existantes (loading, enter_weight, protocol_local, etc.) sont bien presentes -- elles le sont deja.
 
-### /protocoles
-- Titre "Protocoles & Checklists"
-- Checklist pre-op OMS (a venir)
-- Protocole PONV (a venir)
-- Cards structurees
+---
 
-## 4. Reorganisation de la page Index
+## 5. Qualite des donnees et failsafe
 
-La page Index actuelle sera reorganisee :
+### Dans `src/contexts/DataContext.tsx`
+- Schemas zod legers pour validation :
+  ```text
+  ProcedureSchema: z.object({ id: z.string(), specialty: z.string(), titles: z.object({ fr: z.string() }).passthrough() }).passthrough()
+  DrugSchema: z.object({ id: z.string(), name: z.object({ fr: z.string() }).passthrough() }).passthrough()
+  ```
+- `z.array(ProcedureSchema).safeParse()` -- items invalides filtres avec `console.warn`
+- State `error: string | null` -- si fetch echoue, afficher un message UI au lieu de crash
+- Composant enfant `DataErrorFallback` dans le meme fichier pour affichage propre
 
-```text
-+------------------------------------------+
-|          LOGO "AnesIA"                   |
-|     Votre assistant d'anesthesie         |
-|                                          |
-|    [====== Rechercher... ======]         |
-|                                          |
-|  [Ortho] [Uro] [Gynéco] [Dig] [ORL]    |
-|                                          |
-|  --- Acces Rapide (grille 2x2) ---      |
-|  [Procedures]  [Calculateurs]            |
-|  [Guidelines]  [ALR]                     |
-|                                          |
-|  --- Favoris ---    --- Recents ---      |
-|  [Card]             [Card]               |
-|  [Card]             [Card]               |
-|                                          |
-|  --- Toutes les procedures ---           |
-|  [Card] [Card]                           |
-|  [Card] [Card]                           |
-+------------------------------------------+
-```
+---
 
-Quand on clique sur la recherche :
+## 6. Performance et UX "Bloc"
 
-```text
-+------------------------------------------+
-| [AnesIA]  [=== Rechercher... ===]  [FR] |  <- header sticky
-+------------------------------------------+
-|  [Ortho] [Uro] [Gynéco] [Dig] [ORL]    |
-|                                          |
-|  --- Resultats ---                       |
-|  [Card] [Card]                           |
-|  [Card] [Card]                           |
-+------------------------------------------+
-```
+### `src/pages/Index.tsx` -- Modifier
+- Focus auto sur le champ de recherche au chargement (avec `useEffect` + `inputRef.current?.focus()`)
+- Enter sur la recherche -> naviguer vers le premier resultat (`useNavigate`)
+- JSON deja charge une seule fois et memoize (OK actuellement)
 
-## 5. Traductions a ajouter (LanguageContext)
+### `src/pages/ProcedurePage.tsx` -- Modifier
+- Ajouter bouton "Copier checklist" qui copie pre-op + intra-op + post-op en texte brut via `navigator.clipboard.writeText()`
+- Toast de confirmation "Copie !"
 
-Nouvelles cles :
-- `guidelines` : "Guidelines" / "Guidelines" / "Guidelines"
-- `alr` : "ALR" / "ALR" / "ALR"
-- `alr_full` : "Anesthesie Loco-Regionale" / "Anestesia Loco-Regional" / "Regional Anesthesia"
-- `calculateurs` : "Calculateurs" / "Calculadoras" / "Calculators"
-- `protocoles` : "Protocoles" / "Protocolos" / "Protocols"
-- `coming_soon` : "A venir" / "Em breve" / "Coming soon"
-- `quick_access` : "Acces rapide" / "Acesso rapido" / "Quick access"
-- `tagline` : "Votre assistant d'anesthesie" / "O seu assistente de anestesia" / "Your anesthesia assistant"
+### Optimisation mobile
+- Revue des spacings dans DrugDoseRow et ProcedureCard (deja corrects, petits ajustements si necessaire)
 
-## Fichiers a modifier/creer
+---
+
+## 7. Scripts et formatage
+
+### `package.json` -- Modifier
+- Le script `lint` existe deja (`eslint .`)
+- Ajouter script `format` : `"format": "prettier --write \"src/**/*.{ts,tsx,css}\""` (Prettier n'est pas installe, donc on ajoute prettier en devDependency)
+- Note : le formatage sera applique sans changer la logique
+
+---
+
+## Resume des fichiers
 
 | Fichier | Action |
 |---------|--------|
-| `src/contexts/LanguageContext.tsx` | Modifier -- ajouter les nouvelles cles de traduction |
-| `src/components/anesia/AppLayout.tsx` | Modifier -- nouveau menu 6 items, search conditionnel |
-| `src/pages/Index.tsx` | Modifier -- hero animee + acces rapide + reorganisation |
-| `src/pages/Guidelines.tsx` | Creer -- page placeholder structuree |
-| `src/pages/ALR.tsx` | Creer -- page placeholder structuree |
-| `src/pages/Calculateurs.tsx` | Creer -- page placeholder avec calculateurs |
-| `src/pages/Protocoles.tsx` | Creer -- page placeholder structuree |
-| `src/App.tsx` | Modifier -- nouvelles routes |
-| `src/index.css` | Modifier -- animations hero slide-up |
+| `src/lib/types.ts` | Creer -- types extraits |
+| `src/lib/dose.ts` | Creer -- calculateDose() |
+| `src/lib/dilution.ts` | Creer -- calculateDilution() |
+| `src/contexts/DataContext.tsx` | Modifier -- validation zod, error state, re-export types |
+| `src/contexts/LanguageContext.tsx` | Modifier -- ajouter cles dilution/UX |
+| `src/components/anesia/DrugDoseRow.tsx` | Modifier -- utiliser calculateDose(), unit_override, bouton dilution |
+| `src/components/anesia/DilutionModal.tsx` | Creer -- modal de dilution |
+| `src/pages/Index.tsx` | Modifier -- auto-focus, Enter navigation |
+| `src/pages/ProcedurePage.tsx` | Modifier -- bouton copier checklist |
+| `package.json` | Modifier -- ajouter prettier + script format |
 
 ## Ce qui ne change PAS
-- `DataContext.tsx`, `DrugDoseRow.tsx`, `Section.tsx`, `Disclaimer.tsx`
-- `ProcedurePage.tsx`, `AdminContent.tsx`
-- Fichiers JSON (procedures, drugs)
-- `useLocalStorage.ts`, `SpecialtyFilter.tsx`, `ProcedureCard.tsx`
+- `public/data/procedures.v3.json` et `public/data/drugs.v1.json` -- contenu clinique intact
+- `AppLayout.tsx`, `DisclaimerBanner.tsx`, `ProcedureCard.tsx`, `Section.tsx`
+- `index.css`, `tailwind.config.ts`
+- Toutes les pages placeholder (Guidelines, ALR, Calculateurs, Protocoles)
+
+## Ou mettre a jour le contenu clinique
+- Procedures : `public/data/procedures.v3.json`
+- Medicaments : `public/data/drugs.v1.json`
+- Les deux fichiers suivent les interfaces definies dans `src/lib/types.ts`
+
+## 5 tests manuels a effectuer apres implementation
+1. **Doses** : Ouvrir une procedure, entrer un poids (70 kg), verifier que la dose calculee et le volume sont corrects (ex: Paracetamol 15 mg/kg = 1000 mg cap, 100 mL)
+2. **Dilution** : Cliquer "Preparer dilution" sur un medicament, remplir les champs, verifier le calcul live et les avertissements
+3. **Langues** : Switcher FR -> PT -> EN, verifier que tous les textes changent (y compris la modal dilution et le bouton copier)
+4. **Favoris + Recherche** : Ajouter un favori, rechercher une procedure, appuyer Entree, verifier la navigation
+5. **Copier checklist** : Sur une page procedure, cliquer "Copier checklist", coller dans un editeur, verifier le contenu pre/intra/post-op
 

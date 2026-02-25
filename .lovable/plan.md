@@ -1,195 +1,255 @@
 
-# Plan: Melhorias de produto AnesIA
 
-## Vista geral
+# Plan: Auditoria, Correcao e Migracao AnesIA Quick Consult
 
-7 eixos de trabalho: Stats clicaveis, favoritos melhorados, IOT em todas as cirurgias, MVP de Guidelines/Protocoles/ALR com JSON, ordem de linguas, e restauracao da barra de pesquisa flutuante.
+## Vista Geral
 
----
-
-## 1. Barra de pesquisa flutuante (ponto 7)
-
-**Problema**: A barra de pesquisa esta fixa no hero e desaparece ao fazer scroll para baixo. O utilizador perde o acesso rapido a pesquisa.
-
-**Solucao** em `src/pages/Index.tsx`:
-- Adicionar um estado `showFloatingSearch` controlado por `IntersectionObserver` no input do hero
-- Quando o input do hero sai do viewport, mostrar uma barra de pesquisa sticky no topo (abaixo do header)
-- A barra flutuante partilha o mesmo estado `searchQuery` e `inputRef`
-- Estilo: fundo `bg-background/95 backdrop-blur` com sombra, z-30, altura compacta (h-10)
-
-**Ficheiro**: `src/pages/Index.tsx`
+5 blocos principais: (A) Quick access + NAV_ITEMS unificado, (B) Pagina /preanest MVP, (C) Migracao para database, (D) Melhorias extras, (E) Linguas (ja feito).
 
 ---
 
-## 2. Stats clicaveis na Home (ponto 1)
+## A. Quick Access e Navegacao Unificada
 
-**Em `src/pages/Index.tsx`**:
-- Adicionar `ref` nas seccoes: `favoritesRef`, `proceduresRef`, `specialtyFilterRef`
-- Card "Todas as cirurgias" -> `onClick` faz `proceduresRef.current?.scrollIntoView({ behavior: 'smooth' })`
-- Card "Especialidades" -> `onClick` faz `specialtyFilterRef.current?.scrollIntoView(...)` e opcionalmente abre o primeiro filtro
-- Card "Favoritos" -> `onClick` faz `favoritesRef.current?.scrollIntoView(...)`
-- Se `favorites.length === 0`, mostrar no card: texto curto "Sem favoritos -- marca as tuas cirurgias frequentes" (via i18n `no_favorites_hint`)
-- Mostrar card favoritos tambem em mobile (remover `hidden sm:block`)
-- Adicionar `cursor-pointer hover:clinical-shadow-md transition-shadow` aos cards
+### A1. Corrigir 1o botao
 
----
+O 1o botao do quick access aponta para `/` (a propria Home). Mudar para um `button` que faz scroll suave ate `proceduresRef`, limpa pesquisa activa e foca a lista.
 
-## 3. Favoritos e recentes melhorados (ponto 2)
+### A2. NAV_ITEMS centralizado
 
-### `src/pages/Index.tsx`:
-- Adicionar toggle "Favoritos primeiro" (`showFavoritesFirst`) que reordena `filteredResults` colocando favoritos no topo
-- Adicionar filtro rapido "So favoritos" (`showOnlyFavorites`) que filtra para mostrar apenas favoritos
-- Seccao "Favoritos" aparece SEMPRE (mesmo vazia), com empty state:
-  - Texto: "Ainda sem favoritos" (i18n `no_favorites_empty`)
-  - Botao: "Ver todas as cirurgias" -> scroll para lista
-- Seccao "Recentes" com botao "Limpar recentes" que faz `setRecents([])`
-- `ProcedureCard` ja tem estrela de favorito (confirmado no codigo) -- OK
+Criar `src/config/nav.ts` com um unico array:
 
-### `src/contexts/LanguageContext.tsx` -- novas chaves:
-- `no_favorites_hint`: "Sem favoritos -- marca as tuas cirurgias frequentes" / ...
-- `no_favorites_empty`: "Ainda sem favoritos" / ...
-- `view_all_procedures`: "Ver todas as cirurgias" / ...
-- `clear_recents`: "Limpar recentes" / ...
-- `favorites_first`: "Favoritos primeiro" / ...
-- `only_favorites`: "So favoritos" / ...
-
----
-
-## 4. IOT/Intubacao em todas as cirurgias (ponto 3)
-
-**Ja implementado**: `IntubationGuide` com accordion ja esta em `ProcedurePage.tsx` no tab Intra-op (linha 198). A calculadora ETT ja esta integrada dentro do `IntubationGuide`.
-
-**Melhorias**:
-- O componente `IntubationGuide` ja aparece em TODAS as cirurgias (e generico, nao depende de dados do procedimento). Isto ja cumpre o requisito de "template base generico".
-- Adicionar um botao visivel "Abrir calculadora ETT" fora do accordion para acesso rapido, que ou expande o accordion ou navega para `/calculateurs`
-
-**Ficheiros**: `src/pages/ProcedurePage.tsx` (pequeno ajuste), `src/components/anesia/IntubationGuide.tsx` (ja OK)
-
----
-
-## 5. MVP de Guidelines, Protocoles e ALR (ponto 4)
-
-### Criar 3 ficheiros JSON em `public/data/`:
-
-**`public/data/guidelines.v1.json`** -- array de guidelines por categoria:
 ```text
-[
-  {
-    "id": "airway-management",
-    "category": "airway",
-    "titles": { "fr": "Gestion des voies aériennes", "en": "Airway management", "pt": "Gestao da via aerea" },
-    "items": {
-      "fr": ["Evaluation systematique...", "Classification Mallampati...", ...],
-      "en": [...], "pt": [...]
-    },
-    "references": [{ "source": "DAS Guidelines", "year": 2015 }]
-  },
-  ...
-]
+{ key, to, icon, quickAccess, order }
 ```
-Environ 12-15 guidelines couvrant: voies aeriennes, hemodynamique, temperature, douleur, PONV, remplissage vasculaire.
 
-**`public/data/protocoles.v1.json`** -- array de protocoles/checklists:
+Items:
+1. home (/) - quickAccess: true (scroll especial na Home)
+2. guidelines (/guidelines) - quickAccess: true
+3. alr (/alr) - quickAccess: true
+4. calculateurs (/calculateurs) - quickAccess: true
+5. protocoles (/protocoles) - quickAccess: true
+6. preanest (/preanest) - quickAccess: true (NOVO)
+7. admin (/admin-content) - quickAccess: false
+
+Usar este array em:
+- `AppLayout.tsx` (header + mobile menu)
+- `Index.tsx` (quick access cards)
+
+### A3. Acessibilidade
+
+- Adicionar `aria-label` aos botoes quick access
+- Garantir wrap correcto em mobile (ja e `grid grid-cols-2`)
+- Hover/active/pressed com `active:scale-95`
+
+**Ficheiros**: `src/config/nav.ts` (criar), `src/components/anesia/AppLayout.tsx`, `src/pages/Index.tsx`
+
+---
+
+## B. Pagina /preanest (MVP)
+
+### B1. Rota
+
+Adicionar `/preanest` em `App.tsx` com novo componente `PreAnest.tsx`.
+
+### B2. UI do formulario
+
+Pagina com formulario dividido em 2 seccoes:
+
+**Doente** (sem dados identificaveis):
+- Idade (anos), sexo, peso (kg), altura (cm)
+- ASA (select: I, II, III, IV, V)
+- Comorbilidades: checkboxes (HTA, diabetes, SAOS, obesidade IMC>35, cardiopatia, IRC, hepatopatia, asma/DPOC) + campo livre
+- Via aerea: Mallampati (I-IV select), abertura oral (normal/limitada), mobilidade cervical (normal/limitada)
+- Anticoagulacao (select: nenhuma, aspirina, clopidogrel, DOAC, AVK, HBPM, dupla antiagregacao)
+- Alergias (texto livre)
+
+**Cirurgia**:
+- Seleccionar procedimento da lista existente (combobox com pesquisa Fuse)
+- OU especialidade + tipo manual
+- Contexto: ambulatorio / internamento / urgencia (radio)
+
+### B3. Motor de regras
+
+Criar `src/lib/preanest-rules.ts` com funcao `generateRecommendations(input)`:
+
+Regras deterministicas baseadas em:
+- ASA >= 3: alertas pre-op, considerar consulta especializada
+- SAOS: tubo armado, posicao, monitorizacao pos-op
+- Obesidade: doses ajustadas ao peso ideal, VAD provavel
+- Anticoagulacao: quando suspender, bridging
+- Cirurgia maior vs menor: nivel de monitorizacao
+- Ambulatorio: criterios de alta, NVPO profilaxia
+- Urgencia: estomago cheio, ISR
+
+Output em 4 blocos:
+1. Pre-op (exames, jejum, medicacao)
+2. Intra-op (plano anestesico, airway, monitorizacao, profilaxias)
+3. Pos-op (analgesia, NVPO, tromboprofilaxia, criterios de alta)
+4. Red flags / quando pedir ajuda senior
+
+### B4. Persistencia
+
+Guardar ultimo caso em `localStorage` (`anesia-preanest-last`) para repetir rapidamente.
+
+### B5. i18n
+
+Adicionar ~30 novas chaves em `LanguageContext.tsx` para a pagina /preanest.
+
+**Ficheiros**: `src/pages/PreAnest.tsx` (criar), `src/lib/preanest-rules.ts` (criar), `src/App.tsx`, `src/config/nav.ts`, `src/contexts/LanguageContext.tsx`
+
+---
+
+## C. Migracao para Database (Supabase)
+
+### C1. Tabelas (migracao SQL)
+
+Criar 5 tabelas com RLS de leitura publica:
+
+**procedures**
+- id text PRIMARY KEY
+- specialty text NOT NULL
+- titles jsonb NOT NULL
+- synonyms jsonb DEFAULT '{}'
+- content jsonb NOT NULL (inclui quick/deep)
+- tags jsonb DEFAULT '[]'
+- created_at, updated_at timestamps
+
+**drugs**
+- id text PRIMARY KEY
+- names jsonb NOT NULL
+- class text
+- dosing jsonb NOT NULL (dose_rules, concentrations)
+- notes jsonb DEFAULT '{}'
+- contraindications jsonb DEFAULT '[]'
+- tags jsonb DEFAULT '[]'
+- created_at, updated_at timestamps
+
+**guidelines**
+- id text PRIMARY KEY
+- category text NOT NULL
+- titles jsonb NOT NULL
+- items jsonb NOT NULL
+- references jsonb DEFAULT '[]'
+- tags jsonb DEFAULT '[]'
+- created_at, updated_at timestamps
+
+**protocoles**
+- id text PRIMARY KEY
+- category text NOT NULL
+- titles jsonb NOT NULL
+- steps jsonb NOT NULL
+- references jsonb DEFAULT '[]'
+- tags jsonb DEFAULT '[]'
+- created_at, updated_at timestamps
+
+**alr_blocks**
+- id text PRIMARY KEY
+- region text NOT NULL
+- titles jsonb NOT NULL
+- indications jsonb DEFAULT '{}'
+- contraindications jsonb DEFAULT '{}'
+- technique jsonb DEFAULT '{}'
+- drugs jsonb DEFAULT '{}'
+- tags jsonb DEFAULT '[]'
+- created_at, updated_at timestamps
+
+### C2. RLS
+
+- SELECT publico (para utilizadores anonimos -- app publica)
+- INSERT/UPDATE/DELETE apenas para admins (via `has_role()`)
+- Criar tabela `user_roles` com enum `app_role`
+
+### C3. Seed
+
+Criar edge function `seed-data` que importa os JSON existentes para as tabelas. Executar uma vez.
+
+Alternativa mais simples: usar INSERT directo via migration com os dados dos JSON.
+
+### C4. DataContext com fallback
+
+Actualizar `DataContext.tsx`:
+
 ```text
-[
-  {
-    "id": "who-surgical-safety",
-    "category": "safety",
-    "titles": { "fr": "Checklist securite OMS", ... },
-    "steps": { "fr": ["Verification identite...", ...], ... },
-    "references": [...]
-  },
-  ...
-]
+1. Tentar carregar de Supabase (select * from procedures, etc.)
+2. Se erro de rede ou tabela vazia: fallback para JSON local
+3. Cache em estado React (ja existe)
+4. Loading states (ja existe)
+5. Erro amigavel (ja existe)
 ```
-Minimum 10 protocoles: checklist OMS, PONV, hemorragie massive, securite bloc, jeune preop, antibioprophylaxie, thromboprophylaxie, transfusion, hyperthermie maligne, anaphylaxie.
 
-**`public/data/alr.v1.json`** -- array de bloqueios por regiao:
-```text
-[
-  {
-    "id": "interscalene",
-    "region": "upper_limb",
-    "titles": { "fr": "Bloc interscalenique", ... },
-    "indications": { "fr": [...], ... },
-    "contraindications": { "fr": [...], ... },
-    "technique": { "fr": [...], ... },
-    "drugs": { "fr": [...], ... }
-  },
-  ...
-]
-```
-Bloqueios: interscalenique, supraclaviculaire, axillaire, femoral, sciatique, adducteur, TAP block, paravertebral, erecteur du rachis, scalp block.
+Manter os mesmos tipos TypeScript -- a estrutura jsonb mapeia directamente.
 
-### Modificar `src/contexts/DataContext.tsx`:
-- Adicionar estados: `guidelines`, `protocoles`, `alrBlocks`
-- Adicionar tipos em `src/lib/types.ts`: `Guideline`, `Protocole`, `ALRBlock`
-- Fetch dos 3 novos JSON em paralelo com os existentes
-- Validacao zod legere
-- Exposer via contexto: `guidelines`, `protocoles`, `alrBlocks`
+### C5. Pesquisa Fuse
 
-### Modificar paginas:
+Fuse.js continua a funcionar igual -- recebe o array de objectos independentemente da fonte.
 
-**`src/pages/Guidelines.tsx`**:
-- Carregar dados do DataContext
-- Barra de pesquisa Fuse.js por titulo
-- Filtro por categoria (chips)
-- Lista de cards clicaveis
-- Ao clicar: expandir inline (accordion) com bullets + referencias
-- Remover badge "Coming soon"
-
-**`src/pages/Protocoles.tsx`**:
-- Mesmo padrao: pesquisa + filtro por categoria
-- Cards com steps expandiveis
-- Remover badge "Coming soon"
-
-**`src/pages/ALR.tsx`**:
-- Pesquisa + filtro por regiao
-- Cards com indicacoes, contra-indicacoes, tecnica, farmacos
-- Remover badge "Coming soon"
+**Ficheiros**: Migration SQL, `src/contexts/DataContext.tsx`, edge function seed (opcional)
 
 ---
 
-## 6. Ordem de linguas (ponto 5)
+## D. Melhorias Extras
 
-**Ja implementado**: `LanguageSwitcher.tsx` ja tem `LANGS: ['fr', 'en', 'pt']` e o fallback em `LanguageContext.tsx` ja segue `fr -> en -> pt`. Confirmado no codigo actual -- nada a alterar.
+### D1. Favoritos/Recentes (ja maioritariamente implementado)
+
+Confirmar que tudo funciona:
+- Stats clicaveis com scroll (ja feito)
+- "Limpar recentes" (ja feito)
+- "So favoritos" toggle (ja feito)
+- Estrela no ProcedureCard (ja feito)
+- Empty state favoritos (ja feito)
+
+### D2. Guidelines/Protocoles/ALR da BD
+
+As paginas ja funcionam com dados do DataContext. Ao mudar DataContext para ler da BD, estas paginas passam automaticamente a ler da BD sem alteracao.
+
+### D3. Recomendacoes nas cirurgias
+
+Na `ProcedurePage.tsx`, adicionar seccao "Recomendacoes" no tab Detail:
+- Consultar guidelines da BD por tags/categoria matching com a especialidade da cirurgia
+- Mostrar Top 3 recomendacoes relevantes com link para a guideline completa
+
+**Ficheiros**: `src/pages/ProcedurePage.tsx`
+
+### D4. Linguas
+
+Ja implementado: FR -> EN -> PT no switcher e fallback. Nada a alterar.
 
 ---
 
-## 7. Novas chaves i18n
-
-Em `src/contexts/LanguageContext.tsx`, adicionar:
-- Chaves para favoritos/recentes (ponto 3)
-- Chaves para Guidelines/Protocoles/ALR: `search_guidelines`, `category`, `steps`, `indications`, `contraindications_alr`, `technique`, `drugs_alr`, `region`, `upper_limb`, `lower_limb`, `trunk`, `head_neck`, `safety`, `pain`, `airway_cat`, `hemodynamics`, `temperature`, `ponv`, `fluid`, `open_ett_calculator`
-- Environ 20 novas chaves
-
----
-
-## Resume des fichiers
+## Resumo de Ficheiros
 
 | Ficheiro | Accao |
 |----------|-------|
-| `src/lib/types.ts` | Modifier -- ajouter types Guideline, Protocole, ALRBlock |
-| `src/contexts/DataContext.tsx` | Modifier -- charger 3 nouveaux JSON, exposer dans contexte |
-| `src/contexts/LanguageContext.tsx` | Modifier -- ~20 nouvelles cles i18n |
-| `src/pages/Index.tsx` | Modifier -- floating search, stats clicaveis, favoritos/recentes ameliores |
-| `src/pages/Guidelines.tsx` | Reescrever -- MVP avec donnees JSON, recherche, filtres |
-| `src/pages/Protocoles.tsx` | Reescrever -- MVP avec donnees JSON, recherche, filtres |
-| `src/pages/ALR.tsx` | Reescrever -- MVP avec donnees JSON, recherche, filtres |
-| `src/pages/ProcedurePage.tsx` | Petit ajuste -- bouton acces rapide ETT |
-| `public/data/guidelines.v1.json` | Creer -- ~15 guidelines |
-| `public/data/protocoles.v1.json` | Creer -- ~10 protocoles |
-| `public/data/alr.v1.json` | Creer -- ~10 bloqueios |
+| `src/config/nav.ts` | Criar -- NAV_ITEMS centralizado |
+| `src/components/anesia/AppLayout.tsx` | Modificar -- usar NAV_ITEMS de config |
+| `src/pages/Index.tsx` | Modificar -- quick access usa NAV_ITEMS, 1o botao faz scroll |
+| `src/pages/PreAnest.tsx` | Criar -- formulario + output do motor de regras |
+| `src/lib/preanest-rules.ts` | Criar -- motor de regras deterministico |
+| `src/App.tsx` | Modificar -- adicionar rota /preanest |
+| `src/contexts/LanguageContext.tsx` | Modificar -- ~30 novas chaves i18n |
+| `src/contexts/DataContext.tsx` | Modificar -- carregar de Supabase com fallback JSON |
+| `src/pages/ProcedurePage.tsx` | Modificar -- seccao Recomendacoes |
+| Migration SQL | Criar -- 5 tabelas + RLS + seed |
+
+## Sequencia de Implementacao
+
+1. Criar tabelas na database (migration SQL com seed dos JSON)
+2. Criar `src/config/nav.ts` e actualizar AppLayout + Index
+3. Actualizar DataContext para ler da BD com fallback
+4. Criar pagina /preanest com motor de regras
+5. Adicionar seccao Recomendacoes na ProcedurePage
+6. Adicionar todas as chaves i18n
 
 ## O que NAO muda
-- `procedures.v3.json`, `drugs.v1.json` -- contenu clinique intact
-- `AppLayout.tsx`, `DrugDoseRow.tsx`, `DilutionModal.tsx`, `dose.ts`, `dilution.ts`, `ett.ts`
-- `ETTCalculator.tsx`, `IntubationGuide.tsx`, `ProcedureCard.tsx`
-- `index.css`, `tailwind.config.ts`
+- JSON files em `public/data/` -- mantidos como fallback
+- `ETTCalculator.tsx`, `IntubationGuide.tsx`, `DrugDoseRow.tsx`
+- `ett.ts`, `dose.ts`, `dilution.ts`
+- `LanguageSwitcher.tsx` (ja correcto)
+- Componentes UI base (button, card, badge, etc.)
 
-## Testes manuais
-1. Scroll na landing: verificar barra de pesquisa flutuante aparece ao descer e desaparece ao voltar ao topo
-2. Stats: clicar em cada card de stats e verificar scroll suave para a seccao correcta
-3. Favoritos: marcar/desmarcar favoritos, testar "So favoritos", "Favoritos primeiro", empty state
-4. Guidelines/Protocoles/ALR: abrir cada pagina, pesquisar, filtrar, expandir items
-5. Limpar recentes: verificar que o botao apaga o historico
+## Testes Manuais
+1. Quick access: verificar que o 1o botao faz scroll para a lista e que a ordem e coerente com o header
+2. /preanest: preencher formulario com ASA III + SAOS e verificar que as recomendacoes aparecem nos 4 blocos
+3. Database: verificar que procedures/guidelines carregam da BD; desligar BD e confirmar fallback JSON
+4. Recomendacoes: abrir uma cirurgia e verificar que aparecem guidelines relevantes no tab Detail
+

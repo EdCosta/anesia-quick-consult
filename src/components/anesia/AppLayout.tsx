@@ -1,22 +1,24 @@
 import { useState, ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Search, LayoutDashboard, FileText, Settings } from 'lucide-react';
+import { Menu, X, Home, BookOpen, Target, Calculator, ClipboardCheck, Settings } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AppLayoutProps {
   children: ReactNode;
-  searchQuery: string;
-  onSearchChange: (v: string) => void;
 }
 
 const NAV_ITEMS = [
-  { key: 'home', to: '/', icon: LayoutDashboard },
+  { key: 'home', to: '/', icon: Home },
+  { key: 'guidelines', to: '/guidelines', icon: BookOpen },
+  { key: 'alr', to: '/alr', icon: Target },
+  { key: 'calculateurs', to: '/calculateurs', icon: Calculator },
+  { key: 'protocoles', to: '/protocoles', icon: ClipboardCheck },
   { key: 'admin', to: '/admin-content', icon: Settings },
 ];
 
-export default function AppLayout({ children, searchQuery, onSearchChange }: AppLayoutProps) {
+export default function AppLayout({ children }: AppLayoutProps) {
   const { t } = useLang();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -29,36 +31,20 @@ export default function AppLayout({ children, searchQuery, onSearchChange }: App
       {/* Top bar */}
       <header className="sticky top-0 z-50 bg-primary text-primary-foreground">
         <div className="container flex h-14 items-center gap-3">
-          {/* Mobile hamburger */}
           {isMobile && (
             <button onClick={() => setMenuOpen(!menuOpen)} className="p-1.5 -ml-1" aria-label="Menu">
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           )}
 
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-1.5 font-heading text-lg font-bold shrink-0">
+          <Link to="/" className="flex items-center gap-0.5 font-heading text-lg font-bold shrink-0">
             <span className="text-accent">Anes</span>
             <span>IA</span>
           </Link>
 
-          {/* Search bar (center) */}
-          <div className="flex-1 max-w-md mx-auto hidden sm:block">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-foreground/50" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => onSearchChange(e.target.value)}
-                placeholder={t('search_placeholder')}
-                className="h-9 w-full rounded-lg bg-primary-foreground/10 pl-9 pr-3 text-sm text-primary-foreground placeholder:text-primary-foreground/40 border border-primary-foreground/15 focus:outline-none focus:bg-primary-foreground/15 transition-colors"
-              />
-            </div>
-          </div>
-
           {/* Desktop nav */}
           {!isMobile && (
-            <nav className="flex items-center gap-1">
+            <nav className="flex-1 flex items-center justify-center gap-1">
               {NAV_ITEMS.map(item => (
                 <Link
                   key={item.key}
@@ -76,31 +62,15 @@ export default function AppLayout({ children, searchQuery, onSearchChange }: App
             </nav>
           )}
 
-          <LanguageSwitcher />
-        </div>
-
-        {/* Mobile search */}
-        {isMobile && (
-          <div className="container pb-2.5">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-foreground/50" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => onSearchChange(e.target.value)}
-                placeholder={t('search_placeholder')}
-                className="h-9 w-full rounded-lg bg-primary-foreground/10 pl-9 pr-3 text-sm text-primary-foreground placeholder:text-primary-foreground/40 border border-primary-foreground/15 focus:outline-none focus:bg-primary-foreground/15 transition-colors"
-              />
-            </div>
+          <div className="ml-auto">
+            <LanguageSwitcher />
           </div>
-        )}
+        </div>
       </header>
 
       {/* Mobile fullscreen menu */}
       {isMobile && menuOpen && (
-        <div className="fixed inset-0 z-40 bg-background/95 backdrop-blur flex flex-col items-center justify-center gap-6 animate-fade-in"
-          style={{ top: '0' }}
-        >
+        <div className="fixed inset-0 z-40 bg-background/95 backdrop-blur flex flex-col items-center justify-center gap-6 animate-fade-in">
           <button onClick={() => setMenuOpen(false)} className="absolute top-4 right-4 p-2 text-foreground">
             <X className="h-6 w-6" />
           </button>

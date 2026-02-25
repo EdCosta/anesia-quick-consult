@@ -1,106 +1,195 @@
 
-# Plan: 3 alteracoes no AnesIA
+# Plan: Melhorias de produto AnesIA
 
-## 1. Landing page -- restaurar scroll natural
+## Vista geral
 
-**Problema actual**: A pagina Index.tsx usa um mecanismo `hero-transition` / `hero-hidden` que colapsa o hero com `max-height: 0` e `overflow: hidden`, criando uma experiencia "quebrada" de scroll. Alem disso, o `auto-focus` no input forca imediatamente o estado `isSearchActive`, escondendo o hero antes do utilizador interagir.
+7 eixos de trabalho: Stats clicaveis, favoritos melhorados, IOT em todas as cirurgias, MVP de Guidelines/Protocoles/ALR com JSON, ordem de linguas, e restauracao da barra de pesquisa flutuante.
 
-**Solucao**:
-- Remover o comportamento `isSearchActive` que esconde o hero completamente
-- Manter a pagina como scroll vertical continuo e natural: Hero -> Quick Access -> Stats -> Favoritos -> Todas as Procedures
-- A barra de pesquisa fica no hero (sem estado "collapsed"); quando o utilizador escreve, os resultados filtram a lista em baixo
-- Remover as classes CSS `hero-transition`, `hero-visible`, `hero-hidden` do `index.css`
-- Remover o header sticky duplicado de pesquisa (linhas 196-219)
-- Remover o `auto-focus` que dispara imediatamente a transicao
-- Manter o Enter -> primeiro resultado e o filtro por especialidade
-- Corrigir bug: `navigate(/procedure/${id})` deve ser `navigate(/p/${id})` (a rota definida e `/p/:id`)
+---
 
-**Ficheiros**: `src/pages/Index.tsx`, `src/index.css`
+## 1. Barra de pesquisa flutuante (ponto 7)
 
-## 2. Ordem de linguas: FR -> EN -> PT
+**Problema**: A barra de pesquisa esta fixa no hero e desaparece ao fazer scroll para baixo. O utilizador perde o acesso rapido a pesquisa.
 
-**Alteracoes**:
-- `src/components/anesia/LanguageSwitcher.tsx`: mudar `LANGS` de `['fr', 'pt', 'en']` para `['fr', 'en', 'pt']`
-- `src/contexts/LanguageContext.tsx`: mudar a cadeia de fallback de `fr -> pt -> en` para `fr -> en -> pt` nas funcoes `t()`, `resolve()`, `resolveStr()`
+**Solucao** em `src/pages/Index.tsx`:
+- Adicionar um estado `showFloatingSearch` controlado por `IntersectionObserver` no input do hero
+- Quando o input do hero sai do viewport, mostrar uma barra de pesquisa sticky no topo (abaixo do header)
+- A barra flutuante partilha o mesmo estado `searchQuery` e `inputRef`
+- Estilo: fundo `bg-background/95 backdrop-blur` com sombra, z-30, altura compacta (h-10)
 
-**Ficheiros**: `src/components/anesia/LanguageSwitcher.tsx`, `src/contexts/LanguageContext.tsx`
+**Ficheiro**: `src/pages/Index.tsx`
 
-## 3. Bloco IOT/Intubacao intra-op + calculadora ETT
+---
 
-### 3a. Componente IntubationGuide
+## 2. Stats clicaveis na Home (ponto 1)
 
-Criar `src/components/anesia/IntubationGuide.tsx`:
-- Accordion/card que mostra "IOT / Intubacao (guia rapido)"
-- Conteudo estatico traduzido (FR/EN/PT) com:
-  - Checklist curta: posicao, pre-oxigenacao, plano A/B, material
-  - Tipo de tubo (cuffado preferido em pediatria, armado quando relevante)
-  - Regras pediatricas:
-    - ETT cuffado ID = (idade/4) + 3.5
-    - ETT nao cuffado ID = (idade/4) + 4.0
-    - Profundidade oral = 3 x ID ou (idade/2) + 12
-    - Nasal: +2 a +3 cm
-    - Pressao cuff: 20-25 cmH2O
-  - Tabela neonato/lactente (termo 3-3.5kg, 3-4kg, 5-8kg, 8-10kg)
-  - Regras adulto:
-    - Mulher: 7.0-7.5 (6.5 se baixa/VAD, 7.5 se alta)
-    - Homem: 7.5-8.0 (8.5 se alto e robusto)
-    - Profundidade: Mulher ~20-21cm, Homem ~22-23cm, ajustar por altura
-  - Laminas Mac/Miller e mascara laringea (resumo curto)
-  - Nota sobre tubo armado (prona, cervical, ORL)
+**Em `src/pages/Index.tsx`**:
+- Adicionar `ref` nas seccoes: `favoritesRef`, `proceduresRef`, `specialtyFilterRef`
+- Card "Todas as cirurgias" -> `onClick` faz `proceduresRef.current?.scrollIntoView({ behavior: 'smooth' })`
+- Card "Especialidades" -> `onClick` faz `specialtyFilterRef.current?.scrollIntoView(...)` e opcionalmente abre o primeiro filtro
+- Card "Favoritos" -> `onClick` faz `favoritesRef.current?.scrollIntoView(...)`
+- Se `favorites.length === 0`, mostrar no card: texto curto "Sem favoritos -- marca as tuas cirurgias frequentes" (via i18n `no_favorites_hint`)
+- Mostrar card favoritos tambem em mobile (remover `hidden sm:block`)
+- Adicionar `cursor-pointer hover:clinical-shadow-md transition-shadow` aos cards
 
-### 3b. Calculadora ETT
+---
 
-Criar `src/components/anesia/ETTCalculator.tsx`:
-- Inputs opcionais: idade (anos/meses), peso (kg), altura (cm), sexo (adulto)
-- Output: sugestao ETT ID (+/- 0.5), profundidade aproximada, lamina sugerida, mascara laringea
-- Logica local pura (sem backend), funcao `calculateETT()` em `src/lib/ett.ts`
-- Aviso permanente: "Confirmar clinicamente e por capnografia; ajustar ao doente."
-- Todas as labels traduzidas FR/EN/PT
+## 3. Favoritos e recentes melhorados (ponto 2)
 
-### 3c. Integracao na ProcedurePage
+### `src/pages/Index.tsx`:
+- Adicionar toggle "Favoritos primeiro" (`showFavoritesFirst`) que reordena `filteredResults` colocando favoritos no topo
+- Adicionar filtro rapido "So favoritos" (`showOnlyFavorites`) que filtra para mostrar apenas favoritos
+- Seccao "Favoritos" aparece SEMPRE (mesmo vazia), com empty state:
+  - Texto: "Ainda sem favoritos" (i18n `no_favorites_empty`)
+  - Botao: "Ver todas as cirurgias" -> scroll para lista
+- Seccao "Recentes" com botao "Limpar recentes" que faz `setRecents([])`
+- `ProcedureCard` ja tem estrela de favorito (confirmado no codigo) -- OK
 
-- Na tab "Intra-op" da `ProcedurePage.tsx`, adicionar o componente `IntubationGuide` como subseccao fixa abaixo dos bullets intra-op
-- Incluir a calculadora ETT inline (accordion expansivel)
+### `src/contexts/LanguageContext.tsx` -- novas chaves:
+- `no_favorites_hint`: "Sem favoritos -- marca as tuas cirurgias frequentes" / ...
+- `no_favorites_empty`: "Ainda sem favoritos" / ...
+- `view_all_procedures`: "Ver todas as cirurgias" / ...
+- `clear_recents`: "Limpar recentes" / ...
+- `favorites_first`: "Favoritos primeiro" / ...
+- `only_favorites`: "So favoritos" / ...
 
-### 3d. Integracao na pagina Calculateurs
+---
 
-- Adicionar um card "Calculateur ETT / Intubation" na pagina Calculateurs com status "Disponivel"
-- Ao clicar, expandir ou abrir a calculadora ETT inline
+## 4. IOT/Intubacao em todas as cirurgias (ponto 3)
 
-### 3e. Traducoes
+**Ja implementado**: `IntubationGuide` com accordion ja esta em `ProcedurePage.tsx` no tab Intra-op (linha 198). A calculadora ETT ja esta integrada dentro do `IntubationGuide`.
 
-Adicionar novas chaves em `LanguageContext.tsx`:
-- `intubation_guide`: "IOT / Intubation (guide rapide)" / "IOT / Intubation (quick guide)" / "IOT / Intubacao (guia rapido)"
-- `ett_calculator`: "Calculateur ETT" / "ETT Calculator" / "Calculadora ETT"
-- `age_years`, `age_months`, `height_cm`, `sex`, `male`, `female`
-- `ett_cuffed`, `ett_uncuffed`, `oral_depth`, `nasal_depth`, `blade_size`, `lma_size`
-- `ett_result`, `ett_disclaimer`
-- `pediatric`, `adult`, `neonate`
-- `cuff_pressure`, `armed_tube`
-- Etc. (environ 25 chaves novas)
+**Melhorias**:
+- O componente `IntubationGuide` ja aparece em TODAS as cirurgias (e generico, nao depende de dados do procedimento). Isto ja cumpre o requisito de "template base generico".
+- Adicionar um botao visivel "Abrir calculadora ETT" fora do accordion para acesso rapido, que ou expande o accordion ou navega para `/calculateurs`
 
-## Resume dos ficheiros
+**Ficheiros**: `src/pages/ProcedurePage.tsx` (pequeno ajuste), `src/components/anesia/IntubationGuide.tsx` (ja OK)
+
+---
+
+## 5. MVP de Guidelines, Protocoles e ALR (ponto 4)
+
+### Criar 3 ficheiros JSON em `public/data/`:
+
+**`public/data/guidelines.v1.json`** -- array de guidelines por categoria:
+```text
+[
+  {
+    "id": "airway-management",
+    "category": "airway",
+    "titles": { "fr": "Gestion des voies aériennes", "en": "Airway management", "pt": "Gestao da via aerea" },
+    "items": {
+      "fr": ["Evaluation systematique...", "Classification Mallampati...", ...],
+      "en": [...], "pt": [...]
+    },
+    "references": [{ "source": "DAS Guidelines", "year": 2015 }]
+  },
+  ...
+]
+```
+Environ 12-15 guidelines couvrant: voies aeriennes, hemodynamique, temperature, douleur, PONV, remplissage vasculaire.
+
+**`public/data/protocoles.v1.json`** -- array de protocoles/checklists:
+```text
+[
+  {
+    "id": "who-surgical-safety",
+    "category": "safety",
+    "titles": { "fr": "Checklist securite OMS", ... },
+    "steps": { "fr": ["Verification identite...", ...], ... },
+    "references": [...]
+  },
+  ...
+]
+```
+Minimum 10 protocoles: checklist OMS, PONV, hemorragie massive, securite bloc, jeune preop, antibioprophylaxie, thromboprophylaxie, transfusion, hyperthermie maligne, anaphylaxie.
+
+**`public/data/alr.v1.json`** -- array de bloqueios por regiao:
+```text
+[
+  {
+    "id": "interscalene",
+    "region": "upper_limb",
+    "titles": { "fr": "Bloc interscalenique", ... },
+    "indications": { "fr": [...], ... },
+    "contraindications": { "fr": [...], ... },
+    "technique": { "fr": [...], ... },
+    "drugs": { "fr": [...], ... }
+  },
+  ...
+]
+```
+Bloqueios: interscalenique, supraclaviculaire, axillaire, femoral, sciatique, adducteur, TAP block, paravertebral, erecteur du rachis, scalp block.
+
+### Modificar `src/contexts/DataContext.tsx`:
+- Adicionar estados: `guidelines`, `protocoles`, `alrBlocks`
+- Adicionar tipos em `src/lib/types.ts`: `Guideline`, `Protocole`, `ALRBlock`
+- Fetch dos 3 novos JSON em paralelo com os existentes
+- Validacao zod legere
+- Exposer via contexto: `guidelines`, `protocoles`, `alrBlocks`
+
+### Modificar paginas:
+
+**`src/pages/Guidelines.tsx`**:
+- Carregar dados do DataContext
+- Barra de pesquisa Fuse.js por titulo
+- Filtro por categoria (chips)
+- Lista de cards clicaveis
+- Ao clicar: expandir inline (accordion) com bullets + referencias
+- Remover badge "Coming soon"
+
+**`src/pages/Protocoles.tsx`**:
+- Mesmo padrao: pesquisa + filtro por categoria
+- Cards com steps expandiveis
+- Remover badge "Coming soon"
+
+**`src/pages/ALR.tsx`**:
+- Pesquisa + filtro por regiao
+- Cards com indicacoes, contra-indicacoes, tecnica, farmacos
+- Remover badge "Coming soon"
+
+---
+
+## 6. Ordem de linguas (ponto 5)
+
+**Ja implementado**: `LanguageSwitcher.tsx` ja tem `LANGS: ['fr', 'en', 'pt']` e o fallback em `LanguageContext.tsx` ja segue `fr -> en -> pt`. Confirmado no codigo actual -- nada a alterar.
+
+---
+
+## 7. Novas chaves i18n
+
+Em `src/contexts/LanguageContext.tsx`, adicionar:
+- Chaves para favoritos/recentes (ponto 3)
+- Chaves para Guidelines/Protocoles/ALR: `search_guidelines`, `category`, `steps`, `indications`, `contraindications_alr`, `technique`, `drugs_alr`, `region`, `upper_limb`, `lower_limb`, `trunk`, `head_neck`, `safety`, `pain`, `airway_cat`, `hemodynamics`, `temperature`, `ponv`, `fluid`, `open_ett_calculator`
+- Environ 20 novas chaves
+
+---
+
+## Resume des fichiers
 
 | Ficheiro | Accao |
 |----------|-------|
-| `src/pages/Index.tsx` | Modificar -- remover hero collapse, scroll natural, corrigir rota |
-| `src/index.css` | Modificar -- remover classes hero-transition/hidden/visible |
-| `src/components/anesia/LanguageSwitcher.tsx` | Modificar -- ordem FR EN PT |
-| `src/contexts/LanguageContext.tsx` | Modificar -- fallback FR->EN->PT + novas chaves |
-| `src/lib/ett.ts` | Criar -- funcao calculateETT() |
-| `src/components/anesia/IntubationGuide.tsx` | Criar -- bloco IOT com conteudo clinico |
-| `src/components/anesia/ETTCalculator.tsx` | Criar -- calculadora ETT interactiva |
-| `src/pages/ProcedurePage.tsx` | Modificar -- integrar IntubationGuide no intra-op |
-| `src/pages/Calculateurs.tsx` | Modificar -- adicionar card ETT Calculator |
+| `src/lib/types.ts` | Modifier -- ajouter types Guideline, Protocole, ALRBlock |
+| `src/contexts/DataContext.tsx` | Modifier -- charger 3 nouveaux JSON, exposer dans contexte |
+| `src/contexts/LanguageContext.tsx` | Modifier -- ~20 nouvelles cles i18n |
+| `src/pages/Index.tsx` | Modifier -- floating search, stats clicaveis, favoritos/recentes ameliores |
+| `src/pages/Guidelines.tsx` | Reescrever -- MVP avec donnees JSON, recherche, filtres |
+| `src/pages/Protocoles.tsx` | Reescrever -- MVP avec donnees JSON, recherche, filtres |
+| `src/pages/ALR.tsx` | Reescrever -- MVP avec donnees JSON, recherche, filtres |
+| `src/pages/ProcedurePage.tsx` | Petit ajuste -- bouton acces rapide ETT |
+| `public/data/guidelines.v1.json` | Creer -- ~15 guidelines |
+| `public/data/protocoles.v1.json` | Creer -- ~10 protocoles |
+| `public/data/alr.v1.json` | Creer -- ~10 bloqueios |
 
 ## O que NAO muda
-- Ficheiros JSON (`procedures.v3.json`, `drugs.v1.json`) -- sem alteracao de dados clinicos
-- `DataContext.tsx`, `DrugDoseRow.tsx`, `DilutionModal.tsx`, `dose.ts`, `dilution.ts`
-- `AppLayout.tsx`, `App.tsx`, `Section.tsx`, `ProcedureCard.tsx`
+- `procedures.v3.json`, `drugs.v1.json` -- contenu clinique intact
+- `AppLayout.tsx`, `DrugDoseRow.tsx`, `DilutionModal.tsx`, `dose.ts`, `dilution.ts`, `ett.ts`
+- `ETTCalculator.tsx`, `IntubationGuide.tsx`, `ProcedureCard.tsx`
+- `index.css`, `tailwind.config.ts`
 
-## Testes manuais recomendados
-1. Scroll na landing: verificar que a pagina desliza naturalmente entre hero, quick access, stats, favoritos e procedures
-2. Pesquisa: escrever no campo, verificar filtro, premir Enter e confirmar navegacao para `/p/:id`
-3. Linguas: verificar que o selector mostra FR EN PT nessa ordem, e que o fallback funciona (ex: se PT nao tem traducao, usa EN)
-4. IOT/Intubacao: abrir uma procedure, ir ao tab Intra-op, verificar que o bloco IOT aparece com conteudo correcto
-5. Calculadora ETT: introduzir idade 5 anos -> verificar ETT 4.75mm cuffado, profundidade ~14cm; introduzir homem 180cm -> verificar ETT 8.0, prof ~23cm
+## Testes manuais
+1. Scroll na landing: verificar barra de pesquisa flutuante aparece ao descer e desaparece ao voltar ao topo
+2. Stats: clicar em cada card de stats e verificar scroll suave para a seccao correcta
+3. Favoritos: marcar/desmarcar favoritos, testar "So favoritos", "Favoritos primeiro", empty state
+4. Guidelines/Protocoles/ALR: abrir cada pagina, pesquisar, filtrar, expandir items
+5. Limpar recentes: verificar que o botao apaga o historico

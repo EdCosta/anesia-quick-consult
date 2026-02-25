@@ -139,18 +139,4 @@
   .clinical-shadow-md {
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
   }
-  .hero-transition {
-    transition: max-height 0.5s ease-out, opacity 0.4s ease-out, transform 0.5s ease-out;
-  }
-  .hero-visible {
-    max-height: 600px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .hero-hidden {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-20px);
-    overflow: hidden;
-  }
 }

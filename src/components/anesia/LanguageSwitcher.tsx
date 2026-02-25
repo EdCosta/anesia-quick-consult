@@ -1,7 +1,7 @@
 import { useLang, Lang } from '@/contexts/LanguageContext';
 
 const LANG_LABELS: Record<Lang, string> = { fr: 'FR', pt: 'PT', en: 'EN' };
-const LANGS: Lang[] = ['fr', 'pt', 'en'];
+const LANGS: Lang[] = ['fr', 'en', 'pt'];
 
 export default function LanguageSwitcher() {
   const { lang, setLang } = useLang();

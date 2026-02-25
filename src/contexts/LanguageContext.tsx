@@ -40,6 +40,19 @@ const UI: Record<string, Record<Lang, string>> = {
   admin: { fr: 'Gestion contenu', pt: 'Gestão conteúdo', en: 'Content mgmt' },
   mg_per_kg: { fr: 'mg/kg', pt: 'mg/kg', en: 'mg/kg' },
   select_concentration: { fr: 'Choisir concentration', pt: 'Escolher concentração', en: 'Select concentration' },
+  guidelines: { fr: 'Guidelines', pt: 'Guidelines', en: 'Guidelines' },
+  guidelines_desc: { fr: 'Recommandations et bonnes pratiques', pt: 'Recomendações e boas práticas', en: 'Recommendations and best practices' },
+  alr: { fr: 'ALR', pt: 'ALR', en: 'ALR' },
+  alr_full: { fr: 'Anesthésie Loco-Régionale', pt: 'Anestesia Loco-Regional', en: 'Regional Anesthesia' },
+  calculateurs: { fr: 'Calculateurs', pt: 'Calculadoras', en: 'Calculators' },
+  calculateurs_desc: { fr: 'Outils de calcul de doses et scores', pt: 'Ferramentas de cálculo de doses e scores', en: 'Dose and score calculation tools' },
+  protocoles: { fr: 'Protocoles', pt: 'Protocolos', en: 'Protocols' },
+  protocoles_desc: { fr: 'Checklists et protocoles standardisés', pt: 'Checklists e protocolos padronizados', en: 'Standardized checklists and protocols' },
+  coming_soon: { fr: 'À venir', pt: 'Em breve', en: 'Coming soon' },
+  quick_access: { fr: 'Accès rapide', pt: 'Acesso rápido', en: 'Quick access' },
+  tagline: { fr: 'Votre assistant d\'anesthésie', pt: 'O seu assistente de anestesia', en: 'Your anesthesia assistant' },
+  available: { fr: 'Disponible', pt: 'Disponível', en: 'Available' },
+  procedures_title: { fr: 'Procédures', pt: 'Procedimentos', en: 'Procedures' },
 };
 
 interface LanguageContextType {

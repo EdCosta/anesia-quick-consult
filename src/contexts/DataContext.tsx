@@ -67,7 +67,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
           const mergedProcs = await mergeProcedureFallback(dbData.procedures);
           if (cancelled) return;
           setProcedures(mergedProcs);
-          setDrugs(dbData.drugs);
+          // Fall back to JSON drugs if DB drugs table is not yet seeded
+          if (dbData.drugs.length === 0) {
+            console.log('[AnesIA] DB drugs empty — using JSON drugs fallback');
+            const jsonData = await loadFromJson();
+            if (cancelled) return;
+            setDrugs(jsonData.drugs);
+          } else {
+            setDrugs(dbData.drugs);
+          }
           setGuidelines(dbData.guidelines);
           setProtocoles(dbData.protocoles);
           setAlrBlocks(dbData.alrBlocks);

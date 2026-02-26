@@ -19,7 +19,8 @@ import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Procedure } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import SpecialtyFilter from '@/components/anesia/SpecialtyFilter';
+import { useSpecialtyUsage } from '@/hooks/useSpecialtyUsage';
+import SpecialtyChips from '@/components/anesia/SpecialtyChips';
 import ProcedureCard from '@/components/anesia/ProcedureCard';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -28,6 +29,7 @@ export default function Index() {
   const { t, lang, resolveStr } = useLang();
   const { procedures, specialties, loading } = useData();
   const navigate = useNavigate();
+  const { increment: incrementSpecialty, getSorted: getSortedSpecialties } = useSpecialtyUsage();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [specialty, setSpecialty] = useState<string | null>(null);
@@ -45,6 +47,12 @@ export default function Index() {
   const recentsRef = useRef<HTMLDivElement>(null);
 
   const isSearching = searchQuery.trim().length > 0;
+
+  // Sorted specialties by usage
+  const sortedSpecialties = useMemo(
+    () => getSortedSpecialties(specialties),
+    [specialties, getSortedSpecialties]
+  );
 
   // Floating search bar via IntersectionObserver
   useEffect(() => {
@@ -77,6 +85,15 @@ export default function Index() {
     setFavorites((prev) =>
       prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
     );
+  };
+
+  const handleSelectSpecialty = (s: string | null) => {
+    setSpecialty(s);
+    if (s) incrementSpecialty(s);
+  };
+
+  const handleProcedureClick = (proc: Procedure) => {
+    incrementSpecialty(proc.specialty);
   };
 
   const searchResults = useMemo(() => {
@@ -113,6 +130,7 @@ export default function Index() {
 
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && filteredResults.length > 0) {
+      handleProcedureClick(filteredResults[0]);
       navigate(`/p/${filteredResults[0].id}`);
     }
   };
@@ -193,7 +211,7 @@ export default function Index() {
         </div>
       )}
 
-      {/* Hero section — compact */}
+      {/* Hero section */}
       <div className="flex flex-col items-center justify-center pt-8 pb-4 px-4 bg-gradient-to-b from-primary/5 to-background">
         <h1 className="text-4xl sm:text-5xl font-bold mb-1">
           <span className="text-accent">Anes</span>
@@ -201,12 +219,17 @@ export default function Index() {
         </h1>
         <p className="text-muted-foreground text-sm mb-5">{t('tagline')}</p>
 
-        <div ref={heroSearchRef} className="w-full max-w-lg mb-4">
+        <div ref={heroSearchRef} className="w-full max-w-lg mb-3">
           {searchInput}
         </div>
 
+        {/* Smart specialty chips */}
         <div className="w-full max-w-lg mb-2">
-          <SpecialtyFilter specialties={specialties} selected={specialty} onSelect={setSpecialty} />
+          <SpecialtyChips
+            specialties={sortedSpecialties}
+            selected={specialty}
+            onSelect={handleSelectSpecialty}
+          />
         </div>
 
         {/* Inline search results when searching */}
@@ -218,12 +241,13 @@ export default function Index() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {filteredResults.map((p) => (
-                  <ProcedureCard
-                    key={p.id}
-                    procedure={p}
-                    isFavorite={favorites.includes(p.id)}
-                    onToggleFavorite={toggleFavorite}
-                  />
+                  <div key={p.id} onClick={() => handleProcedureClick(p)}>
+                    <ProcedureCard
+                      procedure={p}
+                      isFavorite={favorites.includes(p.id)}
+                      onToggleFavorite={toggleFavorite}
+                    />
+                  </div>
                 ))}
               </div>
             )}
@@ -251,7 +275,9 @@ export default function Index() {
               </div>
               <div className="space-y-1.5">
                 {visibleFavs.map((p) => (
-                  <ProcedureCard key={p.id} procedure={p} isFavorite onToggleFavorite={toggleFavorite} />
+                  <div key={p.id} onClick={() => handleProcedureClick(p)}>
+                    <ProcedureCard procedure={p} isFavorite onToggleFavorite={toggleFavorite} />
+                  </div>
                 ))}
               </div>
             </section>
@@ -275,6 +301,7 @@ export default function Index() {
                   <Link
                     key={p.id}
                     to={`/p/${p.id}`}
+                    onClick={() => handleProcedureClick(p)}
                     className="snap-start shrink-0 w-40 rounded-lg border bg-card p-3 clinical-shadow hover:clinical-shadow-md transition-all hover:-translate-y-0.5"
                   >
                     <p className="text-xs font-semibold text-card-foreground leading-tight line-clamp-2">
@@ -312,12 +339,13 @@ export default function Index() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {filteredResults.map((p) => (
-                    <ProcedureCard
-                      key={p.id}
-                      procedure={p}
-                      isFavorite={favorites.includes(p.id)}
-                      onToggleFavorite={toggleFavorite}
-                    />
+                    <div key={p.id} onClick={() => handleProcedureClick(p)}>
+                      <ProcedureCard
+                        procedure={p}
+                        isFavorite={favorites.includes(p.id)}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    </div>
                   ))}
                 </div>
               )}

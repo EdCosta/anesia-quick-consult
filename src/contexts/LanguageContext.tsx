@@ -260,6 +260,10 @@ const UI: Record<string, Record<Lang, string>> = {
   },
   or: { fr: 'ou', pt: 'ou', en: 'or' },
   clear_filters: { fr: 'Réinitialiser', pt: 'Limpar filtros', en: 'Clear filters' },
+  choose_specialties: { fr: 'Choisir spécialités', pt: 'Escolher especialidades', en: 'Choose specialties' },
+  search_specialties: { fr: 'Rechercher...', pt: 'Pesquisar...', en: 'Search...' },
+  clear: { fr: 'Effacer', pt: 'Limpar', en: 'Clear' },
+  apply: { fr: 'Appliquer', pt: 'Aplicar', en: 'Apply' },
   close: { fr: 'Fermer', pt: 'Fechar', en: 'Close' },
 
   // ETT / Intubation keys

@@ -34,6 +34,7 @@ interface DataContextType {
   getDrug: (id: string) => Drug | undefined;
   getProcedure: (id: string) => Procedure | undefined;
   specialties: string[];
+  specialtiesData: Array<{ id: string; name: Record<string, string>; sort_base: number }>;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -228,8 +229,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return Array.from(set).sort();
   }, [procedures]);
 
+  // Load specialty metadata from DB (with fallback to procedure-derived list)
+  const [specialtiesData, setSpecialtiesData] = useState<Array<{ id: string; name: Record<string, string>; sort_base: number }>>([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await supabase.from('specialties' as any).select('*').eq('is_active', true).order('sort_base');
+        if (data && (data as any[]).length > 0) {
+          setSpecialtiesData((data as any[]).map((r: any) => ({ id: r.id, name: r.name || {}, sort_base: r.sort_base || 0 })));
+        }
+      } catch { /* fallback: specialtiesData stays empty, use procedure-derived */ }
+    })();
+  }, []);
+
   return (
-    <DataContext.Provider value={{ procedures, drugs, guidelines, protocoles, alrBlocks, loading, error, getDrug, getProcedure, specialties }}>
+    <DataContext.Provider value={{ procedures, drugs, guidelines, protocoles, alrBlocks, loading, error, getDrug, getProcedure, specialties, specialtiesData }}>
       {error && !loading ? <DataErrorFallback error={error} /> : children}
     </DataContext.Provider>
   );

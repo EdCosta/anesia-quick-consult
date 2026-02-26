@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Star, ArrowRight, Crown } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
+import { useData } from '@/contexts/DataContext';
 import type { Procedure } from '@/contexts/DataContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,8 +13,15 @@ interface ProcedureCardProps {
 }
 
 export default function ProcedureCard({ procedure, isFavorite, onToggleFavorite }: ProcedureCardProps) {
-  const { resolveStr } = useLang();
+  const { resolveStr, lang } = useLang();
+  const { specialtiesData } = useData();
   const title = resolveStr(procedure.titles);
+
+  const specialtyDisplayName = (() => {
+    const spec = specialtiesData.find((s) => s.id === procedure.specialty);
+    if (spec && spec.name) return spec.name[lang] || spec.name['fr'] || procedure.specialty;
+    return procedure.specialty;
+  })();
 
   return (
     <Card className="clinical-shadow hover:clinical-shadow-md transition-all hover:-translate-y-0.5 cursor-pointer animate-fade-in">
@@ -25,7 +33,7 @@ export default function ProcedureCard({ procedure, isFavorite, onToggleFavorite 
             </h3>
             <div className="flex items-center gap-1.5 mt-1.5">
               <Badge variant="secondary" className="text-[11px]">
-                {procedure.specialty}
+                {specialtyDisplayName}
               </Badge>
               {procedure.is_pro && (
                 <Badge variant="outline" className="text-[10px] gap-0.5 border-accent text-accent">

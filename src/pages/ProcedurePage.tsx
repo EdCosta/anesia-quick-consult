@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, ArrowLeft, ClipboardCopy, BookOpen } from 'lucide-react';
+import { Star, ArrowLeft, ClipboardCopy, BookOpen, Crown } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -8,6 +8,7 @@ import Section, { BulletList } from '@/components/anesia/Section';
 import IntubationGuide from '@/components/anesia/IntubationGuide';
 import DrugDoseRow from '@/components/anesia/DrugDoseRow';
 import PatientAnthropometrics from '@/components/anesia/PatientAnthropometrics';
+import ProGate from '@/components/anesia/ProGate';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -95,7 +96,14 @@ export default function ProcedurePage() {
             <ArrowLeft className="h-4 w-4" />{t('back')}
           </Link>
           <h1 className="mt-2 text-xl font-bold text-foreground leading-tight">{title}</h1>
-          <Badge variant="secondary" className="mt-1.5">{procedure.specialty}</Badge>
+          <div className="flex items-center gap-2 mt-1.5">
+            <Badge variant="secondary">{procedure.specialty}</Badge>
+            {procedure.is_pro && (
+              <Badge variant="outline" className="gap-0.5 border-accent text-accent text-[10px]">
+                <Crown className="h-3 w-3" />PRO
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-1">
           {quick && (
@@ -109,6 +117,21 @@ export default function ProcedurePage() {
         </div>
       </div>
 
+      {/* Pro gate for pro procedures */}
+      {procedure.is_pro ? (
+        <ProGate>
+          <ProcedureContent quick={quick} deep={deep} weight={weight} weightKg={weightKg} setWeightKg={setWeightKg} patientWeights={patientWeights} setPatientWeights={setPatientWeights} procedure={procedure} recommendations={recommendations} t={t} resolveStr={resolveStr} getDrug={getDrug} handleCopyChecklist={handleCopyChecklist} />
+        </ProGate>
+      ) : (
+        <ProcedureContent quick={quick} deep={deep} weight={weight} weightKg={weightKg} setWeightKg={setWeightKg} patientWeights={patientWeights} setPatientWeights={setPatientWeights} procedure={procedure} recommendations={recommendations} t={t} resolveStr={resolveStr} getDrug={getDrug} handleCopyChecklist={handleCopyChecklist} />
+      )}
+    </div>
+  );
+}
+
+function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientWeights, setPatientWeights, procedure, recommendations, t, resolveStr, getDrug, handleCopyChecklist }: any) {
+  return (
+    <>
       {/* Key Points card */}
       {quick && quick.preop.length > 0 && (
         <Card className="border-l-4 border-l-accent clinical-shadow">
@@ -242,12 +265,12 @@ export default function ProcedurePage() {
           ) : (
             <Card className="clinical-shadow border-l-4 border-l-muted">
               <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Aucune dose configurée pour cette procédure.</p>
-              </CardContent>
-            </Card>
+              <p className="text-sm text-muted-foreground">{t('no_doses_configured')}</p>
+            </CardContent>
+          </Card>
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }

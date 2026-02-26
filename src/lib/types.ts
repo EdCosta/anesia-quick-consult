@@ -30,6 +30,7 @@ export interface Procedure {
   synonyms: { fr?: string[]; pt?: string[]; en?: string[] };
   quick: { fr: ProcedureQuick; pt?: ProcedureQuick; en?: ProcedureQuick };
   deep: { fr: ProcedureDeep; pt?: ProcedureDeep; en?: ProcedureDeep };
+  is_pro?: boolean;
 }
 
 export interface DoseRule {

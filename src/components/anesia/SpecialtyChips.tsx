@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Plus, Search, X, ChevronUp } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
+import { useData } from '@/contexts/DataContext';
 
 interface SpecialtyChipsProps {
   specialties: string[];
@@ -15,9 +16,19 @@ export default function SpecialtyChips({
   onSelect,
   maxVisible = 8,
 }: SpecialtyChipsProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const { specialtiesData } = useData();
   const [expanded, setExpanded] = useState(false);
   const [search, setSearch] = useState('');
+
+  // Map specialty slug -> multilingual name
+  const getDisplayName = (slug: string) => {
+    const spec = specialtiesData.find((s) => s.id === slug);
+    if (spec && spec.name) {
+      return spec.name[lang] || spec.name['fr'] || slug;
+    }
+    return slug;
+  };
 
   const visible = specialties.slice(0, maxVisible);
   const hasMore = specialties.length > maxVisible;
@@ -55,6 +66,7 @@ export default function SpecialtyChips({
             onClick={() => onSelect(s === selected ? null : s)}
             className={chipClass(selected === s)}
           >
+            {getDisplayName(s)}
             {s}
           </button>
         ))}
@@ -113,7 +125,7 @@ export default function SpecialtyChips({
                       : 'bg-muted text-foreground hover:bg-muted/80'
                   }`}
                 >
-                  {s}
+                  {getDisplayName(s)}
                 </button>
               ))
             )}

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Star, ArrowRight } from 'lucide-react';
+import { Star, ArrowRight, Crown } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import type { Procedure } from '@/contexts/DataContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,9 +23,16 @@ export default function ProcedureCard({ procedure, isFavorite, onToggleFavorite 
             <h3 className="text-sm font-semibold leading-tight text-card-foreground">
               {title}
             </h3>
-            <Badge variant="secondary" className="mt-1.5 text-[11px]">
-              {procedure.specialty}
-            </Badge>
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <Badge variant="secondary" className="text-[11px]">
+                {procedure.specialty}
+              </Badge>
+              {procedure.is_pro && (
+                <Badge variant="outline" className="text-[10px] gap-0.5 border-accent text-accent">
+                  <Crown className="h-2.5 w-2.5" />PRO
+                </Badge>
+              )}
+            </div>
           </div>
           <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
         </Link>

@@ -176,11 +176,36 @@ export type Database = {
         }
         Relationships: []
       }
+      plans: {
+        Row: {
+          created_at: string
+          features: Json | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json | null
+          id: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       procedures: {
         Row: {
           content: Json
           created_at: string
           id: string
+          is_pro: boolean
           specialty: string
           synonyms: Json | null
           tags: Json | null
@@ -191,6 +216,7 @@ export type Database = {
           content: Json
           created_at?: string
           id: string
+          is_pro?: boolean
           specialty: string
           synonyms?: Json | null
           tags?: Json | null
@@ -201,6 +227,7 @@ export type Database = {
           content?: Json
           created_at?: string
           id?: string
+          is_pro?: boolean
           specialty?: string
           synonyms?: Json | null
           tags?: Json | null
@@ -271,6 +298,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      user_entitlements: {
+        Row: {
+          active: boolean
+          created_at: string
+          expires_at: string | null
+          id: string
+          plan_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_entitlements_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

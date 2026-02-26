@@ -66,14 +66,24 @@ function fetchJson(path: string) {
 }
 
 // Transform DB row to Procedure shape
+function wrapByLang(obj: any): any {
+  if (!obj || typeof obj !== 'object') return obj;
+  // If already wrapped by language key (has fr/en/pt sub-keys), return as is
+  if (obj.fr || obj.en || obj.pt) return obj;
+  // If has direct content keys like preop/clinical, wrap as { fr: obj }
+  if (obj.preop || obj.intraop || obj.clinical || obj.pitfalls) return { fr: obj };
+  return obj;
+}
+
 function dbRowToProcedure(row: any): Procedure {
   return {
     id: row.id,
     specialty: row.specialty,
     titles: row.titles,
     synonyms: row.synonyms || {},
-    quick: row.content?.quick || {},
-    deep: row.content?.deep || {},
+    quick: wrapByLang(row.content?.quick) || {},
+    deep: wrapByLang(row.content?.deep) || {},
+    is_pro: row.is_pro ?? false,
   };
 }
 

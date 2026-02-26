@@ -1,100 +1,172 @@
 
 
-# Plan: Specialty Chips Overhaul + 10 New Procedures + i18n Fix
+# Plan: Auto-Translation, Drug Groups, Terminology, Account/Pro, and Quick Enhancements
 
 ## Summary
 
-Three main workstreams: (1) Fix specialty chips on Home with proper "+" expansion panel, (2) Add 10 new procedures to Supabase with full FR/EN/PT content, (3) Fix the i18n bug where procedure content doesn't change language + add translation missing indicator.
+Five workstreams: (1) Auto-translate procedure content FR->EN/PT via Lovable AI edge function, (2) Drug grouping on procedure page, (3) Replace "Procedimento" with "Intervenção" in PT, (4) Account page + Pro gating UI (Stripe sandbox prep), (5) Checklist mode + Generate summary.
 
 ---
 
-## Workstream 1: Specialty Chips on Home
+## Workstream 1: Auto-Translation of Procedure Content
 
-### Problem
-- The specialty list comes from `procedures` (derived), not from `specialtiesData` (DB). Only 7 unique specialties from procedures exist.
-- The "+" button only shows when there are more than 8 specialties, but with only 7 from procedures, the button never appears.
-- `SpecialtyChips` receives `specialties: string[]` (slugs from procedures) but the DB has 16 specialties.
+### 1.1 Edge Function: `supabase/functions/translate-content/index.ts`
 
-### Fix: Use `specialtiesData` from DB as primary source
+- Receives `{ procedureId, targetLang, content }` (the FR content object)
+- Uses Lovable AI Gateway (`google/gemini-3-flash-preview`) to translate
+- System prompt: "Translate the following medical/anesthesia content from French to {lang}. Maintain JSON structure exactly. Do not add or remove keys. Translate only text values."
+- Returns translated content object with same structure (preop/intraop/postop/red_flags/drugs preserved)
+- Non-streaming (uses `supabase.functions.invoke`)
 
-**`src/pages/Index.tsx`**:
-- Change `sortedSpecialties` to use `specialtiesData` (all active specialties from DB) instead of procedure-derived `specialties`.
-- Map specialtiesData to IDs, sort by usage then sort_base.
-- This gives 16+ specialties, ensuring the "+" button appears.
-
-**`src/components/anesia/SpecialtyChips.tsx`**:
-- Keep current structure but improve the search in expanded panel to search by display name (multilingual), not just slug.
-- Always show "+" button (even when fewer than maxVisible), since user requested it as a core feature.
-- Ensure the expanded panel search matches against display names.
-
-### New specialties to add (DB insert)
-Need to add `gastroenterologie` specialty since 3 new procedures will use it:
-```
-gastroenterologie | { fr: "Gastro-entérologie", en: "Gastroenterology", pt: "Gastroenterologia" } | sort_base: 8
+Config in `supabase/config.toml`:
+```toml
+[functions.translate-content]
+verify_jwt = false
 ```
 
----
+### 1.2 Translation Hook: `src/hooks/useAutoTranslation.ts`
 
-## Workstream 2: Add 10 New Procedures
+- Takes `procedureId`, `lang`, `contentFr`
+- Returns `{ translatedContent, isTranslating, isAutoTranslated }`
+- Cache in localStorage keyed by `anesia-translation-{procedureId}-{lang}`
+- Only triggers when `lang !== 'fr'` and `procedure.quick[lang]` is missing
+- Uses React Query with long staleTime (24h)
 
-Insert 10 procedures into the `procedures` table via the data insert tool. Each with:
-- `id` (slug)
-- `specialty` matching a specialty ID
-- `titles` in FR/EN/PT
-- `content` with `quick.fr` containing `preop`, `intraop`, `postop`, `red_flags`, `drugs`
-- `tags` array
+### 1.3 ProcedurePage Changes
 
-### Procedures list:
+- When `isFallbackLang` is true, call `useAutoTranslation`
+- Replace FR-only banner with "Auto-translated" badge + toggle "View original (FR)"
+- Toggle switches between translated content and FR content
+- Admin users see "Save EN translation" / "Save PT translation" button
+- Save button calls Supabase update on the procedure row, filling `content.quick.{lang}` and `content.deep.{lang}`
+- Add `content_meta` field with `{ [lang]: { generated_at, review_status: 'auto' | 'reviewed' } }`
 
-1. **ercp** (gastroenterologie) - ERCP / Endoscopic retrograde cholangiopancreatography
-2. **colonoscopie_sedation** (gastroenterologie) - Colonoscopy under sedation
-3. **gastroscopie_sedation** (gastroenterologie) - Gastroscopy under sedation
-4. **herniorraphie_inguinale** (chirurgie-generale) - Inguinal hernia repair (open)
-5. **hemicolectomie_lap** (chirurgie-generale) - Laparoscopic hemicolectomy
-6. **cystectomie_robot** (urologie) - Robotic cystectomy
-7. **prostatectomie_robot** (urologie) - Robotic prostatectomy
-8. **cesarienne_urgente_code** (obstetrique) - Emergency C-section (code green/orange)
-9. **amputation_transmetatarsienne** (orthopedie) - Transmetatarsal amputation
-10. **lavage_articulaire_septique** (orthopedie) - Septic joint washout
+### 1.4 Admin Save Logic
 
-Each procedure will include 5-10 drug references in `quick.fr.drugs` matching existing drug IDs.
-
-Content is FR-only initially (matching current DB pattern). EN/PT titles will be provided.
+- On save, update procedure in Supabase: merge translated content into `content.quick.{lang}` and `content.deep.{lang}`
+- After save, invalidate React Query cache for that procedure
+- Admin check: use `useEntitlements` or a simple `has_role` RPC check
 
 ---
 
-## Workstream 3: i18n Fix for Procedure Content
+## Workstream 2: Drug Groups on Procedure Page
 
-### Root cause
-- All procedures in DB only have `content.quick.fr` and `content.deep.fr` -- no EN/PT translations.
-- The `resolve()` function correctly falls back to FR, but user sees no indication that content isn't translated.
-- The `wrapByLang()` function works correctly for wrapping.
+### 2.1 Drug Group Categorization
 
-### Changes
+Add a `group` field to each drug reference in `quick.{lang}.drugs`. Groups:
+- `induction` -- Propofol, Sufentanil, Rocuronium, Ketamine
+- `maintenance` -- Sevoflurane
+- `analgesia` -- Paracetamol, Ibuprofene, Ketorolac, Morphine, Ketamine
+- `ponv` -- Ondansetron, Dexamethasone
+- `prophylaxis` -- Cefazoline, Acide tranexamique, Enoxaparine
 
-**`src/pages/ProcedurePage.tsx`**:
-- After resolving `quick` and `deep`, check if `procedure.quick[lang]` exists.
-- If not (i.e., using fallback), show a small banner: "Content available in French only" (i18n).
-- Badge is dismissible and non-intrusive.
+### 2.2 UI Changes in ProcedurePage
 
-**`src/components/anesia/ProcedureCard.tsx`**:
-- Show specialty display name (from specialtiesData) instead of raw slug.
+- Group drugs by `indication_tag` or a new mapping function `getDrugGroup(drugId, indicationTag)`
+- Render sections with headers: "Induction", "Maintenance", "Analgesia", "PONV", "Prophylaxis"
+- Create `src/lib/drugGroups.ts` with mapping logic
+- Each group is a collapsible section with group icon/color
 
-**`src/contexts/LanguageContext.tsx`**:
-- Add i18n keys: `content_fr_only`, `generate_translation`, `apply_filter`, `choose_specialties`.
+### 2.3 Admin Quality Validator: `/admin/quality`
 
-### Translation admin page (future)
-- The admin translation tool (`/admin/translate-procedure/:id`) is a separate feature. For now, just add the "FR only" indicator on ProcedurePage.
+New page `src/pages/AdminQuality.tsx`:
+- Lists procedures missing drugs
+- Lists drugs with missing units/dose_scalar
+- Lists procedures with empty references
+- Quick fix buttons (link to procedure edit)
+- Route added to `App.tsx`
 
 ---
 
-## Workstream 4: CSV Import Multi-language Support
+## Workstream 3: "Procedimento" to "Intervenção" (PT)
 
-**`src/pages/AdminImportProcedures.tsx`**:
-- Update the CSV parser to handle `title_fr`, `title_en`, `title_pt` columns.
-- Map them into the `titles` JSON structure `{ fr, en, pt }`.
-- For `content`, support a single JSON column or separate columns per language.
-- Show warnings for missing translations in preview.
+### 3.1 i18n Key Updates
+
+In `LanguageContext.tsx`, update all PT strings:
+- `all_procedures`: "Todas as intervenções"
+- `search_placeholder`: "Pesquisar uma intervenção..."
+- Other occurrences: "procedimento(s)" -> "intervenção(ões)"
+
+### 3.2 Affected Keys
+- `all_procedures`, `search_placeholder`, `view_all_procedures`, `no_results` context
+- New key `intervention_detail` for procedure detail page heading
+
+---
+
+## Workstream 4: Account Page + Pro Gating
+
+### 4.1 New Page: `src/pages/Account.tsx`
+
+- Route `/account` in App.tsx
+- Shows current plan (Free/Pro) via `useEntitlements`
+- Feature comparison table (Free vs Pro)
+- "Upgrade to Pro" button
+- When `STRIPE_ENABLED` is false (env var check or hardcoded flag), button shows "Coming soon" / "Em preparação"
+
+### 4.2 Database: `user_profiles` Table
+
+Migration to create:
+```sql
+CREATE TABLE IF NOT EXISTS public.user_profiles (
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email text,
+  name text,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+-- Users read/update own profile
+CREATE POLICY "Users read own profile" ON public.user_profiles FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users update own profile" ON public.user_profiles FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users insert own profile" ON public.user_profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
+```
+
+Note: `plans` and `user_entitlements` tables already exist.
+
+### 4.3 Stripe Preparation (Sandbox)
+
+- Edge function `supabase/functions/stripe-checkout/index.ts` (stub)
+- Returns `{ error: "Stripe not enabled" }` when env `STRIPE_SECRET_KEY` is not set
+- No actual Stripe integration yet -- just the skeleton
+- ProGate modal "Upgrade" button links to `/account`
+
+### 4.4 Nav Update
+
+- Add `/account` to the mobile menu (visible when logged in)
+- AppLayout: plan badge becomes a link to `/account`
+
+---
+
+## Workstream 5: Quick Enhancements
+
+### 5.1 Checklist Mode on Procedure Page
+
+- Toggle button "Checklist mode" at top of ProcedurePage
+- When active, each bullet in preop/intraop/postop gets a checkbox
+- State stored in component (not persisted)
+- Uses `Checkbox` component from UI library
+- Progress indicator: "3/8 completed"
+
+### 5.2 Generate Summary (Copy/Export)
+
+- Button "Generate summary" on ProcedurePage
+- Generates text with: procedure title, patient weight, calculated doses, scores
+- Copies to clipboard with `navigator.clipboard.writeText()`
+- Toast confirmation
+- Extends existing `handleCopyChecklist` with dose information
+
+---
+
+## i18n Keys to Add
+
+```
+auto_translated / view_original / save_translation_en / save_translation_pt
+translation_saved / translating
+drug_group_induction / drug_group_maintenance / drug_group_analgesia / drug_group_ponv / drug_group_prophylaxis
+checklist_mode / checklist_progress / generate_summary / summary_copied
+account / current_plan / upgrade_pro / coming_soon / pro_features_list
+intervention (PT only replacement)
+quality_dashboard / missing_drugs / missing_units / missing_refs
+```
 
 ---
 
@@ -102,22 +174,29 @@ Content is FR-only initially (matching current DB pattern). EN/PT titles will be
 
 | File | Action |
 |------|--------|
-| DB insert | Add `gastroenterologie` specialty |
-| DB insert | Add 10 new procedures with content |
-| `src/pages/Index.tsx` | Use specialtiesData for chips source |
-| `src/components/anesia/SpecialtyChips.tsx` | Always show "+", search by display name |
-| `src/pages/ProcedurePage.tsx` | Add "FR only" banner when content not translated |
-| `src/components/anesia/ProcedureCard.tsx` | Show translated specialty name |
-| `src/contexts/LanguageContext.tsx` | Add ~5 new i18n keys |
-| `src/pages/AdminImportProcedures.tsx` | Multi-language CSV support |
+| `supabase/functions/translate-content/index.ts` | New -- AI translation edge function |
+| `supabase/config.toml` | Add translate-content function config |
+| DB migration | Create `user_profiles` table |
+| `src/hooks/useAutoTranslation.ts` | New -- auto-translation hook with cache |
+| `src/lib/drugGroups.ts` | New -- drug group mapping |
+| `src/pages/Account.tsx` | New -- account/plan page |
+| `src/pages/AdminQuality.tsx` | New -- quality validator |
+| `src/pages/ProcedurePage.tsx` | Auto-translation UI, checklist mode, drug groups, summary |
+| `src/components/anesia/ProGate.tsx` | Link upgrade to /account |
+| `src/components/anesia/AppLayout.tsx` | Plan badge links to /account |
+| `src/contexts/LanguageContext.tsx` | ~25 new i18n keys + PT terminology fix |
+| `src/App.tsx` | Add /account and /admin/quality routes |
 
 ## Implementation Order
-1. DB insert: gastroenterologie specialty
-2. DB insert: 10 new procedures
-3. Fix SpecialtyChips + Index.tsx (use DB specialties)
-4. ProcedurePage i18n indicator
-5. ProcedureCard specialty display name
-6. i18n keys
-7. CSV import polish
-8. QA
+
+1. DB migration (user_profiles)
+2. Edge function (translate-content) + config.toml
+3. useAutoTranslation hook
+4. ProcedurePage: auto-translation UI + checklist mode + summary
+5. drugGroups.ts + drug grouping in ProcedurePage
+6. PT terminology fix (i18n)
+7. Account page + ProGate link
+8. AdminQuality page
+9. All i18n keys
+10. QA
 

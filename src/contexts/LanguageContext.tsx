@@ -469,6 +469,9 @@ const UI: Record<string, Record<Lang, string>> = {
   ponv: { fr: 'NVPO', pt: 'NVPO', en: 'PONV' },
   pain: { fr: 'Douleur', pt: 'Dor', en: 'Pain' },
   fluid: { fr: 'Remplissage', pt: 'Reposição', en: 'Fluid' },
+  sign_in_google: { fr: 'Se connecter avec Google', pt: 'Entrar com Google', en: 'Sign in with Google' },
+  sign_out: { fr: 'Se déconnecter', pt: 'Sair', en: 'Sign out' },
+  sign_in: { fr: 'Se connecter', pt: 'Entrar', en: 'Sign in' },
 };
 
 interface LanguageContextType {

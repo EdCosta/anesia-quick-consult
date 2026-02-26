@@ -1,10 +1,12 @@
-import { useState, ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { useState, useEffect, ReactNode } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, LogIn, LogOut } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { HEADER_ITEMS } from '@/config/nav';
+import { supabase } from '@/integrations/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -13,8 +15,20 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { t } = useLang();
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -54,8 +68,27 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </nav>
           )}
 
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
             <LanguageSwitcher />
+            {user ? (
+              <button
+                onClick={async () => { await supabase.auth.signOut(); }}
+                className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                aria-label={t('sign_out')}
+                title={t('sign_out')}
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate('/auth')}
+                className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                aria-label={t('sign_in')}
+                title={t('sign_in')}
+              >
+                <LogIn className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
       </header>

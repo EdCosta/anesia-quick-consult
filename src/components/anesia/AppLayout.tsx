@@ -1,12 +1,13 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, Building2 } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { HEADER_ITEMS } from '@/config/nav';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -19,6 +20,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [profiles, setProfiles] = useState<Array<{ id: string; name: string }>>([]);
+  const [activeProfile, setActiveProfile] = useState<string | null>(() => localStorage.getItem('anesia-hospital-profile'));
+
+  useEffect(() => {
+    supabase.from('hospital_profiles' as any).select('id, name').then(({ data }) => {
+      if (data) setProfiles((data as any[]).map((p: any) => ({ id: p.id, name: p.name })));
+    });
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -69,6 +78,41 @@ export default function AppLayout({ children }: AppLayoutProps) {
           )}
 
           <div className="ml-auto flex items-center gap-2">
+            {/* Hospital profile selector */}
+            {user && profiles.length > 0 && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                    title={t('hospital_profile')}
+                  >
+                    <Building2 className="h-4 w-4" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-2">
+                  <p className="text-xs font-semibold text-foreground mb-2">{t('select_profile')}</p>
+                  {profiles.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => { setActiveProfile(p.id); localStorage.setItem('anesia-hospital-profile', p.id); }}
+                      className={`w-full text-left rounded px-2 py-1.5 text-xs transition-colors ${
+                        activeProfile === p.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted text-foreground'
+                      }`}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                  {activeProfile && (
+                    <button
+                      onClick={() => { setActiveProfile(null); localStorage.removeItem('anesia-hospital-profile'); }}
+                      className="w-full mt-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+                    >
+                      {t('clear')}
+                    </button>
+                  )}
+                </PopoverContent>
+              </Popover>
+            )}
             <LanguageSwitcher />
             {user ? (
               <button

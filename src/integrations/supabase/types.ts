@@ -122,6 +122,60 @@ export type Database = {
         }
         Relationships: []
       }
+      hospital_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          settings: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          settings?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          settings?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      import_logs: {
+        Row: {
+          created_at: string
+          errors: Json | null
+          failed: number
+          id: string
+          success: number
+          total: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          errors?: Json | null
+          failed?: number
+          id?: string
+          success?: number
+          total?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          errors?: Json | null
+          failed?: number
+          id?: string
+          success?: number
+          total?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       procedures: {
         Row: {
           content: Json

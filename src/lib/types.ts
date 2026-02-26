@@ -39,6 +39,7 @@ export interface DoseRule {
   max_mg: number | null;
   notes: string[];
   unit_override?: string;
+  dose_scalar?: 'TBW' | 'IBW' | 'LBW' | 'AdjBW' | 'TITRATE';
 }
 
 export interface Concentration {

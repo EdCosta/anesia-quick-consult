@@ -1,13 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Plus, Search, X } from 'lucide-react';
+import { Plus, Search, X, ChevronUp } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 
 interface SpecialtyChipsProps {
   specialties: string[];
@@ -23,7 +16,7 @@ export default function SpecialtyChips({
   maxVisible = 8,
 }: SpecialtyChipsProps) {
   const { t } = useLang();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [search, setSearch] = useState('');
 
   const visible = specialties.slice(0, maxVisible);
@@ -36,104 +29,114 @@ export default function SpecialtyChips({
   }, [specialties, search]);
 
   const chipClass = (active: boolean) =>
-    `shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
+    `rounded-full px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
       active
         ? 'bg-primary text-primary-foreground shadow-sm'
         : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
     }`;
 
-  const handleSelectFromDialog = (s: string) => {
+  const handleSelectFromPanel = (s: string) => {
     onSelect(s === selected ? null : s);
-    setDialogOpen(false);
-    setSearch('');
   };
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
-      {/* "All" chip */}
-      <button onClick={() => onSelect(null)} className={chipClass(selected === null)}>
-        {t('all_specialties')}
-      </button>
-
-      {/* Top N chips */}
-      {visible.map((s) => (
-        <button
-          key={s}
-          onClick={() => onSelect(s === selected ? null : s)}
-          className={chipClass(selected === s)}
-        >
-          {s}
+    <div className="space-y-2">
+      {/* Compact chip grid (wrap, no horizontal scroll) */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* "All" chip */}
+        <button onClick={() => onSelect(null)} className={chipClass(selected === null)}>
+          {t('all_specialties')}
         </button>
-      ))}
 
-      {/* "+" button */}
-      {hasMore && (
-        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setSearch(''); }}>
-          <DialogTrigger asChild>
-            <button
-              className="shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
-              aria-label={t('choose_specialties')}
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </DialogTrigger>
-          <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle>{t('choose_specialties')}</DialogTitle>
-            </DialogHeader>
+        {/* Top N chips */}
+        {visible.map((s) => (
+          <button
+            key={s}
+            onClick={() => onSelect(s === selected ? null : s)}
+            className={chipClass(selected === s)}
+          >
+            {s}
+          </button>
+        ))}
 
-            {/* Search inside dialog */}
-            <div className="relative mb-3">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('search_specialties')}
-                className="h-10 w-full rounded-lg border border-border bg-card pl-10 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-              />
-              {search && (
+        {/* "+" button */}
+        {hasMore && (
+          <button
+            onClick={() => { setExpanded(!expanded); if (expanded) setSearch(''); }}
+            className={`flex items-center justify-center h-7 w-7 rounded-full transition-colors ${
+              expanded
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+            }`}
+            aria-label={expanded ? t('close') : t('choose_specialties')}
+          >
+            {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+          </button>
+        )}
+      </div>
+
+      {/* Inline expandable panel */}
+      {expanded && (
+        <div className="rounded-lg border bg-card p-3 space-y-2 animate-fade-in">
+          {/* Search inside panel */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('search_specialties')}
+              className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Grid of all specialties */}
+          <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+            {filteredAll.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-3 w-full">{t('no_results')}</p>
+            ) : (
+              filteredAll.map((s) => (
                 <button
-                  onClick={() => setSearch('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  key={s}
+                  onClick={() => handleSelectFromPanel(s)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    s === selected
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground hover:bg-muted/80'
+                  }`}
                 >
-                  <X className="h-3.5 w-3.5" />
+                  {s}
                 </button>
-              )}
-            </div>
+              ))
+            )}
+          </div>
 
-            {/* Full specialty list */}
-            <div className="max-h-60 overflow-y-auto space-y-1">
-              {filteredAll.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">{t('no_results')}</p>
-              ) : (
-                filteredAll.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => handleSelectFromDialog(s)}
-                    className={`w-full text-left rounded-lg px-3 py-2 text-sm transition-colors ${
-                      s === selected
-                        ? 'bg-primary/10 text-primary font-medium'
-                        : 'hover:bg-muted text-foreground'
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))
-              )}
-            </div>
-
-            {/* Clear button */}
+          {/* Actions */}
+          <div className="flex items-center gap-2 pt-1">
             {selected && (
               <button
-                onClick={() => { onSelect(null); setDialogOpen(false); setSearch(''); }}
-                className="mt-2 w-full rounded-lg border border-border py-2 text-sm text-muted-foreground hover:bg-muted transition-colors"
+                onClick={() => { onSelect(null); }}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors"
               >
                 {t('clear')}
               </button>
             )}
-          </DialogContent>
-        </Dialog>
+            <button
+              onClick={() => { setExpanded(false); setSearch(''); }}
+              className="ml-auto rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              {t('close')}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

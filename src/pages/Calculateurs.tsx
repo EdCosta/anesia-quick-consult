@@ -15,9 +15,9 @@ const CALCULATORS = [
     id: "ett",
     icon: Stethoscope,
     label: {
-      fr: "Calculateur ETT Pedia/ Intubation",
-      pt: "Calculadora ETT Pedia/ Intubação",
-      en: "ETT Pedia/ Intubation Calculator",
+      fr: "Calculateur ETT / Intubation",
+      pt: "Calculadora ETT / Intubação",
+      en: "ETT / Intubation Calculator",
     },
     available: true,
   },

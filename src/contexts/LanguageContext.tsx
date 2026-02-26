@@ -5,7 +5,7 @@ export type Lang = "fr" | "pt" | "en";
 const UI: Record<string, Record<Lang, string>> = {
   search_placeholder: {
     fr: "Rechercher une chirurgie...",
-    pt: "Pesquisar uma cirurgia...",
+    pt: "Pesquisar uma intervenção...",
     en: "Search a surgery...",
   },
   favorites: { fr: "⭐ Favoris", pt: "⭐ Favoritos", en: "⭐ Favorites" },
@@ -14,7 +14,7 @@ const UI: Record<string, Record<Lang, string>> = {
   all_specialties: { fr: "Toutes", pt: "Todas", en: "All" },
   all_procedures: {
     fr: "Toutes les procédures",
-    pt: "Todos os procedimentos",
+    pt: "Todas as intervenções",
     en: "All procedures",
   },
   preop: { fr: "Pré-opératoire", pt: "Pré-operatório", en: "Pre-operative" },
@@ -170,7 +170,7 @@ const UI: Record<string, Record<Lang, string>> = {
   available: { fr: "Disponible", pt: "Disponível", en: "Available" },
   procedures_title: {
     fr: "Procédures",
-    pt: "Procedimentos",
+    pt: "Intervenções",
     en: "Procedures",
   },
 
@@ -376,7 +376,7 @@ const UI: Record<string, Record<Lang, string>> = {
   },
   view_all_procedures: {
     fr: "Voir toutes les procédures",
-    pt: "Ver todos os procedimentos",
+    pt: "Ver todas as intervenções",
     en: "View all procedures",
   },
   clear_recents: {
@@ -588,6 +588,35 @@ const UI: Record<string, Record<Lang, string>> = {
     pt: "Traduções em falta",
     en: "Missing translations",
   },
+
+  // Auto-translation
+  auto_translated: { fr: "Traduction auto", pt: "Tradução automática", en: "Auto-translated" },
+  view_original: { fr: "Voir l'original (FR)", pt: "Ver original (FR)", en: "View original (FR)" },
+  view_translated: { fr: "Voir la traduction", pt: "Ver tradução", en: "View translation" },
+  translating: { fr: "Traduction en cours…", pt: "A traduzir…", en: "Translating…" },
+  save_translation_en: { fr: "Sauvegarder EN", pt: "Guardar EN", en: "Save EN" },
+  save_translation_pt: { fr: "Sauvegarder PT", pt: "Guardar PT", en: "Save PT" },
+  translation_saved: { fr: "Traduction sauvegardée", pt: "Tradução guardada", en: "Translation saved" },
+
+  // Drug groups
+  drug_group_induction: { fr: "💉 Induction", pt: "💉 Indução", en: "💉 Induction" },
+  drug_group_maintenance: { fr: "🫁 Entretien", pt: "🫁 Manutenção", en: "🫁 Maintenance" },
+  drug_group_analgesia: { fr: "💊 Analgésie", pt: "💊 Analgesia", en: "💊 Analgesia" },
+  drug_group_ponv: { fr: "🤢 NVPO", pt: "🤢 NVPO", en: "🤢 PONV" },
+  drug_group_prophylaxis: { fr: "🛡️ Prophylaxie", pt: "🛡️ Profilaxia", en: "🛡️ Prophylaxis" },
+  drug_group_other: { fr: "Autres", pt: "Outros", en: "Other" },
+
+  // Checklist & summary
+  checklist_mode: { fr: "Mode checklist", pt: "Modo checklist", en: "Checklist mode" },
+  checklist_progress: { fr: "Progression", pt: "Progresso", en: "Progress" },
+  generate_summary: { fr: "Générer résumé", pt: "Gerar resumo", en: "Generate summary" },
+  summary_copied: { fr: "Résumé copié !", pt: "Resumo copiado!", en: "Summary copied!" },
+
+  // Quality dashboard
+  quality_dashboard: { fr: "Qualité des données", pt: "Qualidade dos dados", en: "Data quality" },
+  missing_drugs: { fr: "Interventions sans médicaments", pt: "Intervenções sem medicamentos", en: "Procedures without drugs" },
+  missing_units: { fr: "Médicaments incomplets", pt: "Medicamentos incompletos", en: "Incomplete drugs" },
+  missing_refs: { fr: "Références manquantes", pt: "Referências em falta", en: "Missing references" },
 };
 
 interface LanguageContextType {

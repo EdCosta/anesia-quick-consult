@@ -4,6 +4,7 @@ import { useEntitlements } from '@/hooks/useEntitlements';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProGateProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ export default function ProGate({ children, fallback }: ProGateProps) {
   const { isPro, loading } = useEntitlements();
   const { t } = useLang();
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   if (loading) return <>{children}</>;
 
@@ -40,7 +42,7 @@ export default function ProGate({ children, fallback }: ProGateProps) {
             <DialogDescription>{t('pro_feature_desc')}</DialogDescription>
           </DialogHeader>
           <button
-            onClick={() => setShowModal(false)}
+            onClick={() => { setShowModal(false); navigate('/account'); }}
             className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             {t('upgrade_pro')}

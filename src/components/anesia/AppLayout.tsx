@@ -116,12 +116,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </PopoverContent>
               </Popover>
             )}
-            {/* Plan badge */}
+            {/* Plan badge - links to /account */}
             {user && (
-              <Badge variant={isPro ? 'default' : 'secondary'} className="text-[10px] gap-0.5">
-                {isPro && <Crown className="h-2.5 w-2.5" />}
-                {isPro ? t('plan_pro') : t('plan_free')}
-              </Badge>
+              <Link to="/account">
+                <Badge variant={isPro ? 'default' : 'secondary'} className="text-[10px] gap-0.5 cursor-pointer hover:opacity-80">
+                  {isPro && <Crown className="h-2.5 w-2.5" />}
+                  {isPro ? t('plan_pro') : t('plan_free')}
+                </Badge>
+              </Link>
             )}
             <LanguageSwitcher />
             {user ? (

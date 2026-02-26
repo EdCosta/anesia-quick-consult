@@ -17,6 +17,7 @@ import type { Procedure, Drug, Guideline, Protocole, ALRBlock } from '@/lib/type
 import { loadFromSupabase } from '@/data/repositories/loadFromSupabase';
 import { loadFromJson } from '@/data/repositories/loadFromJson';
 import { mergeProcedureFallback } from '@/data/merge/mergeProcedureFallback';
+import { enrichMedicationPlan } from '@/data/merge/enrichMedicationPlan';
 
 interface DataContextType {
   procedures: Procedure[];
@@ -65,17 +66,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (dbData) {
           console.log('[AnesIA] Data loaded from database');
           const mergedProcs = await mergeProcedureFallback(dbData.procedures);
+          let activeDrugs = dbData.drugs;
           if (cancelled) return;
-          setProcedures(mergedProcs);
           // Fall back to JSON drugs if DB drugs table is not yet seeded
           if (dbData.drugs.length === 0) {
             console.log('[AnesIA] DB drugs empty — using JSON drugs fallback');
             const jsonData = await loadFromJson();
             if (cancelled) return;
-            setDrugs(jsonData.drugs);
-          } else {
-            setDrugs(dbData.drugs);
+            activeDrugs = jsonData.drugs;
           }
+          const enriched = enrichMedicationPlan({ procedures: mergedProcs, drugs: activeDrugs });
+          setProcedures(enriched.procedures);
+          setDrugs(enriched.drugs);
           setGuidelines(dbData.guidelines);
           setProtocoles(dbData.protocoles);
           setAlrBlocks(dbData.alrBlocks);
@@ -83,8 +85,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           console.log('[AnesIA] Falling back to JSON files');
           const jsonData = await loadFromJson();
           if (cancelled) return;
-          setProcedures(jsonData.procedures);
-          setDrugs(jsonData.drugs);
+          const enriched = enrichMedicationPlan({ procedures: jsonData.procedures, drugs: jsonData.drugs });
+          setProcedures(enriched.procedures);
+          setDrugs(enriched.drugs);
           setGuidelines(jsonData.guidelines);
           setProtocoles(jsonData.protocoles);
           setAlrBlocks(jsonData.alrBlocks);

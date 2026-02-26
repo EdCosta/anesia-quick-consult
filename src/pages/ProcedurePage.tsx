@@ -474,7 +474,7 @@ function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t }: any) {
   return (
     <div className="space-y-2">
       {activeGroups.map(group => (
-        <Collapsible key={group} defaultOpen>
+        <Collapsible key={group} defaultOpen={group === 'induction'}>
           <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-1.5 px-1 text-sm font-semibold text-foreground hover:text-accent transition-colors">
             <span>{t(GROUP_I18N_KEYS[group])}</span>
             <Badge variant="secondary" className="text-[10px]">{grouped[group].length}</Badge>

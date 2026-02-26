@@ -575,6 +575,19 @@ const UI: Record<string, Record<Lang, string>> = {
   caprini_hip_knee: { fr: "PTH / PTG / Fx hanche", pt: "PTA / PTJ / Fx anca", en: "Hip/knee arthroplasty / hip fx" },
   caprini_trauma: { fr: "Polytraumatisme", pt: "Politraumatismo", en: "Multiple trauma" },
   caprini_spinal: { fr: "Lésion médullaire aiguë", pt: "Lesão medular aguda", en: "Acute spinal cord injury" },
+
+  // i18n content indicators
+  content_fr_only: {
+    fr: "Contenu disponible uniquement en français",
+    pt: "Conteúdo disponível apenas em francês",
+    en: "Content available in French only",
+  },
+  apply_filter: { fr: "Appliquer le filtre", pt: "Aplicar filtro", en: "Apply filter" },
+  missing_translations: {
+    fr: "Traductions manquantes",
+    pt: "Traduções em falta",
+    en: "Missing translations",
+  },
 };
 
 interface LanguageContextType {

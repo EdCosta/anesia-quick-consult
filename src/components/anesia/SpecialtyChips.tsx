@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Plus, Search, X, ChevronUp } from 'lucide-react';
+import { Plus, Search, X, ChevronUp, Check } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 
 interface SpecialtyChipsProps {
   specialties: string[];
-  selected: string | null;
-  onSelect: (s: string | null) => void;
+  selected: string[];
+  onSelect: (s: string[]) => void;
   maxVisible?: number;
 }
 
@@ -20,8 +20,8 @@ export default function SpecialtyChips({
   const { specialtiesData } = useData();
   const [expanded, setExpanded] = useState(false);
   const [search, setSearch] = useState('');
+  const [pendingSelection, setPendingSelection] = useState<string[]>([]);
 
-  // Map specialty slug -> multilingual name
   const getDisplayName = (slug: string) => {
     const spec = specialtiesData.find((s) => s.id === slug);
     if (spec && spec.name) {
@@ -31,13 +31,16 @@ export default function SpecialtyChips({
   };
 
   const visible = specialties.slice(0, maxVisible);
-  const hasMore = specialties.length > maxVisible;
 
   const filteredAll = useMemo(() => {
     if (!search.trim()) return specialties;
     const q = search.toLowerCase();
-    return specialties.filter((s) => s.toLowerCase().includes(q));
-  }, [specialties, search]);
+    return specialties.filter((s) => {
+      if (s.toLowerCase().includes(q)) return true;
+      const name = getDisplayName(s).toLowerCase();
+      return name.includes(q);
+    });
+  }, [specialties, search, lang, specialtiesData]);
 
   const chipClass = (active: boolean) =>
     `rounded-full px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
@@ -46,50 +49,68 @@ export default function SpecialtyChips({
         : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
     }`;
 
-  const handleSelectFromPanel = (s: string) => {
-    onSelect(s === selected ? null : s);
+  const handleOpenPanel = () => {
+    setPendingSelection([...selected]);
+    setExpanded(true);
+  };
+
+  const handleClosePanel = () => {
+    setExpanded(false);
+    setSearch('');
+  };
+
+  const handleApply = () => {
+    onSelect(pendingSelection);
+    setExpanded(false);
+    setSearch('');
+  };
+
+  const togglePending = (s: string) => {
+    setPendingSelection((prev) =>
+      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
+    );
+  };
+
+  const handleChipClick = (s: string) => {
+    if (selected.includes(s)) {
+      onSelect(selected.filter((x) => x !== s));
+    } else {
+      onSelect([...selected, s]);
+    }
   };
 
   return (
     <div className="space-y-2">
-      {/* Compact chip grid (wrap, no horizontal scroll) */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* "All" chip */}
-        <button onClick={() => onSelect(null)} className={chipClass(selected === null)}>
+        <button onClick={() => onSelect([])} className={chipClass(selected.length === 0)}>
           {t('all_specialties')}
         </button>
 
-        {/* Top N chips */}
         {visible.map((s) => (
           <button
             key={s}
-            onClick={() => onSelect(s === selected ? null : s)}
-            className={chipClass(selected === s)}
+            onClick={() => handleChipClick(s)}
+            className={chipClass(selected.includes(s))}
           >
             {getDisplayName(s)}
           </button>
         ))}
 
-        {/* "+" button */}
-        {hasMore && (
-          <button
-            onClick={() => { setExpanded(!expanded); if (expanded) setSearch(''); }}
-            className={`flex items-center justify-center h-7 w-7 rounded-full transition-colors ${
-              expanded
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-            }`}
-            aria-label={expanded ? t('close') : t('choose_specialties')}
-          >
-            {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-          </button>
-        )}
+        <button
+          onClick={() => { expanded ? handleClosePanel() : handleOpenPanel(); }}
+          className={`flex items-center justify-center h-7 w-7 rounded-full transition-colors ${
+            expanded
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+          }`}
+          aria-label={expanded ? t('close') : t('choose_specialties')}
+        >
+          {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+        </button>
       </div>
 
-      {/* Inline expandable panel */}
       {expanded && (
         <div className="rounded-lg border bg-card p-3 space-y-2 animate-fade-in">
-          {/* Search inside panel */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -109,7 +130,6 @@ export default function SpecialtyChips({
             )}
           </div>
 
-          {/* Grid of all specialties */}
           <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
             {filteredAll.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-3 w-full">{t('no_results')}</p>
@@ -117,34 +137,40 @@ export default function SpecialtyChips({
               filteredAll.map((s) => (
                 <button
                   key={s}
-                  onClick={() => handleSelectFromPanel(s)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                    s === selected
+                  onClick={() => togglePending(s)}
+                  className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    pendingSelection.includes(s)
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-foreground hover:bg-muted/80'
                   }`}
                 >
+                  {pendingSelection.includes(s) && <Check className="h-3 w-3" />}
                   {getDisplayName(s)}
                 </button>
               ))
             )}
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-2 pt-1">
-            {selected && (
+            {pendingSelection.length > 0 && (
               <button
-                onClick={() => { onSelect(null); }}
+                onClick={() => setPendingSelection([])}
                 className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors"
               >
                 {t('clear')}
               </button>
             )}
             <button
-              onClick={() => { setExpanded(false); setSearch(''); }}
-              className="ml-auto rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              onClick={handleClosePanel}
+              className="ml-auto rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors"
             >
               {t('close')}
+            </button>
+            <button
+              onClick={handleApply}
+              className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              {t('apply')}
             </button>
           </div>
         </div>

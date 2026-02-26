@@ -27,12 +27,12 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 
 export default function Index() {
   const { t, lang, resolveStr } = useLang();
-  const { procedures, specialties, loading } = useData();
+  const { procedures, specialtiesData, loading } = useData();
   const navigate = useNavigate();
   const { increment: incrementSpecialty, getSorted: getSortedSpecialties } = useSpecialtyUsage();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [specialty, setSpecialty] = useState<string | null>(null);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [favorites, setFavorites] = useLocalStorage<string[]>('anesia-favorites', []);
   const [recents, setRecents] = useLocalStorage<string[]>('anesia-recents', []);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
@@ -48,11 +48,16 @@ export default function Index() {
 
   const isSearching = searchQuery.trim().length > 0;
 
-  // Sorted specialties by usage
-  const sortedSpecialties = useMemo(
-    () => getSortedSpecialties(specialties),
-    [specialties, getSortedSpecialties]
-  );
+  // Use specialtiesData from DB as primary source, sorted by usage then sort_base
+  const sortedSpecialties = useMemo(() => {
+    const dbIds = specialtiesData.map((s) => s.id);
+    if (dbIds.length > 0) {
+      return getSortedSpecialties(dbIds);
+    }
+    // Fallback: derive from procedures
+    const set = new Set(procedures.map((p) => p.specialty));
+    return getSortedSpecialties(Array.from(set));
+  }, [specialtiesData, procedures, getSortedSpecialties]);
 
   // Floating search bar via IntersectionObserver
   useEffect(() => {
@@ -87,9 +92,9 @@ export default function Index() {
     );
   };
 
-  const handleSelectSpecialty = (s: string | null) => {
-    setSpecialty(s);
-    if (s) incrementSpecialty(s);
+  const handleSelectSpecialties = (specs: string[]) => {
+    setSelectedSpecialties(specs);
+    specs.forEach((s) => incrementSpecialty(s));
   };
 
   const handleProcedureClick = (proc: Procedure) => {
@@ -103,7 +108,7 @@ export default function Index() {
 
   const filteredResults = useMemo(() => {
     let source = searchResults ?? procedures;
-    if (specialty) source = source.filter((p) => p.specialty === specialty);
+    if (selectedSpecialties.length > 0) source = source.filter((p) => selectedSpecialties.includes(p.specialty));
     if (showOnlyFavorites) source = source.filter((p) => favorites.includes(p.id));
     if (favoritesFirst) {
       const favs = source.filter((p) => favorites.includes(p.id));
@@ -111,7 +116,7 @@ export default function Index() {
       return [...favs, ...rest];
     }
     return source;
-  }, [searchResults, procedures, specialty, showOnlyFavorites, favoritesFirst, favorites]);
+  }, [searchResults, procedures, selectedSpecialties, showOnlyFavorites, favoritesFirst, favorites]);
 
   const favProcedures = useMemo(
     () => favorites.map((id) => procedures.find((p) => p.id === id)).filter(Boolean) as Procedure[],
@@ -141,7 +146,7 @@ export default function Index() {
 
   const clearAll = () => {
     setSearchQuery('');
-    setSpecialty(null);
+    setSelectedSpecialties([]);
     setShowOnlyFavorites(false);
     setFavoritesFirst(false);
     setFabOpen(false);
@@ -227,8 +232,8 @@ export default function Index() {
         <div className="w-full max-w-lg mb-2">
           <SpecialtyChips
             specialties={sortedSpecialties}
-            selected={specialty}
-            onSelect={handleSelectSpecialty}
+            selected={selectedSpecialties}
+            onSelect={handleSelectSpecialties}
           />
         </div>
 

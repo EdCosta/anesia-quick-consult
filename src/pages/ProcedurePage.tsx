@@ -17,8 +17,8 @@ import type { PatientWeights } from '@/lib/weightScalars';
 
 export default function ProcedurePage() {
   const { id } = useParams<{ id: string }>();
-  const { t, resolve, resolveStr } = useLang();
-  const { getProcedure, getDrug, guidelines, loading } = useData();
+  const { t, lang, resolve, resolveStr } = useLang();
+  const { getProcedure, getDrug, guidelines, specialtiesData, loading } = useData();
   const [weightKg, setWeightKg] = useState<string>('');
   const [patientWeights, setPatientWeights] = useState<PatientWeights | null>(null);
   const [favorites, setFavorites] = useLocalStorage<string[]>('anesia-favorites', []);
@@ -82,6 +82,15 @@ export default function ProcedurePage() {
   const quick = resolve(procedure.quick);
   const deep = resolve(procedure.deep);
 
+  // Check if content is using fallback (FR only)
+  const isFallbackLang = lang !== 'fr' && !(procedure.quick as any)?.[lang];
+
+  const specialtyDisplayName = (() => {
+    const spec = specialtiesData.find((s) => s.id === procedure.specialty);
+    if (spec && spec.name) return spec.name[lang] || spec.name['fr'] || procedure.specialty;
+    return procedure.specialty;
+  })();
+
   const toggleFav = () => {
     if (!id) return;
     setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
@@ -97,7 +106,7 @@ export default function ProcedurePage() {
           </Link>
           <h1 className="mt-2 text-xl font-bold text-foreground leading-tight">{title}</h1>
           <div className="flex items-center gap-2 mt-1.5">
-            <Badge variant="secondary">{procedure.specialty}</Badge>
+            <Badge variant="secondary">{specialtyDisplayName}</Badge>
             {procedure.is_pro && (
               <Badge variant="outline" className="gap-0.5 border-accent text-accent text-[10px]">
                 <Crown className="h-3 w-3" />PRO
@@ -116,6 +125,14 @@ export default function ProcedurePage() {
           </button>
         </div>
       </div>
+
+      {/* FR-only banner */}
+      {isFallbackLang && (
+        <div className="rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm text-muted-foreground flex items-center gap-2">
+          <span>🌐</span>
+          <span>{t('content_fr_only')}</span>
+        </div>
+      )}
 
       {/* Pro gate for pro procedures */}
       {procedure.is_pro ? (

@@ -267,9 +267,9 @@ const UI: Record<string, Record<Lang, string>> = {
     pt: "IOT / Intubação (guia rápido)",
   },
   ett_calculator: {
-    fr: "Calculateur ETT",
-    en: "ETT Calculator",
-    pt: "Calculadora ETT",
+    fr: "Calculateur ETT - Pediatrique",
+    pt: "Calculadora ETT - Pediatrico",
+    en: "ETT Calculator - Pediatric",
   },
   age_years: { fr: "Âge (années)", en: "Age (years)", pt: "Idade (anos)" },
   age_months: { fr: "Âge (mois)", en: "Age (months)", pt: "Idade (meses)" },

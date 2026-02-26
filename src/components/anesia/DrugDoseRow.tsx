@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { useLang } from '@/contexts/LanguageContext';
 import type { Drug } from '@/lib/types';
+import type { PatientWeights } from '@/lib/weightScalars';
 import { calculateDose } from '@/lib/dose';
-import { ChevronDown, ChevronUp, Beaker } from 'lucide-react';
+import { ChevronDown, ChevronUp, Beaker, HelpCircle } from 'lucide-react';
 import DilutionModal from './DilutionModal';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 interface DrugDoseRowProps {
   drug: Drug;
   indicationTag: string;
   weightKg: number | null;
+  patientWeights?: PatientWeights | null;
 }
 
 export default function DrugDoseRow({
   drug,
   indicationTag,
   weightKg,
+  patientWeights,
 }: DrugDoseRowProps) {
   const { t, resolveStr } = useLang();
   const [expanded, setExpanded] = useState(false);
@@ -32,7 +36,15 @@ export default function DrugDoseRow({
 
   const currentConc = drug.concentrations[selectedConc] ?? null;
 
-  const doseResult = calculateDose(rule, weightKg, currentConc);
+  const doseResult = calculateDose(rule, weightKg, currentConc, {
+    patientWeights: patientWeights ?? undefined,
+  });
+
+  const scalarLabel = (s: string | null) => {
+    if (!s) return '';
+    const map: Record<string, string> = { TBW: 'TBW', IBW: t('ibw'), LBW: t('lbw'), AdjBW: t('adjbw'), TITRATE: t('titrate_to_effect') };
+    return map[s] || s;
+  };
 
   return (
     <>
@@ -80,7 +92,7 @@ export default function DrugDoseRow({
 
             {/* Calc OK */}
             {doseResult.canCalc && doseResult.doseMgFinal !== null && (
-              <div className="mt-1 flex flex-wrap gap-3 text-xs">
+              <div className="mt-1 flex flex-wrap items-center gap-3 text-xs">
                 <span className="text-muted-foreground">
                   {rule.mg_per_kg} {t('mg_per_kg')}
                 </span>
@@ -101,6 +113,41 @@ export default function DrugDoseRow({
                     {t('volume_unavailable')}
                   </span>
                 )}
+                {/* Scalar badge */}
+                {doseResult.scalarUsed && doseResult.scalarUsed !== 'TBW' && (
+                  <span className="rounded bg-accent/15 px-1.5 py-0.5 text-[10px] font-medium text-accent-foreground">
+                    {scalarLabel(doseResult.scalarUsed)} {doseResult.weightUsed}kg
+                  </span>
+                )}
+                {doseResult.scalarUsed === 'TITRATE' && (
+                  <span className="text-[10px] italic text-muted-foreground">
+                    {t('titrate_to_effect')}
+                  </span>
+                )}
+                {/* Dose Rationale "?" */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={t('dose_rationale')}
+                    >
+                      <HelpCircle className="h-3 w-3" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 text-xs space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                    <p className="font-semibold text-foreground">{t('dose_rationale')}</p>
+                    <p><strong>{t('scalar_used')}:</strong> {scalarLabel(doseResult.scalarUsed)}</p>
+                    <p><strong>{t('weight_kg')}:</strong> {doseResult.weightUsed} kg</p>
+                    <p>
+                      {rule.mg_per_kg} mg/kg × {doseResult.weightUsed} kg = {doseResult.doseMgRaw} mg
+                      {rule.max_mg !== null && doseResult.doseMgRaw !== doseResult.doseMgFinal && (
+                        <span className="text-destructive"> → {t('max_dose')} {rule.max_mg} mg</span>
+                      )}
+                    </p>
+                    <p className="italic text-muted-foreground">{t('validate_clinically')}</p>
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
           </div>
@@ -123,7 +170,7 @@ export default function DrugDoseRow({
               </ul>
             )}
 
-            {/* Concentration selector — always visible if >1 */}
+            {/* Concentration selector */}
             {validConcentrations.length > 1 && (
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-muted-foreground">

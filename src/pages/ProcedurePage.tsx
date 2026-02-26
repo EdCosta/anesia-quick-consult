@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, ArrowLeft, ClipboardCopy, BookOpen } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
@@ -7,16 +7,19 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Section, { BulletList } from '@/components/anesia/Section';
 import IntubationGuide from '@/components/anesia/IntubationGuide';
 import DrugDoseRow from '@/components/anesia/DrugDoseRow';
+import PatientAnthropometrics from '@/components/anesia/PatientAnthropometrics';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import type { PatientWeights } from '@/lib/weightScalars';
 
 export default function ProcedurePage() {
   const { id } = useParams<{ id: string }>();
   const { t, resolve, resolveStr } = useLang();
   const { getProcedure, getDrug, guidelines, loading } = useData();
   const [weightKg, setWeightKg] = useState<string>('');
+  const [patientWeights, setPatientWeights] = useState<PatientWeights | null>(null);
   const [favorites, setFavorites] = useLocalStorage<string[]>('anesia-favorites', []);
   const [recents, setRecents] = useLocalStorage<string[]>('anesia-recents', []);
 
@@ -36,12 +39,9 @@ export default function ProcedurePage() {
   const recommendations = useMemo(() => {
     if (!procedure || !guidelines.length) return [];
     const specialty = procedure.specialty.toLowerCase();
-    // Simple matching by category relevance to any surgery
     const scored = guidelines.map(g => {
       let score = 0;
-      // Always-relevant categories
       if (['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) score += 1;
-      // Match by title keywords  
       const title = (g.titles.fr || '').toLowerCase();
       if (title.includes('voies aériennes') || title.includes('airway')) score += 1;
       if (specialty.includes('ortho') && (title.includes('thromboprophylaxie') || title.includes('douleur') || title.includes('transfusion'))) score += 2;
@@ -52,11 +52,15 @@ export default function ProcedurePage() {
     return scored.filter(s => s.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(s => s.guideline);
   }, [procedure, guidelines]);
 
+  const weight = parseFloat(weightKg) || null;
+
   const handleCopyChecklist = () => {
+    if (!procedure) return;
+    const quick = resolve(procedure.quick);
     if (!quick) return;
     const lines: string[] = [];
     const addSection = (title: string, items: string[]) => { if (items.length === 0) return; lines.push(`## ${title}`); items.forEach((item) => lines.push(`- ${item}`)); lines.push(''); };
-    lines.push(`# ${resolveStr(procedure!.titles)}`);
+    lines.push(`# ${resolveStr(procedure.titles)}`);
     lines.push('');
     addSection(t('preop'), quick.preop);
     addSection(t('intraop'), quick.intraop);
@@ -76,7 +80,6 @@ export default function ProcedurePage() {
   const title = resolveStr(procedure.titles);
   const quick = resolve(procedure.quick);
   const deep = resolve(procedure.deep);
-  const weight = parseFloat(weightKg) || null;
 
   const toggleFav = () => {
     if (!id) return;
@@ -212,18 +215,27 @@ export default function ProcedurePage() {
           {quick.drugs.length > 0 ? (
             <>
               <Card className="clinical-shadow">
-                <CardContent className="flex items-center gap-3 p-3">
-                  <label className="text-sm font-medium text-foreground whitespace-nowrap">{t('weight_kg')}</label>
-                  <input type="number" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="70" min="1" max="300"
-                    className="w-24 rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30" />
-                  {!weight && <span className="text-xs text-muted-foreground">{t('enter_weight')}</span>}
+                <CardContent className="p-3">
+                  <PatientAnthropometrics
+                    weightKg={weightKg}
+                    onWeightChange={setWeightKg}
+                    onWeightsChange={setPatientWeights}
+                  />
                 </CardContent>
               </Card>
               <div className="space-y-2">
                 {quick.drugs.map((drugRef, i) => {
                   const drug = getDrug(drugRef.drug_id);
                   if (!drug) return null;
-                  return <DrugDoseRow key={`${drugRef.drug_id}-${drugRef.indication_tag}-${i}`} drug={drug} indicationTag={drugRef.indication_tag} weightKg={weight} />;
+                  return (
+                    <DrugDoseRow
+                      key={`${drugRef.drug_id}-${drugRef.indication_tag}-${i}`}
+                      drug={drug}
+                      indicationTag={drugRef.indication_tag}
+                      weightKg={weight}
+                      patientWeights={patientWeights}
+                    />
+                  );
                 })}
               </div>
             </>

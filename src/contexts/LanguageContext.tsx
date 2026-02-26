@@ -260,6 +260,27 @@ const UI: Record<string, Record<Lang, string>> = {
   apply: { fr: "Appliquer", pt: "Aplicar", en: "Apply" },
   close: { fr: "Fermer", pt: "Fechar", en: "Close" },
 
+  // Advanced weight mode
+  advanced_mode: { fr: "Avancé", pt: "Avançado", en: "Advanced" },
+  bmi: { fr: "IMC", pt: "IMC", en: "BMI" },
+  ibw: { fr: "Poids idéal", pt: "Peso ideal", en: "IBW" },
+  lbw: { fr: "Masse maigre", pt: "Massa magra", en: "LBW" },
+  adjbw: { fr: "Poids ajusté", pt: "Peso ajustado", en: "AdjBW" },
+  dose_rationale: { fr: "Pourquoi cette dose ?", pt: "Porquê esta dose?", en: "Why this dose?" },
+  titrate_to_effect: { fr: "Titrer à l'effet", pt: "Titular ao efeito", en: "Titrate to effect" },
+  scalar_used: { fr: "Escalateur", pt: "Escalador", en: "Scalar" },
+  validate_clinically: { fr: "Valider cliniquement et ajuster au doente.", pt: "Validar clinicamente e ajustar ao doente.", en: "Validate clinically and adjust to patient." },
+  enter_height_sex: { fr: "Entrer taille et sexe pour les poids dérivés", pt: "Introduzir altura e sexo para os pesos derivados", en: "Enter height and sex for derived weights" },
+  import_procedures: { fr: "Importer procédures", pt: "Importar procedimentos", en: "Import procedures" },
+  import_preview: { fr: "Aperçu", pt: "Pré-visualização", en: "Preview" },
+  import_run: { fr: "Importer", pt: "Importar", en: "Import" },
+  import_success: { fr: "Importation réussie", pt: "Importação concluída", en: "Import successful" },
+  import_failed: { fr: "Erreurs d'importation", pt: "Erros de importação", en: "Import errors" },
+  hospital_profile: { fr: "Profil hôpital", pt: "Perfil hospital", en: "Hospital profile" },
+  upload_csv: { fr: "Télécharger CSV", pt: "Carregar CSV", en: "Upload CSV" },
+  rows_parsed: { fr: "Lignes analysées", pt: "Linhas analisadas", en: "Rows parsed" },
+  select_profile: { fr: "Choisir profil", pt: "Escolher perfil", en: "Select profile" },
+
   // ETT / Intubation keys
   intubation_guide: {
     fr: "IOT / Intubation (guide rapide)",

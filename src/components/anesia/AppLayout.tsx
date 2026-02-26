@@ -1,6 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Building2 } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, Building2, Crown } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -8,6 +8,8 @@ import { HEADER_ITEMS } from '@/config/nav';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { useEntitlements } from '@/hooks/useEntitlements';
+import { Badge } from '@/components/ui/badge';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -22,6 +24,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profiles, setProfiles] = useState<Array<{ id: string; name: string }>>([]);
   const [activeProfile, setActiveProfile] = useState<string | null>(() => localStorage.getItem('anesia-hospital-profile'));
+  const { plan, isPro } = useEntitlements();
 
   useEffect(() => {
     supabase.from('hospital_profiles' as any).select('id, name').then(({ data }) => {
@@ -112,6 +115,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   )}
                 </PopoverContent>
               </Popover>
+            )}
+            {/* Plan badge */}
+            {user && (
+              <Badge variant={isPro ? 'default' : 'secondary'} className="text-[10px] gap-0.5">
+                {isPro && <Crown className="h-2.5 w-2.5" />}
+                {isPro ? t('plan_pro') : t('plan_free')}
+              </Badge>
             )}
             <LanguageSwitcher />
             {user ? (

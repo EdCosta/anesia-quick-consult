@@ -1,193 +1,201 @@
 
-# Plan: Advanced Weight Mode, Specialty Chips v2, CSV Import + Innovations
 
-This is a large feature set split into 5 workstreams. Each builds on existing patterns.
+# Plan: AnesIA Architecture Overhaul + Feature Gating + Scores + Bug Fixes
+
+## Summary
+
+This is a major overhaul covering 7 workstreams: (1) confirm Supabase-first data layer, (2) Free/Pro gating, (3) fix Dose Calculator in /calculateurs, (4) clinical score calculators, (5) complete specialties, (6) polish CSV import, (7) QA fixes.
 
 ---
 
-## Phase 1: Weight Scalars Library + Advanced Anthropometrics
+## Phase 1: Confirm Supabase as Source of Truth
 
-### 1.1 New file: `src/lib/weightScalars.ts`
+**Current state**: DataContext already loads from Supabase first with JSON fallback + merge for missing drugs. This is working correctly.
 
-Pure math functions:
-- `calcBMI(heightCm, weightKg)` -- weight / (height/100)^2
-- `calcIBW(sex, heightCm)` -- Devine formula: M: 50 + 0.9*(h-152), F: 45.5 + 0.9*(h-152)
-- `calcLBW(sex, heightCm, weightKg)` -- Janmahasatian formula
-- `calcAdjBW(ibw, tbw, factor=0.4)` -- IBW + factor*(TBW-IBW)
-- Type: `DoseScalar = 'TBW' | 'IBW' | 'LBW' | 'AdjBW' | 'TITRATE'`
-- `getScaledWeight(scalar, weights)` -- returns the appropriate weight from a weights object
+**Changes needed**:
+- **`src/contexts/DataContext.tsx`**: Add `content` field wrapping logic in `dbRowToProcedure()` to handle cases where `content.quick` is not wrapped by language key. If `content.quick` exists but has no `fr`/`en`/`pt` sub-keys (i.e. has `preop` directly), auto-wrap as `{ fr: content.quick }`.
+- Same for `content.deep`.
+- Ensure merge logic fills missing `drugs` arrays from JSON fallback (already done, just verify).
 
-### 1.2 New component: `src/components/anesia/PatientAnthropometrics.tsx`
+No DB schema changes needed -- tables already exist and match.
 
-Reusable component used in ProcedurePage and PreAnest:
-- Props: `weightKg`, `onWeightChange`, `advancedMode` (from localStorage), `onAdvancedChange`
-- When Advanced OFF: simple weight input (current behavior)
-- When Advanced ON: shows weight + height + sex inputs, auto-calculates and displays read-only BMI, IBW, LBW, AdjBW
-- Outputs a `PatientWeights` object: `{ tbw, ibw, lbw, adjbw, bmi }`
-- Advanced mode preference saved in localStorage (`anesia-advanced-weight`)
+---
 
-### 1.3 Add `dose_scalar` to DoseRule type
+## Phase 2: Free vs Pro Feature Gating
 
-In `src/lib/types.ts`, add optional field to `DoseRule`:
-```typescript
-dose_scalar?: 'TBW' | 'IBW' | 'LBW' | 'AdjBW' | 'TITRATE';
+### 2.1 Database
+
+Create two new tables via migration:
+
+```text
+plans (id text PK, name text, features jsonb)
+  - Seed: 'free' and 'pro'
+
+user_entitlements (id uuid PK, user_id uuid FK auth.users, plan_id text FK plans, active bool, expires_at timestamptz)
+  - RLS: users read own, admin write
 ```
 
-### 1.4 Update `src/lib/dose.ts`
+Add `is_pro` boolean column (default false) to `procedures` table.
 
-Extend `calculateDose` to accept an optional `PatientWeights` object:
-- If `dose_scalar` exists on the rule and `PatientWeights` is provided, use the scaled weight instead of raw `weightKg`
-- Add `scalarUsed` to `DoseResult` for transparency
-- Default to TBW if no scalar specified (backward compatible)
+### 2.2 Hook: `src/hooks/useEntitlements.ts` (new)
 
-### 1.5 Update `DrugDoseRow.tsx`
+- Fetch user's active entitlement from `user_entitlements`
+- Return `{ plan: 'free' | 'pro', isPro: boolean, loading: boolean }`
+- Unauthenticated users = free
+- Cache in React Query
 
-- Accept `PatientWeights` as optional prop
-- Pass to `calculateDose`
-- Display scalar used (e.g. "LBW 52kg") next to dose
-- Show "Titrate to effect" note when scalar is TITRATE
+### 2.3 Pro Gate Component: `src/components/anesia/ProGate.tsx` (new)
 
-### 1.6 Update `ProcedurePage.tsx`
+- Wrapper that checks entitlement
+- If free user tries Pro content: show modal "This is a Pro feature" with placeholder CTA
+- Used around procedure detail, advanced calculators, etc.
 
-- Replace weight input with `PatientAnthropometrics` component
-- Pass `PatientWeights` down to `DrugDoseRow`
+### 2.4 UI Changes
 
-### 1.7 "Dose Rationale" button (Innovation 4.1)
+- **`ProcedureCard.tsx`**: Show small "PRO" badge if `procedure.is_pro` (from a new optional field in Procedure type)
+- **`ProcedurePage.tsx`**: Wrap content in `ProGate` if procedure is Pro
+- **`AppLayout.tsx`**: Add "Account / Plan" item showing current plan (for authenticated users)
 
-In `DrugDoseRow.tsx`, add a small "?" button next to the calculated dose that opens a Popover showing:
-- Scalar used (TBW/IBW/LBW/AdjBW)
-- Weight value used
-- Formula: dose = X mg/kg x Y kg = Z mg (capped at max_mg)
-- Clinical note: "Validate clinically and adjust to patient."
+### 2.5 Type changes
 
----
-
-## Phase 2: Specialty Chips v2 (Wrap, No Horizontal Scroll)
-
-### 2.1 Update `SpecialtyChips.tsx`
-
-Change layout from `overflow-x-auto` (horizontal scroll) to `flex-wrap`:
-- Container: `flex flex-wrap gap-2 pb-1`
-- Show top 6-10 chips (configurable via `maxVisible`)
-- "+" button always visible at the end
-- Chips wrap to multiple lines if needed, staying compact
-- Remove `shrink-0` from chips to allow natural wrapping
-
-### 2.2 "+" opens inline expandable panel (not Dialog)
-
-Replace current Dialog with a collapsible panel that expands in-place below the chips:
-- When "+" clicked, show a bordered panel below with:
-  - Search input
-  - Grid of all specialties as selectable items
-  - "Apply" and "Close" buttons
-- When closed, panel collapses back to just top chips
-- Use `useState` for expanded state (no Dialog/Popover needed)
-
-### 2.3 Usage tracking already exists
-
-`useSpecialtyUsage.ts` hook already tracks usage in localStorage. No changes needed except ensuring increment is called on procedure navigation (already done in Index.tsx).
+- Add `is_pro?: boolean` to `Procedure` interface in `types.ts`
+- Update `dbRowToProcedure` to read from DB row
 
 ---
 
-## Phase 3: CSV Import for Procedures
+## Phase 3: Fix Dose Calculator in /calculateurs
 
-### 3.1 Database: Create `import_logs` table
+**Bug**: `Calculateurs.tsx` marks "Dose calculator" as `available: true` but only renders `ETTCalculator` for the "ett" id. The "dose" id has no component.
 
-```sql
-CREATE TABLE public.import_logs (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES auth.users(id),
-  total integer NOT NULL DEFAULT 0,
-  success integer NOT NULL DEFAULT 0,
-  failed integer NOT NULL DEFAULT 0,
-  errors jsonb DEFAULT '[]',
-  created_at timestamptz DEFAULT now()
-);
--- RLS: admin only
-```
+### 3.1 New component: `src/components/anesia/DoseCalculator.tsx`
 
-### 3.2 New page: `src/pages/AdminImportProcedures.tsx`
+Standalone dose calculator (not tied to a procedure):
+- Drug selector (search/dropdown from all drugs in DataContext)
+- PatientAnthropometrics component for weight/height/sex
+- Shows all dose_rules for selected drug
+- Calculates doses using `calculateDose()` with PatientWeights
+- Dose Rationale button per rule
+- Concentration selector
 
-Admin-only page at `/admin/import-procedures`:
-1. **Upload area**: drag-and-drop or file picker for CSV (semicolon-delimited, matching the uploaded file format)
-2. **Parse & Preview**: parse CSV client-side, show table of rows with id, specialty, title_fr, title_en, title_pt
-3. **Validation**:
-   - Check unique IDs
-   - Check specialty exists in `specialties` table (or auto-create)
-   - Validate content JSON structure
-4. **Import button**: upsert rows into `procedures` table via Supabase client
-5. **Result report**: show inserted / updated / failed counts with error details
-6. **Audit**: insert a row into `import_logs`
+### 3.2 Update `Calculateurs.tsx`
 
-### 3.3 CSV parsing
-
-The uploaded CSV uses semicolons as delimiters and has columns: `id;specialty;titles;synonyms;content;tags;created_at;updated_at`. The `titles`, `synonyms`, `content`, and `tags` columns contain JSON strings with escaped quotes (`""`).
-
-Parser logic:
-- Split by semicolons (respecting quoted fields)
-- Parse JSON columns
-- Map to procedure DB shape: `{ id, specialty, titles, synonyms, content: { quick, deep }, tags }`
-
-### 3.4 Add route in `App.tsx`
-
-Add `/admin/import-procedures` route pointing to the new page.
-
-### 3.5 Import the uploaded CSV file
-
-After the import page is built, use it to import the 75 procedures from the uploaded `procedures-export-updated-v2.csv` file. Alternatively, copy the CSV to `public/data/` for use during import.
+- Import `DoseCalculator`
+- Render it when `expanded === 'dose'`
+- Replace Mallampati and BMI with new score calculators (Phase 4)
 
 ---
 
-## Phase 4: Hospital Profile System (Innovation 4.2)
+## Phase 4: Clinical Score Calculators
 
-### 4.1 Database: Create `hospital_profiles` table
+### 4.1 Score engine: `src/lib/scores.ts` (new)
 
-```sql
-CREATE TABLE public.hospital_profiles (
-  id text PRIMARY KEY,
-  name text NOT NULL,
-  settings jsonb DEFAULT '{}',
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
--- RLS: public read, admin write
-```
+Pure functions for each score:
+- `calcSTOPBANG(inputs)` -- returns score 0-8 + risk category
+- `calcRCRI(inputs)` -- returns score 0-6 + risk %
+- `calcApfel(inputs)` -- returns score 0-4 + PONV risk %
+- `calcCaprini(inputs)` -- returns total + VTE risk category
 
-Settings JSONB can store: available drugs list, PONV protocol preference, default scalar overrides, etc.
+Each function takes a typed input object and returns `{ score: number, category: string, details: string }`.
 
-### 4.2 Profile selector in AppLayout header
+### 4.2 Components (one per score, in `src/components/anesia/scores/`)
 
-- Small dropdown (visible only to authenticated users)
-- Lists available profiles from `hospital_profiles`
-- Selected profile saved in localStorage
-- Active profile passed via React context or a simple hook
+- `StopBangScore.tsx` -- 8 yes/no checkboxes (Snore, Tired, Observed, Pressure, BMI>35, Age>50, Neck>40cm, Gender male) + result card
+- `RCRIScore.tsx` -- 6 checkboxes + risk table
+- `ApfelScore.tsx` -- 4 checkboxes + risk percentage
+- `CapriniScore.tsx` -- multi-factor checklist grouped by point value + total + recommendation
 
-### 4.3 Profile-aware drug filtering (future)
+All scores:
+- Work offline (pure local calculation)
+- i18n FR/EN/PT
+- Compact mobile-first UI
+- Optional: save last inputs in localStorage
 
-For now, just the infrastructure: profile selector, DB table, and context. Drug filtering by profile can be wired later without architectural changes.
+### 4.3 Update `Calculateurs.tsx`
+
+Replace the static CALCULATORS array with expanded list:
+- Dose Calculator (available)
+- ETT/Intubation (available)
+- STOP-BANG (available)
+- RCRI/Lee (available)
+- Apfel PONV (available)
+- Caprini VTE (available)
+
+Each renders its component when expanded.
 
 ---
 
-## Phase 5: i18n Keys
+## Phase 5: Complete Specialties List
+
+**Current**: 7 specialties in DB. Procedures only cover these 7.
+
+Add more specialties to the `specialties` table to be ready for future procedures:
+- Chirurgie cardiaque / Cardiac Surgery
+- Chirurgie vasculaire / Vascular Surgery
+- Chirurgie thoracique / Thoracic Surgery
+- Chirurgie plastique / Plastic Surgery
+- Ophtalmologie / Ophthalmology
+- Chirurgie pédiatrique / Pediatric Surgery
+- Chirurgie bariatrique / Bariatric Surgery
+- Chirurgie maxillo-faciale / Maxillofacial Surgery
+- Transplantation / Transplant Surgery
+
+These will be inserted via the data insert tool (not migration).
+
+### 5.1 SpecialtyChips multilingual display
+
+Currently chips show raw `procedure.specialty` string (e.g. "Orthopédie").
+Update `SpecialtyChips` and `Index.tsx` to use `specialtiesData` from DataContext for multilingual display:
+- Map specialty slug to `specialtiesData[].name[lang]`
+- Fallback to raw string if not found
+
+---
+
+## Phase 6: Polish CSV Import
+
+The import page (`AdminImportProcedures.tsx`) already works. Enhancements:
+- Add a "Download template CSV" button
+- Add validation: check if `specialty` exists in specialties table (warn if not)
+- Show more detail in preview (title in all 3 languages)
+- Better error display with row numbers
+
+---
+
+## Phase 7: i18n Keys
 
 Add to `LanguageContext.tsx`:
-- `advanced_mode`: { fr: "Mode avancé", pt: "Modo avançado", en: "Advanced mode" }
-- `height_cm`: already exists
-- `bmi`: { fr: "IMC", pt: "IMC", en: "BMI" }
-- `ibw`: { fr: "Poids idéal", pt: "Peso ideal", en: "Ideal body weight" }
-- `lbw`: { fr: "Masse maigre", pt: "Massa magra", en: "Lean body weight" }
-- `adjbw`: { fr: "Poids ajusté", pt: "Peso ajustado", en: "Adjusted body weight" }
-- `dose_rationale`: { fr: "Pourquoi cette dose ?", pt: "Porquê esta dose?", en: "Why this dose?" }
-- `titrate_to_effect`: { fr: "Titrer à l'effet", pt: "Titular ao efeito", en: "Titrate to effect" }
-- `scalar_used`: { fr: "Escalateur utilisé", pt: "Escalador usado", en: "Scalar used" }
-- `validate_clinically`: { fr: "Valider cliniquement", pt: "Validar clinicamente", en: "Validate clinically" }
-- `import_procedures`: { fr: "Importer procédures", pt: "Importar procedimentos", en: "Import procedures" }
-- `import_preview`: { fr: "Aperçu", pt: "Pré-visualização", en: "Preview" }
-- `import_run`: { fr: "Importer", pt: "Importar", en: "Import" }
-- `import_success`: { fr: "Importation réussie", pt: "Importação concluída", en: "Import successful" }
-- `hospital_profile`: { fr: "Profil hôpital", pt: "Perfil hospital", en: "Hospital profile" }
-- `apply`: already exists
-- `close`: already exists
+
+```text
+-- Scores
+stop_bang: STOP-BANG (SAOS)
+rcri: RCRI / Lee
+apfel: Apfel (PONV)
+caprini: Caprini (TEV)
+score: Score
+risk_low / risk_moderate / risk_high / risk_very_high
+snore / tired / observed_apnea / blood_pressure / bmi_over_35 / age_over_50 / neck_circumference / gender_male
+high_risk_surgery / ischemic_heart / congestive_heart / cerebrovascular / insulin_therapy / creatinine_elevated
+female_gender / non_smoker / ponv_history / postop_opioids
+-- Pro gating
+pro_feature / pro_feature_desc / upgrade_pro
+-- Account
+account / current_plan / plan_free / plan_pro
+-- Dose calculator standalone
+select_drug / search_drug
+-- Misc
+no_doses_configured
+```
+
+---
+
+## Phase 8: QA Fixes
+
+1. **Drugs disappearing**: The merge logic in DataContext already handles this. Verify by checking that `quick.{lang}.drugs` is populated after DB load + JSON merge.
+
+2. **Dose calculator "available" but empty**: Fixed in Phase 3.
+
+3. **Advanced mode not affecting doses**: Already implemented -- `DrugDoseRow` receives `patientWeights` and passes to `calculateDose`. Verify the flow works end-to-end.
+
+4. **`dbRowToProcedure` content wrapping**: Add defensive check for unwrapped content (Phase 1).
 
 ---
 
@@ -195,27 +203,41 @@ Add to `LanguageContext.tsx`:
 
 | File | Action |
 |------|--------|
-| `src/lib/weightScalars.ts` | New -- BMI/IBW/LBW/AdjBW math |
-| `src/lib/types.ts` | Add `dose_scalar` to DoseRule |
-| `src/lib/dose.ts` | Support scaled weights + expose scalar used |
-| `src/components/anesia/PatientAnthropometrics.tsx` | New -- reusable weight/height/advanced component |
-| `src/components/anesia/DrugDoseRow.tsx` | Accept PatientWeights, show scalar, add "?" rationale |
-| `src/pages/ProcedurePage.tsx` | Use PatientAnthropometrics |
-| `src/components/anesia/SpecialtyChips.tsx` | flex-wrap layout, inline expandable panel |
-| `src/pages/AdminImportProcedures.tsx` | New -- CSV import page |
-| `src/App.tsx` | Add import route |
-| DB migration | `import_logs` + `hospital_profiles` tables |
-| `src/contexts/LanguageContext.tsx` | Add ~15 i18n keys |
-| `src/components/anesia/AppLayout.tsx` | Hospital profile selector (authenticated users) |
+| DB migration | `plans`, `user_entitlements` tables; add `is_pro` to `procedures` |
+| DB insert | Additional specialties |
+| `src/lib/types.ts` | Add `is_pro` to Procedure |
+| `src/lib/scores.ts` | New -- score calculation functions |
+| `src/hooks/useEntitlements.ts` | New -- plan/entitlement hook |
+| `src/components/anesia/ProGate.tsx` | New -- Pro feature gate modal |
+| `src/components/anesia/DoseCalculator.tsx` | New -- standalone dose calc |
+| `src/components/anesia/scores/StopBangScore.tsx` | New |
+| `src/components/anesia/scores/RCRIScore.tsx` | New |
+| `src/components/anesia/scores/ApfelScore.tsx` | New |
+| `src/components/anesia/scores/CapriniScore.tsx` | New |
+| `src/contexts/DataContext.tsx` | Content wrapping fix, is_pro field |
+| `src/pages/Calculateurs.tsx` | Wire dose calc + all scores |
+| `src/pages/ProcedurePage.tsx` | ProGate wrapper |
+| `src/components/anesia/ProcedureCard.tsx` | PRO badge |
+| `src/components/anesia/SpecialtyChips.tsx` | Multilingual display |
+| `src/pages/Index.tsx` | Use specialtiesData for display |
+| `src/pages/AdminImportProcedures.tsx` | Polish validation |
+| `src/components/anesia/AppLayout.tsx` | Account/Plan display |
+| `src/contexts/LanguageContext.tsx` | ~30 new i18n keys |
 
 ## Implementation Order
 
-1. Weight scalars library + types
-2. PatientAnthropometrics component
-3. Dose calculation updates + DrugDoseRow + Dose Rationale
-4. ProcedurePage integration
-5. SpecialtyChips v2 (wrap + inline panel)
-6. DB migrations (import_logs, hospital_profiles)
-7. CSV import page + route
-8. Hospital profile selector
-9. i18n keys throughout
+1. DB migration (plans, user_entitlements, is_pro column)
+2. DB inserts (additional specialties)
+3. Types + DataContext fixes (content wrapping, is_pro)
+4. Score library (`src/lib/scores.ts`)
+5. Score UI components (4 files)
+6. DoseCalculator component
+7. useEntitlements hook + ProGate component
+8. Calculateurs.tsx overhaul (all scores + dose calc)
+9. ProcedureCard PRO badge + ProcedurePage ProGate
+10. SpecialtyChips multilingual
+11. AppLayout account/plan display
+12. i18n keys throughout
+13. Import page polish
+14. QA pass
+

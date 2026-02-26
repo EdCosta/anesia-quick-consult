@@ -67,7 +67,6 @@ export default function SpecialtyChips({
             className={chipClass(selected === s)}
           >
             {getDisplayName(s)}
-            {s}
           </button>
         ))}
 

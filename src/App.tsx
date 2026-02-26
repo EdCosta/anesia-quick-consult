@@ -10,6 +10,7 @@ import AppLayout from "@/components/anesia/AppLayout";
 import Index from "./pages/Index";
 import ProcedurePage from "./pages/ProcedurePage";
 import AdminContent from "./pages/AdminContent";
+import AdminImportProcedures from "./pages/AdminImportProcedures";
 import Guidelines from "./pages/Guidelines";
 import ALR from "./pages/ALR";
 import Calculateurs from "./pages/Calculateurs";
@@ -40,6 +41,7 @@ const App = () => {
                 <Route path="/preanest" element={<PreAnest />} />
                 <Route path="/p/:id" element={<ProcedurePage />} />
                 <Route path="/admin-content" element={<AdminContent />} />
+                <Route path="/admin/import-procedures" element={<AdminImportProcedures />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

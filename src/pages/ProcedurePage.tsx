@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, ArrowLeft, ClipboardCopy, BookOpen, Crown, CheckSquare, FileText, Globe, Eye } from 'lucide-react';
+import { Star, ArrowLeft, ClipboardCopy, BookOpen, Crown, CheckSquare, FileText, Globe, Eye, Save } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAutoTranslation } from '@/hooks/useAutoTranslation';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import Section, { BulletList } from '@/components/anesia/Section';
 import IntubationGuide from '@/components/anesia/IntubationGuide';
 import DrugDoseRow from '@/components/anesia/DrugDoseRow';
@@ -18,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import type { PatientWeights } from '@/lib/weightScalars';
 
@@ -32,7 +34,8 @@ export default function ProcedurePage() {
   const [checklistMode, setChecklistMode] = useState(false);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [showOriginal, setShowOriginal] = useState(false);
-
+  const [savingTranslation, setSavingTranslation] = useState(false);
+  const { isAdmin } = useIsAdmin();
   const procedure = getProcedure(id || '');
   const isFav = id ? favorites.includes(id) : false;
 
@@ -59,18 +62,23 @@ export default function ProcedurePage() {
 
   const recommendations = useMemo(() => {
     if (!procedure || !guidelines.length) return [];
+    const procTags: string[] = (procedure as any).tags || [];
     const specialty = procedure.specialty.toLowerCase();
+
     const scored = guidelines.map(g => {
       let score = 0;
+      const gTags: string[] = (g as any).tags || [];
+      // Tag intersection scoring
+      if (procTags.length > 0 && gTags.length > 0) {
+        for (const tag of procTags) {
+          if (gTags.includes(tag)) score += 2;
+        }
+      }
+      // Category match fallback
       if (['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) score += 1;
-      const title = (g.titles.fr || '').toLowerCase();
-      if (title.includes('voies aériennes') || title.includes('airway')) score += 1;
-      if (specialty.includes('ortho') && (title.includes('thromboprophylaxie') || title.includes('douleur') || title.includes('transfusion'))) score += 2;
-      if (specialty.includes('obstétrique') && (title.includes('hémorragie') || title.includes('anaphylaxie'))) score += 2;
-      if (specialty.includes('urologie') && title.includes('remplissage')) score += 1;
       return { guideline: g, score };
     });
-    return scored.filter(s => s.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(s => s.guideline);
+    return scored.filter(s => s.score > 0).sort((a, b) => b.score - a.score).slice(0, 5).map(s => s.guideline);
   }, [procedure, guidelines]);
 
   const weight = parseFloat(weightKg) || null;
@@ -214,6 +222,38 @@ export default function ProcedurePage() {
         >
           <Eye className="h-3.5 w-3.5" />
           {showOriginal ? t('view_translated') : t('view_original')}
+        </button>
+      )}
+
+      {/* Admin save translation */}
+      {isAutoTranslated && isAdmin && !showOriginal && (
+        <button
+          disabled={savingTranslation}
+          onClick={async () => {
+            if (!procedure || !translatedContent) return;
+            setSavingTranslation(true);
+            try {
+              const { error } = await supabase
+                .from('procedures' as any)
+                .update({
+                  content: {
+                    ...(procedure as any).content,
+                    quick: { ...(procedure.quick || {}), [lang]: translatedContent },
+                  },
+                } as any)
+                .eq('id', procedure.id);
+              if (error) throw error;
+              toast.success(t('translation_saved'));
+            } catch (e: any) {
+              toast.error(e.message || 'Save failed');
+            } finally {
+              setSavingTranslation(false);
+            }
+          }}
+          className="inline-flex items-center gap-1.5 text-xs text-accent hover:underline disabled:opacity-50"
+        >
+          <Save className="h-3.5 w-3.5" />
+          {savingTranslation ? t('translation_saving') : t('save_translation')}
         </button>
       )}
 

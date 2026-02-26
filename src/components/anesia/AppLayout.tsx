@@ -1,6 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Building2, Crown } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, Building2, Crown, ToggleLeft, ToggleRight } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { useEntitlements } from '@/hooks/useEntitlements';
+import { useViewMode } from '@/hooks/useViewMode';
 import { Badge } from '@/components/ui/badge';
 
 interface AppLayoutProps {
@@ -25,6 +26,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [profiles, setProfiles] = useState<Array<{ id: string; name: string }>>([]);
   const [activeProfile, setActiveProfile] = useState<string | null>(() => localStorage.getItem('anesia-hospital-profile'));
   const { plan, isPro } = useEntitlements();
+  const { viewMode, setViewMode } = useViewMode();
 
   useEffect(() => {
     supabase.from('hospital_profiles' as any).select('id, name').then(({ data }) => {
@@ -124,6 +126,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {isPro ? t('plan_pro') : t('plan_free')}
                 </Badge>
               </Link>
+            )}
+            {/* View mode switch */}
+            {user && (
+              <button
+                onClick={() => setViewMode(viewMode === 'normal' ? 'pro' : 'normal')}
+                className="flex items-center gap-1 text-[10px] font-medium text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                title={t('switch_mode')}
+              >
+                {viewMode === 'pro' ? (
+                  <ToggleRight className="h-4 w-4 text-accent" />
+                ) : (
+                  <ToggleLeft className="h-4 w-4" />
+                )}
+                <span className="hidden sm:inline">{viewMode === 'pro' ? t('mode_pro') : t('mode_normal')}</span>
+              </button>
             )}
             <LanguageSwitcher />
             {user ? (

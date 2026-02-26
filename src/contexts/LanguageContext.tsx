@@ -4,18 +4,18 @@ export type Lang = "fr" | "pt" | "en";
 
 const UI: Record<string, Record<Lang, string>> = {
   search_placeholder: {
-    fr: "Rechercher une chirurgie...",
+    fr: "Rechercher une intervention...",
     pt: "Pesquisar uma intervenção...",
-    en: "Search a surgery...",
+    en: "Search an intervention...",
   },
   favorites: { fr: "⭐ Favoris", pt: "⭐ Favoritos", en: "⭐ Favorites" },
   recents: { fr: "🕘 Récents", pt: "🕘 Recentes", en: "🕘 Recents" },
   results: { fr: "🔎 Résultats", pt: "🔎 Resultados", en: "🔎 Results" },
   all_specialties: { fr: "Toutes", pt: "Todas", en: "All" },
   all_procedures: {
-    fr: "Toutes les procédures",
+    fr: "Toutes les interventions",
     pt: "Todas as intervenções",
-    en: "All procedures",
+    en: "All interventions",
   },
   preop: { fr: "Pré-opératoire", pt: "Pré-operatório", en: "Pre-operative" },
   intraop: {
@@ -169,9 +169,9 @@ const UI: Record<string, Record<Lang, string>> = {
   },
   available: { fr: "Disponible", pt: "Disponível", en: "Available" },
   procedures_title: {
-    fr: "Procédures",
+    fr: "Interventions",
     pt: "Intervenções",
-    en: "Procedures",
+    en: "Interventions",
   },
 
   // Dilution keys
@@ -271,7 +271,7 @@ const UI: Record<string, Record<Lang, string>> = {
   scalar_used: { fr: "Escalateur", pt: "Escalador", en: "Scalar" },
   validate_clinically: { fr: "Valider cliniquement et ajuster au doente.", pt: "Validar clinicamente e ajustar ao doente.", en: "Validate clinically and adjust to patient." },
   enter_height_sex: { fr: "Entrer taille et sexe pour les poids dérivés", pt: "Introduzir altura e sexo para os pesos derivados", en: "Enter height and sex for derived weights" },
-  import_procedures: { fr: "Importer procédures", pt: "Importar procedimentos", en: "Import procedures" },
+  import_procedures: { fr: "Importer interventions", pt: "Importar intervenções", en: "Import interventions" },
   import_preview: { fr: "Aperçu", pt: "Pré-visualização", en: "Preview" },
   import_run: { fr: "Importer", pt: "Importar", en: "Import" },
   import_success: { fr: "Importation réussie", pt: "Importação concluída", en: "Import successful" },
@@ -375,9 +375,9 @@ const UI: Record<string, Record<Lang, string>> = {
     en: "No favorites yet",
   },
   view_all_procedures: {
-    fr: "Voir toutes les procédures",
+    fr: "Voir toutes les interventions",
     pt: "Ver todas as intervenções",
-    en: "View all procedures",
+    en: "View all interventions",
   },
   clear_recents: {
     fr: "Effacer récents",
@@ -437,7 +437,7 @@ const UI: Record<string, Record<Lang, string>> = {
     pt: "Ex: penicilina, latex...",
     en: "E.g.: penicillin, latex...",
   },
-  select_procedure: { fr: "Procédure chirurgicale", pt: "Procedimento cirúrgico", en: "Surgical procedure" },
+  select_procedure: { fr: "Intervention chirurgicale", pt: "Intervenção cirúrgica", en: "Surgical intervention" },
   context: { fr: "Contexte", pt: "Contexto", en: "Context" },
   ctx_ambulatory: { fr: "Ambulatoire", pt: "Ambulatório", en: "Ambulatory" },
   ctx_inpatient: { fr: "Internement", pt: "Internamento", en: "Inpatient" },
@@ -614,9 +614,31 @@ const UI: Record<string, Record<Lang, string>> = {
 
   // Quality dashboard
   quality_dashboard: { fr: "Qualité des données", pt: "Qualidade dos dados", en: "Data quality" },
-  missing_drugs: { fr: "Interventions sans médicaments", pt: "Intervenções sem medicamentos", en: "Procedures without drugs" },
+  missing_drugs: { fr: "Interventions sans médicaments", pt: "Intervenções sem medicamentos", en: "Interventions without drugs" },
   missing_units: { fr: "Médicaments incomplets", pt: "Medicamentos incompletos", en: "Incomplete drugs" },
   missing_refs: { fr: "Références manquantes", pt: "Referências em falta", en: "Missing references" },
+
+  // View mode
+  mode_normal: { fr: "Normal", pt: "Normal", en: "Normal" },
+  mode_pro: { fr: "Pro", pt: "Pro", en: "Pro" },
+  switch_mode: { fr: "Changer de mode", pt: "Mudar modo", en: "Switch mode" },
+  content_locked: { fr: "Contenu verrouillé", pt: "Conteúdo bloqueado", en: "Content locked" },
+  upgrade_to_unlock: { fr: "Passez à Pro pour débloquer", pt: "Atualize para Pro para desbloquear", en: "Upgrade to Pro to unlock" },
+
+  // Admin translation save
+  save_translation: { fr: "Sauvegarder traduction", pt: "Guardar tradução", en: "Save translation" },
+  translation_saving: { fr: "Sauvegarde en cours…", pt: "A guardar…", en: "Saving…" },
+
+  // Drug templates
+  apply_template: { fr: "Appliquer template", pt: "Aplicar template", en: "Apply template" },
+  template_applied: { fr: "Template appliqué", pt: "Template aplicado", en: "Template applied" },
+  incomplete_drugs: { fr: "Médicaments incomplets", pt: "Medicamentos incompletos", en: "Incomplete drugs" },
+
+  // Drug groups missing checks
+  missing_induction: { fr: "Sans induction", pt: "Sem indução", en: "Missing induction" },
+  missing_maintenance: { fr: "Sans entretien", pt: "Sem manutenção", en: "Missing maintenance" },
+  missing_analgesia: { fr: "Sans analgésie", pt: "Sem analgesia", en: "Missing analgesia" },
+  missing_dose_scalar: { fr: "Sans escalateur de dose", pt: "Sem escalador de dose", en: "Missing dose scalar" },
 };
 
 interface LanguageContextType {

@@ -1,6 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Building2, Crown, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, Building2, Crown } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -127,21 +127,37 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </Badge>
               </Link>
             )}
-            {/* View mode switch */}
-            {user && (
-              <button
-                onClick={() => setViewMode(viewMode === 'normal' ? 'pro' : 'normal')}
-                className="flex items-center gap-1 text-[10px] font-medium text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                title={t('switch_mode')}
+            {/* View mode pill toggle — always visible for testing */}
+            <button
+              onClick={() => setViewMode(viewMode === 'normal' ? 'pro' : 'normal')}
+              title={viewMode === 'pro' ? 'Mudar para modo Normal' : 'Mudar para modo Pro'}
+              className="relative inline-flex h-7 w-28 shrink-0 cursor-pointer items-center rounded-full border border-primary-foreground/25 bg-primary-foreground/10 p-0.5 transition-colors hover:bg-primary-foreground/15"
+            >
+              {/* sliding pill */}
+              <span
+                aria-hidden
+                className={`absolute inset-y-0.5 w-[calc(50%-2px)] rounded-full bg-accent shadow-sm transition-all duration-200 ${
+                  viewMode === 'pro' ? 'left-1/2' : 'left-0.5'
+                }`}
+              />
+              {/* Normal label */}
+              <span
+                className={`relative z-10 flex-1 text-center text-[10px] font-semibold transition-colors ${
+                  viewMode === 'normal' ? 'text-accent-foreground' : 'text-primary-foreground/50'
+                }`}
               >
-                {viewMode === 'pro' ? (
-                  <ToggleRight className="h-4 w-4 text-accent" />
-                ) : (
-                  <ToggleLeft className="h-4 w-4" />
-                )}
-                <span className="hidden sm:inline">{viewMode === 'pro' ? t('mode_pro') : t('mode_normal')}</span>
-              </button>
-            )}
+                Normal
+              </span>
+              {/* Pro label */}
+              <span
+                className={`relative z-10 flex flex-1 items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors ${
+                  viewMode === 'pro' ? 'text-accent-foreground' : 'text-primary-foreground/50'
+                }`}
+              >
+                <Crown className="h-2.5 w-2.5" />
+                Pro
+              </span>
+            </button>
             <LanguageSwitcher />
             {user ? (
               <button

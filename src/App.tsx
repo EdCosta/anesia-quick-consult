@@ -11,11 +11,13 @@ import Index from "./pages/Index";
 import ProcedurePage from "./pages/ProcedurePage";
 import AdminContent from "./pages/AdminContent";
 import AdminImportProcedures from "./pages/AdminImportProcedures";
+import AdminQuality from "./pages/AdminQuality";
 import Guidelines from "./pages/Guidelines";
 import ALR from "./pages/ALR";
 import Calculateurs from "./pages/Calculateurs";
 import Protocoles from "./pages/Protocoles";
 import PreAnest from "./pages/PreAnest";
+import Account from "./pages/Account";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -40,8 +42,10 @@ const App = () => {
                 <Route path="/protocoles" element={<Protocoles />} />
                 <Route path="/preanest" element={<PreAnest />} />
                 <Route path="/p/:id" element={<ProcedurePage />} />
+                <Route path="/account" element={<Account />} />
                 <Route path="/admin-content" element={<AdminContent />} />
                 <Route path="/admin/import-procedures" element={<AdminImportProcedures />} />
+                <Route path="/admin/quality" element={<AdminQuality />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

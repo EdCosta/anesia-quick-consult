@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import {
   parseProcedureImportCsv,
+  procedureImportResponseSchema,
   type ProcedureImportResponse,
 } from '@/lib/admin/procedureImport';
 import { Card, CardContent } from '@/components/ui/card';
@@ -38,7 +39,7 @@ export default function AdminImportProcedures() {
         throw error;
       }
 
-      return data;
+      return procedureImportResponseSchema.parse(data);
     },
     onSuccess: (data) => {
       setResult(data);

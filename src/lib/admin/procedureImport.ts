@@ -16,14 +16,7 @@ export type ProcedureImportParseResult = {
   errors: string[];
 };
 
-export type ProcedureImportResponse = {
-  inserted: number;
-  updated: number;
-  errors: string[];
-  total_errors?: number;
-};
-
-const rowSchema = z.object({
+export const procedureImportPreviewRowSchema = z.object({
   id: z.string().trim().min(1, 'id is required'),
   specialty: z.string().trim().min(1, 'specialty is required'),
   titles: z.record(z.unknown()),
@@ -33,6 +26,15 @@ const rowSchema = z.object({
   warnings: z.array(z.string()),
   lineNumber: z.number().int().positive(),
 });
+
+export const procedureImportResponseSchema = z.object({
+  inserted: z.number().int().nonnegative(),
+  updated: z.number().int().nonnegative(),
+  errors: z.array(z.string()),
+  total_errors: z.number().int().nonnegative().optional(),
+});
+
+export type ProcedureImportResponse = z.infer<typeof procedureImportResponseSchema>;
 
 function parseCSVLine(line: string): string[] {
   const fields: string[] = [];
@@ -166,7 +168,7 @@ export function parseProcedureImportCsv(csvText: string): ProcedureImportParseRe
         }
       }
 
-      const parsedRow = rowSchema.safeParse({
+      const parsedRow = procedureImportPreviewRowSchema.safeParse({
         id: pick('id'),
         specialty: pick('specialty'),
         titles,

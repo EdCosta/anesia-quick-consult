@@ -102,3 +102,15 @@ Deploy the secure admin import function:
 supabase functions deploy admin-import-procedures
 supabase functions deploy admin-import-guidelines
 ```
+
+## Import procedures via UI
+
+1. Sign in with a Supabase user that has an `admin` row in `public.user_roles`.
+2. Open `/admin`.
+3. Go to `/admin/import/procedures`.
+4. Upload a semicolon-delimited CSV.
+5. Review the preview and any validation errors before running the import.
+6. Run the secure import. The browser sends the CSV to the Edge Function, and the write happens server-side.
+7. Review `/admin/logs` for inserted counts, updated counts, and stored row-level errors.
+
+The browser never needs the `service_role` key. All privileged writes happen in Supabase Edge Functions after an explicit admin check.

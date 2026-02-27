@@ -57,6 +57,13 @@ export default function Index() {
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const [visibleCount, setVisibleCount] = useState(24);
   const isSearching = searchQuery.trim().length > 0 || selectedSpecialties.length > 0;
+  const hasActiveFilters = selectedSpecialties.length > 0 || showOnlyFavorites || favoritesFirst;
+
+  const searchSuggestions = useMemo(() => {
+    if (lang === 'pt') return ['apendicectomia', 'TIVA', 'PONV'];
+    if (lang === 'en') return ['appendectomy', 'TIVA', 'PONV'];
+    return ['appendicectomie', 'TIVA', 'NVPO'];
+  }, [lang]);
 
   const sortedSpecialties = useMemo(() => {
     const dbIds = specialtiesData.map((s) => s.id);
@@ -171,6 +178,13 @@ export default function Index() {
     inputRef.current?.blur();
   };
 
+  const applySuggestedSearch = (term: string) => {
+    setSearchQuery(term);
+    setSelectedSpecialties([]);
+    setShowOnlyFavorites(false);
+    setFavoritesFirst(false);
+  };
+
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && filteredResults.length > 0) {
       handleProcedureClick(filteredResults[0]);
@@ -267,7 +281,7 @@ export default function Index() {
         <Skeleton className="h-9 w-full rounded-full" />
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {Array.from({ length: 6 }).map((_, index) => (
+        {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="rounded-lg border bg-card p-4 clinical-shadow">
             <Skeleton className="h-4 w-4/5" />
             <div className="mt-2 flex gap-2">
@@ -277,6 +291,38 @@ export default function Index() {
           </div>
         ))}
       </div>
+    </div>
+  );
+
+  const renderEmptyState = () => (
+    <div className="rounded-2xl border border-dashed border-border bg-card/70 px-4 py-6 text-center clinical-shadow">
+      <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <Search className="h-4 w-4" />
+      </div>
+      <p className="text-sm font-semibold text-foreground">{t('no_results')}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{t('empty_search_hint')}</p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          {t('empty_search_prompt')}
+        </span>
+        {searchSuggestions.map((term) => (
+          <button
+            key={term}
+            onClick={() => applySuggestedSearch(term)}
+            className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-accent/50 hover:text-accent"
+          >
+            {term}
+          </button>
+        ))}
+      </div>
+      {hasActiveFilters && (
+        <button
+          onClick={clearAll}
+          className="mt-4 inline-flex items-center rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-accent/50 hover:text-accent"
+        >
+          {t('clear_filters')}
+        </button>
+      )}
     </div>
   );
 
@@ -350,7 +396,7 @@ export default function Index() {
             {indexLoading && procedureIndex.length === 0 ? (
               renderLoadingSkeleton()
             ) : filteredResults.length === 0 ? (
-              <p className="text-center text-sm text-muted-foreground py-6">{t('no_results')}</p>
+              renderEmptyState()
             ) : (
               renderProcedureGrid(visibleResults, lockedResults)
             )}
@@ -444,7 +490,7 @@ export default function Index() {
               {indexLoading && procedureIndex.length === 0 ? (
                 renderLoadingSkeleton()
               ) : filteredResults.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
+                renderEmptyState()
               ) : (
                 <>
                   <div className="relative">

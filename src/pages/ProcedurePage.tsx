@@ -34,10 +34,11 @@ import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { dbRowToProcedure, normalizeProcedure } from '@/data/normalize/normalizeProcedure';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import { getSpecialtyDisplayName } from '@/lib/specialties';
 import type { PatientWeights } from '@/lib/weightScalars';
-import type { Guideline, ProcedureQuick } from '@/lib/types';
+import type { Guideline, Procedure, ProcedureQuick } from '@/lib/types';
 
 function normalizeMatchKey(value: string) {
   return value
@@ -49,6 +50,36 @@ function normalizeMatchKey(value: string) {
 
 function getGuidelineYear(guideline: Guideline) {
   return Math.max(0, ...guideline.references.map((ref) => ref.year || 0));
+}
+
+async function loadProcedureOnDemand(id: string): Promise<Procedure | null> {
+  try {
+    const { data } = await supabase
+      .from('procedures' as any)
+      .select('id,specialty,specialties,titles,synonyms,content,tags,is_pro')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (data) {
+      return dbRowToProcedure(data);
+    }
+  } catch (error) {
+    console.warn('[AnesIA] Direct procedure fetch from Supabase failed', error);
+  }
+
+  try {
+    const response = await fetch('/data/procedures.v3.json');
+    if (!response.ok) return null;
+    const json = await response.json();
+    if (!Array.isArray(json)) return null;
+    const match = json.find((item: unknown) => {
+      return !!item && typeof item === 'object' && 'id' in item && (item as { id?: string }).id === id;
+    });
+    return match ? normalizeProcedure(match as Partial<Procedure>) : null;
+  } catch (error) {
+    console.warn('[AnesIA] Direct procedure fetch from JSON failed', error);
+    return null;
+  }
 }
 
 export default function ProcedurePage() {
@@ -64,9 +95,12 @@ export default function ProcedurePage() {
   const [showOriginal, setShowOriginal] = useState(false);
   const [savingTranslation, setSavingTranslation] = useState(false);
   const [translationSaved, setTranslationSaved] = useState(false);
+  const [directProcedure, setDirectProcedure] = useState<Procedure | null>(null);
+  const [directProcedureLoading, setDirectProcedureLoading] = useState(false);
+  const [attemptedProcedureId, setAttemptedProcedureId] = useState<string | null>(null);
   const { isAdmin } = useIsAdmin();
   const hospitalProfile = useHospitalProfile();
-  const procedure = getProcedure(id || '');
+  const procedure = getProcedure(id || '') || directProcedure;
   const isFav = id ? favorites.includes(id) : false;
   const guidelineIds = useMemo(() => guidelines.map((guideline) => guideline.id), [guidelines]);
   const { procedureTagIds, guidelineTagIds } = useRecommendationTags(procedure?.id, guidelineIds);
@@ -85,6 +119,34 @@ export default function ProcedurePage() {
     },
     [formularyDrugIds],
   );
+
+  useEffect(() => {
+    setDirectProcedure(null);
+    setDirectProcedureLoading(false);
+    setAttemptedProcedureId(null);
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || procedure || directProcedureLoading || attemptedProcedureId === id) return;
+
+    let cancelled = false;
+
+    setDirectProcedureLoading(true);
+    setAttemptedProcedureId(id);
+    void loadProcedureOnDemand(id)
+      .then((loaded) => {
+        if (cancelled) return;
+        setDirectProcedure(loaded);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setDirectProcedureLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, procedure, directProcedureLoading, attemptedProcedureId]);
 
   const isTranslatedFallback = useCallback(
     <T,>(content: Partial<Record<typeof lang, T>> | undefined) =>
@@ -253,8 +315,9 @@ export default function ProcedurePage() {
     });
   };
 
-  if (loading) return <ProcedurePageSkeleton />;
-
+  if ((loading || directProcedureLoading) && !procedure) {
+    return <ProcedurePageSkeleton />;
+  }
 
   if (!procedure) {
     return (
@@ -582,6 +645,7 @@ function ProcedurePageSkeleton() {
     </div>
   );
 }
+
 function ChecklistBulletList({
   items,
   prefix,
@@ -871,7 +935,14 @@ function ProcedureContent({
   );
 }
 
-function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t, expandAllSignal }: any) {
+function DrugGroupedList({
+  drugs,
+  getDrug,
+  weight,
+  patientWeights,
+  t,
+  expandAllSignal,
+}: any) {
   const grouped = groupDrugs(drugs);
   const activeGroups = GROUP_ORDER.filter((g) => grouped[g].length > 0);
   const activeGroupsKey = activeGroups.join('|');

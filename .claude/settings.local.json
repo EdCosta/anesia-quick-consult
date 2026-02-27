@@ -1,5 +1,16 @@
 {
   "permissions": {
-    "allow": ["Bash(git add src/components/anesia/DrugDoseRow.tsx)", "Bash(npm run build)"]
+    "allow": [
+      "Bash(git add src/components/anesia/DrugDoseRow.tsx)",
+      "Bash(npm run build)",
+      "Bash(grep -n \"useQuery\\\\|@tanstack\" src/hooks/*.ts src/hooks/*.tsx)",
+      "Bash(git add .gitignore .env.example)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(git add src/data/schemas/jsonSchemas.ts src/hooks/useRecommendationTags.ts src/pages/AdminImportProcedures.tsx)",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__list_migrations",
+      "mcp__claude_ai_Supabase__apply_migration",
+      "mcp__claude_ai_Supabase__execute_sql"
+    ]
   }
 }

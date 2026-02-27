@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLang } from '@/contexts/LanguageContext';
 import type { Drug } from '@/lib/types';
 import type { PatientWeights } from '@/lib/weightScalars';
@@ -14,19 +14,67 @@ interface DrugDoseRowProps {
   patientWeights?: PatientWeights | null;
 }
 
-export default function DrugDoseRow({
-  drug,
-  indicationTag,
-  weightKg,
-  patientWeights,
-}: DrugDoseRowProps) {
+export default function DrugDoseRow({ drug, indicationTag, weightKg, patientWeights }: DrugDoseRowProps) {
   const { t, resolveStr } = useLang();
   const [expanded, setExpanded] = useState(false);
-  const [selectedConc, setSelectedConc] = useState(0);
+  const [selectedConcKey, setSelectedConcKey] = useState<string>('');
   const [dilutionOpen, setDilutionOpen] = useState(false);
 
   const drugName = resolveStr(drug.name);
   const rule = drug.dose_rules.find((r) => r.indication_tag === indicationTag);
+
+  const concentrationOptions = useMemo(() => {
+    const options = [
+      ...drug.concentrations
+        .filter((item) => item.mg_per_ml !== null && item.mg_per_ml > 0)
+        .map((item, index) => ({
+          key: `stock-${index}`,
+          label: item.label,
+          mg_per_ml: item.mg_per_ml as number,
+          kind: 'stock' as const,
+          notes: [] as string[],
+        })),
+      ...drug.presentations
+        .filter((item) => item.mg_per_ml !== null && item.mg_per_ml > 0)
+        .map((item, index) => ({
+          key: item.id || `presentation-${index}`,
+          label: item.label,
+          mg_per_ml: item.mg_per_ml as number,
+          kind: 'presentation' as const,
+          notes: item.solvent ? [`Solvent: ${item.solvent}`] : [],
+        })),
+      ...drug.standard_dilutions
+        .filter((item) => item.target_concentration_mg_per_ml !== null && item.target_concentration_mg_per_ml > 0)
+        .map((item, index) => ({
+          key: item.id || `dilution-${index}`,
+          label: item.label,
+          mg_per_ml: item.target_concentration_mg_per_ml as number,
+          kind: 'dilution' as const,
+          notes: item.notes || [],
+          recipe: item,
+        })),
+    ];
+
+    const seen = new Set<string>();
+    return options.filter((option) => {
+      const dedupeKey = `${option.label}::${option.mg_per_ml}::${option.kind}`;
+      if (seen.has(dedupeKey)) return false;
+      seen.add(dedupeKey);
+      return true;
+    });
+  }, [drug.concentrations, drug.presentations, drug.standard_dilutions]);
+
+  useEffect(() => {
+    const preferredKey = concentrationOptions[0]?.key || '';
+    setSelectedConcKey(preferredKey);
+  }, [concentrationOptions, drug.id]);
+
+  const currentOption =
+    concentrationOptions.find((item) => item.key === selectedConcKey) || concentrationOptions[0] || null;
+
+  const currentConc = currentOption
+    ? { label: currentOption.label, mg_per_ml: currentOption.mg_per_ml }
+    : null;
 
   if (!rule) return null;
 
@@ -36,12 +84,6 @@ export default function DrugDoseRow({
   const displayUnit = isMcg ? 'µg' : 'mg';
   const displayDosePerKg = rule.mg_per_kg !== null ? rule.mg_per_kg * displayMultiplier : null;
   const displayMax = rule.max_mg !== null ? rule.max_mg * displayMultiplier : null;
-
-  const validConcentrations = drug.concentrations.filter(
-    (c) => c.mg_per_ml !== null && c.mg_per_ml > 0,
-  );
-
-  const currentConc = drug.concentrations[selectedConc] ?? null;
 
   const doseResult = calculateDose(rule, weightKg, currentConc, {
     patientWeights: patientWeights ?? undefined,
@@ -58,6 +100,7 @@ export default function DrugDoseRow({
     };
     return map[s] || s;
   };
+  const selectedDilution = currentOption?.kind === 'dilution' ? currentOption.recipe : null;
 
   return (
     <>
@@ -202,25 +245,50 @@ export default function DrugDoseRow({
             )}
 
             {/* Concentration selector */}
-            {validConcentrations.length > 1 && (
+            {concentrationOptions.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-muted-foreground">{t('concentration')}:</span>
-                {validConcentrations.map((c, i) => {
-                  const origIdx = drug.concentrations.indexOf(c);
+                {concentrationOptions.map((option) => {
+                  const label =
+                    option.kind === 'dilution'
+                      ? `${option.label} (${option.mg_per_ml} mg/mL)`
+                      : option.label;
                   return (
                     <button
-                      key={i}
-                      onClick={() => setSelectedConc(origIdx)}
+                      key={option.key}
+                      onClick={() => setSelectedConcKey(option.key)}
                       className={`rounded px-2 py-0.5 text-[11px] font-medium transition-all ${
-                        selectedConc === origIdx
+                        currentOption?.key === option.key
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                       }`}
                     >
-                      {c.label}
+                      {label}
                     </button>
                   );
                 })}
+              </div>
+            )}
+
+            {selectedDilution && (
+              <div className="rounded-md border border-accent/20 bg-accent/5 p-2 text-xs text-card-foreground space-y-1">
+                <p className="font-semibold text-accent">{selectedDilution.target_concentration}</p>
+                <p>
+                  {t('final_volume')}: {selectedDilution.final_volume_ml ?? '—'} mL
+                  {selectedDilution.diluent ? ` · ${selectedDilution.diluent}` : ''}
+                </p>
+                {(selectedDilution.drug_volume_ml !== null ||
+                  selectedDilution.diluent_volume_ml !== null) && (
+                  <p>
+                    {t('dilution_draw')} {selectedDilution.drug_volume_ml ?? '—'} mL +{' '}
+                    {selectedDilution.diluent_volume_ml ?? '—'} mL {t('dilution_add_diluent')}
+                  </p>
+                )}
+                {(selectedDilution.notes || []).map((note, index) => (
+                  <p key={index} className="text-muted-foreground">
+                    {note}
+                  </p>
+                ))}
               </div>
             )}
 
@@ -271,8 +339,8 @@ export default function DrugDoseRow({
         onOpenChange={setDilutionOpen}
         drugName={drugName}
         initialStockMgPerMl={
-          currentConc?.mg_per_ml !== null && currentConc?.mg_per_ml! > 0
-            ? currentConc!.mg_per_ml!
+          currentConc?.mg_per_ml !== null && currentConc?.mg_per_ml > 0
+            ? currentConc.mg_per_ml
             : undefined
         }
       />

@@ -58,18 +58,35 @@ export interface Concentration {
 }
 
 export interface DrugPresentation {
+  id?: string;
   label: string;
   total_mg: number | null;
   total_ml: number | null;
+  mg_per_ml?: number | null;
   diluent?: string;
+  solvent?: string;
   container?: 'ampoule' | 'vial' | 'syringe' | 'bag';
+  form?:
+    | 'ampoule'
+    | 'flacon'
+    | 'seringue_preremplie'
+    | 'comprimes'
+    | 'patch'
+    | 'inhale'
+    | 'poudre_lyophilisee'
+    | 'autre';
+  is_reference?: boolean;
 }
 
 export interface StandardDilution {
+  id?: string;
   label: string;
   target_concentration: string;
+  target_concentration_mg_per_ml?: number | null;
   diluent?: string;
   final_volume_ml?: number | null;
+  drug_volume_ml?: number | null;
+  diluent_volume_ml?: number | null;
   notes?: string[];
 }
 
@@ -138,6 +155,16 @@ export interface HospitalFormularyEntry {
   available: boolean;
   presentations?: DrugPresentation[];
   notes?: string[];
+}
+
+export interface HospitalDrugAvailability {
+  hospital_id: string;
+  drug_id: string;
+  is_available: boolean;
+  preferred_presentation_id?: string | null;
+  preferred_dilution_id?: string | null;
+  alternative_drug_id?: string | null;
+  local_note?: string | null;
 }
 
 export interface HospitalProfile {

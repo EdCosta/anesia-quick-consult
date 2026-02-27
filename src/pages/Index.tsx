@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import {
@@ -27,10 +27,11 @@ import ProcedureCard from '@/components/anesia/ProcedureCard';
 import ProGate from '@/components/anesia/ProGate';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Index() {
   const { t, lang, resolveStr } = useLang();
-  const { procedures, specialtiesData, loading } = useData();
+  const { procedureIndex, specialtiesData, indexLoading } = useData();
   const navigate = useNavigate();
   const { increment: incrementSpecialty, getSorted: getSortedSpecialties } = useSpecialtyUsage();
   const { procedures: procLimit, isLimited } = useContentLimits();
@@ -51,14 +52,16 @@ export default function Index() {
   const proceduresRef = useRef<HTMLDivElement>(null);
   const recentsRef = useRef<HTMLDivElement>(null);
 
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const [visibleCount, setVisibleCount] = useState(24);
   const isSearching = searchQuery.trim().length > 0;
 
   const sortedSpecialties = useMemo(() => {
     const dbIds = specialtiesData.map((s) => s.id);
     if (dbIds.length > 0) return getSortedSpecialties(dbIds);
-    const set = new Set(procedures.map((p) => p.specialty));
+    const set = new Set(procedureIndex.map((p) => p.specialty));
     return getSortedSpecialties(Array.from(set));
-  }, [specialtiesData, procedures, getSortedSpecialties]);
+  }, [specialtiesData, procedureIndex, getSortedSpecialties]);
 
   useEffect(() => {
     const el = heroSearchRef.current;
@@ -72,7 +75,7 @@ export default function Index() {
   }, []);
 
   const fuse = useMemo(() => {
-    return new Fuse(procedures, {
+    return new Fuse(procedureIndex, {
       keys: [
         { name: `titles.${lang}`, weight: 2 },
         { name: 'titles.fr', weight: 1.5 },
@@ -84,7 +87,7 @@ export default function Index() {
       includeScore: true,
       ignoreLocation: true,
     });
-  }, [procedures, lang]);
+  }, [procedureIndex, lang]);
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
@@ -100,12 +103,12 @@ export default function Index() {
   };
 
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return null;
-    return fuse.search(searchQuery).map((r) => r.item);
-  }, [searchQuery, fuse]);
+    if (!deferredSearchQuery.trim()) return null;
+    return fuse.search(deferredSearchQuery).map((r) => r.item);
+  }, [deferredSearchQuery, fuse]);
 
   const filteredResults = useMemo(() => {
-    let source = searchResults ?? procedures;
+    let source = searchResults ?? procedureIndex;
     if (selectedSpecialties.length > 0) source = source.filter((p) => selectedSpecialties.includes(p.specialty));
     if (showOnlyFavorites) source = source.filter((p) => favorites.includes(p.id));
     if (favoritesFirst) {
@@ -114,16 +117,30 @@ export default function Index() {
       return [...favs, ...rest];
     }
     return source;
-  }, [searchResults, procedures, selectedSpecialties, showOnlyFavorites, favoritesFirst, favorites]);
+  }, [searchResults, procedureIndex, selectedSpecialties, showOnlyFavorites, favoritesFirst, favorites]);
+
+  const filterResetKey = `${deferredSearchQuery}::${selectedSpecialties.join('|')}::${showOnlyFavorites ? 1 : 0}::${favoritesFirst ? 1 : 0}::${procedureIndex.length}`;
+
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [filterResetKey]);
+
+  useEffect(() => {
+    if (filteredResults.length <= visibleCount) return;
+    const handle = window.setTimeout(() => {
+      setVisibleCount((current) => Math.min(current + 24, filteredResults.length));
+    }, 40);
+    return () => window.clearTimeout(handle);
+  }, [filteredResults.length, visibleCount]);
 
   const favProcedures = useMemo(
-    () => favorites.map((id) => procedures.find((p) => p.id === id)).filter(Boolean) as Procedure[],
-    [favorites, procedures]
+    () => favorites.map((id) => procedureIndex.find((p) => p.id === id)).filter(Boolean) as Procedure[],
+    [favorites, procedureIndex]
   );
 
   const recentProcedures = useMemo(
-    () => recents.map((id) => procedures.find((p) => p.id === id)).filter(Boolean) as Procedure[],
-    [recents, procedures]
+    () => recents.map((id) => procedureIndex.find((p) => p.id === id)).filter(Boolean) as Procedure[],
+    [recents, procedureIndex]
   );
 
   const handleClearSearch = () => { setSearchQuery(''); inputRef.current?.blur(); };
@@ -147,17 +164,10 @@ export default function Index() {
     setFabOpen(false);
   };
 
-  if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">{t('loading')}</p>
-      </div>
-    );
-  }
-
   // Split results into visible and locked
-  const visibleResults = isLimited ? filteredResults.slice(0, procLimit) : filteredResults;
-  const lockedResults = isLimited ? filteredResults.slice(procLimit) : [];
+  const progressiveResults = filteredResults.slice(0, visibleCount);
+  const visibleResults = isLimited ? progressiveResults.slice(0, procLimit) : progressiveResults;
+  const lockedResults = isLimited ? progressiveResults.slice(procLimit) : [];
 
   const searchInput = (
     <div className="relative">
@@ -195,6 +205,28 @@ export default function Index() {
           <ProcedureCard procedure={p} isFavorite={false} onToggleFavorite={() => {}} locked onLockedClick={() => setShowProGate(true)} />
         </div>
       ))}
+    </div>
+  );
+
+  const renderLoadingSkeleton = () => (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 gap-2">
+        <Skeleton className="h-9 w-full rounded-full" />
+        <Skeleton className="h-9 w-full rounded-full" />
+        <Skeleton className="h-9 w-full rounded-full" />
+        <Skeleton className="h-9 w-full rounded-full" />
+      </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div key={index} className="rounded-lg border bg-card p-4 clinical-shadow">
+            <Skeleton className="h-4 w-4/5" />
+            <div className="mt-2 flex gap-2">
+              <Skeleton className="h-4 w-20 rounded-full" />
+              <Skeleton className="h-4 w-12 rounded-full" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -244,13 +276,21 @@ export default function Index() {
         </div>
 
         <div className="w-full max-w-lg mb-2">
-          <SpecialtyChips specialties={sortedSpecialties} selected={selectedSpecialties} onSelect={handleSelectSpecialties} />
+          {indexLoading && sortedSpecialties.length === 0 ? (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} className="h-9 w-full rounded-full" />
+              ))}
+            </div>
+          ) : (
+            <SpecialtyChips specialties={sortedSpecialties} selected={selectedSpecialties} onSelect={handleSelectSpecialties} />
+          )}
         </div>
 
         {isSearching && (
           <div className="w-full max-w-lg mt-3">
             <h2 className="text-sm font-semibold text-muted-foreground mb-2">{t('results')}</h2>
-            {filteredResults.length === 0 ? (
+            {indexLoading && procedureIndex.length === 0 ? renderLoadingSkeleton() : filteredResults.length === 0 ? (
               <p className="text-center text-sm text-muted-foreground py-6">{t('no_results')}</p>
             ) : renderProcedureGrid(visibleResults, lockedResults)}
           </div>
@@ -318,7 +358,7 @@ export default function Index() {
                   </button>
                 </div>
               </div>
-              {filteredResults.length === 0 ? (
+              {indexLoading && procedureIndex.length === 0 ? renderLoadingSkeleton() : filteredResults.length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
               ) : renderProcedureGrid(visibleResults, lockedResults)}
             </section>

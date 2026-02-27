@@ -10,7 +10,7 @@ export interface SpecialtyRecord {
 export async function loadSpecialtiesFromSupabase(): Promise<SpecialtyRecord[]> {
   const { data } = await supabase
     .from('specialties' as any)
-    .select('*')
+    .select('id,name,sort_base')
     .eq('is_active', true)
     .order('sort_base');
 

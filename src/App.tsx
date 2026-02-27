@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { DataProvider } from "@/contexts/DataContext";
 import DisclaimerBanner from "@/components/anesia/DisclaimerBanner";
 import AppLayout from "@/components/anesia/AppLayout";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Home page loaded eagerly — visible immediately
 import Index from "./pages/Index";
@@ -28,6 +29,17 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 const queryClient = new QueryClient();
 
+function RouteFallback() {
+  return (
+    <div className="container max-w-2xl space-y-4 py-6">
+      <Skeleton className="h-10 w-1/3" />
+      <Skeleton className="h-28 w-full" />
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-24 w-full" />
+    </div>
+  );
+}
+
 const App = () => {
   return (
   <QueryClientProvider client={queryClient}>
@@ -39,7 +51,7 @@ const App = () => {
           <BrowserRouter>
             <DisclaimerBanner />
             <AppLayout>
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteFallback />}>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/guidelines" element={<Guidelines />} />

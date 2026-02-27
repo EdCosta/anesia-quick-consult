@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, AlertTriangle, Languages, Pill, Tags } from 'lucide-react';
+import { getMissingCatalogKeys } from '@/i18n';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -103,6 +104,14 @@ export default function AdminQuality() {
     return { noDrugs, missingInfo, drugsNoDosing, drugsNoUnits, guidelinesNoTags };
   }, [procedures, drugs, guidelines, resolve]);
 
+  const missingUiTranslations = useMemo(
+    () =>
+      (['pt', 'en'] as const).flatMap((lang) =>
+        getMissingCatalogKeys(lang).map((key) => ({ key, lang })),
+      ),
+    [],
+  );
+
   return (
     <div className="container max-w-2xl space-y-5 py-6">
       <Link to="/admin-content" className="inline-flex items-center gap-1 text-sm text-accent hover:underline">
@@ -181,6 +190,27 @@ export default function AdminQuality() {
             </p>
           ))}
           {missingTranslations.length === 0 && (
+            <p className="text-sm text-muted-foreground">✅ {t('no_results')}</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="clinical-shadow">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Languages className="h-4 w-4 text-accent" />
+            {t('missing_translations')} (UI)
+            <Badge variant="secondary" className="text-[10px]">{missingUiTranslations.length}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0 space-y-1">
+          {missingUiTranslations.map((item) => (
+            <p key={`${item.lang}-${item.key}`} className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{item.lang.toUpperCase()}</span>
+              {' → '}<span className="font-mono text-foreground">{item.key}</span>
+            </p>
+          ))}
+          {missingUiTranslations.length === 0 && (
             <p className="text-sm text-muted-foreground">✅ {t('no_results')}</p>
           )}
         </CardContent>

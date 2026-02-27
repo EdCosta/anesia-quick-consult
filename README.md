@@ -114,3 +114,27 @@ supabase functions deploy admin-import-guidelines
 7. Review `/admin/logs` for inserted counts, updated counts, and stored row-level errors.
 
 The browser never needs the `service_role` key. All privileged writes happen in Supabase Edge Functions after an explicit admin check.
+
+## One-shot rollout
+
+To execute the remote rollout in one command, set these environment variables:
+
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_DB_PASSWORD`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `ANESIA_ADMIN_USER_ID`
+
+Then run:
+
+```sh
+npm run ops:supabase:rollout
+```
+
+The rollout script will:
+
+1. authenticate the Supabase CLI
+2. link the repo to the configured project
+3. push pending migrations
+4. deploy `admin-import-procedures`
+5. deploy `admin-import-guidelines`
+6. upsert the configured user into `public.user_roles` with `role = 'admin'`

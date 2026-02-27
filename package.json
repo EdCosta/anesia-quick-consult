@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "db:seed:procedures": "tsc --target es2022 --module nodenext --moduleResolution nodenext --esModuleInterop --skipLibCheck --outDir .tmp-scripts scripts/seedProcedures.ts && node .tmp-scripts/seedProcedures.js",
+    "ops:supabase:rollout": "tsc --target es2022 --module nodenext --moduleResolution nodenext --esModuleInterop --skipLibCheck --outDir .tmp-scripts scripts/completeSupabaseRollout.ts && node .tmp-scripts/completeSupabaseRollout.js",
     "lint": "eslint .",
     "format": "prettier --write .",
     "preview": "vite preview",

@@ -74,15 +74,25 @@ export default function ProcedurePage() {
     [formularyDrugIds],
   );
 
-  // Check if content is using fallback (FR only)
-  const isFallbackLang = lang !== 'fr' && !!procedure && (
-    JSON.stringify(procedure.quick[lang]) === JSON.stringify(procedure.quick.fr)
+  const isTranslatedFallback = useCallback(
+    <T,>(content: Partial<Record<typeof lang, T>> | undefined) => (
+      lang !== 'fr' &&
+      !!content?.fr &&
+      JSON.stringify(content[lang]) === JSON.stringify(content.fr)
+    ),
+    [lang],
   );
 
   // Auto-translation
   const contentFr = procedure ? (procedure.quick as any)?.fr : null;
-  const { translatedContent, isTranslating, isAutoTranslated, isPersisted, reviewStatus } = useAutoTranslation(
-    id || '', lang, contentFr, isFallbackLang && !showOriginal
+  const contentDeepFr = procedure ? (procedure.deep as any)?.fr : null;
+  const isQuickFallbackLang = !!procedure && isTranslatedFallback(procedure.quick);
+  const isDeepFallbackLang = !!procedure && isTranslatedFallback(procedure.deep);
+  const quickTranslation = useAutoTranslation(
+    id || '', lang, 'quick', contentFr, isQuickFallbackLang && !showOriginal
+  );
+  const deepTranslation = useAutoTranslation(
+    id || '', lang, 'deep', contentDeepFr, isDeepFallbackLang && !showOriginal
   );
 
   useEffect(() => {
@@ -97,6 +107,12 @@ export default function ProcedurePage() {
   // Reset checklist when procedure changes
   useEffect(() => { setChecked({}); setChecklistMode(false); }, [id]);
   useEffect(() => { setTranslationSaved(false); }, [id, lang]);
+
+  const isTranslating = quickTranslation.isTranslating || deepTranslation.isTranslating;
+  const isAutoTranslated = quickTranslation.isAutoTranslated || deepTranslation.isAutoTranslated;
+  const hasFallbackContent = isQuickFallbackLang || isDeepFallbackLang;
+  const isPersisted = quickTranslation.isPersisted && (isDeepFallbackLang ? deepTranslation.isPersisted : true);
+  const reviewStatus = quickTranslation.reviewStatus ?? deepTranslation.reviewStatus;
 
   const recommendations = useMemo(() => {
     if (!procedure || !guidelines.length) return [];
@@ -198,10 +214,14 @@ export default function ProcedurePage() {
 
   // Use translated content if available, otherwise resolve normally
   let quick = resolve(procedure.quick);
-  const deep = resolve(procedure.deep);
+  let deep = resolve(procedure.deep);
 
-  if (isAutoTranslated && translatedContent && !showOriginal) {
-    quick = translatedContent;
+  if (quickTranslation.translatedContent && !showOriginal) {
+    quick = quickTranslation.translatedContent;
+  }
+
+  if (deepTranslation.translatedContent && !showOriginal) {
+    deep = deepTranslation.translatedContent;
   }
 
   quick = applyHospitalFormulary(quick);
@@ -264,7 +284,7 @@ export default function ProcedurePage() {
       </div>
 
       {/* Translation / FR-only banner */}
-      {isFallbackLang && !isAutoTranslated && !isTranslating && (
+      {hasFallbackContent && !isAutoTranslated && !isTranslating && (
         <div className="rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm text-muted-foreground flex items-center gap-2">
           <span>🌐</span>
           <span>{t('content_fr_only')}</span>
@@ -294,22 +314,30 @@ export default function ProcedurePage() {
         <button
           disabled={savingTranslation}
           onClick={async () => {
-            if (!procedure || !translatedContent) return;
+            const translationsToSave = [
+              { section: 'quick', translated: quickTranslation.translatedContent },
+              { section: 'deep', translated: deepTranslation.translatedContent },
+            ].filter((entry): entry is { section: 'quick' | 'deep'; translated: Record<string, unknown> } => !!entry.translated);
+            if (!procedure || translationsToSave.length === 0) return;
             setSavingTranslation(true);
             try {
               const { data: userData } = await supabase.auth.getUser();
+              const timestamp = new Date().toISOString();
               const { error } = await supabase
                 .from('procedure_translations' as any)
-                .upsert({
-                  procedure_id: procedure.id,
-                  lang,
-                  section: 'quick',
-                  translated_content: translatedContent,
-                  generated_at: new Date().toISOString(),
-                  review_status: 'approved',
-                  reviewed_at: new Date().toISOString(),
-                  reviewed_by: userData.user?.id ?? null,
-                } as any, { onConflict: 'procedure_id,lang,section' });
+                .upsert(
+                  translationsToSave.map((entry) => ({
+                    procedure_id: procedure.id,
+                    lang,
+                    section: entry.section,
+                    translated_content: entry.translated,
+                    generated_at: timestamp,
+                    review_status: 'approved',
+                    reviewed_at: timestamp,
+                    reviewed_by: userData.user?.id ?? null,
+                  })) as any,
+                  { onConflict: 'procedure_id,lang,section' },
+                );
               if (error) throw error;
               setTranslationSaved(true);
               toast.success(t('translation_saved'));

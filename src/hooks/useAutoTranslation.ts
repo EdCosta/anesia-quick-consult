@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Lang } from '@/contexts/LanguageContext';
 
+type ProcedureTranslationSection = 'quick' | 'deep';
+
 interface AutoTranslationResult {
   translatedContent: any | null;
   isTranslating: boolean;
@@ -14,11 +16,12 @@ interface AutoTranslationResult {
 export function useAutoTranslation(
   procedureId: string,
   lang: Lang,
+  section: ProcedureTranslationSection,
   contentFr: any | null,
   enabled: boolean
 ): AutoTranslationResult {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['auto-translation', procedureId, lang],
+    queryKey: ['auto-translation', procedureId, lang, section],
     queryFn: async () => {
       // Try to load persisted translation
       try {
@@ -27,7 +30,7 @@ export function useAutoTranslation(
           .select('*')
           .eq('procedure_id', procedureId)
           .eq('lang', lang)
-          .eq('section', 'quick')
+          .eq('section', section)
           .maybeSingle();
 
         if (!persistedError && persistedRow) {
@@ -45,7 +48,7 @@ export function useAutoTranslation(
       }
 
       // Check localStorage cache first
-      const cacheKey = `anesia-translation-${procedureId}-${lang}`;
+      const cacheKey = `anesia-translation-${procedureId}-${lang}-${section}`;
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         try {

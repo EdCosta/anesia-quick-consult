@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactNode } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, LogIn, LogOut, Building2, Crown, UserPlus } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
@@ -22,7 +22,6 @@ const HOSPITAL_PROFILE_DATA_KEY = 'anesia-hospital-profile-data';
 export default function AppLayout({ children }: AppLayoutProps) {
   const { t, setLang } = useLang();
   const location = useLocation();
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -231,32 +230,39 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 onClick={async () => {
                   await supabase.auth.signOut();
                 }}
-                className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/5 px-2.5 text-primary-foreground/75 transition-all duration-200 hover:w-28 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-28 focus-visible:text-primary-foreground"
                 aria-label={t('sign_out')}
                 title={t('sign_out')}
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 shrink-0" />
+                <span className="pointer-events-none whitespace-nowrap text-xs font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  {t('sign_out')}
+                </span>
               </button>
             ) : (
               <>
                 <Link
                   to="/auth?mode=signup"
-                  className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary-foreground/15 transition-colors"
+                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-primary-foreground transition-all duration-200 hover:w-28 hover:bg-primary-foreground/15 focus-visible:w-28"
+                  aria-label={t('sign_up')}
+                  title={t('sign_up')}
                 >
-                  <UserPlus className="h-3.5 w-3.5" />
-                  {t('sign_up')}
+                  <UserPlus className="h-3.5 w-3.5 shrink-0" />
+                  <span className="pointer-events-none whitespace-nowrap text-xs font-semibold opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                    {t('sign_up')}
+                  </span>
                 </Link>
-                <button
-                  onClick={async () => {
-                    await supabase.auth.signOut();
-                    navigate('/auth?mode=signin');
-                  }}
-                  className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                  aria-label={t('sign_out')}
-                  title={t('sign_out')}
+                <Link
+                  to="/auth?mode=signin"
+                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 px-2.5 text-primary-foreground/85 transition-all duration-200 hover:w-28 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-28"
+                  aria-label={t('sign_in')}
+                  title={t('sign_in')}
                 >
-                  <LogOut className="h-4 w-4" />
-                </button>
+                  <LogIn className="h-3.5 w-3.5 shrink-0" />
+                  <span className="pointer-events-none whitespace-nowrap text-xs font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                    {t('sign_in')}
+                  </span>
+                </Link>
               </>
             )}
           </div>

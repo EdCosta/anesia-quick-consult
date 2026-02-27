@@ -147,34 +147,37 @@ export default function Auth() {
   }
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md space-y-6">
-        <div className="space-y-3 text-center">
-          <div>
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-10">
+      <div className="w-full max-w-sm">
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <div className="mb-6 text-center">
             <h1 className="text-3xl font-bold">
               <span className="text-accent">Anes</span>
               <span className="text-foreground">IA</span>
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t('tagline')}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t('tagline')}</p>
           </div>
-          <div className="rounded-2xl border border-border bg-card p-4 text-left clinical-shadow">
-            <h2 className="text-base font-semibold text-foreground">
-              {mode === 'signup' ? t('auth_create_account') : t('auth_sign_in_title')}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {mode === 'signup' ? t('auth_register_subtitle') : t('auth_login_subtitle')}
-            </p>
-          </div>
-        </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 clinical-shadow">
           <Tabs value={mode} onValueChange={(value) => updateMode(value as AuthMode)}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">{t('sign_in')}</TabsTrigger>
-              <TabsTrigger value="signup">{t('sign_up')}</TabsTrigger>
+            <TabsList className="grid h-auto w-full grid-cols-2 rounded-full bg-muted p-1">
+              <TabsTrigger value="signin" className="rounded-full text-sm">
+                {t('sign_in')}
+              </TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-full text-sm">
+                {t('sign_up')}
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="signin" className="space-y-4 pt-2">
+            <div className="mt-5">
+              <h2 className="text-lg font-semibold text-foreground">
+                {mode === 'signup' ? t('auth_create_account') : t('auth_sign_in_title')}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {mode === 'signup' ? t('auth_register_subtitle') : t('auth_login_subtitle')}
+              </p>
+            </div>
+
+            <TabsContent value="signin" className="mt-5 space-y-4">
               <form onSubmit={handleEmailSignIn} className="space-y-4">
                 <div className="space-y-2 text-left">
                   <Label htmlFor="sign-in-email">{t('auth_email')}</Label>
@@ -206,7 +209,7 @@ export default function Auth() {
               </form>
             </TabsContent>
 
-            <TabsContent value="signup" className="space-y-4 pt-2">
+            <TabsContent value="signup" className="mt-5 space-y-4">
               <form onSubmit={handleEmailSignUp} className="space-y-4">
                 <div className="space-y-2 text-left">
                   <Label htmlFor="sign-up-username">{t('auth_username')}</Label>
@@ -252,19 +255,6 @@ export default function Auth() {
             </TabsContent>
           </Tabs>
 
-          <div className="my-4 flex items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">
-              {t('auth_or_continue')}
-            </span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button onClick={handleGoogleSignIn} disabled={loading} className="w-full gap-2" size="lg">
-            <LogIn className="h-4 w-4" />
-            {t('sign_in_google')}
-          </Button>
-
           {feedback && (
             <div
               className={`mt-4 rounded-lg border px-3 py-2 text-sm ${
@@ -276,6 +266,45 @@ export default function Auth() {
               {feedback.message}
             </div>
           )}
+
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              {t('auth_or_continue')}
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <Button
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            variant="outline"
+            className="w-full gap-2"
+            size="lg"
+          >
+            <LogIn className="h-4 w-4" />
+            {t('sign_in_google')}
+          </Button>
+
+          <div className="mt-5 text-center">
+            {mode === 'signin' ? (
+              <button
+                type="button"
+                onClick={() => updateMode('signup')}
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                {t('sign_up')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => updateMode('signin')}
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                {t('sign_in')}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

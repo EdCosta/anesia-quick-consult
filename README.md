@@ -1,73 +1,57 @@
-# Welcome to your Lovable project
+# AnesIA
 
-## Project info
+AnesIA is a Vite + React + TypeScript application backed by Supabase for structured anesthesia procedures, guideline metadata, and recommendation content.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Local app setup
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Database workflow
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+All schema changes must live in `supabase/migrations`. Do not make production schema changes manually in the Supabase dashboard.
 
-**Use GitHub Codespaces**
+Typical local Supabase commands:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```sh
+supabase start
+supabase db push
+supabase db reset
+```
 
-## What technologies are used for this project?
+`supabase db reset` rebuilds the local database entirely from the migrations folder, so keep migrations idempotent and committed.
 
-This project is built with:
+## Procedure seed pipeline
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The canonical procedure CSV snapshot lives at `data/procedures/procedures.csv`. It is currently derived from the existing `public/data/procedures-import.csv` export and is the baseline file for future updates.
 
-## How can I deploy this project?
+Seed the `procedures` table with UPSERT semantics:
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+```sh
+npm run db:seed:procedures
+```
 
-## Can I connect a custom domain to my Lovable project?
+Optional custom file:
 
-Yes, you can!
+```sh
+npm run db:seed:procedures -- data/procedures/procedures.csv
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+The seed script:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- parses semicolon-delimited CSV
+- upserts by `id`
+- updates `specialty`, `titles`, `synonyms`, `content`, `tags`, and `updated_at`
+- requires `SUPABASE_SERVICE_ROLE_KEY`
+- reads `SUPABASE_URL` or falls back to `VITE_SUPABASE_URL`
+
+## Current schema additions
+
+Recent migrations introduce:
+
+- versioned guideline storage with `guideline_sources`, `guideline_versions`, and `recommendations`
+- `guideline_chunks` for future RAG chunk storage
+- `import_logs` for auditable admin imports
+- a partial unique index enforcing a single active guideline version per source

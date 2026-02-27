@@ -7,8 +7,8 @@ export function useViewMode() {
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('anesia-view-mode', 'normal');
   const { isPro } = useEntitlements();
 
-  // isProView = user selected pro (entitlement check disabled for testing)
-  const isProView = viewMode === 'pro';
+  // Pro view requires both: user chose Pro mode AND has a Pro entitlement
+  const isProView = viewMode === 'pro' && isPro;
 
   return { viewMode, setViewMode, isProView, isPro };
 }

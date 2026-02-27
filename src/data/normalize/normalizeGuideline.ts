@@ -1,5 +1,16 @@
-import type { Guideline, Protocole, ALRBlock } from '@/lib/types';
+import type { Guideline, Protocole, ALRBlock, Reference } from '@/lib/types';
 import { normalizeLocalizedValue } from './i18n';
+
+function normalizeReferences(input: Reference[] | undefined): Reference[] {
+  return (input || []).map((item) => ({
+    source: item.source || '',
+    year: item.year,
+    note: item.note || undefined,
+    doi: item.doi || undefined,
+    pmid: item.pmid || undefined,
+    url: item.url || undefined,
+  }));
+}
 
 export function normalizeGuideline(input: Partial<Guideline>): Guideline {
   return {
@@ -7,11 +18,16 @@ export function normalizeGuideline(input: Partial<Guideline>): Guideline {
     category: input.category || '',
     titles: normalizeLocalizedValue(input.titles, () => ''),
     items: normalizeLocalizedValue(input.items, () => []),
-    references: input.references || [],
+    references: normalizeReferences(input.references),
     tags: input.tags || [],
     specialties: input.specialties || [],
     organization: input.organization,
     recommendation_strength: input.recommendation_strength,
+    version: input.version || undefined,
+    source: input.source || undefined,
+    published_at: input.published_at || undefined,
+    review_at: input.review_at || undefined,
+    evidence_grade: input.evidence_grade,
   };
 }
 
@@ -21,11 +37,16 @@ export function dbRowToGuideline(row: any): Guideline {
     category: row.category,
     titles: row.titles,
     items: row.items,
-    references: row.refs || [],
+    references: row.references || row.refs || [],
     tags: row.tags || [],
     specialties: row.specialties || [],
     organization: row.organization || undefined,
     recommendation_strength: row.recommendation_strength ?? undefined,
+    version: row.version || undefined,
+    source: row.source || undefined,
+    published_at: row.published_at || undefined,
+    review_at: row.review_at || undefined,
+    evidence_grade: row.evidence_grade || undefined,
   });
 }
 
@@ -35,8 +56,13 @@ export function normalizeProtocole(input: Partial<Protocole>): Protocole {
     category: input.category || '',
     titles: normalizeLocalizedValue(input.titles, () => ''),
     steps: normalizeLocalizedValue(input.steps, () => []),
-    references: input.references || [],
+    references: normalizeReferences(input.references),
     tags: input.tags || [],
+    version: input.version || undefined,
+    source: input.source || undefined,
+    published_at: input.published_at || undefined,
+    review_at: input.review_at || undefined,
+    evidence_grade: input.evidence_grade,
   };
 }
 
@@ -46,8 +72,13 @@ export function dbRowToProtocole(row: any): Protocole {
     category: row.category,
     titles: row.titles,
     steps: row.steps,
-    references: row.refs || [],
+    references: row.references || row.refs || [],
     tags: row.tags || [],
+    version: row.version || undefined,
+    source: row.source || undefined,
+    published_at: row.published_at || undefined,
+    review_at: row.review_at || undefined,
+    evidence_grade: row.evidence_grade || undefined,
   });
 }
 

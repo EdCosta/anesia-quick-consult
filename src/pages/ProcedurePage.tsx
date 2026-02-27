@@ -5,7 +5,9 @@ import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAutoTranslation } from '@/hooks/useAutoTranslation';
+import { useHospitalProfile } from '@/hooks/useHospitalProfile';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useRecommendationTags } from '@/hooks/useRecommendationTags';
 import Section, { BulletList } from '@/components/anesia/Section';
 import IntubationGuide from '@/components/anesia/IntubationGuide';
 import DrugDoseRow from '@/components/anesia/DrugDoseRow';
@@ -23,7 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import { getSpecialtyDisplayName } from '@/lib/specialties';
 import type { PatientWeights } from '@/lib/weightScalars';
-import type { Guideline } from '@/lib/types';
+import type { Guideline, ProcedureQuick } from '@/lib/types';
 
 function normalizeMatchKey(value: string) {
   return value
@@ -51,8 +53,26 @@ export default function ProcedurePage() {
   const [savingTranslation, setSavingTranslation] = useState(false);
   const [translationSaved, setTranslationSaved] = useState(false);
   const { isAdmin } = useIsAdmin();
+  const hospitalProfile = useHospitalProfile();
   const procedure = getProcedure(id || '');
   const isFav = id ? favorites.includes(id) : false;
+  const guidelineIds = useMemo(() => guidelines.map((guideline) => guideline.id), [guidelines]);
+  const { procedureTagIds, guidelineTagIds } = useRecommendationTags(procedure?.id, guidelineIds);
+  const formularyDrugIds = useMemo(() => {
+    const ids = hospitalProfile?.formulary?.drug_ids || [];
+    return ids.length > 0 ? new Set(ids) : null;
+  }, [hospitalProfile]);
+
+  const applyHospitalFormulary = useCallback(
+    (content: ProcedureQuick | null | undefined): ProcedureQuick | null | undefined => {
+      if (!content || !formularyDrugIds) return content;
+      return {
+        ...content,
+        drugs: content.drugs.filter((drugRef) => formularyDrugIds.has(drugRef.drug_id)),
+      };
+    },
+    [formularyDrugIds],
+  );
 
   // Check if content is using fallback (FR only)
   const isFallbackLang = lang !== 'fr' && !!procedure && (
@@ -80,16 +100,24 @@ export default function ProcedurePage() {
 
   const recommendations = useMemo(() => {
     if (!procedure || !guidelines.length) return [];
-    const procTags = new Set((procedure.tags || []).map(normalizeMatchKey));
+    const legacyProcTags = (procedure.tags || []).map(normalizeMatchKey);
+    const procTags = new Set(
+      procedureTagIds && procedureTagIds.size > 0 ? Array.from(procedureTagIds) : legacyProcTags,
+    );
     const procSpecialties = new Set(
       [procedure.specialty, ...(procedure.specialties || [])].filter(Boolean).map(normalizeMatchKey)
     );
 
     const scored = guidelines.map(g => {
-      const matchingTags = (g.tags || []).filter((tag) => procTags.has(normalizeMatchKey(tag))).length;
+      const normalizedGuidelineTags = guidelineTagIds.get(g.id) || [];
+      const guidelineTagsForMatch =
+        normalizedGuidelineTags.length > 0
+          ? normalizedGuidelineTags
+          : (g.tags || []).map(normalizeMatchKey);
+      const matchingTags = guidelineTagsForMatch.filter((tag) => procTags.has(normalizeMatchKey(tag))).length;
       const specialtyMatches = (g.specialties || []).filter((spec) => procSpecialties.has(normalizeMatchKey(spec))).length;
       let score = matchingTags * 10 + specialtyMatches * 3;
-      if (score === 0 && (g.tags || []).length === 0 && (g.specialties || []).length === 0 && ['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) {
+      if (score === 0 && guidelineTagsForMatch.length === 0 && (g.specialties || []).length === 0 && ['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) {
         score = 1;
       }
       return {
@@ -112,13 +140,13 @@ export default function ProcedurePage() {
       ))
       .slice(0, 5)
       .map((s) => s.guideline);
-  }, [procedure, guidelines]);
+  }, [procedure, guidelines, procedureTagIds, guidelineTagIds]);
 
   const weight = parseFloat(weightKg) || null;
 
   const handleCopyChecklist = () => {
     if (!procedure) return;
-    const quick = resolve(procedure.quick);
+    const quick = applyHospitalFormulary(resolve(procedure.quick));
     if (!quick) return;
     const lines: string[] = [];
     const addSection = (title: string, items: string[]) => { if (items.length === 0) return; lines.push(`## ${title}`); items.forEach((item) => lines.push(`- ${item}`)); lines.push(''); };
@@ -133,7 +161,7 @@ export default function ProcedurePage() {
 
   const handleGenerateSummary = () => {
     if (!procedure) return;
-    const quick = resolve(procedure.quick);
+    const quick = applyHospitalFormulary(resolve(procedure.quick));
     if (!quick) return;
     const lines: string[] = [];
     lines.push(`# ${resolveStr(procedure.titles)}`);
@@ -175,6 +203,8 @@ export default function ProcedurePage() {
   if (isAutoTranslated && translatedContent && !showOriginal) {
     quick = translatedContent;
   }
+
+  quick = applyHospitalFormulary(quick);
 
   const specialtyDisplayName = getSpecialtyDisplayName(procedure.specialty, specialtiesData, lang);
 

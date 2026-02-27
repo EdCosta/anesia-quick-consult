@@ -26,7 +26,7 @@ export default function Protocoles() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showProModal, setShowProModal] = useState(false);
 
-  const fuse = useMemo(() => new Fuse(protocoles, { keys: [`titles.${lang}`, 'titles.fr', 'category'], threshold: 0.4, ignoreLocation: true }), [protocoles, lang]);
+  const fuse = useMemo(() => new Fuse(protocoles, { keys: [`titles.${lang}`, 'titles.fr', 'category', 'source', 'version', 'tags'], threshold: 0.4, ignoreLocation: true }), [protocoles, lang]);
 
   const categories = useMemo(() => {
     const set = new Set(protocoles.map((p) => p.category));
@@ -87,7 +87,12 @@ export default function Protocoles() {
                   <button onClick={() => setExpanded(isOpen ? null : p.id)} className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors">
                     <div>
                       <h3 className="text-sm font-semibold text-card-foreground">{resolveStr(p.titles)}</h3>
-                      <Badge variant="secondary" className="mt-1 text-[11px]">{CATEGORY_MAP[p.category] ? t(CATEGORY_MAP[p.category]) : p.category}</Badge>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <Badge variant="secondary" className="text-[11px]">{CATEGORY_MAP[p.category] ? t(CATEGORY_MAP[p.category]) : p.category}</Badge>
+                        {p.source && <Badge variant="outline" className="text-[11px]">{p.source}</Badge>}
+                        {p.version && <Badge variant="outline" className="text-[11px]">v{p.version}</Badge>}
+                        {p.evidence_grade && <Badge variant="outline" className="text-[11px]">E{p.evidence_grade}</Badge>}
+                      </div>
                     </div>
                     {isOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
                   </button>

@@ -15,8 +15,8 @@ export async function loadFromSupabase(): Promise<{
     const [procedures, drugs, guideRes, protoRes, alrRes] = await Promise.all([
       loadProceduresFromSupabase(),
       loadDrugsFromSupabase(),
-      supabase.from('guidelines' as any).select('id,category,titles,items,references,tags,specialties,organization,recommendation_strength'),
-      supabase.from('protocoles' as any).select('id,category,titles,steps,references,tags'),
+      supabase.from('guidelines' as any).select('id,category,titles,items,refs,tags,specialties,organization,recommendation_strength,version,source,published_at,review_at,evidence_grade'),
+      supabase.from('protocoles' as any).select('id,category,titles,steps,refs,tags,version,source,published_at,review_at,evidence_grade'),
       supabase.from('alr_blocks' as any).select('id,region,titles,indications,contraindications,technique,drugs,tags'),
     ]);
 

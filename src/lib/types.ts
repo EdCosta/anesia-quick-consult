@@ -11,6 +11,9 @@ export interface Reference {
   source: string;
   year?: number;
   note?: string;
+  doi?: string;
+  pmid?: string;
+  url?: string;
 }
 
 export interface ProcedureQuick {
@@ -54,15 +57,36 @@ export interface Concentration {
   mg_per_ml: number | null;
 }
 
+export interface DrugPresentation {
+  label: string;
+  total_mg: number | null;
+  total_ml: number | null;
+  diluent?: string;
+  container?: 'ampoule' | 'vial' | 'syringe' | 'bag';
+}
+
+export interface StandardDilution {
+  label: string;
+  target_concentration: string;
+  diluent?: string;
+  final_volume_ml?: number | null;
+  notes?: string[];
+}
+
 export interface Drug {
   id: string;
   name: Localized<string>;
   dose_rules: DoseRule[];
   concentrations: Concentration[];
+  presentations: DrugPresentation[];
+  standard_dilutions: StandardDilution[];
+  compatibility_notes: string[];
   contraindications_notes: string[];
   renal_hepatic_notes: string[];
   tags: string[];
 }
+
+export type EvidenceGrade = 'A' | 'B' | 'C';
 
 // Guidelines
 export interface Guideline {
@@ -75,6 +99,11 @@ export interface Guideline {
   specialties: string[];
   organization?: string;
   recommendation_strength?: number;
+  version?: string;
+  source?: string;
+  published_at?: string;
+  review_at?: string;
+  evidence_grade?: EvidenceGrade;
 }
 
 // Protocoles
@@ -85,6 +114,11 @@ export interface Protocole {
   steps: Localized<string[]>;
   references: Reference[];
   tags: string[];
+  version?: string;
+  source?: string;
+  published_at?: string;
+  review_at?: string;
+  evidence_grade?: EvidenceGrade;
 }
 
 // ALR Blocks
@@ -97,4 +131,24 @@ export interface ALRBlock {
   technique: Localized<string[]>;
   drugs: Localized<string[]>;
   tags: string[];
+}
+
+export interface HospitalFormularyEntry {
+  drug_id: string;
+  available: boolean;
+  presentations?: DrugPresentation[];
+  notes?: string[];
+}
+
+export interface HospitalProfile {
+  id: string;
+  name: string;
+  country?: string;
+  default_lang: SupportedLang;
+  formulary: {
+    drug_ids: string[];
+    items?: HospitalFormularyEntry[];
+    presentations?: DrugPresentation[];
+  };
+  protocol_overrides: Record<string, unknown>;
 }

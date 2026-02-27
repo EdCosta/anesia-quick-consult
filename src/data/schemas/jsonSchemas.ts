@@ -30,6 +30,31 @@ const ConcentrationSchema = z.object({
   mg_per_ml: z.number().nullable(),
 });
 
+const DrugPresentationSchema = z.object({
+  label: z.string(),
+  total_mg: z.number().nullable(),
+  total_ml: z.number().nullable(),
+  diluent: z.string().optional(),
+  container: z.enum(['ampoule', 'vial', 'syringe', 'bag']).optional(),
+});
+
+const StandardDilutionSchema = z.object({
+  label: z.string(),
+  target_concentration: z.string(),
+  diluent: z.string().optional(),
+  final_volume_ml: z.number().nullable().optional(),
+  notes: z.array(z.string()).optional().default([]),
+});
+
+const StructuredReferenceSchema = z.object({
+  source: z.string(),
+  year: z.number().optional(),
+  note: z.string().optional(),
+  doi: z.string().optional(),
+  pmid: z.string().optional(),
+  url: z.string().url().optional(),
+});
+
 // ── Top-level entity schemas ───────────────────────────────────────────────────
 
 export const ProcedureSchema = z
@@ -47,6 +72,9 @@ export const DrugSchema = z
     name:           z.object({ fr: z.string() }).passthrough(),
     dose_rules:     z.array(DoseRuleSchema).optional().default([]),
     concentrations: z.array(ConcentrationSchema).optional().default([]),
+    presentations: z.array(DrugPresentationSchema).optional().default([]),
+    standard_dilutions: z.array(StandardDilutionSchema).optional().default([]),
+    compatibility_notes: z.array(z.string()).optional().default([]),
   })
   .passthrough();
 
@@ -56,8 +84,14 @@ export const GuidelineSchema = z
     category:    z.string(),
     titles:      z.object({ fr: z.string() }).passthrough(),
     items:       z.object({ fr: z.array(z.string()) }).passthrough(),
+    references:  z.array(StructuredReferenceSchema).optional().default([]),
     tags:        z.array(z.string()).optional().default([]),
     specialties: z.array(z.string()).optional().default([]),
+    version: z.string().optional(),
+    source: z.string().optional(),
+    published_at: z.string().optional(),
+    review_at: z.string().optional(),
+    evidence_grade: z.enum(['A', 'B', 'C']).optional(),
   })
   .passthrough();
 
@@ -67,7 +101,13 @@ export const ProtocoleSchema = z
     category: z.string(),
     titles:   z.object({ fr: z.string() }).passthrough(),
     steps:    z.object({ fr: z.array(z.string()) }).passthrough(),
+    references: z.array(StructuredReferenceSchema).optional().default([]),
     tags:     z.array(z.string()).optional().default([]),
+    version: z.string().optional(),
+    source: z.string().optional(),
+    published_at: z.string().optional(),
+    review_at: z.string().optional(),
+    evidence_grade: z.enum(['A', 'B', 'C']).optional(),
   })
   .passthrough();
 

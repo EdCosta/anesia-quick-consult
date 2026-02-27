@@ -11,26 +11,38 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { useEntitlements } from '@/hooks/useEntitlements';
 import { useViewMode } from '@/hooks/useViewMode';
 import { Badge } from '@/components/ui/badge';
+import type { HospitalProfile } from '@/lib/types';
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
+const HOSPITAL_PROFILE_DATA_KEY = 'anesia-hospital-profile-data';
+
 export default function AppLayout({ children }: AppLayoutProps) {
-  const { t } = useLang();
+  const { t, setLang } = useLang();
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [profiles, setProfiles] = useState<Array<{ id: string; name: string }>>([]);
+  const [profiles, setProfiles] = useState<HospitalProfile[]>([]);
   const [activeProfile, setActiveProfile] = useState<string | null>(() => localStorage.getItem('anesia-hospital-profile'));
   const { plan, isPro } = useEntitlements();
   const { viewMode, setViewMode } = useViewMode();
 
   useEffect(() => {
-    supabase.from('hospital_profiles' as any).select('id, name').then(({ data }) => {
-      if (data) setProfiles((data as any[]).map((p: any) => ({ id: p.id, name: p.name })));
+    supabase.from('hospital_profiles' as any).select('id, name, country, default_lang, formulary, protocol_overrides').then(({ data }) => {
+      if (!data) return;
+
+      setProfiles((data as any[]).map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        country: p.country || undefined,
+        default_lang: p.default_lang || 'fr',
+        formulary: p.formulary || { drug_ids: [], presentations: [] },
+        protocol_overrides: p.protocol_overrides || {},
+      })));
     });
   }, []);
 
@@ -43,6 +55,28 @@ export default function AppLayout({ children }: AppLayoutProps) {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!activeProfile || profiles.length === 0) return;
+    if (!profiles.some((profile) => profile.id === activeProfile)) {
+      setActiveProfile(null);
+      localStorage.removeItem('anesia-hospital-profile');
+    }
+  }, [activeProfile, profiles]);
+
+  useEffect(() => {
+    if (!activeProfile) {
+      localStorage.removeItem(HOSPITAL_PROFILE_DATA_KEY);
+      window.dispatchEvent(new Event('anesia-hospital-profile-updated'));
+      return;
+    }
+
+    const profile = profiles.find((item) => item.id === activeProfile);
+    if (!profile) return;
+
+    localStorage.setItem(HOSPITAL_PROFILE_DATA_KEY, JSON.stringify(profile));
+    window.dispatchEvent(new Event('anesia-hospital-profile-updated'));
+  }, [activeProfile, profiles]);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -99,12 +133,19 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {profiles.map((p) => (
                     <button
                       key={p.id}
-                      onClick={() => { setActiveProfile(p.id); localStorage.setItem('anesia-hospital-profile', p.id); }}
+                      onClick={() => {
+                        setActiveProfile(p.id);
+                        localStorage.setItem('anesia-hospital-profile', p.id);
+                        setLang(p.default_lang);
+                      }}
                       className={`w-full text-left rounded px-2 py-1.5 text-xs transition-colors ${
                         activeProfile === p.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted text-foreground'
                       }`}
                     >
-                      {p.name}
+                      <span className="block">{p.name}</span>
+                      <span className="block text-[10px] text-muted-foreground">
+                        {[p.country, p.default_lang.toUpperCase()].filter(Boolean).join(' · ')}
+                      </span>
                     </button>
                   ))}
                   {activeProfile && (

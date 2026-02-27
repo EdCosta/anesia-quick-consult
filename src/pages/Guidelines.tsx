@@ -30,7 +30,7 @@ export default function Guidelines() {
   const [showProModal, setShowProModal] = useState(false);
 
   const fuse = useMemo(
-    () => new Fuse(guidelines, { keys: [`titles.${lang}`, 'titles.fr', 'category'], threshold: 0.4, ignoreLocation: true }),
+    () => new Fuse(guidelines, { keys: [`titles.${lang}`, 'titles.fr', 'category', 'source', 'version', 'tags'], threshold: 0.4, ignoreLocation: true }),
     [guidelines, lang]
   );
 
@@ -94,7 +94,12 @@ export default function Guidelines() {
                   <button onClick={() => setExpanded(isOpen ? null : g.id)} className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors">
                     <div>
                       <h3 className="text-sm font-semibold text-card-foreground">{resolveStr(g.titles)}</h3>
-                      <Badge variant="secondary" className="mt-1 text-[11px]">{CATEGORY_MAP[g.category] ? t(CATEGORY_MAP[g.category]) : g.category}</Badge>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <Badge variant="secondary" className="text-[11px]">{CATEGORY_MAP[g.category] ? t(CATEGORY_MAP[g.category]) : g.category}</Badge>
+                        {g.source && <Badge variant="outline" className="text-[11px]">{g.source}</Badge>}
+                        {g.version && <Badge variant="outline" className="text-[11px]">v{g.version}</Badge>}
+                        {g.evidence_grade && <Badge variant="outline" className="text-[11px]">E{g.evidence_grade}</Badge>}
+                      </div>
                     </div>
                     {isOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
                   </button>

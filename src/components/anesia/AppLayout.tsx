@@ -1,6 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Building2, Crown } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, Building2, Crown, UserPlus } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -238,14 +238,26 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <LogOut className="h-4 w-4" />
               </button>
             ) : (
-              <button
-                onClick={() => navigate('/auth')}
-                className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                aria-label={t('sign_in')}
-                title={t('sign_in')}
-              >
-                <LogIn className="h-4 w-4" />
-              </button>
+              <>
+                <Link
+                  to="/auth?mode=signup"
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary-foreground/15 transition-colors"
+                >
+                  <UserPlus className="h-3.5 w-3.5" />
+                  {t('sign_up')}
+                </Link>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    navigate('/auth?mode=signin');
+                  }}
+                  className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                  aria-label={t('sign_out')}
+                  title={t('sign_out')}
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </>
             )}
           </div>
         </div>

@@ -55,3 +55,35 @@ Recent migrations introduce:
 - `guideline_chunks` for future RAG chunk storage
 - `import_logs` for auditable admin imports
 - a partial unique index enforcing a single active guideline version per source
+
+## Admin access
+
+Admin write access is controlled in `public.user_roles`. Only users with `role = 'admin'` can write through RLS-protected admin workflows.
+
+Promote a user to admin with SQL:
+
+```sql
+INSERT INTO public.user_roles (user_id, role)
+SELECT '<YOUR_AUTH_USER_UUID>'::uuid, 'admin'
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM public.user_roles
+  WHERE user_id = '<YOUR_AUTH_USER_UUID>'::uuid
+    AND role::text = 'admin'
+);
+```
+
+If you need to remove legacy non-admin rows for the same user first:
+
+```sql
+DELETE FROM public.user_roles
+WHERE user_id = '<YOUR_AUTH_USER_UUID>'::uuid
+  AND role::text <> 'admin';
+```
+
+Security notes:
+
+- keep `SUPABASE_SERVICE_ROLE_KEY` only in server environments such as Edge Functions
+- never expose `service_role` in Vite client env vars
+- the browser should use only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`
+- AnesIA stores medical knowledge content only and must not store patient data

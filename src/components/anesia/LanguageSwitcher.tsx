@@ -8,7 +8,7 @@ export default function LanguageSwitcher() {
 
   return (
     <div className="flex items-center gap-1 rounded-lg bg-secondary p-1">
-      {LANGS.map(l => (
+      {LANGS.map((l) => (
         <button
           key={l}
           onClick={() => setLang(l)}

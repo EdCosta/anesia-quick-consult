@@ -27,27 +27,36 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profiles, setProfiles] = useState<HospitalProfile[]>([]);
-  const [activeProfile, setActiveProfile] = useState<string | null>(() => localStorage.getItem('anesia-hospital-profile'));
+  const [activeProfile, setActiveProfile] = useState<string | null>(() =>
+    localStorage.getItem('anesia-hospital-profile'),
+  );
   const { plan, isPro } = useEntitlements();
   const { viewMode, setViewMode } = useViewMode();
 
   useEffect(() => {
-    supabase.from('hospital_profiles' as any).select('id, name, country, default_lang, formulary, protocol_overrides').then(({ data }) => {
-      if (!data) return;
+    supabase
+      .from('hospital_profiles' as any)
+      .select('id, name, country, default_lang, formulary, protocol_overrides')
+      .then(({ data }) => {
+        if (!data) return;
 
-      setProfiles((data as any[]).map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        country: p.country || undefined,
-        default_lang: p.default_lang || 'fr',
-        formulary: p.formulary || { drug_ids: [], presentations: [] },
-        protocol_overrides: p.protocol_overrides || {},
-      })));
-    });
+        setProfiles(
+          (data as any[]).map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            country: p.country || undefined,
+            default_lang: p.default_lang || 'fr',
+            formulary: p.formulary || { drug_ids: [], presentations: [] },
+            protocol_overrides: p.protocol_overrides || {},
+          })),
+        );
+      });
   }, []);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -86,12 +95,19 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <header className="sticky top-0 z-50 bg-primary text-primary-foreground">
         <div className="container flex h-14 items-center gap-3">
           {isMobile && (
-            <button onClick={() => setMenuOpen(!menuOpen)} className="p-1.5 -ml-1" aria-label="Menu">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-1.5 -ml-1"
+              aria-label="Menu"
+            >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           )}
 
-          <Link to="/" className="flex items-center gap-0.5 font-heading text-lg font-bold shrink-0">
+          <Link
+            to="/"
+            className="flex items-center gap-0.5 font-heading text-lg font-bold shrink-0"
+          >
             <span className="text-accent">Anes</span>
             <span>IA</span>
           </Link>
@@ -99,7 +115,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {/* Desktop nav */}
           {!isMobile && (
             <nav className="flex-1 flex items-center justify-center gap-1">
-              {HEADER_ITEMS.map(item => (
+              {HEADER_ITEMS.map((item) => (
                 <Link
                   key={item.key}
                   to={item.to}
@@ -129,7 +145,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-48 p-2">
-                  <p className="text-xs font-semibold text-foreground mb-2">{t('select_profile')}</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">
+                    {t('select_profile')}
+                  </p>
                   {profiles.map((p) => (
                     <button
                       key={p.id}
@@ -139,7 +157,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         setLang(p.default_lang);
                       }}
                       className={`w-full text-left rounded px-2 py-1.5 text-xs transition-colors ${
-                        activeProfile === p.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted text-foreground'
+                        activeProfile === p.id
+                          ? 'bg-primary/10 text-primary font-medium'
+                          : 'hover:bg-muted text-foreground'
                       }`}
                     >
                       <span className="block">{p.name}</span>
@@ -150,7 +170,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   ))}
                   {activeProfile && (
                     <button
-                      onClick={() => { setActiveProfile(null); localStorage.removeItem('anesia-hospital-profile'); }}
+                      onClick={() => {
+                        setActiveProfile(null);
+                        localStorage.removeItem('anesia-hospital-profile');
+                      }}
                       className="w-full mt-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
                     >
                       {t('clear')}
@@ -162,7 +185,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
             {/* Plan badge - links to /account */}
             {user && (
               <Link to="/account">
-                <Badge variant={isPro ? 'default' : 'secondary'} className="text-[10px] gap-0.5 cursor-pointer hover:opacity-80">
+                <Badge
+                  variant={isPro ? 'default' : 'secondary'}
+                  className="text-[10px] gap-0.5 cursor-pointer hover:opacity-80"
+                >
                   {isPro && <Crown className="h-2.5 w-2.5" />}
                   {isPro ? t('plan_pro') : t('plan_free')}
                 </Badge>
@@ -202,7 +228,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <LanguageSwitcher />
             {user ? (
               <button
-                onClick={async () => { await supabase.auth.signOut(); }}
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                }}
                 className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
                 aria-label={t('sign_out')}
                 title={t('sign_out')}
@@ -226,10 +254,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Mobile fullscreen menu */}
       {isMobile && menuOpen && (
         <div className="fixed inset-0 z-40 bg-background/95 backdrop-blur flex flex-col items-center justify-center gap-6 animate-fade-in">
-          <button onClick={() => setMenuOpen(false)} className="absolute top-4 right-4 p-2 text-foreground">
+          <button
+            onClick={() => setMenuOpen(false)}
+            className="absolute top-4 right-4 p-2 text-foreground"
+          >
             <X className="h-6 w-6" />
           </button>
-          {HEADER_ITEMS.map(item => (
+          {HEADER_ITEMS.map((item) => (
             <Link
               key={item.key}
               to={item.to}
@@ -246,9 +277,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       )}
 
       {/* Content */}
-      <div className="flex-1">
-        {children}
-      </div>
+      <div className="flex-1">{children}</div>
     </div>
   );
 }

@@ -13,13 +13,16 @@ export default function ETTCalculator() {
   const [heightCm, setHeightCm] = useState('');
   const [sex, setSex] = useState<'male' | 'female' | ''>('');
 
-  const input: ETTInput = useMemo(() => ({
-    ageYears: ageYears ? parseFloat(ageYears) : null,
-    ageMonths: ageMonths ? parseFloat(ageMonths) : null,
-    weightKg: weightKg ? parseFloat(weightKg) : null,
-    heightCm: heightCm ? parseFloat(heightCm) : null,
-    sex: sex || null,
-  }), [ageYears, ageMonths, weightKg, heightCm, sex]);
+  const input: ETTInput = useMemo(
+    () => ({
+      ageYears: ageYears ? parseFloat(ageYears) : null,
+      ageMonths: ageMonths ? parseFloat(ageMonths) : null,
+      weightKg: weightKg ? parseFloat(weightKg) : null,
+      heightCm: heightCm ? parseFloat(heightCm) : null,
+      sex: sex || null,
+    }),
+    [ageYears, ageMonths, weightKg, heightCm, sex],
+  );
 
   const hasInput = ageYears || ageMonths || weightKg || heightCm || sex;
   const result = hasInput ? calculateETT(input) : null;
@@ -36,8 +39,11 @@ export default function ETTCalculator() {
         <div>
           <label className="text-xs font-medium text-muted-foreground">{t('age_years')}</label>
           <input
-            type="number" min="0" max="100"
-            value={ageYears} onChange={e => setAgeYears(e.target.value)}
+            type="number"
+            min="0"
+            max="100"
+            value={ageYears}
+            onChange={(e) => setAgeYears(e.target.value)}
             className="mt-1 w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
             placeholder="0"
           />
@@ -45,8 +51,11 @@ export default function ETTCalculator() {
         <div>
           <label className="text-xs font-medium text-muted-foreground">{t('age_months')}</label>
           <input
-            type="number" min="0" max="11"
-            value={ageMonths} onChange={e => setAgeMonths(e.target.value)}
+            type="number"
+            min="0"
+            max="11"
+            value={ageMonths}
+            onChange={(e) => setAgeMonths(e.target.value)}
             className="mt-1 w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
             placeholder="0"
           />
@@ -54,8 +63,11 @@ export default function ETTCalculator() {
         <div>
           <label className="text-xs font-medium text-muted-foreground">{t('weight_kg')}</label>
           <input
-            type="number" min="0.5" max="300"
-            value={weightKg} onChange={e => setWeightKg(e.target.value)}
+            type="number"
+            min="0.5"
+            max="300"
+            value={weightKg}
+            onChange={(e) => setWeightKg(e.target.value)}
             className="mt-1 w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
             placeholder="kg"
           />
@@ -63,8 +75,11 @@ export default function ETTCalculator() {
         <div>
           <label className="text-xs font-medium text-muted-foreground">{t('height_cm')}</label>
           <input
-            type="number" min="30" max="250"
-            value={heightCm} onChange={e => setHeightCm(e.target.value)}
+            type="number"
+            min="30"
+            max="250"
+            value={heightCm}
+            onChange={(e) => setHeightCm(e.target.value)}
             className="mt-1 w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
             placeholder="cm"
           />
@@ -72,7 +87,8 @@ export default function ETTCalculator() {
         <div>
           <label className="text-xs font-medium text-muted-foreground">{t('sex')}</label>
           <select
-            value={sex} onChange={e => setSex(e.target.value as 'male' | 'female' | '')}
+            value={sex}
+            onChange={(e) => setSex(e.target.value as 'male' | 'female' | '')}
             className="mt-1 w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
           >
             <option value="">—</option>
@@ -86,7 +102,9 @@ export default function ETTCalculator() {
       {result && (
         <Card className="border-l-4 border-l-accent">
           <CardContent className="p-4 space-y-2">
-            <h4 className="text-sm font-bold text-accent uppercase tracking-wide">{t('ett_result')}</h4>
+            <h4 className="text-sm font-bold text-accent uppercase tracking-wide">
+              {t('ett_result')}
+            </h4>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
               <span className="text-muted-foreground">{t('ett_cuffed')}:</span>
               <span className="font-semibold">{result.ettCuffed} mm</span>
@@ -113,7 +131,9 @@ export default function ETTCalculator() {
 
             {result.notes.length > 0 && (
               <div className="text-xs text-clinical-warning mt-1">
-                {result.notes.map((n, i) => <p key={i}>⚠ {t(n)}</p>)}
+                {result.notes.map((n, i) => (
+                  <p key={i}>⚠ {t(n)}</p>
+                ))}
               </div>
             )}
           </CardContent>

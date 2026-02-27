@@ -3,9 +3,15 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 
-const procs = JSON.parse(fs.readFileSync(path.join(root, 'public/data/procedures.v3.json'), 'utf8'));
-const guidelines = JSON.parse(fs.readFileSync(path.join(root, 'public/data/guidelines.v1.json'), 'utf8'));
-const protocoles = JSON.parse(fs.readFileSync(path.join(root, 'public/data/protocoles.v1.json'), 'utf8'));
+const procs = JSON.parse(
+  fs.readFileSync(path.join(root, 'public/data/procedures.v3.json'), 'utf8'),
+);
+const guidelines = JSON.parse(
+  fs.readFileSync(path.join(root, 'public/data/guidelines.v1.json'), 'utf8'),
+);
+const protocoles = JSON.parse(
+  fs.readFileSync(path.join(root, 'public/data/protocoles.v1.json'), 'utf8'),
+);
 const alr = JSON.parse(fs.readFileSync(path.join(root, 'public/data/alr.v1.json'), 'utf8'));
 
 // Escape single quotes for SQL
@@ -20,9 +26,10 @@ let sql = '';
 
 // ── PROCEDURES ──────────────────────────────────────────────────────────────
 sql += '-- ── 12. PROCEDURES ──────────────────────────────────────────\n\n';
-sql += 'INSERT INTO public.procedures (id, specialty, titles, synonyms, content, tags, is_pro) VALUES\n';
+sql +=
+  'INSERT INTO public.procedures (id, specialty, titles, synonyms, content, tags, is_pro) VALUES\n';
 
-const procRows = procs.map(p => {
+const procRows = procs.map((p) => {
   const content = { quick: p.quick || {}, deep: p.deep || {} };
   return `('${escStr(p.id)}', '${escStr(p.specialty)}', '${esc(p.titles || {})}'::jsonb, '${esc(p.synonyms || {})}'::jsonb, '${esc(content)}'::jsonb, '${esc(p.tags || [])}'::jsonb, ${p.is_pro ? 'true' : 'false'})`;
 });
@@ -44,7 +51,7 @@ ON CONFLICT (id) DO UPDATE SET
 sql += '-- ── 13. GUIDELINES ──────────────────────────────────────────\n\n';
 if (guidelines.length > 0) {
   sql += 'INSERT INTO public.guidelines (id, category, titles, items, refs, tags) VALUES\n';
-  const gRows = guidelines.map(g => {
+  const gRows = guidelines.map((g) => {
     const refs = g.references || g.refs || [];
     return `('${escStr(g.id)}', '${escStr(g.category)}', '${esc(g.titles || {})}'::jsonb, '${esc(g.items || {})}'::jsonb, '${esc(refs)}'::jsonb, '${esc(g.tags || [])}'::jsonb)`;
   });
@@ -57,7 +64,7 @@ if (guidelines.length > 0) {
 sql += '-- ── 14. PROTOCOLES ──────────────────────────────────────────\n\n';
 if (protocoles.length > 0) {
   sql += 'INSERT INTO public.protocoles (id, category, titles, steps, refs, tags) VALUES\n';
-  const pRows = protocoles.map(p => {
+  const pRows = protocoles.map((p) => {
     const refs = p.references || p.refs || [];
     return `('${escStr(p.id)}', '${escStr(p.category)}', '${esc(p.titles || {})}'::jsonb, '${esc(p.steps || {})}'::jsonb, '${esc(refs)}'::jsonb, '${esc(p.tags || [])}'::jsonb)`;
   });
@@ -69,8 +76,9 @@ if (protocoles.length > 0) {
 // ── ALR BLOCKS ──────────────────────────────────────────────────────────────
 sql += '-- ── 15. ALR BLOCKS ──────────────────────────────────────────\n\n';
 if (alr.length > 0) {
-  sql += 'INSERT INTO public.alr_blocks (id, region, titles, indications, contraindications, technique, drugs, tags) VALUES\n';
-  const aRows = alr.map(a => {
+  sql +=
+    'INSERT INTO public.alr_blocks (id, region, titles, indications, contraindications, technique, drugs, tags) VALUES\n';
+  const aRows = alr.map((a) => {
     return `('${escStr(a.id)}', '${escStr(a.region)}', '${esc(a.titles || {})}'::jsonb, '${esc(a.indications || {})}'::jsonb, '${esc(a.contraindications || {})}'::jsonb, '${esc(a.technique || {})}'::jsonb, '${esc(a.drugs || {})}'::jsonb, '${esc(a.tags || [])}'::jsonb)`;
   });
   sql += aRows.join(',\n') + '\nON CONFLICT (id) DO NOTHING;\n\n';

@@ -15,7 +15,16 @@ const FIELDS: { key: keyof STOPBANGInputs; label: string }[] = [
   { key: 'male', label: 'gender_male' },
 ];
 
-const EMPTY: STOPBANGInputs = { snore: false, tired: false, observed: false, pressure: false, bmiOver35: false, ageOver50: false, neckOver40: false, male: false };
+const EMPTY: STOPBANGInputs = {
+  snore: false,
+  tired: false,
+  observed: false,
+  pressure: false,
+  bmiOver35: false,
+  ageOver50: false,
+  neckOver40: false,
+  male: false,
+};
 
 export default function StopBangScore() {
   const { t } = useLang();
@@ -25,7 +34,12 @@ export default function StopBangScore() {
   const toggle = (key: keyof STOPBANGInputs) =>
     setInputs((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const riskColor = result.category === 'high' ? 'text-destructive' : result.category === 'moderate' ? 'text-orange-500' : 'text-green-600';
+  const riskColor =
+    result.category === 'high'
+      ? 'text-destructive'
+      : result.category === 'moderate'
+        ? 'text-orange-500'
+        : 'text-green-600';
 
   return (
     <div className="space-y-3">
@@ -40,7 +54,10 @@ export default function StopBangScore() {
       <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
         <span className="text-2xl font-bold text-foreground">{result.score}/8</span>
         <div>
-          <Badge variant={result.category === 'low' ? 'secondary' : 'destructive'} className="text-xs">
+          <Badge
+            variant={result.category === 'low' ? 'secondary' : 'destructive'}
+            className="text-xs"
+          >
             {t(`risk_${result.category}`)}
           </Badge>
           <p className={`text-xs mt-0.5 font-medium ${riskColor}`}>{result.details}</p>

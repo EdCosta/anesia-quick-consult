@@ -5,8 +5,11 @@ import { mergeProcedureData, normalizeProcedure } from '../normalize/normalizePr
 /**
  * Fill only missing procedure fields from JSON fallback (never overwrite DB data).
  */
-export function mergeProcedureFallbackData(dbProcedures: Procedure[], jsonProcedures: Procedure[]): Procedure[] {
-  const jsonMap = new Map(jsonProcedures.map(p => [p.id, p]));
+export function mergeProcedureFallbackData(
+  dbProcedures: Procedure[],
+  jsonProcedures: Procedure[],
+): Procedure[] {
+  const jsonMap = new Map(jsonProcedures.map((p) => [p.id, p]));
   return dbProcedures.map((proc) => {
     const normalized = normalizeProcedure(proc);
     const fallback = jsonMap.get(proc.id);
@@ -17,11 +20,15 @@ export function mergeProcedureFallbackData(dbProcedures: Procedure[], jsonProced
 
 export async function mergeProcedureFallback(dbProcedures: Procedure[]): Promise<Procedure[]> {
   try {
-    const jsonRaw = await fetch('/data/procedures.v3.json').then(r => {
+    const jsonRaw = await fetch('/data/procedures.v3.json').then((r) => {
       if (!r.ok) throw new Error(`procedures.v3.json: ${r.status}`);
       return r.json();
     });
-    const jsonProcedures = validateArray<Procedure>(jsonRaw, ProcedureSchema, 'procedures-fallback');
+    const jsonProcedures = validateArray<Procedure>(
+      jsonRaw,
+      ProcedureSchema,
+      'procedures-fallback',
+    );
     return mergeProcedureFallbackData(dbProcedures, jsonProcedures);
   } catch (_e) {
     return dbProcedures.map(normalizeProcedure);

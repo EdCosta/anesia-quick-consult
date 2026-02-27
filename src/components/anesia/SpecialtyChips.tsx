@@ -61,9 +61,7 @@ export default function SpecialtyChips({
   };
 
   const togglePending = (s: string) => {
-    setPendingSelection((prev) =>
-      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
-    );
+    setPendingSelection((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
 
   const handleChipClick = (s: string) => {
@@ -92,7 +90,9 @@ export default function SpecialtyChips({
         ))}
 
         <button
-          onClick={() => { expanded ? handleClosePanel() : handleOpenPanel(); }}
+          onClick={() => {
+            expanded ? handleClosePanel() : handleOpenPanel();
+          }}
           className={`flex items-center justify-center h-7 w-7 rounded-full transition-colors ${
             expanded
               ? 'bg-primary text-primary-foreground'
@@ -127,7 +127,9 @@ export default function SpecialtyChips({
 
           <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
             {filteredAll.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-3 w-full">{t('no_results')}</p>
+              <p className="text-sm text-muted-foreground text-center py-3 w-full">
+                {t('no_results')}
+              </p>
             ) : (
               filteredAll.map((s) => (
                 <button

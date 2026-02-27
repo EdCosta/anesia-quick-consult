@@ -12,7 +12,9 @@ export function useEntitlements(): EntitlementResult {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
       queryClient.invalidateQueries({ queryKey: ['entitlement'] });
     });
     return () => subscription.unsubscribe();
@@ -21,7 +23,9 @@ export function useEntitlements(): EntitlementResult {
   const { data, isLoading } = useQuery({
     queryKey: ['entitlement'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return null;
       const { data } = await supabase
         .from('user_entitlements')

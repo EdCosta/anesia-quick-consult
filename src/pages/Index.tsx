@@ -70,7 +70,7 @@ export default function Index() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => setShowFloatingSearch(!entry.isIntersecting),
-      { threshold: 0 }
+      { threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -92,7 +92,7 @@ export default function Index() {
   }, [procedureIndex, lang]);
 
   const toggleFavorite = (id: string) => {
-    setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
+    setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
   };
 
   const handleSelectSpecialties = (specs: string[]) => {
@@ -118,7 +118,7 @@ export default function Index() {
           const rec = specialtiesData.find((s) => s.id === id);
           if (!rec) return [id];
           return [id, rec.name.fr, rec.name.en, rec.name.pt].filter(Boolean);
-        })
+        }),
       );
       source = source.filter((p) => resolvedNames.has(p.specialty));
     }
@@ -129,7 +129,15 @@ export default function Index() {
       return [...favs, ...rest];
     }
     return source;
-  }, [searchResults, procedureIndex, selectedSpecialties, showOnlyFavorites, favoritesFirst, favorites, specialtiesData]);
+  }, [
+    searchResults,
+    procedureIndex,
+    selectedSpecialties,
+    showOnlyFavorites,
+    favoritesFirst,
+    favorites,
+    specialtiesData,
+  ]);
 
   const filterResetKey = `${deferredSearchQuery}::${selectedSpecialties.join('|')}::${showOnlyFavorites ? 1 : 0}::${favoritesFirst ? 1 : 0}::${procedureIndex.length}`;
 
@@ -147,16 +155,21 @@ export default function Index() {
   }, [filteredResults.length, visibleCount]);
 
   const favProcedures = useMemo(
-    () => favorites.map((id) => procedureIndex.find((p) => p.id === id)).filter(Boolean) as Procedure[],
-    [favorites, procedureIndex]
+    () =>
+      favorites.map((id) => procedureIndex.find((p) => p.id === id)).filter(Boolean) as Procedure[],
+    [favorites, procedureIndex],
   );
 
   const recentProcedures = useMemo(
-    () => recents.map((id) => procedureIndex.find((p) => p.id === id)).filter(Boolean) as Procedure[],
-    [recents, procedureIndex]
+    () =>
+      recents.map((id) => procedureIndex.find((p) => p.id === id)).filter(Boolean) as Procedure[],
+    [recents, procedureIndex],
   );
 
-  const handleClearSearch = () => { setSearchQuery(''); inputRef.current?.blur(); };
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    inputRef.current?.blur();
+  };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && filteredResults.length > 0) {
@@ -186,7 +199,9 @@ export default function Index() {
   const INITIAL_PROC_COUNT = 8;
   const totalProcs = visibleResults.length + lockedResults.length;
   const showProcExpand = !proceduresExpanded && totalProcs > INITIAL_PROC_COUNT;
-  const displayVisible = proceduresExpanded ? visibleResults : visibleResults.slice(0, INITIAL_PROC_COUNT);
+  const displayVisible = proceduresExpanded
+    ? visibleResults
+    : visibleResults.slice(0, INITIAL_PROC_COUNT);
   const displayLocked = proceduresExpanded
     ? lockedResults
     : lockedResults.slice(0, Math.max(0, INITIAL_PROC_COUNT - displayVisible.length));
@@ -204,7 +219,10 @@ export default function Index() {
         className="h-12 w-full rounded-xl border border-border bg-card pl-12 pr-10 text-base text-foreground placeholder:text-muted-foreground clinical-shadow focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
       />
       {searchQuery && (
-        <button onClick={handleClearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+        <button
+          onClick={handleClearSearch}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        >
           <X className="h-4 w-4" />
         </button>
       )}
@@ -219,12 +237,22 @@ export default function Index() {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
       {items.map((p) => (
         <div key={p.id} onClick={() => handleProcedureClick(p)}>
-          <ProcedureCard procedure={p} isFavorite={favorites.includes(p.id)} onToggleFavorite={toggleFavorite} />
+          <ProcedureCard
+            procedure={p}
+            isFavorite={favorites.includes(p.id)}
+            onToggleFavorite={toggleFavorite}
+          />
         </div>
       ))}
       {locked.map((p) => (
         <div key={p.id}>
-          <ProcedureCard procedure={p} isFavorite={false} onToggleFavorite={() => {}} locked onLockedClick={() => setShowProGate(true)} />
+          <ProcedureCard
+            procedure={p}
+            isFavorite={false}
+            onToggleFavorite={() => {}}
+            locked
+            onLockedClick={() => setShowProGate(true)}
+          />
         </div>
       ))}
     </div>
@@ -276,7 +304,10 @@ export default function Index() {
                 className="h-10 w-full rounded-lg border border-border bg-card pl-10 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
               />
               {searchQuery && (
-                <button onClick={handleClearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
                   <X className="h-3.5 w-3.5" />
                 </button>
               )}
@@ -305,16 +336,24 @@ export default function Index() {
               ))}
             </div>
           ) : (
-            <SpecialtyChips specialties={sortedSpecialties} selected={selectedSpecialties} onSelect={handleSelectSpecialties} />
+            <SpecialtyChips
+              specialties={sortedSpecialties}
+              selected={selectedSpecialties}
+              onSelect={handleSelectSpecialties}
+            />
           )}
         </div>
 
         {isSearching && (
           <div className="w-full max-w-lg mt-3">
             <h2 className="text-sm font-semibold text-muted-foreground mb-2">{t('results')}</h2>
-            {indexLoading && procedureIndex.length === 0 ? renderLoadingSkeleton() : filteredResults.length === 0 ? (
+            {indexLoading && procedureIndex.length === 0 ? (
+              renderLoadingSkeleton()
+            ) : filteredResults.length === 0 ? (
               <p className="text-center text-sm text-muted-foreground py-6">{t('no_results')}</p>
-            ) : renderProcedureGrid(visibleResults, lockedResults)}
+            ) : (
+              renderProcedureGrid(visibleResults, lockedResults)
+            )}
           </div>
         )}
       </div>
@@ -326,9 +365,18 @@ export default function Index() {
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-sm font-bold text-foreground">{t('favorites')}</h2>
                 {showFavsToggle && (
-                  <button onClick={() => setFavsExpanded(!favsExpanded)} className="flex items-center gap-1 text-xs text-accent hover:underline">
-                    {favsExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                    {favsExpanded ? t('close') : `${t('view_all_procedures')} (${favProcedures.length})`}
+                  <button
+                    onClick={() => setFavsExpanded(!favsExpanded)}
+                    className="flex items-center gap-1 text-xs text-accent hover:underline"
+                  >
+                    {favsExpanded ? (
+                      <ChevronUp className="h-3.5 w-3.5" />
+                    ) : (
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    )}
+                    {favsExpanded
+                      ? t('close')
+                      : `${t('view_all_procedures')} (${favProcedures.length})`}
                   </button>
                 )}
               </div>
@@ -346,14 +394,25 @@ export default function Index() {
             <section ref={recentsRef}>
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-sm font-bold text-foreground">{t('recents')}</h2>
-                <button onClick={() => setRecents([])} className="p-1 text-muted-foreground hover:text-foreground transition-colors" title={t('clear_recents')}>
+                <button
+                  onClick={() => setRecents([])}
+                  className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                  title={t('clear_recents')}
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
               <div className="flex overflow-x-auto gap-2 pb-2 snap-x scrollbar-none">
                 {recentProcedures.map((p) => (
-                  <Link key={p.id} to={`/p/${p.id}`} onClick={() => handleProcedureClick(p)} className="snap-start shrink-0 w-40 rounded-lg border bg-card p-3 clinical-shadow hover:clinical-shadow-md transition-all hover:-translate-y-0.5">
-                    <p className="text-xs font-semibold text-card-foreground leading-tight line-clamp-2">{resolveStr(p.titles)}</p>
+                  <Link
+                    key={p.id}
+                    to={`/p/${p.id}`}
+                    onClick={() => handleProcedureClick(p)}
+                    className="snap-start shrink-0 w-40 rounded-lg border bg-card p-3 clinical-shadow hover:clinical-shadow-md transition-all hover:-translate-y-0.5"
+                  >
+                    <p className="text-xs font-semibold text-card-foreground leading-tight line-clamp-2">
+                      {resolveStr(p.titles)}
+                    </p>
                     <Badge variant="secondary" className="mt-1.5 text-[10px]">
                       {getSpecialtyDisplayName(p.specialty, specialtiesData, lang)}
                     </Badge>
@@ -382,7 +441,9 @@ export default function Index() {
                   </button>
                 </div>
               </div>
-              {indexLoading && procedureIndex.length === 0 ? renderLoadingSkeleton() : filteredResults.length === 0 ? (
+              {indexLoading && procedureIndex.length === 0 ? (
+                renderLoadingSkeleton()
+              ) : filteredResults.length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
               ) : (
                 <>
@@ -414,26 +475,62 @@ export default function Index() {
       <div className="fixed bottom-6 right-6 z-40">
         <Popover open={fabOpen} onOpenChange={setFabOpen}>
           <PopoverTrigger asChild>
-            <button className="h-14 w-14 rounded-full bg-accent text-accent-foreground shadow-lg hover:shadow-xl flex items-center justify-center transition-all active:scale-95" aria-label={t('quick_access')}>
+            <button
+              className="h-14 w-14 rounded-full bg-accent text-accent-foreground shadow-lg hover:shadow-xl flex items-center justify-center transition-all active:scale-95"
+              aria-label={t('quick_access')}
+            >
               <Zap className="h-6 w-6" />
             </button>
           </PopoverTrigger>
           <PopoverContent side="top" align="end" className="w-52 p-2">
             <div className="flex flex-col gap-1">
-              <button onClick={() => { setShowOnlyFavorites(prev => !prev); scrollTo(proceduresRef); setFabOpen(false); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left">
-                <Star className="h-4 w-4 text-accent" />{t('only_favorites')}
+              <button
+                onClick={() => {
+                  setShowOnlyFavorites((prev) => !prev);
+                  scrollTo(proceduresRef);
+                  setFabOpen(false);
+                }}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left"
+              >
+                <Star className="h-4 w-4 text-accent" />
+                {t('only_favorites')}
               </button>
-              <button onClick={() => { scrollTo(recentsRef); setFabOpen(false); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left">
-                <Clock className="h-4 w-4 text-accent" />{t('recents')}
+              <button
+                onClick={() => {
+                  scrollTo(recentsRef);
+                  setFabOpen(false);
+                }}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left"
+              >
+                <Clock className="h-4 w-4 text-accent" />
+                {t('recents')}
               </button>
-              <button onClick={() => { navigate('/calculateurs'); setFabOpen(false); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left">
-                <Calculator className="h-4 w-4 text-accent" />{t('ett_calculator')}
+              <button
+                onClick={() => {
+                  navigate('/calculateurs');
+                  setFabOpen(false);
+                }}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left"
+              >
+                <Calculator className="h-4 w-4 text-accent" />
+                {t('ett_calculator')}
               </button>
-              <button onClick={() => { navigate('/preanest'); setFabOpen(false); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left">
-                <Stethoscope className="h-4 w-4 text-accent" />{t('preanest')}
+              <button
+                onClick={() => {
+                  navigate('/preanest');
+                  setFabOpen(false);
+                }}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left"
+              >
+                <Stethoscope className="h-4 w-4 text-accent" />
+                {t('preanest')}
               </button>
-              <button onClick={clearAll} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left">
-                <Eraser className="h-4 w-4 text-accent" />{t('clear_filters')}
+              <button
+                onClick={clearAll}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-muted transition-colors text-left"
+              >
+                <Eraser className="h-4 w-4 text-accent" />
+                {t('clear_filters')}
               </button>
             </div>
           </PopoverContent>

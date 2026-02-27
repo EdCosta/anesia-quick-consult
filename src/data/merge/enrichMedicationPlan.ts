@@ -7,7 +7,10 @@ const EXTRA_DOSE_RULES: Record<string, DoseRule[]> = {
       route: 'IVD',
       mg_per_kg: null,
       max_mg: null,
-      notes: ['Sédation IVD : bolus 0.5-1 mg/kg, titrer selon effet', 'Entretien possible en AIVOC 1.5-3 ug/mL'],
+      notes: [
+        'Sédation IVD : bolus 0.5-1 mg/kg, titrer selon effet',
+        'Entretien possible en AIVOC 1.5-3 ug/mL',
+      ],
       unit_override: 'IVD / AIVOC',
     },
     {
@@ -79,13 +82,23 @@ const EXTRA_DOSE_RULES: Record<string, DoseRule[]> = {
       route: 'IVSE',
       mg_per_kg: null,
       max_mg: null,
-      notes: ['Bolus initial 0.6-1 mg/kg puis entretien 0.3-0.6 mg/kg/h', 'Monitorage TOF/PTC recommande'],
+      notes: [
+        'Bolus initial 0.6-1 mg/kg puis entretien 0.3-0.6 mg/kg/h',
+        'Monitorage TOF/PTC recommande',
+      ],
       unit_override: 'mg/kg/h',
     },
   ],
 };
 
-const GA_DRUG_IDS = new Set(['propofol', 'rocuronium', 'sufentanil', 'fentanyl', 'remifentanil', 'sevoflurane']);
+const GA_DRUG_IDS = new Set([
+  'propofol',
+  'rocuronium',
+  'sufentanil',
+  'fentanyl',
+  'remifentanil',
+  'sevoflurane',
+]);
 
 const PROCEDURE_MED_PLAN: Record<string, DrugRef[]> = {
   pth: [
@@ -141,9 +154,7 @@ const PROCEDURE_MED_PLAN: Record<string, DrugRef[]> = {
     { drug_id: 'propofol', indication_tag: 'induction' },
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
   ],
-  fracture_radius: [
-    { drug_id: 'propofol', indication_tag: 'sédation' },
-  ],
+  fracture_radius: [{ drug_id: 'propofol', indication_tag: 'sédation' }],
   osteosynthese_cheville: [
     { drug_id: 'propofol', indication_tag: 'induction' },
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
@@ -213,9 +224,10 @@ function hasGeneralAnesthesiaProfile(proc: Procedure): boolean {
   const quickFr = proc.quick?.fr;
   if (!quickFr) return false;
   const text = quickFr.intraop.join(' ').toLowerCase();
-  const textualMarker = /(anesthesie generale|ag\b|iotr|iot\b|intubation|masque larynge|isr|tiva)/i.test(
-    text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  );
+  const textualMarker =
+    /(anesthesie generale|ag\b|iotr|iot\b|intubation|masque larynge|isr|tiva)/i.test(
+      text.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
+    );
   const drugMarker = quickFr.drugs.some((d) => GA_DRUG_IDS.has(d.drug_id));
   return textualMarker || drugMarker;
 }
@@ -225,7 +237,10 @@ function hasTivaProfile(proc: Procedure): boolean {
   if (!quickFr) return false;
   const text = quickFr.intraop.join(' ').toLowerCase();
   const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  return normalized.includes('tiva') || quickFr.drugs.some((d) => d.indication_tag.toLowerCase() === 'tiva');
+  return (
+    normalized.includes('tiva') ||
+    quickFr.drugs.some((d) => d.indication_tag.toLowerCase() === 'tiva')
+  );
 }
 
 function addDefaultMedicationPhases(proc: Procedure): Procedure {
@@ -266,11 +281,16 @@ export function enrichMedicationPlan(data: { procedures: Procedure[]; drugs: Dru
     const extras = EXTRA_DOSE_RULES[drug.id] ?? [];
     if (extras.length === 0) return drug;
     const tags = new Set(drug.dose_rules.map((rule) => rule.indication_tag));
-    const mergedRules = [...drug.dose_rules, ...extras.filter((rule) => !tags.has(rule.indication_tag))];
+    const mergedRules = [
+      ...drug.dose_rules,
+      ...extras.filter((rule) => !tags.has(rule.indication_tag)),
+    ];
     return { ...drug, dose_rules: mergedRules };
   });
 
-  const procedures = data.procedures.map(addDefaultMedicationPhases).map(addProcedureMedicationPlan);
+  const procedures = data.procedures
+    .map(addDefaultMedicationPhases)
+    .map(addProcedureMedicationPlan);
 
   return { procedures, drugs };
 }

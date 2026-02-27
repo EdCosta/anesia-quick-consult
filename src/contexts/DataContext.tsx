@@ -4,8 +4,17 @@ import type { DataState } from '@/data/hooks/useDataLoader';
 import { DataErrorFallback } from '@/components/DataErrorFallback';
 
 export type {
-  DrugRef, Reference, ProcedureQuick, ProcedureDeep, Procedure,
-  DoseRule, Concentration, Drug, Guideline, Protocole, ALRBlock,
+  DrugRef,
+  Reference,
+  ProcedureQuick,
+  ProcedureDeep,
+  Procedure,
+  DoseRule,
+  Concentration,
+  Drug,
+  Guideline,
+  Protocole,
+  ALRBlock,
 } from '@/lib/types';
 
 export type DataContextType = DataState;

@@ -11,15 +11,19 @@ const FIELDS: { key: keyof ApfelInputs; label: string }[] = [
   { key: 'postopOpioids', label: 'postop_opioids' },
 ];
 
-const EMPTY: ApfelInputs = { femaleGender: false, nonSmoker: false, ponvHistory: false, postopOpioids: false };
+const EMPTY: ApfelInputs = {
+  femaleGender: false,
+  nonSmoker: false,
+  ponvHistory: false,
+  postopOpioids: false,
+};
 
 export default function ApfelScore() {
   const { t } = useLang();
   const [inputs, setInputs] = useState<ApfelInputs>(EMPTY);
   const result = calcApfel(inputs);
 
-  const toggle = (key: keyof ApfelInputs) =>
-    setInputs((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggle = (key: keyof ApfelInputs) => setInputs((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="space-y-3">
@@ -34,7 +38,10 @@ export default function ApfelScore() {
       <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
         <span className="text-2xl font-bold text-foreground">{result.score}/4</span>
         <div>
-          <Badge variant={result.category === 'low' ? 'secondary' : 'destructive'} className="text-xs">
+          <Badge
+            variant={result.category === 'low' ? 'secondary' : 'destructive'}
+            className="text-xs"
+          >
             {t(`risk_${result.category}`)}
           </Badge>
           <p className="text-xs mt-0.5 text-muted-foreground">{result.details}</p>

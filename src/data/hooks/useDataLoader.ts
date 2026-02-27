@@ -33,7 +33,7 @@ export function useDataLoader(): DataState {
   const cachedFull = cachedFullRef.current;
 
   const [procedureIndex, setProcedureIndex] = useState<Procedure[]>(
-    cachedIndex?.procedures ?? (cachedFull ? projectProcedureIndex(cachedFull.procedures) : [])
+    cachedIndex?.procedures ?? (cachedFull ? projectProcedureIndex(cachedFull.procedures) : []),
   );
   const [procedures, setProcedures] = useState<Procedure[]>(cachedFull?.procedures ?? []);
   const [drugs, setDrugs] = useState<Drug[]>(cachedFull?.drugs ?? []);
@@ -41,7 +41,7 @@ export function useDataLoader(): DataState {
   const [protocoles, setProtocoles] = useState<Protocole[]>(cachedFull?.protocoles ?? []);
   const [alrBlocks, setAlrBlocks] = useState<ALRBlock[]>(cachedFull?.alrBlocks ?? []);
   const [specialtiesData, setSpecialtiesData] = useState<SpecialtyRecord[]>(
-    cachedIndex?.specialtiesData ?? cachedFull?.specialtiesData ?? []
+    cachedIndex?.specialtiesData ?? cachedFull?.specialtiesData ?? [],
   );
   const [indexLoading, setIndexLoading] = useState(!cachedIndex && !cachedFull);
   const [loading, setLoading] = useState(!cachedFull);
@@ -58,7 +58,7 @@ export function useDataLoader(): DataState {
         startTransition(() => {
           setProcedureIndex(snapshot.procedures);
           setSpecialtiesData((current) =>
-            snapshot.specialtiesData.length > 0 ? snapshot.specialtiesData : current
+            snapshot.specialtiesData.length > 0 ? snapshot.specialtiesData : current,
           );
           setIndexLoading(false);
         });
@@ -94,7 +94,9 @@ export function useDataLoader(): DataState {
     };
 
     void loadIndex();
-    cancelIdle = scheduleIdleTask(() => { void loadFull(); });
+    cancelIdle = scheduleIdleTask(() => {
+      void loadFull();
+    });
 
     return () => {
       cancelled = true;
@@ -103,7 +105,10 @@ export function useDataLoader(): DataState {
   }, []);
 
   const getDrug = useCallback((id: string) => drugs.find((d) => d.id === id), [drugs]);
-  const getProcedure = useCallback((id: string) => procedures.find((p) => p.id === id), [procedures]);
+  const getProcedure = useCallback(
+    (id: string) => procedures.find((p) => p.id === id),
+    [procedures],
+  );
   const specialties = useMemo(() => {
     const source = procedureIndex.length > 0 ? procedureIndex : procedures;
     const set = new Set(source.map((p) => p.specialty).filter(Boolean));

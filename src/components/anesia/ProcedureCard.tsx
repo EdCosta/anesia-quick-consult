@@ -15,7 +15,13 @@ interface ProcedureCardProps {
   onLockedClick?: () => void;
 }
 
-export default function ProcedureCard({ procedure, isFavorite, onToggleFavorite, locked, onLockedClick }: ProcedureCardProps) {
+export default function ProcedureCard({
+  procedure,
+  isFavorite,
+  onToggleFavorite,
+  locked,
+  onLockedClick,
+}: ProcedureCardProps) {
   const { resolveStr, lang } = useLang();
   const { specialtiesData } = useData();
   const title = resolveStr(procedure.titles);
@@ -26,13 +32,17 @@ export default function ProcedureCard({ procedure, isFavorite, onToggleFavorite,
       <Card className="clinical-shadow opacity-60 cursor-pointer" onClick={onLockedClick}>
         <CardContent className="flex items-center gap-3 p-4">
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold leading-tight text-card-foreground">
-              {title}
-            </h3>
+            <h3 className="text-sm font-semibold leading-tight text-card-foreground">{title}</h3>
             <div className="flex items-center gap-1.5 mt-1.5">
-              <Badge variant="secondary" className="text-[11px]">{specialtyDisplayName}</Badge>
-              <Badge variant="outline" className="text-[10px] gap-0.5 border-muted text-muted-foreground">
-                <Lock className="h-2.5 w-2.5" />PRO
+              <Badge variant="secondary" className="text-[11px]">
+                {specialtyDisplayName}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="text-[10px] gap-0.5 border-muted text-muted-foreground"
+              >
+                <Lock className="h-2.5 w-2.5" />
+                PRO
               </Badge>
             </div>
           </div>
@@ -47,16 +57,15 @@ export default function ProcedureCard({ procedure, isFavorite, onToggleFavorite,
       <CardContent className="flex items-center gap-3 p-4">
         <Link to={`/p/${procedure.id}`} className="min-w-0 flex-1 flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold leading-tight text-card-foreground">
-              {title}
-            </h3>
+            <h3 className="text-sm font-semibold leading-tight text-card-foreground">{title}</h3>
             <div className="flex items-center gap-1.5 mt-1.5">
               <Badge variant="secondary" className="text-[11px]">
                 {specialtyDisplayName}
               </Badge>
               {procedure.is_pro && (
                 <Badge variant="outline" className="text-[10px] gap-0.5 border-accent text-accent">
-                  <Crown className="h-2.5 w-2.5" />PRO
+                  <Crown className="h-2.5 w-2.5" />
+                  PRO
                 </Badge>
               )}
             </div>
@@ -64,7 +73,10 @@ export default function ProcedureCard({ procedure, isFavorite, onToggleFavorite,
           <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
         </Link>
         <button
-          onClick={e => { e.preventDefault(); onToggleFavorite(procedure.id); }}
+          onClick={(e) => {
+            e.preventDefault();
+            onToggleFavorite(procedure.id);
+          }}
           className="shrink-0 p-1.5 transition-colors"
           aria-label="Toggle favorite"
         >

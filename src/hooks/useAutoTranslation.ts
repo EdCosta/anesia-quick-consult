@@ -18,7 +18,7 @@ export function useAutoTranslation(
   lang: Lang,
   section: ProcedureTranslationSection,
   contentFr: any | null,
-  enabled: boolean
+  enabled: boolean,
 ): AutoTranslationResult {
   const { data, isLoading, error } = useQuery({
     queryKey: ['auto-translation', procedureId, lang, section],
@@ -39,7 +39,8 @@ export function useAutoTranslation(
             return {
               translated: row.translated_content,
               source: 'database' as const,
-              reviewStatus: (row.review_status as 'pending' | 'approved' | 'rejected' | null) ?? 'pending',
+              reviewStatus:
+                (row.review_status as 'pending' | 'approved' | 'rejected' | null) ?? 'pending',
             };
           }
         }
@@ -57,12 +58,17 @@ export function useAutoTranslation(
             source: 'cache' as const,
             reviewStatus: 'pending' as const,
           };
-        } catch { /* ignore bad cache */ }
+        } catch {
+          /* ignore bad cache */
+        }
       }
 
-      const { data: fnData, error: fnError } = await supabase.functions.invoke('translate-content', {
-        body: { content: contentFr, targetLang: lang },
-      });
+      const { data: fnData, error: fnError } = await supabase.functions.invoke(
+        'translate-content',
+        {
+          body: { content: contentFr, targetLang: lang },
+        },
+      );
 
       if (fnError) throw new Error(fnError.message || 'Translation failed');
       if (fnData?.error) throw new Error(fnData.error);
@@ -74,7 +80,7 @@ export function useAutoTranslation(
       return {
         translated,
         source: 'generated' as const,
-        reviewStatus: translated ? 'pending' as const : null,
+        reviewStatus: translated ? ('pending' as const) : null,
       };
     },
     enabled: enabled && lang !== 'fr' && !!contentFr && !!procedureId,

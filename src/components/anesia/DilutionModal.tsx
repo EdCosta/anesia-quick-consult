@@ -1,12 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useLang } from '@/contexts/LanguageContext';
 import { calculateDilution } from '@/lib/dilution';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
 
 interface DilutionModalProps {
@@ -26,9 +21,7 @@ export default function DilutionModal({
 }: DilutionModalProps) {
   const { t } = useLang();
 
-  const [stockConc, setStockConc] = useState<string>(
-    initialStockMgPerMl?.toString() ?? ''
-  );
+  const [stockConc, setStockConc] = useState<string>(initialStockMgPerMl?.toString() ?? '');
   const [finalVolume, setFinalVolume] = useState<string>('');
   const [syringeSize, setSyringeSize] = useState<number | null>(null);
   const [targetConc, setTargetConc] = useState<string>('');
@@ -95,9 +88,7 @@ export default function DilutionModal({
 
           {/* Final volume */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground">
-              {t('final_volume')}
-            </label>
+            <label className="text-xs font-medium text-muted-foreground">{t('final_volume')}</label>
             <input
               type="number"
               value={finalVolume}
@@ -110,9 +101,7 @@ export default function DilutionModal({
 
           {/* Syringe size buttons */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground">
-              {t('syringe_size')}
-            </label>
+            <label className="text-xs font-medium text-muted-foreground">{t('syringe_size')}</label>
             <div className="mt-1 flex gap-2">
               {SYRINGE_SIZES.map((size) => (
                 <button
@@ -146,15 +135,11 @@ export default function DilutionModal({
           </div>
 
           {/* Or separator */}
-          <div className="text-center text-xs text-muted-foreground">
-            — {t('or')} —
-          </div>
+          <div className="text-center text-xs text-muted-foreground">— {t('or')} —</div>
 
           {/* Desired dose */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground">
-              {t('desired_dose')}
-            </label>
+            <label className="text-xs font-medium text-muted-foreground">{t('desired_dose')}</label>
             <input
               type="number"
               value={desiredDose}
@@ -168,25 +153,18 @@ export default function DilutionModal({
           {/* Result */}
           {result && result.volumeDrug_ml !== null && (
             <div className="rounded-lg border border-accent/30 bg-accent/5 p-3 space-y-1">
-              <p className="text-xs font-semibold text-accent">
-                {t('dilution_result_label')}
-              </p>
+              <p className="text-xs font-semibold text-accent">{t('dilution_result_label')}</p>
               <p className="text-sm text-foreground">
                 {t('dilution_draw')}{' '}
-                <span className="font-bold text-primary">
-                  {result.volumeDrug_ml} mL
-                </span>{' '}
+                <span className="font-bold text-primary">{result.volumeDrug_ml} mL</span>{' '}
                 {t('dilution_of_drug')} +{' '}
-                <span className="font-bold text-primary">
-                  {result.volumeDiluent_ml} mL
-                </span>{' '}
+                <span className="font-bold text-primary">{result.volumeDiluent_ml} mL</span>{' '}
                 {t('dilution_add_diluent')}
               </p>
               {result.finalConcentration_mg_per_ml !== null && (
                 <p className="text-xs text-muted-foreground">
                   = {(result.volumeDrug_ml! + result.volumeDiluent_ml!).toFixed(1)} mL{' '}
-                  {t('dilution_at_conc')}{' '}
-                  {result.finalConcentration_mg_per_ml} mg/mL
+                  {t('dilution_at_conc')} {result.finalConcentration_mg_per_ml} mg/mL
                 </p>
               )}
             </div>

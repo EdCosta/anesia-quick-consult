@@ -8,25 +8,25 @@ const DrugRefSchema = z.object({
 });
 
 const ProcedureQuickFrSchema = z.object({
-  preop:     z.array(z.string()).default([]),
-  intraop:   z.array(z.string()).default([]),
-  postop:    z.array(z.string()).default([]),
+  preop: z.array(z.string()).default([]),
+  intraop: z.array(z.string()).default([]),
+  postop: z.array(z.string()).default([]),
   red_flags: z.array(z.string()).default([]),
-  drugs:     z.array(DrugRefSchema).default([]),
+  drugs: z.array(DrugRefSchema).default([]),
 });
 
 const DoseRuleSchema = z.object({
   indication_tag: z.string(),
-  route:          z.string(),
-  mg_per_kg:      z.number().nullable(),
-  max_mg:         z.number().nullable(),
-  notes:          z.array(z.string()).default([]),
-  unit_override:  z.string().optional(),
-  dose_scalar:    z.enum(['TBW', 'IBW', 'LBW', 'AdjBW', 'TITRATE']).optional(),
+  route: z.string(),
+  mg_per_kg: z.number().nullable(),
+  max_mg: z.number().nullable(),
+  notes: z.array(z.string()).default([]),
+  unit_override: z.string().optional(),
+  dose_scalar: z.enum(['TBW', 'IBW', 'LBW', 'AdjBW', 'TITRATE']).optional(),
 });
 
 const ConcentrationSchema = z.object({
-  label:     z.string(),
+  label: z.string(),
   mg_per_ml: z.number().nullable(),
 });
 
@@ -59,18 +59,18 @@ const StructuredReferenceSchema = z.object({
 
 export const ProcedureSchema = z
   .object({
-    id:       z.string(),
+    id: z.string(),
     specialty: z.string(),
-    titles:   z.object({ fr: z.string() }).passthrough(),
-    quick:    z.object({ fr: ProcedureQuickFrSchema }).passthrough(),
+    titles: z.object({ fr: z.string() }).passthrough(),
+    quick: z.object({ fr: ProcedureQuickFrSchema }).passthrough(),
   })
   .passthrough();
 
 export const DrugSchema = z
   .object({
-    id:             z.string(),
-    name:           z.object({ fr: z.string() }).passthrough(),
-    dose_rules:     z.array(DoseRuleSchema).optional().default([]),
+    id: z.string(),
+    name: z.object({ fr: z.string() }).passthrough(),
+    dose_rules: z.array(DoseRuleSchema).optional().default([]),
     concentrations: z.array(ConcentrationSchema).optional().default([]),
     presentations: z.array(DrugPresentationSchema).optional().default([]),
     standard_dilutions: z.array(StandardDilutionSchema).optional().default([]),
@@ -80,12 +80,12 @@ export const DrugSchema = z
 
 export const GuidelineSchema = z
   .object({
-    id:          z.string(),
-    category:    z.string(),
-    titles:      z.object({ fr: z.string() }).passthrough(),
-    items:       z.object({ fr: z.array(z.string()) }).passthrough(),
-    references:  z.array(StructuredReferenceSchema).optional().default([]),
-    tags:        z.array(z.string()).optional().default([]),
+    id: z.string(),
+    category: z.string(),
+    titles: z.object({ fr: z.string() }).passthrough(),
+    items: z.object({ fr: z.array(z.string()) }).passthrough(),
+    references: z.array(StructuredReferenceSchema).optional().default([]),
+    tags: z.array(z.string()).optional().default([]),
     specialties: z.array(z.string()).optional().default([]),
     version: z.string().optional(),
     source: z.string().optional(),
@@ -97,12 +97,12 @@ export const GuidelineSchema = z
 
 export const ProtocoleSchema = z
   .object({
-    id:       z.string(),
+    id: z.string(),
     category: z.string(),
-    titles:   z.object({ fr: z.string() }).passthrough(),
-    steps:    z.object({ fr: z.array(z.string()) }).passthrough(),
+    titles: z.object({ fr: z.string() }).passthrough(),
+    steps: z.object({ fr: z.array(z.string()) }).passthrough(),
     references: z.array(StructuredReferenceSchema).optional().default([]),
-    tags:     z.array(z.string()).optional().default([]),
+    tags: z.array(z.string()).optional().default([]),
     version: z.string().optional(),
     source: z.string().optional(),
     published_at: z.string().optional(),
@@ -113,10 +113,10 @@ export const ProtocoleSchema = z
 
 export const ALRBlockSchema = z
   .object({
-    id:     z.string(),
+    id: z.string(),
     region: z.string(),
     titles: z.object({ fr: z.string() }).passthrough(),
-    tags:   z.array(z.string()).optional().default([]),
+    tags: z.array(z.string()).optional().default([]),
   })
   .passthrough();
 

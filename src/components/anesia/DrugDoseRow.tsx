@@ -38,7 +38,7 @@ export default function DrugDoseRow({
   const displayMax = rule.max_mg !== null ? rule.max_mg * displayMultiplier : null;
 
   const validConcentrations = drug.concentrations.filter(
-    (c) => c.mg_per_ml !== null && c.mg_per_ml > 0
+    (c) => c.mg_per_ml !== null && c.mg_per_ml > 0,
   );
 
   const currentConc = drug.concentrations[selectedConc] ?? null;
@@ -49,7 +49,13 @@ export default function DrugDoseRow({
 
   const scalarLabel = (s: string | null) => {
     if (!s) return '';
-    const map: Record<string, string> = { TBW: 'TBW', IBW: t('ibw'), LBW: t('lbw'), AdjBW: t('adjbw'), TITRATE: t('titrate_to_effect') };
+    const map: Record<string, string> = {
+      TBW: 'TBW',
+      IBW: t('ibw'),
+      LBW: t('lbw'),
+      AdjBW: t('adjbw'),
+      TITRATE: t('titrate_to_effect'),
+    };
     return map[s] || s;
   };
 
@@ -79,26 +85,23 @@ export default function DrugDoseRow({
             </div>
 
             {/* No calc possible: protocol local */}
-            {!doseResult.canCalc &&
-              doseResult.reasonIfNoCalc === 'protocol_local' && (
-                <p className="mt-1 text-xs italic text-accent-foreground">
-                  {rule.unit_override
-                    ? `${rule.unit_override} — ${t('protocol_local')}`
-                    : t('protocol_local')}
-                </p>
-              )}
+            {!doseResult.canCalc && doseResult.reasonIfNoCalc === 'protocol_local' && (
+              <p className="mt-1 text-xs italic text-accent-foreground">
+                {rule.unit_override
+                  ? `${rule.unit_override} — ${t('protocol_local')}`
+                  : t('protocol_local')}
+              </p>
+            )}
 
             {/* No calc: missing weight */}
-            {!doseResult.canCalc &&
-              doseResult.reasonIfNoCalc === 'enter_weight' && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {displayDosePerKg} {displayUnit}/kg
-                  {displayMax !== null &&
-                    ` · ${t('max_dose')}: ${displayMax} ${displayUnit}`}
-                  {' · '}
-                  <span className="italic">{t('enter_weight')}</span>
-                </p>
-              )}
+            {!doseResult.canCalc && doseResult.reasonIfNoCalc === 'enter_weight' && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {displayDosePerKg} {displayUnit}/kg
+                {displayMax !== null && ` · ${t('max_dose')}: ${displayMax} ${displayUnit}`}
+                {' · '}
+                <span className="italic">{t('enter_weight')}</span>
+              </p>
+            )}
 
             {/* Calc OK */}
             {doseResult.canCalc && doseResult.doseMgFinal !== null && (
@@ -112,7 +115,11 @@ export default function DrugDoseRow({
                   </span>
                 )}
                 <span className="font-semibold text-primary">
-                  {t('dose_calc')}: {isMcg ? Math.round(doseResult.doseMgFinal * 1000 * 10) / 10 : doseResult.doseMgFinal} {displayUnit}
+                  {t('dose_calc')}:{' '}
+                  {isMcg
+                    ? Math.round(doseResult.doseMgFinal * 1000 * 10) / 10
+                    : doseResult.doseMgFinal}{' '}
+                  {displayUnit}
                 </span>
                 {doseResult.volumeMl !== null ? (
                   <span className="font-semibold text-primary">
@@ -145,14 +152,28 @@ export default function DrugDoseRow({
                       <HelpCircle className="h-3 w-3" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-72 text-xs space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                  <PopoverContent
+                    className="w-72 text-xs space-y-1.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <p className="font-semibold text-foreground">{t('dose_rationale')}</p>
-                    <p><strong>{t('scalar_used')}:</strong> {scalarLabel(doseResult.scalarUsed)}</p>
-                    <p><strong>{t('weight_kg')}:</strong> {doseResult.weightUsed} kg</p>
                     <p>
-                      {displayDosePerKg} {displayUnit}/kg × {doseResult.weightUsed} kg = {isMcg ? Math.round((doseResult.doseMgRaw ?? 0) * 1000 * 10) / 10 : doseResult.doseMgRaw} {displayUnit}
+                      <strong>{t('scalar_used')}:</strong> {scalarLabel(doseResult.scalarUsed)}
+                    </p>
+                    <p>
+                      <strong>{t('weight_kg')}:</strong> {doseResult.weightUsed} kg
+                    </p>
+                    <p>
+                      {displayDosePerKg} {displayUnit}/kg × {doseResult.weightUsed} kg ={' '}
+                      {isMcg
+                        ? Math.round((doseResult.doseMgRaw ?? 0) * 1000 * 10) / 10
+                        : doseResult.doseMgRaw}{' '}
+                      {displayUnit}
                       {displayMax !== null && doseResult.doseMgRaw !== doseResult.doseMgFinal && (
-                        <span className="text-destructive"> → {t('max_dose')} {displayMax} {displayUnit}</span>
+                        <span className="text-destructive">
+                          {' '}
+                          → {t('max_dose')} {displayMax} {displayUnit}
+                        </span>
                       )}
                     </p>
                     <p className="italic text-muted-foreground">{t('validate_clinically')}</p>
@@ -183,9 +204,7 @@ export default function DrugDoseRow({
             {/* Concentration selector */}
             {validConcentrations.length > 1 && (
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs text-muted-foreground">
-                  {t('concentration')}:
-                </span>
+                <span className="text-xs text-muted-foreground">{t('concentration')}:</span>
                 {validConcentrations.map((c, i) => {
                   const origIdx = drug.concentrations.indexOf(c);
                   return (

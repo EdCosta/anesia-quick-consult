@@ -69,10 +69,15 @@ function parseCSV(text: string): ParsedRow[] {
         const fr = getField('title_fr');
         const en = getField('title_en');
         const pt = getField('title_pt');
-        if (!fr) { warnings.push('Missing title_fr'); continue; }
+        if (!fr) {
+          warnings.push('Missing title_fr');
+          continue;
+        }
         titles = { fr };
-        if (en) titles.en = en; else warnings.push('Missing title_en');
-        if (pt) titles.pt = pt; else warnings.push('Missing title_pt');
+        if (en) titles.en = en;
+        else warnings.push('Missing title_en');
+        if (pt) titles.pt = pt;
+        else warnings.push('Missing title_pt');
       } else if (hasJsonTitles) {
         titles = JSON.parse(getField('titles'));
       } else {
@@ -83,21 +88,33 @@ function parseCSV(text: string): ParsedRow[] {
       let synonyms: any = {};
       const synField = getField('synonyms');
       if (synField) {
-        try { synonyms = JSON.parse(synField); } catch { /* ignore */ }
+        try {
+          synonyms = JSON.parse(synField);
+        } catch {
+          /* ignore */
+        }
       }
 
       // Parse content
       let content: any = {};
       const contentField = getField('content');
       if (contentField) {
-        try { content = JSON.parse(contentField); } catch { /* ignore */ }
+        try {
+          content = JSON.parse(contentField);
+        } catch {
+          /* ignore */
+        }
       }
 
       // Parse tags
       let tags: any = [];
       const tagsField = getField('tags');
       if (tagsField) {
-        try { tags = JSON.parse(tagsField); } catch { /* ignore */ }
+        try {
+          tags = JSON.parse(tagsField);
+        } catch {
+          /* ignore */
+        }
       }
 
       // Check for missing translations in content
@@ -116,7 +133,11 @@ export default function AdminImportProcedures() {
   const { t } = useLang();
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<{ success: number; failed: number; errors: string[] } | null>(null);
+  const [result, setResult] = useState<{
+    success: number;
+    failed: number;
+    errors: string[];
+  } | null>(null);
 
   const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -148,7 +169,7 @@ export default function AdminImportProcedures() {
           content: row.content,
           tags: row.tags,
         } as any,
-        { onConflict: 'id' }
+        { onConflict: 'id' },
       );
       if (error) {
         failed++;
@@ -182,7 +203,8 @@ export default function AdminImportProcedures() {
             <Upload className="h-8 w-8 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">{t('upload_csv')}</span>
             <p className="text-xs text-muted-foreground mt-1">
-              Format: id;specialty;titles;synonyms;content;tags (JSON) — ou title_fr;title_en;title_pt
+              Format: id;specialty;titles;synonyms;content;tags (JSON) — ou
+              title_fr;title_en;title_pt
             </p>
             <input type="file" accept=".csv" onChange={handleFile} className="hidden" />
           </label>
@@ -198,7 +220,10 @@ export default function AdminImportProcedures() {
                 <FileText className="h-4 w-4" />
                 {t('import_preview')} — {rows.length} {t('rows_parsed')}
                 {totalWarnings > 0 && (
-                  <Badge variant="outline" className="text-[10px] gap-0.5 border-amber-400 text-amber-600">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] gap-0.5 border-amber-400 text-amber-600"
+                  >
                     <AlertTriangle className="h-2.5 w-2.5" />
                     {totalWarnings} {t('missing_translations')}
                   </Badge>
@@ -214,12 +239,22 @@ export default function AdminImportProcedures() {
             </div>
             <div className="max-h-60 overflow-y-auto space-y-1">
               {rows.map((r) => (
-                <div key={r.id} className="flex items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted/30">
+                <div
+                  key={r.id}
+                  className="flex items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted/30"
+                >
                   <span className="font-mono text-muted-foreground">{r.id}</span>
-                  <Badge variant="secondary" className="text-[10px]">{r.specialty}</Badge>
-                  <span className="text-foreground truncate">{r.titles.fr || r.titles.en || '–'}</span>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {r.specialty}
+                  </Badge>
+                  <span className="text-foreground truncate">
+                    {r.titles.fr || r.titles.en || '–'}
+                  </span>
                   {r.warnings.length > 0 && (
-                    <span className="text-amber-500 text-[10px] ml-auto" title={r.warnings.join(', ')}>
+                    <span
+                      className="text-amber-500 text-[10px] ml-auto"
+                      title={r.warnings.join(', ')}
+                    >
                       ⚠ {r.warnings.length}
                     </span>
                   )}
@@ -244,11 +279,15 @@ export default function AdminImportProcedures() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <XCircle className="h-4 w-4 text-destructive" />
-                  <span className="text-sm font-semibold text-destructive">{t('import_failed')}: {result.failed}</span>
+                  <span className="text-sm font-semibold text-destructive">
+                    {t('import_failed')}: {result.failed}
+                  </span>
                 </div>
                 <ul className="max-h-40 overflow-y-auto space-y-0.5">
                   {result.errors.map((e, i) => (
-                    <li key={i} className="text-xs text-muted-foreground font-mono">{e}</li>
+                    <li key={i} className="text-xs text-muted-foreground font-mono">
+                      {e}
+                    </li>
                   ))}
                 </ul>
               </div>

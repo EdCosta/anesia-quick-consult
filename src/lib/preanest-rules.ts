@@ -30,7 +30,7 @@ export function generateRecommendations(input: PreAnestInput): PreAnestOutput {
   const postop: string[] = [];
   const redFlags: string[] = [];
 
-  const bmi = input.weight / ((input.height / 100) ** 2);
+  const bmi = input.weight / (input.height / 100) ** 2;
   const isObese = bmi > 35 || input.comorbidities.includes('obesity');
   const hasSAOS = input.comorbidities.includes('saos');
   const hasHTA = input.comorbidities.includes('hta');
@@ -86,12 +86,18 @@ export function generateRecommendations(input: PreAnestInput): PreAnestOutput {
 
   // === INTRA-OP ===
   // Airway
-  const vad = input.mallampati >= 3 || input.mouthOpening === 'limited' || input.cervicalMobility === 'limited' || isObese;
+  const vad =
+    input.mallampati >= 3 ||
+    input.mouthOpening === 'limited' ||
+    input.cervicalMobility === 'limited' ||
+    isObese;
   if (vad) {
     intraop.push('VAD probable: préparer vidéo-laryngoscope, masque laryngé, algorithme CICO');
   }
   if (isObese) {
-    intraop.push('Obésité: positionnement rampe/HELP, doses sur poids idéal (propofol: poids ajusté)');
+    intraop.push(
+      'Obésité: positionnement rampe/HELP, doses sur poids idéal (propofol: poids ajusté)',
+    );
     intraop.push('Considérer IOT cuffée de taille adaptée, pression de cuff < 25 cmH2O');
   }
   if (hasSAOS) {
@@ -111,13 +117,17 @@ export function generateRecommendations(input: PreAnestInput): PreAnestOutput {
   // === POST-OP ===
   postop.push('Analgésie multimodale: paracétamol 1g/6h ± AINS (si pas de CI)');
   if (hasSAOS || isObese) {
-    postop.push('SAOS/Obésité: surveillance SSPI prolongée, oxymétrie continue, position semi-assise');
+    postop.push(
+      'SAOS/Obésité: surveillance SSPI prolongée, oxymétrie continue, position semi-assise',
+    );
     postop.push('Éviter/limiter morphine, privilégier kétamine sub-anesthésique et ALR');
   }
-  postop.push('Prévention NVPO: score d\'Apfel, ondansétron ± dexaméthasone selon risque');
+  postop.push("Prévention NVPO: score d'Apfel, ondansétron ± dexaméthasone selon risque");
   postop.push('Thromboprophylaxie: HBPM dose préventive dès H6 (sauf CI hémorragique)');
   if (isAmbulatory) {
-    postop.push('Critères de sortie ambulatoire: EVA < 4, pas de NVPO, miction, déambulation stable');
+    postop.push(
+      'Critères de sortie ambulatoire: EVA < 4, pas de NVPO, miction, déambulation stable',
+    );
     postop.push('Consignes écrites: quand consulter en urgence, analgésie domicile');
   }
   if (isElderly) {
@@ -129,22 +139,26 @@ export function generateRecommendations(input: PreAnestInput): PreAnestOutput {
 
   // === RED FLAGS ===
   if (vad) {
-    redFlags.push('VAD identifiée: algorithme can\'t intubate can\'t ventilate → cricothyroïdotomie');
+    redFlags.push("VAD identifiée: algorithme can't intubate can't ventilate → cricothyroïdotomie");
   }
   if (input.asa >= 4) {
     redFlags.push('ASA IV-V: risque vital élevé, réanimation en stand-by');
   }
   if (isEmergency) {
-    redFlags.push('Urgence + estomac plein: risque majeur d\'inhalation bronchique');
+    redFlags.push("Urgence + estomac plein: risque majeur d'inhalation bronchique");
   }
   if (hasSAOS && isObese) {
     redFlags.push('SAOS + Obésité: risque combiné VAD + dépression respiratoire postop');
   }
   if (input.anticoagulation === 'dual_antiplatelet') {
-    redFlags.push('Double anti-agrégation: risque hémorragique majeur, discuter report si possible');
+    redFlags.push(
+      'Double anti-agrégation: risque hémorragique majeur, discuter report si possible',
+    );
   }
   if (hasCardiopathy) {
-    redFlags.push('Cardiopathie: risque d\'événement cardiaque péri-opératoire, monitorer troponine si chirurgie majeure');
+    redFlags.push(
+      "Cardiopathie: risque d'événement cardiaque péri-opératoire, monitorer troponine si chirurgie majeure",
+    );
   }
   redFlags.push('En cas de doute: appeler le sénior / MAR de garde');
 

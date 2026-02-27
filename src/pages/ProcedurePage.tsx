@@ -1,6 +1,17 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, ArrowLeft, ClipboardCopy, BookOpen, Crown, CheckSquare, FileText, Globe, Eye, Save } from 'lucide-react';
+import {
+  Star,
+  ArrowLeft,
+  ClipboardCopy,
+  BookOpen,
+  Crown,
+  CheckSquare,
+  FileText,
+  Globe,
+  Eye,
+  Save,
+} from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -75,11 +86,10 @@ export default function ProcedurePage() {
   );
 
   const isTranslatedFallback = useCallback(
-    <T,>(content: Partial<Record<typeof lang, T>> | undefined) => (
+    <T,>(content: Partial<Record<typeof lang, T>> | undefined) =>
       lang !== 'fr' &&
       !!content?.fr &&
-      JSON.stringify(content[lang]) === JSON.stringify(content.fr)
-    ),
+      JSON.stringify(content[lang]) === JSON.stringify(content.fr),
     [lang],
   );
 
@@ -89,10 +99,18 @@ export default function ProcedurePage() {
   const isQuickFallbackLang = !!procedure && isTranslatedFallback(procedure.quick);
   const isDeepFallbackLang = !!procedure && isTranslatedFallback(procedure.deep);
   const quickTranslation = useAutoTranslation(
-    id || '', lang, 'quick', contentFr, isQuickFallbackLang && !showOriginal
+    id || '',
+    lang,
+    'quick',
+    contentFr,
+    isQuickFallbackLang && !showOriginal,
   );
   const deepTranslation = useAutoTranslation(
-    id || '', lang, 'deep', contentDeepFr, isDeepFallbackLang && !showOriginal
+    id || '',
+    lang,
+    'deep',
+    contentDeepFr,
+    isDeepFallbackLang && !showOriginal,
   );
 
   useEffect(() => {
@@ -105,13 +123,19 @@ export default function ProcedurePage() {
   }, [id, procedure]);
 
   // Reset checklist when procedure changes
-  useEffect(() => { setChecked({}); setChecklistMode(false); }, [id]);
-  useEffect(() => { setTranslationSaved(false); }, [id, lang]);
+  useEffect(() => {
+    setChecked({});
+    setChecklistMode(false);
+  }, [id]);
+  useEffect(() => {
+    setTranslationSaved(false);
+  }, [id, lang]);
 
   const isTranslating = quickTranslation.isTranslating || deepTranslation.isTranslating;
   const isAutoTranslated = quickTranslation.isAutoTranslated || deepTranslation.isAutoTranslated;
   const hasFallbackContent = isQuickFallbackLang || isDeepFallbackLang;
-  const isPersisted = quickTranslation.isPersisted && (isDeepFallbackLang ? deepTranslation.isPersisted : true);
+  const isPersisted =
+    quickTranslation.isPersisted && (isDeepFallbackLang ? deepTranslation.isPersisted : true);
   const reviewStatus = quickTranslation.reviewStatus ?? deepTranslation.reviewStatus;
 
   const recommendations = useMemo(() => {
@@ -121,19 +145,30 @@ export default function ProcedurePage() {
       procedureTagIds && procedureTagIds.size > 0 ? Array.from(procedureTagIds) : legacyProcTags,
     );
     const procSpecialties = new Set(
-      [procedure.specialty, ...(procedure.specialties || [])].filter(Boolean).map(normalizeMatchKey)
+      [procedure.specialty, ...(procedure.specialties || [])]
+        .filter(Boolean)
+        .map(normalizeMatchKey),
     );
 
-    const scored = guidelines.map(g => {
+    const scored = guidelines.map((g) => {
       const normalizedGuidelineTags = guidelineTagIds.get(g.id) || [];
       const guidelineTagsForMatch =
         normalizedGuidelineTags.length > 0
           ? normalizedGuidelineTags
           : (g.tags || []).map(normalizeMatchKey);
-      const matchingTags = guidelineTagsForMatch.filter((tag) => procTags.has(normalizeMatchKey(tag))).length;
-      const specialtyMatches = (g.specialties || []).filter((spec) => procSpecialties.has(normalizeMatchKey(spec))).length;
+      const matchingTags = guidelineTagsForMatch.filter((tag) =>
+        procTags.has(normalizeMatchKey(tag)),
+      ).length;
+      const specialtyMatches = (g.specialties || []).filter((spec) =>
+        procSpecialties.has(normalizeMatchKey(spec)),
+      ).length;
       let score = matchingTags * 10 + specialtyMatches * 3;
-      if (score === 0 && guidelineTagsForMatch.length === 0 && (g.specialties || []).length === 0 && ['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) {
+      if (
+        score === 0 &&
+        guidelineTagsForMatch.length === 0 &&
+        (g.specialties || []).length === 0 &&
+        ['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)
+      ) {
         score = 1;
       }
       return {
@@ -147,13 +182,14 @@ export default function ProcedurePage() {
     });
     return scored
       .filter((s) => s.score > 0)
-      .sort((a, b) => (
-        b.matchingTags - a.matchingTags ||
-        b.specialtyMatches - a.specialtyMatches ||
-        b.strength - a.strength ||
-        b.year - a.year ||
-        b.score - a.score
-      ))
+      .sort(
+        (a, b) =>
+          b.matchingTags - a.matchingTags ||
+          b.specialtyMatches - a.specialtyMatches ||
+          b.strength - a.strength ||
+          b.year - a.year ||
+          b.score - a.score,
+      )
       .slice(0, 5)
       .map((s) => s.guideline);
   }, [procedure, guidelines, procedureTagIds, guidelineTagIds]);
@@ -165,14 +201,21 @@ export default function ProcedurePage() {
     const quick = applyHospitalFormulary(resolve(procedure.quick));
     if (!quick) return;
     const lines: string[] = [];
-    const addSection = (title: string, items: string[]) => { if (items.length === 0) return; lines.push(`## ${title}`); items.forEach((item) => lines.push(`- ${item}`)); lines.push(''); };
+    const addSection = (title: string, items: string[]) => {
+      if (items.length === 0) return;
+      lines.push(`## ${title}`);
+      items.forEach((item) => lines.push(`- ${item}`));
+      lines.push('');
+    };
     lines.push(`# ${resolveStr(procedure.titles)}`);
     lines.push('');
     addSection(t('preop'), quick.preop);
     addSection(t('intraop'), quick.intraop);
     addSection(t('postop'), quick.postop);
     if (quick.red_flags.length > 0) addSection(t('red_flags'), quick.red_flags);
-    navigator.clipboard.writeText(lines.join('\n')).then(() => { toast.success(t('copied')); });
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      toast.success(t('copied'));
+    });
   };
 
   const handleGenerateSummary = () => {
@@ -183,7 +226,12 @@ export default function ProcedurePage() {
     lines.push(`# ${resolveStr(procedure.titles)}`);
     lines.push(`${t('weight_kg')}: ${weightKg || '—'}`);
     lines.push('');
-    const addSection = (title: string, items: string[]) => { if (items.length === 0) return; lines.push(`## ${title}`); items.forEach((item) => lines.push(`- ${item}`)); lines.push(''); };
+    const addSection = (title: string, items: string[]) => {
+      if (items.length === 0) return;
+      lines.push(`## ${title}`);
+      items.forEach((item) => lines.push(`- ${item}`));
+      lines.push('');
+    };
     addSection(t('preop'), quick.preop);
     addSection(t('intraop'), quick.intraop);
     addSection(t('postop'), quick.postop);
@@ -199,15 +247,28 @@ export default function ProcedurePage() {
       lines.push('');
     }
 
-    navigator.clipboard.writeText(lines.join('\n')).then(() => { toast.success(t('summary_copied')); });
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      toast.success(t('summary_copied'));
+    });
   };
 
   if (loading) {
-    return (<div className="flex min-h-[60vh] items-center justify-center"><p className="text-muted-foreground">{t('loading')}</p></div>);
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-muted-foreground">{t('loading')}</p>
+      </div>
+    );
   }
 
   if (!procedure) {
-    return (<div className="container max-w-2xl py-8 text-center"><p className="text-muted-foreground">Procédure introuvable.</p><Link to="/" className="mt-4 inline-block text-accent hover:underline">{t('back')}</Link></div>);
+    return (
+      <div className="container max-w-2xl py-8 text-center">
+        <p className="text-muted-foreground">Procédure introuvable.</p>
+        <Link to="/" className="mt-4 inline-block text-accent hover:underline">
+          {t('back')}
+        </Link>
+      </div>
+    );
   }
 
   const title = resolveStr(procedure.titles);
@@ -230,7 +291,7 @@ export default function ProcedurePage() {
 
   const toggleFav = () => {
     if (!id) return;
-    setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
+    setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
   };
 
   // Checklist progress
@@ -242,15 +303,20 @@ export default function ProcedurePage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <Link to="/" className="inline-flex items-center gap-1 text-sm text-accent hover:underline">
-            <ArrowLeft className="h-4 w-4" />{t('back')}
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t('back')}
           </Link>
           <h1 className="mt-2 text-xl font-bold text-foreground leading-tight">{title}</h1>
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             <Badge variant="secondary">{specialtyDisplayName}</Badge>
             {procedure.is_pro && (
               <Badge variant="outline" className="gap-0.5 border-accent text-accent text-[10px]">
-                <Crown className="h-3 w-3" />PRO
+                <Crown className="h-3 w-3" />
+                PRO
               </Badge>
             )}
             {isAutoTranslated && !showOriginal && (
@@ -261,7 +327,11 @@ export default function ProcedurePage() {
             )}
             {isAutoTranslated && !showOriginal && (translationSaved || reviewStatus) && (
               <Badge variant="secondary" className="text-[10px]">
-                {(translationSaved || reviewStatus === 'approved') ? 'Reviewed' : reviewStatus === 'rejected' ? 'Rejected' : 'Pending review'}
+                {translationSaved || reviewStatus === 'approved'
+                  ? 'Reviewed'
+                  : reviewStatus === 'rejected'
+                    ? 'Rejected'
+                    : 'Pending review'}
               </Badge>
             )}
           </div>
@@ -269,16 +339,26 @@ export default function ProcedurePage() {
         <div className="flex items-center gap-1">
           {quick && (
             <>
-              <button onClick={handleCopyChecklist} className="mt-1 p-1.5 text-muted-foreground hover:text-accent transition-colors" title={t('copy_checklist')}>
+              <button
+                onClick={handleCopyChecklist}
+                className="mt-1 p-1.5 text-muted-foreground hover:text-accent transition-colors"
+                title={t('copy_checklist')}
+              >
                 <ClipboardCopy className="h-5 w-5" />
               </button>
-              <button onClick={handleGenerateSummary} className="mt-1 p-1.5 text-muted-foreground hover:text-accent transition-colors" title={t('generate_summary')}>
+              <button
+                onClick={handleGenerateSummary}
+                className="mt-1 p-1.5 text-muted-foreground hover:text-accent transition-colors"
+                title={t('generate_summary')}
+              >
                 <FileText className="h-5 w-5" />
               </button>
             </>
           )}
           <button onClick={toggleFav} className="mt-1 p-1.5">
-            <Star className={`h-6 w-6 ${isFav ? 'fill-accent text-accent' : 'text-muted-foreground hover:text-accent'}`} />
+            <Star
+              className={`h-6 w-6 ${isFav ? 'fill-accent text-accent' : 'text-muted-foreground hover:text-accent'}`}
+            />
           </button>
         </div>
       </div>
@@ -317,27 +397,30 @@ export default function ProcedurePage() {
             const translationsToSave = [
               { section: 'quick', translated: quickTranslation.translatedContent },
               { section: 'deep', translated: deepTranslation.translatedContent },
-            ].filter((entry): entry is { section: 'quick' | 'deep'; translated: Record<string, unknown> } => !!entry.translated);
+            ].filter(
+              (
+                entry,
+              ): entry is { section: 'quick' | 'deep'; translated: Record<string, unknown> } =>
+                !!entry.translated,
+            );
             if (!procedure || translationsToSave.length === 0) return;
             setSavingTranslation(true);
             try {
               const { data: userData } = await supabase.auth.getUser();
               const timestamp = new Date().toISOString();
-              const { error } = await supabase
-                .from('procedure_translations' as any)
-                .upsert(
-                  translationsToSave.map((entry) => ({
-                    procedure_id: procedure.id,
-                    lang,
-                    section: entry.section,
-                    translated_content: entry.translated,
-                    generated_at: timestamp,
-                    review_status: 'approved',
-                    reviewed_at: timestamp,
-                    reviewed_by: userData.user?.id ?? null,
-                  })) as any,
-                  { onConflict: 'procedure_id,lang,section' },
-                );
+              const { error } = await supabase.from('procedure_translations' as any).upsert(
+                translationsToSave.map((entry) => ({
+                  procedure_id: procedure.id,
+                  lang,
+                  section: entry.section,
+                  translated_content: entry.translated,
+                  generated_at: timestamp,
+                  review_status: 'approved',
+                  reviewed_at: timestamp,
+                  reviewed_by: userData.user?.id ?? null,
+                })) as any,
+                { onConflict: 'procedure_id,lang,section' },
+              );
               if (error) throw error;
               setTranslationSaved(true);
               toast.success(t('translation_saved'));
@@ -360,7 +443,10 @@ export default function ProcedurePage() {
           variant={checklistMode ? 'default' : 'outline'}
           size="sm"
           className="gap-1.5 text-xs"
-          onClick={() => { setChecklistMode(!checklistMode); if (checklistMode) setChecked({}); }}
+          onClick={() => {
+            setChecklistMode(!checklistMode);
+            if (checklistMode) setChecked({});
+          }}
         >
           <CheckSquare className="h-3.5 w-3.5" />
           {t('checklist_mode')}
@@ -378,18 +464,61 @@ export default function ProcedurePage() {
       {/* Pro gate for pro procedures */}
       {procedure.is_pro ? (
         <ProGate>
-          <ProcedureContent quick={quick} deep={deep} weight={weight} weightKg={weightKg} setWeightKg={setWeightKg} patientWeights={patientWeights} setPatientWeights={setPatientWeights} procedure={procedure} recommendations={recommendations} t={t} resolveStr={resolveStr} getDrug={getDrug} handleCopyChecklist={handleCopyChecklist} checklistMode={checklistMode} checked={checked} setChecked={setChecked} />
+          <ProcedureContent
+            quick={quick}
+            deep={deep}
+            weight={weight}
+            weightKg={weightKg}
+            setWeightKg={setWeightKg}
+            patientWeights={patientWeights}
+            setPatientWeights={setPatientWeights}
+            procedure={procedure}
+            recommendations={recommendations}
+            t={t}
+            resolveStr={resolveStr}
+            getDrug={getDrug}
+            handleCopyChecklist={handleCopyChecklist}
+            checklistMode={checklistMode}
+            checked={checked}
+            setChecked={setChecked}
+          />
         </ProGate>
       ) : (
-        <ProcedureContent quick={quick} deep={deep} weight={weight} weightKg={weightKg} setWeightKg={setWeightKg} patientWeights={patientWeights} setPatientWeights={setPatientWeights} procedure={procedure} recommendations={recommendations} t={t} resolveStr={resolveStr} getDrug={getDrug} handleCopyChecklist={handleCopyChecklist} checklistMode={checklistMode} checked={checked} setChecked={setChecked} />
+        <ProcedureContent
+          quick={quick}
+          deep={deep}
+          weight={weight}
+          weightKg={weightKg}
+          setWeightKg={setWeightKg}
+          patientWeights={patientWeights}
+          setPatientWeights={setPatientWeights}
+          procedure={procedure}
+          recommendations={recommendations}
+          t={t}
+          resolveStr={resolveStr}
+          getDrug={getDrug}
+          handleCopyChecklist={handleCopyChecklist}
+          checklistMode={checklistMode}
+          checked={checked}
+          setChecked={setChecked}
+        />
       )}
     </div>
   );
 }
 
-function ChecklistBulletList({ items, prefix, checklistMode, checked, setChecked }: {
-  items: string[]; prefix: string; checklistMode: boolean;
-  checked: Record<string, boolean>; setChecked: (v: Record<string, boolean>) => void;
+function ChecklistBulletList({
+  items,
+  prefix,
+  checklistMode,
+  checked,
+  setChecked,
+}: {
+  items: string[];
+  prefix: string;
+  checklistMode: boolean;
+  checked: Record<string, boolean>;
+  setChecked: (v: Record<string, boolean>) => void;
 }) {
   if (!checklistMode) return <BulletList items={items} />;
   return (
@@ -404,7 +533,11 @@ function ChecklistBulletList({ items, prefix, checklistMode, checked, setChecked
               onCheckedChange={(v) => setChecked({ ...checked, [key]: !!v })}
               className="mt-0.5"
             />
-            <span className={`text-sm ${isChecked ? 'line-through text-muted-foreground' : 'text-card-foreground'}`}>{item}</span>
+            <span
+              className={`text-sm ${isChecked ? 'line-through text-muted-foreground' : 'text-card-foreground'}`}
+            >
+              {item}
+            </span>
           </li>
         );
       })}
@@ -412,7 +545,24 @@ function ChecklistBulletList({ items, prefix, checklistMode, checked, setChecked
   );
 }
 
-function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientWeights, setPatientWeights, procedure, recommendations, t, resolveStr, getDrug, handleCopyChecklist, checklistMode, checked, setChecked }: any) {
+function ProcedureContent({
+  quick,
+  deep,
+  weight,
+  weightKg,
+  setWeightKg,
+  patientWeights,
+  setPatientWeights,
+  procedure,
+  recommendations,
+  t,
+  resolveStr,
+  getDrug,
+  handleCopyChecklist,
+  checklistMode,
+  checked,
+  setChecked,
+}: any) {
   const [expandAllDrugsSignal, setExpandAllDrugsSignal] = useState(0);
 
   return (
@@ -421,8 +571,16 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
       {quick && quick.preop.length > 0 && (
         <Card className="border-l-4 border-l-accent clinical-shadow">
           <CardContent className="p-4">
-            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-accent">{t('preop')}</h3>
-            <ChecklistBulletList items={quick.preop.slice(0, 3)} prefix="preop-key" checklistMode={checklistMode} checked={checked} setChecked={setChecked} />
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-accent">
+              {t('preop')}
+            </h3>
+            <ChecklistBulletList
+              items={quick.preop.slice(0, 3)}
+              prefix="preop-key"
+              checklistMode={checklistMode}
+              checked={checked}
+              setChecked={setChecked}
+            />
           </CardContent>
         </Card>
       )}
@@ -431,7 +589,9 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
       {quick && quick.red_flags.length > 0 && (
         <Card className="border-l-4 border-l-clinical-danger clinical-shadow">
           <CardContent className="p-4">
-            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-clinical-danger">{t('red_flags')}</h3>
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-clinical-danger">
+              {t('red_flags')}
+            </h3>
             <BulletList items={quick.red_flags} />
           </CardContent>
         </Card>
@@ -441,60 +601,106 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
       {quick && (
         <Tabs defaultValue="preop" className="w-full">
           <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="preop" className="text-xs">{t('preop')}</TabsTrigger>
-            <TabsTrigger value="intraop" className="text-xs">{t('intraop')}</TabsTrigger>
-            <TabsTrigger value="postop" className="text-xs">{t('postop')}</TabsTrigger>
-            <TabsTrigger value="detail" className="text-xs">{t('detail')}</TabsTrigger>
+            <TabsTrigger value="preop" className="text-xs">
+              {t('preop')}
+            </TabsTrigger>
+            <TabsTrigger value="intraop" className="text-xs">
+              {t('intraop')}
+            </TabsTrigger>
+            <TabsTrigger value="postop" className="text-xs">
+              {t('postop')}
+            </TabsTrigger>
+            <TabsTrigger value="detail" className="text-xs">
+              {t('detail')}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="preop" className="mt-3">
-            <Card className="clinical-shadow"><CardContent className="p-4">
-              <Section title={t('preop')} variant="preop">
-                <ChecklistBulletList items={quick.preop} prefix="preop" checklistMode={checklistMode} checked={checked} setChecked={setChecked} />
-              </Section>
-            </CardContent></Card>
+            <Card className="clinical-shadow">
+              <CardContent className="p-4">
+                <Section title={t('preop')} variant="preop">
+                  <ChecklistBulletList
+                    items={quick.preop}
+                    prefix="preop"
+                    checklistMode={checklistMode}
+                    checked={checked}
+                    setChecked={setChecked}
+                  />
+                </Section>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="intraop" className="mt-3 space-y-3">
-            <Card className="clinical-shadow"><CardContent className="p-4">
-              <Section title={t('intraop')} variant="intraop">
-                <ChecklistBulletList items={quick.intraop} prefix="intraop" checklistMode={checklistMode} checked={checked} setChecked={setChecked} />
-              </Section>
-            </CardContent></Card>
+            <Card className="clinical-shadow">
+              <CardContent className="p-4">
+                <Section title={t('intraop')} variant="intraop">
+                  <ChecklistBulletList
+                    items={quick.intraop}
+                    prefix="intraop"
+                    checklistMode={checklistMode}
+                    checked={checked}
+                    setChecked={setChecked}
+                  />
+                </Section>
+              </CardContent>
+            </Card>
             <IntubationGuide />
           </TabsContent>
 
           <TabsContent value="postop" className="mt-3">
-            <Card className="clinical-shadow"><CardContent className="p-4">
-              <Section title={t('postop')} variant="postop">
-                <ChecklistBulletList items={quick.postop} prefix="postop" checklistMode={checklistMode} checked={checked} setChecked={setChecked} />
-              </Section>
-            </CardContent></Card>
+            <Card className="clinical-shadow">
+              <CardContent className="p-4">
+                <Section title={t('postop')} variant="postop">
+                  <ChecklistBulletList
+                    items={quick.postop}
+                    prefix="postop"
+                    checklistMode={checklistMode}
+                    checked={checked}
+                    setChecked={setChecked}
+                  />
+                </Section>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="detail" className="mt-3 space-y-3">
             {deep && (
               <>
-                <Card className="clinical-shadow"><CardContent className="p-4">
-                  <Section title={t('clinical_notes')} variant="info"><BulletList items={deep.clinical} /></Section>
-                </CardContent></Card>
-                <Card className="clinical-shadow"><CardContent className="p-4">
-                  <Section title={t('pitfalls')} variant="redflag"><BulletList items={deep.pitfalls} /></Section>
-                </CardContent></Card>
-                {deep.references.length > 0 && (
-                  <Card className="clinical-shadow"><CardContent className="p-4">
-                    <Section title={t('references_title')} variant="info">
-                      <ul className="space-y-2">
-                        {deep.references.map((ref: any, i: number) => (
-                          <li key={i} className="text-xs text-card-foreground">
-                            <span className="font-semibold">{ref.source}</span>
-                            {ref.year && <span className="text-muted-foreground"> ({ref.year})</span>}
-                            {ref.note && <span className="text-muted-foreground"> — {ref.note}</span>}
-                          </li>
-                        ))}
-                      </ul>
+                <Card className="clinical-shadow">
+                  <CardContent className="p-4">
+                    <Section title={t('clinical_notes')} variant="info">
+                      <BulletList items={deep.clinical} />
                     </Section>
-                  </CardContent></Card>
+                  </CardContent>
+                </Card>
+                <Card className="clinical-shadow">
+                  <CardContent className="p-4">
+                    <Section title={t('pitfalls')} variant="redflag">
+                      <BulletList items={deep.pitfalls} />
+                    </Section>
+                  </CardContent>
+                </Card>
+                {deep.references.length > 0 && (
+                  <Card className="clinical-shadow">
+                    <CardContent className="p-4">
+                      <Section title={t('references_title')} variant="info">
+                        <ul className="space-y-2">
+                          {deep.references.map((ref: any, i: number) => (
+                            <li key={i} className="text-xs text-card-foreground">
+                              <span className="font-semibold">{ref.source}</span>
+                              {ref.year && (
+                                <span className="text-muted-foreground"> ({ref.year})</span>
+                              )}
+                              {ref.note && (
+                                <span className="text-muted-foreground"> — {ref.note}</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </Section>
+                    </CardContent>
+                  </Card>
                 )}
               </>
             )}
@@ -508,13 +714,27 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
                   </h3>
                   <div className="space-y-2">
                     {recommendations.map((g: any) => (
-                      <Link key={g.id} to="/guidelines" className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors">
-                        <p className="text-xs font-semibold text-card-foreground">{resolveStr(g.titles)}</p>
+                      <Link
+                        key={g.id}
+                        to="/guidelines"
+                        className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors"
+                      >
+                        <p className="text-xs font-semibold text-card-foreground">
+                          {resolveStr(g.titles)}
+                        </p>
                         <div className="mt-1 flex flex-wrap gap-1">
-                          <Badge variant="secondary" className="text-[10px]">{g.category}</Badge>
-                          {g.organization && <Badge variant="outline" className="text-[10px]">{g.organization}</Badge>}
+                          <Badge variant="secondary" className="text-[10px]">
+                            {g.category}
+                          </Badge>
+                          {g.organization && (
+                            <Badge variant="outline" className="text-[10px]">
+                              {g.organization}
+                            </Badge>
+                          )}
                           {!!g.recommendation_strength && (
-                            <Badge variant="outline" className="text-[10px]">S{g.recommendation_strength}</Badge>
+                            <Badge variant="outline" className="text-[10px]">
+                              S{g.recommendation_strength}
+                            </Badge>
                           )}
                         </div>
                       </Link>
@@ -578,10 +798,10 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
 
 function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t, expandAllSignal }: any) {
   const grouped = groupDrugs(drugs);
-  const activeGroups = GROUP_ORDER.filter(g => grouped[g].length > 0);
+  const activeGroups = GROUP_ORDER.filter((g) => grouped[g].length > 0);
   const activeGroupsKey = activeGroups.join('|');
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(activeGroups.map((group) => [group, group === 'induction']))
+    Object.fromEntries(activeGroups.map((group) => [group, group === 'induction'])),
   );
 
   useEffect(() => {
@@ -590,8 +810,8 @@ function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t, expandAllS
         activeGroups.map((group) => [
           group,
           expandAllSignal > 0 ? true : (prev[group] ?? group === 'induction'),
-        ])
-      )
+        ]),
+      ),
     );
   }, [activeGroupsKey, expandAllSignal]);
 
@@ -618,7 +838,7 @@ function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t, expandAllS
 
   return (
     <div className="space-y-2">
-      {activeGroups.map(group => (
+      {activeGroups.map((group) => (
         <Collapsible
           key={group}
           open={!!openGroups[group]}
@@ -626,7 +846,9 @@ function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t, expandAllS
         >
           <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-1.5 px-1 text-sm font-semibold text-foreground hover:text-accent transition-colors">
             <span>{t(GROUP_I18N_KEYS[group])}</span>
-            <Badge variant="secondary" className="text-[10px]">{grouped[group].length}</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {grouped[group].length}
+            </Badge>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-2 pl-1">
             {grouped[group].map((drugRef: any, i: number) => {

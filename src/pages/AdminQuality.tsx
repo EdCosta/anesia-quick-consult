@@ -11,14 +11,19 @@ import { supabase } from '@/integrations/supabase/client';
 export default function AdminQuality() {
   const { t, resolve } = useLang();
   const { procedures, drugs, guidelines } = useData();
-  const [missingTranslations, setMissingTranslations] = useState<Array<{ proc: string; lang: 'en' | 'pt' }>>([]);
+  const [missingTranslations, setMissingTranslations] = useState<
+    Array<{ proc: string; lang: 'en' | 'pt' }>
+  >([]);
 
   useEffect(() => {
     let active = true;
 
     (async () => {
       try {
-        const [{ data: procedureRows, error: procError }, { data: translationRows, error: transError }] = await Promise.all([
+        const [
+          { data: procedureRows, error: procError },
+          { data: translationRows, error: transError },
+        ] = await Promise.all([
           supabase.from('procedures' as any).select('id, titles, content'),
           supabase.from('procedure_translations' as any).select('procedure_id, lang, section'),
         ]);
@@ -30,7 +35,7 @@ export default function AdminQuality() {
         const translationKeys = new Set(
           ((translationRows as any[]) || [])
             .filter((row) => row.section === 'quick')
-            .map((row) => `${row.procedure_id}:${row.lang}`)
+            .map((row) => `${row.procedure_id}:${row.lang}`),
         );
 
         const gaps: Array<{ proc: string; lang: 'en' | 'pt' }> = [];
@@ -114,8 +119,12 @@ export default function AdminQuality() {
 
   return (
     <div className="container max-w-2xl space-y-5 py-6">
-      <Link to="/admin-content" className="inline-flex items-center gap-1 text-sm text-accent hover:underline">
-        <ArrowLeft className="h-4 w-4" />{t('back')}
+      <Link
+        to="/admin-content"
+        className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        {t('back')}
       </Link>
 
       <h1 className="text-xl font-bold text-foreground">{t('quality_dashboard')}</h1>
@@ -125,7 +134,9 @@ export default function AdminQuality() {
           <CardTitle className="text-sm flex items-center gap-2">
             <Pill className="h-4 w-4 text-destructive" />
             {t('missing_drugs')}
-            <Badge variant="destructive" className="text-[10px]">{issues.noDrugs.length}</Badge>
+            <Badge variant="destructive" className="text-[10px]">
+              {issues.noDrugs.length}
+            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
@@ -133,9 +144,11 @@ export default function AdminQuality() {
             <p className="text-sm text-muted-foreground">✅ {t('no_results')}</p>
           ) : (
             <ul className="space-y-1">
-              {issues.noDrugs.map(id => (
+              {issues.noDrugs.map((id) => (
                 <li key={id}>
-                  <Link to={`/p/${id}`} className="text-sm text-accent hover:underline">{id}</Link>
+                  <Link to={`/p/${id}`} className="text-sm text-accent hover:underline">
+                    {id}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -148,29 +161,40 @@ export default function AdminQuality() {
           <CardTitle className="text-sm flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-accent" />
             {t('missing_units')}
-            <Badge variant="secondary" className="text-[10px]">{issues.missingInfo.length + issues.drugsNoDosing.length + issues.drugsNoUnits.length}</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {issues.missingInfo.length + issues.drugsNoDosing.length + issues.drugsNoUnits.length}
+            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-1">
-          {issues.drugsNoDosing.map(id => (
+          {issues.drugsNoDosing.map((id) => (
             <p key={id} className="text-sm text-muted-foreground">
               Drug: <span className="font-medium text-foreground">{id}</span> — no dosing rules
             </p>
           ))}
           {issues.missingInfo.map((m, i) => (
             <p key={i} className="text-sm text-muted-foreground">
-              <Link to={`/p/${m.proc}`} className="text-accent hover:underline">{m.proc}</Link>
-              {' → '}<span className="font-medium text-foreground">{m.drug}</span>
+              <Link to={`/p/${m.proc}`} className="text-accent hover:underline">
+                {m.proc}
+              </Link>
+              {' → '}
+              <span className="font-medium text-foreground">{m.drug}</span>
             </p>
           ))}
           {issues.drugsNoUnits.map((item, i) => (
-            <p key={`${item.drug}-${item.indication}-${i}`} className="text-sm text-muted-foreground">
-              Drug: <span className="font-medium text-foreground">{item.drug}</span> — missing unit for <span className="font-medium text-foreground">{item.indication}</span>
+            <p
+              key={`${item.drug}-${item.indication}-${i}`}
+              className="text-sm text-muted-foreground"
+            >
+              Drug: <span className="font-medium text-foreground">{item.drug}</span> — missing unit
+              for <span className="font-medium text-foreground">{item.indication}</span>
             </p>
           ))}
-          {issues.drugsNoDosing.length === 0 && issues.missingInfo.length === 0 && issues.drugsNoUnits.length === 0 && (
-            <p className="text-sm text-muted-foreground">✅ {t('no_results')}</p>
-          )}
+          {issues.drugsNoDosing.length === 0 &&
+            issues.missingInfo.length === 0 &&
+            issues.drugsNoUnits.length === 0 && (
+              <p className="text-sm text-muted-foreground">✅ {t('no_results')}</p>
+            )}
         </CardContent>
       </Card>
 
@@ -179,14 +203,19 @@ export default function AdminQuality() {
           <CardTitle className="text-sm flex items-center gap-2">
             <Languages className="h-4 w-4 text-accent" />
             Missing quick translations
-            <Badge variant="secondary" className="text-[10px]">{missingTranslations.length}</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {missingTranslations.length}
+            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-1">
           {missingTranslations.map((item, i) => (
             <p key={`${item.proc}-${item.lang}-${i}`} className="text-sm text-muted-foreground">
-              <Link to={`/p/${item.proc}`} className="text-accent hover:underline">{item.proc}</Link>
-              {' → '}<span className="font-medium text-foreground">{item.lang.toUpperCase()}</span>
+              <Link to={`/p/${item.proc}`} className="text-accent hover:underline">
+                {item.proc}
+              </Link>
+              {' → '}
+              <span className="font-medium text-foreground">{item.lang.toUpperCase()}</span>
             </p>
           ))}
           {missingTranslations.length === 0 && (
@@ -200,14 +229,17 @@ export default function AdminQuality() {
           <CardTitle className="text-sm flex items-center gap-2">
             <Languages className="h-4 w-4 text-accent" />
             {t('missing_translations')} (UI)
-            <Badge variant="secondary" className="text-[10px]">{missingUiTranslations.length}</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {missingUiTranslations.length}
+            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-1">
           {missingUiTranslations.map((item) => (
             <p key={`${item.lang}-${item.key}`} className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{item.lang.toUpperCase()}</span>
-              {' → '}<span className="font-mono text-foreground">{item.key}</span>
+              {' → '}
+              <span className="font-mono text-foreground">{item.key}</span>
             </p>
           ))}
           {missingUiTranslations.length === 0 && (
@@ -221,13 +253,17 @@ export default function AdminQuality() {
           <CardTitle className="text-sm flex items-center gap-2">
             <Tags className="h-4 w-4 text-accent" />
             Guidelines without tags
-            <Badge variant="secondary" className="text-[10px]">{issues.guidelinesNoTags.length}</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {issues.guidelinesNoTags.length}
+            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-1">
           {issues.guidelinesNoTags.map((id) => (
             <p key={id} className="text-sm text-muted-foreground">
-              <Link to="/guidelines" className="text-accent hover:underline">{id}</Link>
+              <Link to="/guidelines" className="text-accent hover:underline">
+                {id}
+              </Link>
             </p>
           ))}
           {issues.guidelinesNoTags.length === 0 && (

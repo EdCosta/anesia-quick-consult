@@ -28,11 +28,51 @@ const NEONATE_TABLE: {
   blade: string;
   lma: string;
 }[] = [
-  { label: 'Premature (<2.5 kg)', weightRange: '<2.5', ettCuffed: 2.5, ettUncuffed: 3.0, depthCm: 7, blade: 'Miller 0', lma: '1' },
-  { label: 'Term (2.5–3.5 kg)', weightRange: '2.5–3.5', ettCuffed: 3.0, ettUncuffed: 3.5, depthCm: 9, blade: 'Miller 0–1', lma: '1' },
-  { label: '3–4 kg', weightRange: '3–4', ettCuffed: 3.0, ettUncuffed: 3.5, depthCm: 9.5, blade: 'Miller 1', lma: '1' },
-  { label: '5–8 kg', weightRange: '5–8', ettCuffed: 3.5, ettUncuffed: 4.0, depthCm: 10.5, blade: 'Miller 1 / Mac 1', lma: '1.5' },
-  { label: '8–10 kg', weightRange: '8–10', ettCuffed: 3.5, ettUncuffed: 4.0, depthCm: 12, blade: 'Mac 1', lma: '1.5–2' },
+  {
+    label: 'Premature (<2.5 kg)',
+    weightRange: '<2.5',
+    ettCuffed: 2.5,
+    ettUncuffed: 3.0,
+    depthCm: 7,
+    blade: 'Miller 0',
+    lma: '1',
+  },
+  {
+    label: 'Term (2.5–3.5 kg)',
+    weightRange: '2.5–3.5',
+    ettCuffed: 3.0,
+    ettUncuffed: 3.5,
+    depthCm: 9,
+    blade: 'Miller 0–1',
+    lma: '1',
+  },
+  {
+    label: '3–4 kg',
+    weightRange: '3–4',
+    ettCuffed: 3.0,
+    ettUncuffed: 3.5,
+    depthCm: 9.5,
+    blade: 'Miller 1',
+    lma: '1',
+  },
+  {
+    label: '5–8 kg',
+    weightRange: '5–8',
+    ettCuffed: 3.5,
+    ettUncuffed: 4.0,
+    depthCm: 10.5,
+    blade: 'Miller 1 / Mac 1',
+    lma: '1.5',
+  },
+  {
+    label: '8–10 kg',
+    weightRange: '8–10',
+    ettCuffed: 3.5,
+    ettUncuffed: 4.0,
+    depthCm: 12,
+    blade: 'Mac 1',
+    lma: '1.5–2',
+  },
 ];
 
 export function getNeonateTable() {
@@ -135,15 +175,27 @@ export function calculateETT(input: ETTInput): ETTResult | null {
       // Male defaults
       ett = 8.0;
       depth = 23;
-      if (h < 160) { ett = 7.5; depth = 22; }
-      else if (h < 170) { ett = 7.5; depth = 22; }
-      else if (h >= 185) { ett = 8.5; depth = 24; }
+      if (h < 160) {
+        ett = 7.5;
+        depth = 22;
+      } else if (h < 170) {
+        ett = 7.5;
+        depth = 22;
+      } else if (h >= 185) {
+        ett = 8.5;
+        depth = 24;
+      }
     } else {
       // Female
       ett = 7.0;
       depth = 21;
-      if (h < 155) { ett = 6.5; depth = 20; }
-      else if (h >= 170) { ett = 7.5; depth = 22; }
+      if (h < 155) {
+        ett = 6.5;
+        depth = 20;
+      } else if (h >= 170) {
+        ett = 7.5;
+        depth = 22;
+      }
     }
 
     const notes: string[] = [];

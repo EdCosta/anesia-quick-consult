@@ -15,7 +15,9 @@ export default function Auth() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setChecking(false);
     });
@@ -60,12 +62,7 @@ export default function Auth() {
           <p className="text-sm text-muted-foreground mt-1">{t('tagline')}</p>
         </div>
 
-        <Button
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          className="w-full gap-2"
-          size="lg"
-        >
+        <Button onClick={handleGoogleSignIn} disabled={loading} className="w-full gap-2" size="lg">
           <LogIn className="h-4 w-4" />
           {t('sign_in_google')}
         </Button>

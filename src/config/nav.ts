@@ -32,7 +32,12 @@ export const NAV_ITEMS: NavItem[] = [
 
 export const HEADER_ITEMS = NAV_ITEMS.filter((i) => i.key !== 'admin');
 
-export type QuickAccessAction = 'scroll_procedures' | 'toggle_favorites' | 'scroll_recents' | 'navigate' | 'clear_filters';
+export type QuickAccessAction =
+  | 'scroll_procedures'
+  | 'toggle_favorites'
+  | 'scroll_recents'
+  | 'navigate'
+  | 'clear_filters';
 
 export interface QuickAccessItem {
   key: string;

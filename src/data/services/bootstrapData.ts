@@ -2,10 +2,20 @@ import type { ALRBlock, Drug, Guideline, Procedure, Protocole } from '@/lib/type
 import { normalizeProcedure } from '@/data/normalize/normalizeProcedure';
 import { enrichMedicationPlan } from '@/data/merge/enrichMedicationPlan';
 import { resolveDrugs } from '@/data/repositories/drugsRepo';
-import { loadFromJson, loadDrugsFromJson, loadProceduresFromJson } from '@/data/repositories/loadFromJson';
+import {
+  loadFromJson,
+  loadDrugsFromJson,
+  loadProceduresFromJson,
+} from '@/data/repositories/loadFromJson';
 import { loadFromSupabase } from '@/data/repositories/loadFromSupabase';
-import { hydrateProcedures, loadProcedureIndexFromSupabase } from '@/data/repositories/proceduresRepo';
-import { loadSpecialtiesFromSupabase, type SpecialtyRecord } from '@/data/repositories/specialtiesRepo';
+import {
+  hydrateProcedures,
+  loadProcedureIndexFromSupabase,
+} from '@/data/repositories/proceduresRepo';
+import {
+  loadSpecialtiesFromSupabase,
+  type SpecialtyRecord,
+} from '@/data/repositories/specialtiesRepo';
 
 const INDEX_CACHE_KEY = 'anesia-data-index-v1';
 const FULL_CACHE_KEY = 'anesia-data-full-v1';
@@ -59,11 +69,14 @@ export function projectProcedureIndex(procedures: Procedure[]): Procedure[] {
       synonyms: procedure.synonyms,
       tags: procedure.tags,
       is_pro: procedure.is_pro,
-    })
+    }),
   );
 }
 
-function toIndexSnapshot(procedures: Procedure[], specialtiesData: SpecialtyRecord[]): ProcedureIndexSnapshot {
+function toIndexSnapshot(
+  procedures: Procedure[],
+  specialtiesData: SpecialtyRecord[],
+): ProcedureIndexSnapshot {
   return {
     procedures: projectProcedureIndex(procedures),
     specialtiesData,
@@ -122,9 +135,8 @@ export async function loadFullDataSnapshot(): Promise<FullDataSnapshot> {
   ]);
 
   if (dbData) {
-    const fallbackDrugs = dbData.drugs.length === 0
-      ? await loadDrugsFromJson().catch(() => [])
-      : [];
+    const fallbackDrugs =
+      dbData.drugs.length === 0 ? await loadDrugsFromJson().catch(() => []) : [];
     const mergedProcedures = await hydrateProcedures(
       dbData.procedures,
       fallbackProcedures.length > 0 ? fallbackProcedures : undefined,

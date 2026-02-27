@@ -91,8 +91,16 @@
     "review_at": "2027-01-15T00:00:00Z",
     "evidence_grade": "B",
     "references": [
-      { "source": "ASA Practice Guidelines for Management of the Difficult Airway", "year": 2022, "url": "https://pubs.asahq.org/anesthesiology/article/136/1/31/117915" },
-      { "source": "DAS Guidelines for unanticipated difficult intubation in adults", "year": 2015, "doi": "10.1111/anae.13101" }
+      {
+        "source": "ASA Practice Guidelines for Management of the Difficult Airway",
+        "year": 2022,
+        "url": "https://pubs.asahq.org/anesthesiology/article/136/1/31/117915"
+      },
+      {
+        "source": "DAS Guidelines for unanticipated difficult intubation in adults",
+        "year": 2015,
+        "doi": "10.1111/anae.13101"
+      }
     ]
   },
   {
@@ -307,8 +315,16 @@
     "review_at": "2027-02-01T00:00:00Z",
     "evidence_grade": "A",
     "references": [
-      { "source": "Fourth Consensus Guidelines for the Management of Postoperative Nausea and Vomiting", "year": 2020, "doi": "10.1213/ANE.0000000000004833" },
-      { "source": "Gan TJ et al. PONV Guidelines", "year": 2020, "url": "https://pubmed.ncbi.nlm.nih.gov/32467512/" }
+      {
+        "source": "Fourth Consensus Guidelines for the Management of Postoperative Nausea and Vomiting",
+        "year": 2020,
+        "doi": "10.1213/ANE.0000000000004833"
+      },
+      {
+        "source": "Gan TJ et al. PONV Guidelines",
+        "year": 2020,
+        "url": "https://pubmed.ncbi.nlm.nih.gov/32467512/"
+      }
     ]
   },
   {

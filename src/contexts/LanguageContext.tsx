@@ -1,5 +1,12 @@
-import React, { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
-import { DEFAULT_LANG, isSupportedLang, translateUI, type SupportedLang } from "@/i18n";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { DEFAULT_LANG, isSupportedLang, translateUI, type SupportedLang } from '@/i18n';
 
 export type Lang = SupportedLang;
 
@@ -15,7 +22,7 @@ const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>(() => {
-    const saved = localStorage.getItem("anesia-lang");
+    const saved = localStorage.getItem('anesia-lang');
     if (isSupportedLang(saved)) return saved;
     return DEFAULT_LANG;
   });
@@ -23,7 +30,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const handleSetLang = useCallback((newLang: Lang) => {
     setLang(newLang);
-    localStorage.setItem("anesia-lang", newLang);
+    localStorage.setItem('anesia-lang', newLang);
   }, []);
 
   const t = useCallback(
@@ -31,7 +38,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const result = translateUI(key, lang);
 
       if (result.missing) {
-        const warningId = `${result.requestedLang}:${result.key}:${result.resolvedLang ?? "missing"}`;
+        const warningId = `${result.requestedLang}:${result.key}:${result.resolvedLang ?? 'missing'}`;
 
         if (!warnedMissingTranslations.current.has(warningId)) {
           warnedMissingTranslations.current.add(warningId);
@@ -58,8 +65,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const resolveStr = useCallback(
     (obj: Partial<Record<Lang, string>> | undefined): string => {
-      if (!obj) return "";
-      return obj[lang] ?? obj.fr ?? obj.en ?? obj.pt ?? "";
+      if (!obj) return '';
+      return obj[lang] ?? obj.fr ?? obj.en ?? obj.pt ?? '';
     },
     [lang],
   );
@@ -74,6 +81,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useLang() {
   const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error("useLang must be used within LanguageProvider");
+  if (!ctx) throw new Error('useLang must be used within LanguageProvider');
   return ctx;
 }

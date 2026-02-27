@@ -19,9 +19,7 @@ export function calcBMI(heightCm: number, weightKg: number): number {
 /** Ideal Body Weight — Devine formula */
 export function calcIBW(sex: Sex, heightCm: number): number {
   if (heightCm <= 0) return 0;
-  return sex === 'M'
-    ? 50 + 0.9 * (heightCm - 152)
-    : 45.5 + 0.9 * (heightCm - 152);
+  return sex === 'M' ? 50 + 0.9 * (heightCm - 152) : 45.5 + 0.9 * (heightCm - 152);
 }
 
 /** Lean Body Weight — Janmahasatian formula */
@@ -43,7 +41,7 @@ export function calcAdjBW(ibw: number, tbw: number, factor = 0.4): number {
 export function computeWeights(
   sex: Sex | null,
   heightCm: number | null,
-  weightKg: number
+  weightKg: number,
 ): PatientWeights {
   const tbw = weightKg;
   if (!sex || !heightCm || heightCm <= 0) {
@@ -59,7 +57,7 @@ export function computeWeights(
 /** Get the weight value for a given scalar */
 export function getScaledWeight(
   scalar: DoseScalar | undefined,
-  weights: PatientWeights
+  weights: PatientWeights,
 ): { weight: number; scalarUsed: DoseScalar } {
   if (!scalar || scalar === 'TBW') {
     return { weight: weights.tbw, scalarUsed: 'TBW' };

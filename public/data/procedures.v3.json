@@ -2,8 +2,16 @@
   {
     "id": "pth",
     "specialty": "Orthopédie",
-    "titles": { "fr": "Prothèse totale de hanche (PTH)", "pt": "Prótese total da anca (PTA)", "en": "Total hip replacement (THR)" },
-    "synonyms": { "fr": ["PTH", "arthroplastie hanche", "prothèse hanche"], "en": ["THR", "hip arthroplasty"], "pt": ["PTA", "artroplastia anca"] },
+    "titles": {
+      "fr": "Prothèse totale de hanche (PTH)",
+      "pt": "Prótese total da anca (PTA)",
+      "en": "Total hip replacement (THR)"
+    },
+    "synonyms": {
+      "fr": ["PTH", "arthroplastie hanche", "prothèse hanche"],
+      "en": ["THR", "hip arthroplasty"],
+      "pt": ["PTA", "artroplastia anca"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -59,8 +67,16 @@
           "Attention au positionnement : lésions nerveuses par compression."
         ],
         "references": [
-          { "source": "ESA Guidelines — Hip Arthroplasty", "year": 2023, "note": "Recommandations péri-opératoires PTH" },
-          { "source": "SFAR — Antibioprophylaxie en chirurgie", "year": 2018, "note": "Céfazoline 2g dose unique" }
+          {
+            "source": "ESA Guidelines — Hip Arthroplasty",
+            "year": 2023,
+            "note": "Recommandations péri-opératoires PTH"
+          },
+          {
+            "source": "SFAR — Antibioprophylaxie en chirurgie",
+            "year": 2018,
+            "note": "Céfazoline 2g dose unique"
+          }
         ]
       }
     }
@@ -68,8 +84,16 @@
   {
     "id": "turp",
     "specialty": "Urologie",
-    "titles": { "fr": "Résection transurétrale de prostate (TURP/RTUP)", "pt": "Ressecção transuretral da próstata (RTUP)", "en": "Transurethral resection of prostate (TURP)" },
-    "synonyms": { "fr": ["TURP", "RTUP", "résection prostate", "adénomectomie endoscopique"], "en": ["TURP", "prostate resection"], "pt": ["RTUP"] },
+    "titles": {
+      "fr": "Résection transurétrale de prostate (TURP/RTUP)",
+      "pt": "Ressecção transuretral da próstata (RTUP)",
+      "en": "Transurethral resection of prostate (TURP)"
+    },
+    "synonyms": {
+      "fr": ["TURP", "RTUP", "résection prostate", "adénomectomie endoscopique"],
+      "en": ["TURP", "prostate resection"],
+      "pt": ["RTUP"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -117,8 +141,16 @@
           "Ne pas confondre agitation per-rachianesthésie avec inconfort simple — penser TURP syndrome."
         ],
         "references": [
-          { "source": "EAU Guidelines — BPH Management", "year": 2023, "note": "Recommandations techniques et anesthésiques" },
-          { "source": "BJA Education — TURP syndrome", "year": 2019, "note": "Physiopathologie et prise en charge" }
+          {
+            "source": "EAU Guidelines — BPH Management",
+            "year": 2023,
+            "note": "Recommandations techniques et anesthésiques"
+          },
+          {
+            "source": "BJA Education — TURP syndrome",
+            "year": 2019,
+            "note": "Physiopathologie et prise en charge"
+          }
         ]
       }
     }
@@ -126,8 +158,16 @@
   {
     "id": "ureteroscopie_dj",
     "specialty": "Urologie",
-    "titles": { "fr": "Urétéroscopie avec pose de sonde double J", "pt": "Ureteroscopia com duplo J", "en": "Ureteroscopy with double-J stent" },
-    "synonyms": { "fr": ["URS", "double J", "urétéroscopie", "JJ"], "en": ["URS", "DJ stent", "ureteral stent"], "pt": ["ureteroscopia", "duplo J"] },
+    "titles": {
+      "fr": "Urétéroscopie avec pose de sonde double J",
+      "pt": "Ureteroscopia com duplo J",
+      "en": "Ureteroscopy with double-J stent"
+    },
+    "synonyms": {
+      "fr": ["URS", "double J", "urétéroscopie", "JJ"],
+      "en": ["URS", "DJ stent", "ureteral stent"],
+      "pt": ["ureteroscopia", "duplo J"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -173,7 +213,11 @@
           "La douleur post-sonde JJ est fréquente et peut nécessiter alpha-bloquants."
         ],
         "references": [
-          { "source": "EAU Guidelines — Urolithiasis", "year": 2023, "note": "Recommandations URS" },
+          {
+            "source": "EAU Guidelines — Urolithiasis",
+            "year": 2023,
+            "note": "Recommandations URS"
+          },
           { "source": "SFAR — Ambulatoire urologique", "year": 2020, "note": "Critères sortie J0" }
         ]
       }
@@ -182,8 +226,16 @@
   {
     "id": "cesarienne_urgente",
     "specialty": "Obstétrique",
-    "titles": { "fr": "Césarienne urgente", "pt": "Cesariana urgente", "en": "Emergency caesarean section" },
-    "synonyms": { "fr": ["césarienne", "césarienne code rouge", "c-section urgente"], "en": ["emergency c-section", "crash caesarean"], "pt": ["cesariana emergência"] },
+    "titles": {
+      "fr": "Césarienne urgente",
+      "pt": "Cesariana urgente",
+      "en": "Emergency caesarean section"
+    },
+    "synonyms": {
+      "fr": ["césarienne", "césarienne code rouge", "c-section urgente"],
+      "en": ["emergency c-section", "crash caesarean"],
+      "pt": ["cesariana emergência"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -242,8 +294,16 @@
           "L'ocytocine en bolus rapide peut causer hypotension sévère + tachycardie."
         ],
         "references": [
-          { "source": "SFAR/CARO — Césarienne", "year": 2023, "note": "Recommandations anesthésie obstétricale" },
-          { "source": "NICE — Caesarean birth", "year": 2021, "note": "Classification urgence et prise en charge" }
+          {
+            "source": "SFAR/CARO — Césarienne",
+            "year": 2023,
+            "note": "Recommandations anesthésie obstétricale"
+          },
+          {
+            "source": "NICE — Caesarean birth",
+            "year": 2021,
+            "note": "Classification urgence et prise en charge"
+          }
         ]
       }
     }
@@ -251,8 +311,16 @@
   {
     "id": "cholecystectomie_lap",
     "specialty": "Chirurgie générale",
-    "titles": { "fr": "Cholécystectomie laparoscopique", "pt": "Colecistectomia laparoscópica", "en": "Laparoscopic cholecystectomy" },
-    "synonyms": { "fr": ["cholécystectomie", "vésicule biliaire", "cœlioscopie vésicule"], "en": ["lap chole", "gallbladder removal"], "pt": ["colecistectomia", "vesícula biliar"] },
+    "titles": {
+      "fr": "Cholécystectomie laparoscopique",
+      "pt": "Colecistectomia laparoscópica",
+      "en": "Laparoscopic cholecystectomy"
+    },
+    "synonyms": {
+      "fr": ["cholécystectomie", "vésicule biliaire", "cœlioscopie vésicule"],
+      "en": ["lap chole", "gallbladder removal"],
+      "pt": ["colecistectomia", "vesícula biliar"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -303,7 +371,11 @@
           "L'infiltration des trocarts AVANT incision est plus efficace qu'après."
         ],
         "references": [
-          { "source": "SFAR — RAAC en chirurgie digestive", "year": 2021, "note": "Protocole RAAC cholécystectomie" },
+          {
+            "source": "SFAR — RAAC en chirurgie digestive",
+            "year": 2021,
+            "note": "Protocole RAAC cholécystectomie"
+          },
           { "source": "ESPA — Consensus PONV", "year": 2020, "note": "Prophylaxie multimodale" }
         ]
       }
@@ -312,8 +384,16 @@
   {
     "id": "appendicectomie_urgente",
     "specialty": "Chirurgie générale",
-    "titles": { "fr": "Appendicectomie urgente", "pt": "Apendicectomia urgente", "en": "Emergency appendectomy" },
-    "synonyms": { "fr": ["appendicectomie", "appendicite", "appendice"], "en": ["appendectomy", "appendicitis surgery"], "pt": ["apendicectomia"] },
+    "titles": {
+      "fr": "Appendicectomie urgente",
+      "pt": "Apendicectomia urgente",
+      "en": "Emergency appendectomy"
+    },
+    "synonyms": {
+      "fr": ["appendicectomie", "appendicite", "appendice"],
+      "en": ["appendectomy", "appendicitis surgery"],
+      "pt": ["apendicectomia"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -364,8 +444,16 @@
           "Attention aux diagnostics différentiels chez la femme jeune (GEU, torsion ovarienne)."
         ],
         "references": [
-          { "source": "SFAR — Estomac plein et urgence", "year": 2019, "note": "ISR et gestion voies aériennes" },
-          { "source": "WSES — Acute Appendicitis Guidelines", "year": 2020, "note": "Prise en charge chirurgicale et antibiothérapie" }
+          {
+            "source": "SFAR — Estomac plein et urgence",
+            "year": 2019,
+            "note": "ISR et gestion voies aériennes"
+          },
+          {
+            "source": "WSES — Acute Appendicitis Guidelines",
+            "year": 2020,
+            "note": "Prise en charge chirurgicale et antibiothérapie"
+          }
         ]
       }
     }
@@ -373,8 +461,16 @@
   {
     "id": "hernie_discale_lombaire",
     "specialty": "Neurochirurgie",
-    "titles": { "fr": "Hernie discale lombaire (discectomie)", "pt": "Hérnia discal lombar (discectomia)", "en": "Lumbar disc herniation (discectomy)" },
-    "synonyms": { "fr": ["hernie discale", "discectomie", "laminectomie", "sciatique chirurgie"], "en": ["lumbar discectomy", "herniated disc surgery"], "pt": ["hérnia discal", "discectomia lombar"] },
+    "titles": {
+      "fr": "Hernie discale lombaire (discectomie)",
+      "pt": "Hérnia discal lombar (discectomia)",
+      "en": "Lumbar disc herniation (discectomy)"
+    },
+    "synonyms": {
+      "fr": ["hernie discale", "discectomie", "laminectomie", "sciatique chirurgie"],
+      "en": ["lumbar discectomy", "herniated disc surgery"],
+      "pt": ["hérnia discal", "discectomia lombar"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -426,8 +522,16 @@
           "Un déficit neurologique nouveau en post-op est une urgence chirurgicale (reprise)."
         ],
         "references": [
-          { "source": "SFAR — Positionnement en neurochirurgie", "year": 2021, "note": "Prévention lésions positionnelles" },
-          { "source": "Spine Journal — Enhanced recovery disc surgery", "year": 2022, "note": "Protocoles RAAC rachis" }
+          {
+            "source": "SFAR — Positionnement en neurochirurgie",
+            "year": 2021,
+            "note": "Prévention lésions positionnelles"
+          },
+          {
+            "source": "Spine Journal — Enhanced recovery disc surgery",
+            "year": 2022,
+            "note": "Protocoles RAAC rachis"
+          }
         ]
       }
     }
@@ -435,8 +539,16 @@
   {
     "id": "arthroscopie_epaule",
     "specialty": "Orthopédie",
-    "titles": { "fr": "Arthroscopie de l'épaule", "pt": "Artroscopia do ombro", "en": "Shoulder arthroscopy" },
-    "synonyms": { "fr": ["arthroscopie épaule", "coiffe rotateurs", "bankart", "acromioplastie"], "en": ["shoulder scope", "rotator cuff arthroscopy"], "pt": ["artroscopia ombro"] },
+    "titles": {
+      "fr": "Arthroscopie de l'épaule",
+      "pt": "Artroscopia do ombro",
+      "en": "Shoulder arthroscopy"
+    },
+    "synonyms": {
+      "fr": ["arthroscopie épaule", "coiffe rotateurs", "bankart", "acromioplastie"],
+      "en": ["shoulder scope", "rotator cuff arthroscopy"],
+      "pt": ["artroscopia ombro"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -488,8 +600,16 @@
           "Le BIS supra-claviculaire a moins de paralysie phrénique mais couvre moins bien C5-C6."
         ],
         "references": [
-          { "source": "ASRA — Peripheral Nerve Blocks Guidelines", "year": 2023, "note": "BIS échoguidé technique et complications" },
-          { "source": "SFAR — ALR membre supérieur", "year": 2019, "note": "Recommandations pratiques" }
+          {
+            "source": "ASRA — Peripheral Nerve Blocks Guidelines",
+            "year": 2023,
+            "note": "BIS échoguidé technique et complications"
+          },
+          {
+            "source": "SFAR — ALR membre supérieur",
+            "year": 2019,
+            "note": "Recommandations pratiques"
+          }
         ]
       }
     }
@@ -497,8 +617,16 @@
   {
     "id": "hysteroscopie_ambulatoire",
     "specialty": "Gynécologie",
-    "titles": { "fr": "Hystéroscopie ambulatoire", "pt": "Histeroscopia ambulatória", "en": "Outpatient hysteroscopy" },
-    "synonyms": { "fr": ["hystéroscopie", "résection hystéroscopique", "polype utérin"], "en": ["hysteroscopy", "uterine polypectomy"], "pt": ["histeroscopia"] },
+    "titles": {
+      "fr": "Hystéroscopie ambulatoire",
+      "pt": "Histeroscopia ambulatória",
+      "en": "Outpatient hysteroscopy"
+    },
+    "synonyms": {
+      "fr": ["hystéroscopie", "résection hystéroscopique", "polype utérin"],
+      "en": ["hysteroscopy", "uterine polypectomy"],
+      "pt": ["histeroscopia"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -545,8 +673,16 @@
           "La réaction vagale est fréquente lors de la dilatation cervicale — atropine prête."
         ],
         "references": [
-          { "source": "RCOG — Best Practice in Outpatient Hysteroscopy", "year": 2019, "note": "Recommandations pratiques" },
-          { "source": "SFAR — Ambulatoire gynécologique", "year": 2020, "note": "Critères de sortie" }
+          {
+            "source": "RCOG — Best Practice in Outpatient Hysteroscopy",
+            "year": 2019,
+            "note": "Recommandations pratiques"
+          },
+          {
+            "source": "SFAR — Ambulatoire gynécologique",
+            "year": 2020,
+            "note": "Critères de sortie"
+          }
         ]
       }
     }
@@ -554,8 +690,16 @@
   {
     "id": "amygdalectomie_enfant",
     "specialty": "ORL",
-    "titles": { "fr": "Amygdalectomie chez l'enfant", "pt": "Amigdalectomia na criança", "en": "Pediatric tonsillectomy" },
-    "synonyms": { "fr": ["amygdalectomie", "amygdales", "adéno-amygdalectomie", "tonsillectomie"], "en": ["tonsillectomy", "T&A", "adenotonsillectomy"], "pt": ["amigdalectomia", "tonsilectomia"] },
+    "titles": {
+      "fr": "Amygdalectomie chez l'enfant",
+      "pt": "Amigdalectomia na criança",
+      "en": "Pediatric tonsillectomy"
+    },
+    "synonyms": {
+      "fr": ["amygdalectomie", "amygdales", "adéno-amygdalectomie", "tonsillectomie"],
+      "en": ["tonsillectomy", "T&A", "adenotonsillectomy"],
+      "pt": ["amigdalectomia", "tonsilectomia"]
+    },
     "quick": {
       "fr": {
         "preop": [
@@ -611,8 +755,16 @@
           "L'hémorragie tardive (J5-J10) est souvent plus grave que la précoce — information parentale cruciale."
         ],
         "references": [
-          { "source": "ADARPEF/SFAR — Amygdalectomie pédiatrique", "year": 2022, "note": "Recommandations anesthésie" },
-          { "source": "Cochrane — NSAIDs post-tonsillectomy", "year": 2021, "note": "Méta-analyse sécurité ibuprofène" }
+          {
+            "source": "ADARPEF/SFAR — Amygdalectomie pédiatrique",
+            "year": 2022,
+            "note": "Recommandations anesthésie"
+          },
+          {
+            "source": "Cochrane — NSAIDs post-tonsillectomy",
+            "year": 2021,
+            "note": "Méta-analyse sécurité ibuprofène"
+          }
         ]
       }
     }
@@ -620,14 +772,44 @@
   {
     "id": "arthroscopie_genou",
     "specialty": "Orthopédie",
-    "titles": { "fr": "Arthroscopie du genou (méniscectomie/ligamentoplastie)", "pt": "Artroscopia do joelho (meniscectomia/ligamentoplastia)", "en": "Knee arthroscopy (meniscectomy/ACL reconstruction)" },
-    "synonyms": { "fr": ["arthroscopie genou", "méniscectomie", "ligamentoplastie", "LCA"], "en": ["knee scope", "ACL repair", "meniscus surgery"], "pt": ["artroscopia joelho", "meniscectomia", "LCA"] },
+    "titles": {
+      "fr": "Arthroscopie du genou (méniscectomie/ligamentoplastie)",
+      "pt": "Artroscopia do joelho (meniscectomia/ligamentoplastia)",
+      "en": "Knee arthroscopy (meniscectomy/ACL reconstruction)"
+    },
+    "synonyms": {
+      "fr": ["arthroscopie genou", "méniscectomie", "ligamentoplastie", "LCA"],
+      "en": ["knee scope", "ACL repair", "meniscus surgery"],
+      "pt": ["artroscopia joelho", "meniscectomia", "LCA"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan standard (NFS, coagulation)", "Évaluation mobilité et douleur de base", "Jeûne standard 6h/2h", "Information sur rééducation post-op"],
-        "intraop": ["AG ou rachianesthésie selon durée prévue", "Garrot pneumatique : surveillance temps (< 120 min)", "Antibioprophylaxie : céfazoline 2g IV", "Infiltration intra-articulaire en fin de procédure", "Position décubitus dorsal, genou fléchi"],
-        "postop": ["Analgésie multimodale : paracétamol + AINS ± morphine titration", "Cryothérapie locale", "Prévention NVPO : ondansétron si FDR", "Mobilisation précoce J0 (méniscectomie) ou attelle (ligamentoplastie)", "Thromboprophylaxie si ligamentoplastie"],
-        "red_flags": ["Syndrome compartimental (douleur disproportionnée sous garrot)", "Thrombose veineuse profonde", "Hémarthrose post-op importante", "Lésion neurovasculaire poplitée"],
+        "preop": [
+          "Bilan standard (NFS, coagulation)",
+          "Évaluation mobilité et douleur de base",
+          "Jeûne standard 6h/2h",
+          "Information sur rééducation post-op"
+        ],
+        "intraop": [
+          "AG ou rachianesthésie selon durée prévue",
+          "Garrot pneumatique : surveillance temps (< 120 min)",
+          "Antibioprophylaxie : céfazoline 2g IV",
+          "Infiltration intra-articulaire en fin de procédure",
+          "Position décubitus dorsal, genou fléchi"
+        ],
+        "postop": [
+          "Analgésie multimodale : paracétamol + AINS ± morphine titration",
+          "Cryothérapie locale",
+          "Prévention NVPO : ondansétron si FDR",
+          "Mobilisation précoce J0 (méniscectomie) ou attelle (ligamentoplastie)",
+          "Thromboprophylaxie si ligamentoplastie"
+        ],
+        "red_flags": [
+          "Syndrome compartimental (douleur disproportionnée sous garrot)",
+          "Thrombose veineuse profonde",
+          "Hémarthrose post-op importante",
+          "Lésion neurovasculaire poplitée"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
@@ -640,11 +822,26 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["La méniscectomie simple est ambulatoire ; la ligamentoplastie nécessite souvent une nuit.", "Le bloc du nerf fémoral ou le bloc au canal des adducteurs améliore l'analgésie post-op.", "Le garrot prolongé (> 90 min) augmente le risque de lésion nerveuse et de syndrome de reperfusion."],
-        "pitfalls": ["Ne pas sous-estimer la douleur post-ligamentoplastie — prévoir analgésie multimodale.", "La levée du garrot peut provoquer hypotension et acidose métabolique transitoire."],
+        "clinical": [
+          "La méniscectomie simple est ambulatoire ; la ligamentoplastie nécessite souvent une nuit.",
+          "Le bloc du nerf fémoral ou le bloc au canal des adducteurs améliore l'analgésie post-op.",
+          "Le garrot prolongé (> 90 min) augmente le risque de lésion nerveuse et de syndrome de reperfusion."
+        ],
+        "pitfalls": [
+          "Ne pas sous-estimer la douleur post-ligamentoplastie — prévoir analgésie multimodale.",
+          "La levée du garrot peut provoquer hypotension et acidose métabolique transitoire."
+        ],
         "references": [
-          { "source": "ESSKA — Knee Arthroscopy Guidelines", "year": 2022, "note": "Recommandations péri-opératoires" },
-          { "source": "SFAR — Chirurgie ambulatoire orthopédique", "year": 2020, "note": "Critères de sortie" }
+          {
+            "source": "ESSKA — Knee Arthroscopy Guidelines",
+            "year": 2022,
+            "note": "Recommandations péri-opératoires"
+          },
+          {
+            "source": "SFAR — Chirurgie ambulatoire orthopédique",
+            "year": 2020,
+            "note": "Critères de sortie"
+          }
         ]
       }
     }
@@ -652,14 +849,44 @@
   {
     "id": "ptg",
     "specialty": "Orthopédie",
-    "titles": { "fr": "Prothèse totale de genou (PTG)", "pt": "Prótese total do joelho (PTJ)", "en": "Total knee replacement (TKR)" },
-    "synonyms": { "fr": ["PTG", "prothèse genou", "arthroplastie genou"], "en": ["TKR", "knee replacement", "knee arthroplasty"], "pt": ["PTJ", "artroplastia joelho"] },
+    "titles": {
+      "fr": "Prothèse totale de genou (PTG)",
+      "pt": "Prótese total do joelho (PTJ)",
+      "en": "Total knee replacement (TKR)"
+    },
+    "synonyms": {
+      "fr": ["PTG", "prothèse genou", "arthroplastie genou"],
+      "en": ["TKR", "knee replacement", "knee arthroplasty"],
+      "pt": ["PTJ", "artroplastia joelho"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Évaluation cardiovasculaire (population âgée)", "Bilan : NFS, coagulation, groupage + RAI", "Prophylaxie thromboembolique pré-op", "Optimisation Hb pré-op si anémie (fer IV)"],
-        "intraop": ["Rachianesthésie ± bloc du nerf fémoral/canal adducteurs", "Garrot pneumatique (120 min max)", "Antibioprophylaxie : céfazoline 2g IV", "Acide tranexamique 1g IV", "Maintien normothermie active"],
-        "postop": ["Analgésie multimodale : paracétamol + AINS + bloc nerveux continu si possible", "Thromboprophylaxie HBPM ≥ 14 jours", "Mobilisation précoce J0 (RAAC)", "Cryothérapie + kinésithérapie active", "Surveillance neurovasculaire distale"],
-        "red_flags": ["Syndrome compartimental", "Fracture peropératoire (fémur/tibia)", "Embolie graisseuse", "Infection prothétique précoce (fièvre + douleur + écoulement)"],
+        "preop": [
+          "Évaluation cardiovasculaire (population âgée)",
+          "Bilan : NFS, coagulation, groupage + RAI",
+          "Prophylaxie thromboembolique pré-op",
+          "Optimisation Hb pré-op si anémie (fer IV)"
+        ],
+        "intraop": [
+          "Rachianesthésie ± bloc du nerf fémoral/canal adducteurs",
+          "Garrot pneumatique (120 min max)",
+          "Antibioprophylaxie : céfazoline 2g IV",
+          "Acide tranexamique 1g IV",
+          "Maintien normothermie active"
+        ],
+        "postop": [
+          "Analgésie multimodale : paracétamol + AINS + bloc nerveux continu si possible",
+          "Thromboprophylaxie HBPM ≥ 14 jours",
+          "Mobilisation précoce J0 (RAAC)",
+          "Cryothérapie + kinésithérapie active",
+          "Surveillance neurovasculaire distale"
+        ],
+        "red_flags": [
+          "Syndrome compartimental",
+          "Fracture peropératoire (fémur/tibia)",
+          "Embolie graisseuse",
+          "Infection prothétique précoce (fièvre + douleur + écoulement)"
+        ],
         "drugs": [
           { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
           { "drug_id": "paracetamol", "indication_tag": "analgésie" },
@@ -672,11 +899,26 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["La rachianesthésie + bloc adducteurs est le gold standard actuel pour la PTG.", "L'acide tranexamique réduit pertes sanguines et transfusions de 30-50%.", "Le protocole RAAC réduit durée de séjour à 2-3 jours vs 5-7 historiquement."],
-        "pitfalls": ["La levée du garrot cause hypotension + acidose — anticiper.", "Le bloc fémoral moteur peut retarder la rééducation — préférer canal adducteurs."],
+        "clinical": [
+          "La rachianesthésie + bloc adducteurs est le gold standard actuel pour la PTG.",
+          "L'acide tranexamique réduit pertes sanguines et transfusions de 30-50%.",
+          "Le protocole RAAC réduit durée de séjour à 2-3 jours vs 5-7 historiquement."
+        ],
+        "pitfalls": [
+          "La levée du garrot cause hypotension + acidose — anticiper.",
+          "Le bloc fémoral moteur peut retarder la rééducation — préférer canal adducteurs."
+        ],
         "references": [
-          { "source": "ERAS Society — TKR Guidelines", "year": 2022, "note": "Protocole RAAC genou" },
-          { "source": "SFAR — Tranexamic acid perioperative", "year": 2021, "note": "Recommandations ATX" }
+          {
+            "source": "ERAS Society — TKR Guidelines",
+            "year": 2022,
+            "note": "Protocole RAAC genou"
+          },
+          {
+            "source": "SFAR — Tranexamic acid perioperative",
+            "year": 2021,
+            "note": "Recommandations ATX"
+          }
         ]
       }
     }
@@ -684,14 +926,41 @@
   {
     "id": "fracture_radius",
     "specialty": "Orthopédie",
-    "titles": { "fr": "Fixation fracture radius distal (ORIF)", "pt": "Fixação fratura rádio distal (ORIF)", "en": "Distal radius fracture fixation (ORIF)" },
-    "synonyms": { "fr": ["fracture poignet", "ORIF radius", "Pouteau-Colles"], "en": ["wrist fracture", "ORIF radius", "Colles fracture"], "pt": ["fratura punho", "ORIF rádio"] },
+    "titles": {
+      "fr": "Fixation fracture radius distal (ORIF)",
+      "pt": "Fixação fratura rádio distal (ORIF)",
+      "en": "Distal radius fracture fixation (ORIF)"
+    },
+    "synonyms": {
+      "fr": ["fracture poignet", "ORIF radius", "Pouteau-Colles"],
+      "en": ["wrist fracture", "ORIF radius", "Colles fracture"],
+      "pt": ["fratura punho", "ORIF rádio"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan standard", "Évaluation neurovasculaire distale (pouls radial, sensibilité)", "Jeûne — souvent chirurgie différée", "Antalgiques en attendant le bloc"],
-        "intraop": ["Bloc axillaire échoguidé ± sédation ou AG courte", "Garrot brachial", "Antibioprophylaxie si fracture ouverte", "Fluoroscopie peropératoire (protection radioprotection)"],
-        "postop": ["Analgésie multimodale : paracétamol + AINS", "Surélévation du membre", "Surveillance neurovasculaire (syndrome du canal carpien aigu)", "Sortie ambulatoire J0 si bloc axillaire"],
-        "red_flags": ["Syndrome compartimental de l'avant-bras", "Lésion neurovasculaire (nerf médian)", "Déplacement secondaire sous plâtre"],
+        "preop": [
+          "Bilan standard",
+          "Évaluation neurovasculaire distale (pouls radial, sensibilité)",
+          "Jeûne — souvent chirurgie différée",
+          "Antalgiques en attendant le bloc"
+        ],
+        "intraop": [
+          "Bloc axillaire échoguidé ± sédation ou AG courte",
+          "Garrot brachial",
+          "Antibioprophylaxie si fracture ouverte",
+          "Fluoroscopie peropératoire (protection radioprotection)"
+        ],
+        "postop": [
+          "Analgésie multimodale : paracétamol + AINS",
+          "Surélévation du membre",
+          "Surveillance neurovasculaire (syndrome du canal carpien aigu)",
+          "Sortie ambulatoire J0 si bloc axillaire"
+        ],
+        "red_flags": [
+          "Syndrome compartimental de l'avant-bras",
+          "Lésion neurovasculaire (nerf médian)",
+          "Déplacement secondaire sous plâtre"
+        ],
         "drugs": [
           { "drug_id": "bupivacaine", "indication_tag": "bloc_axillaire" },
           { "drug_id": "lidocaine", "indication_tag": "adjuvant_bloc" },
@@ -702,10 +971,20 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["Le bloc axillaire offre une analgésie post-op prolongée et permet l'ambulatoire.", "L'ORIF par plaque palmaire est la technique standard actuelle."],
-        "pitfalls": ["Syndrome du canal carpien aigu post-op : douleur disproportionnée + paresthésies = urgence.", "Ne pas oublier le test de Allen avant cathéter artériel radial si nécessaire."],
+        "clinical": [
+          "Le bloc axillaire offre une analgésie post-op prolongée et permet l'ambulatoire.",
+          "L'ORIF par plaque palmaire est la technique standard actuelle."
+        ],
+        "pitfalls": [
+          "Syndrome du canal carpien aigu post-op : douleur disproportionnée + paresthésies = urgence.",
+          "Ne pas oublier le test de Allen avant cathéter artériel radial si nécessaire."
+        ],
         "references": [
-          { "source": "BSSH — Distal Radius Fracture Guidelines", "year": 2021, "note": "Prise en charge chirurgicale" }
+          {
+            "source": "BSSH — Distal Radius Fracture Guidelines",
+            "year": 2021,
+            "note": "Prise en charge chirurgicale"
+          }
         ]
       }
     }
@@ -713,14 +992,41 @@
   {
     "id": "osteosynthese_cheville",
     "specialty": "Orthopédie",
-    "titles": { "fr": "Ostéosynthèse de cheville", "pt": "Osteossíntese do tornozelo", "en": "Ankle fracture fixation" },
-    "synonyms": { "fr": ["fracture cheville", "fracture malléole", "ostéosynthèse malléolaire"], "en": ["ankle ORIF", "malleolar fracture fixation"], "pt": ["fratura tornozelo", "osteossíntese maleolar"] },
+    "titles": {
+      "fr": "Ostéosynthèse de cheville",
+      "pt": "Osteossíntese do tornozelo",
+      "en": "Ankle fracture fixation"
+    },
+    "synonyms": {
+      "fr": ["fracture cheville", "fracture malléole", "ostéosynthèse malléolaire"],
+      "en": ["ankle ORIF", "malleolar fracture fixation"],
+      "pt": ["fratura tornozelo", "osteossíntese maleolar"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan standard", "Évaluation neurovasculaire pied (pouls pédieux, tibial post.)", "Immobilisation provisoire + antalgiques", "Groupage si fracture complexe"],
-        "intraop": ["Rachianesthésie ou bloc poplité + saphène ± sédation", "Décubitus dorsal, garrot cuisse", "Antibioprophylaxie : céfazoline 2g", "Fluoroscopie de contrôle"],
-        "postop": ["Analgésie multimodale : paracétamol + AINS + relais bloc", "Surélévation membre inférieur", "Thromboprophylaxie HBPM", "Non-appui 6 semaines (selon type)"],
-        "red_flags": ["Syndrome compartimental de la jambe", "Souffrance cutanée sur fracture (phlyctènes)", "Thrombose veineuse profonde"],
+        "preop": [
+          "Bilan standard",
+          "Évaluation neurovasculaire pied (pouls pédieux, tibial post.)",
+          "Immobilisation provisoire + antalgiques",
+          "Groupage si fracture complexe"
+        ],
+        "intraop": [
+          "Rachianesthésie ou bloc poplité + saphène ± sédation",
+          "Décubitus dorsal, garrot cuisse",
+          "Antibioprophylaxie : céfazoline 2g",
+          "Fluoroscopie de contrôle"
+        ],
+        "postop": [
+          "Analgésie multimodale : paracétamol + AINS + relais bloc",
+          "Surélévation membre inférieur",
+          "Thromboprophylaxie HBPM",
+          "Non-appui 6 semaines (selon type)"
+        ],
+        "red_flags": [
+          "Syndrome compartimental de la jambe",
+          "Souffrance cutanée sur fracture (phlyctènes)",
+          "Thrombose veineuse profonde"
+        ],
         "drugs": [
           { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
           { "drug_id": "paracetamol", "indication_tag": "analgésie" },
@@ -731,10 +1037,20 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["Le bloc poplité + saphène offre une excellente analgésie post-op avec épargne motrice proximale.", "La rachianesthésie est l'alternative simple et fiable."],
-        "pitfalls": ["Les phlyctènes sur fracture bi-malléolaire peuvent retarder la chirurgie — ne pas forcer.", "Le bloc poplité peut masquer un syndrome compartimental — surveillance clinique attentive."],
+        "clinical": [
+          "Le bloc poplité + saphène offre une excellente analgésie post-op avec épargne motrice proximale.",
+          "La rachianesthésie est l'alternative simple et fiable."
+        ],
+        "pitfalls": [
+          "Les phlyctènes sur fracture bi-malléolaire peuvent retarder la chirurgie — ne pas forcer.",
+          "Le bloc poplité peut masquer un syndrome compartimental — surveillance clinique attentive."
+        ],
         "references": [
-          { "source": "AO Foundation — Ankle Fracture Management", "year": 2022, "note": "Principes d'ostéosynthèse" }
+          {
+            "source": "AO Foundation — Ankle Fracture Management",
+            "year": 2022,
+            "note": "Principes d'ostéosynthèse"
+          }
         ]
       }
     }
@@ -742,14 +1058,42 @@
   {
     "id": "laminectomie_lombaire",
     "specialty": "Neurochirurgie",
-    "titles": { "fr": "Laminectomie lombaire", "pt": "Laminectomia lombar", "en": "Lumbar laminectomy" },
-    "synonyms": { "fr": ["laminectomie", "sténose lombaire", "décompression lombaire"], "en": ["lumbar decompression", "spinal stenosis surgery"], "pt": ["laminectomia", "descompressão lombar"] },
+    "titles": {
+      "fr": "Laminectomie lombaire",
+      "pt": "Laminectomia lombar",
+      "en": "Lumbar laminectomy"
+    },
+    "synonyms": {
+      "fr": ["laminectomie", "sténose lombaire", "décompression lombaire"],
+      "en": ["lumbar decompression", "spinal stenosis surgery"],
+      "pt": ["laminectomia", "descompressão lombar"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Évaluation neurologique de base (périmètre de marche, déficits)", "Bilan standard + coagulation", "Évaluation comorbidités (population souvent âgée)", "Position ventrale prévue — informer le patient"],
-        "intraop": ["AG + IOT", "Position ventrale (Wilson frame ou Relton-Hall)", "Protection yeux + points d'appui + abdomen libre", "Antibioprophylaxie : céfazoline 2g", "Surveillance pertes sanguines (multi-niveaux = plus hémorragique)"],
-        "postop": ["Évaluation neurologique post-op immédiate", "Analgésie multimodale : paracétamol + AINS + kétamine faible dose", "Mobilisation précoce J0-J1", "Surveillance drain si posé"],
-        "red_flags": ["Hématome épidural compressif (déficit progressif = urgence IRM)", "Syndrome de la queue de cheval", "Complications positionnement (cécité, lésion plexus)"],
+        "preop": [
+          "Évaluation neurologique de base (périmètre de marche, déficits)",
+          "Bilan standard + coagulation",
+          "Évaluation comorbidités (population souvent âgée)",
+          "Position ventrale prévue — informer le patient"
+        ],
+        "intraop": [
+          "AG + IOT",
+          "Position ventrale (Wilson frame ou Relton-Hall)",
+          "Protection yeux + points d'appui + abdomen libre",
+          "Antibioprophylaxie : céfazoline 2g",
+          "Surveillance pertes sanguines (multi-niveaux = plus hémorragique)"
+        ],
+        "postop": [
+          "Évaluation neurologique post-op immédiate",
+          "Analgésie multimodale : paracétamol + AINS + kétamine faible dose",
+          "Mobilisation précoce J0-J1",
+          "Surveillance drain si posé"
+        ],
+        "red_flags": [
+          "Hématome épidural compressif (déficit progressif = urgence IRM)",
+          "Syndrome de la queue de cheval",
+          "Complications positionnement (cécité, lésion plexus)"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "rocuronium", "indication_tag": "intubation" },
@@ -762,10 +1106,20 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["La laminectomie multi-niveaux est plus hémorragique et longue que la simple discectomie.", "La kétamine sub-anesthésique améliore l'analgésie et réduit la consommation d'opioïdes."],
-        "pitfalls": ["Toujours vérifier les yeux après positionnement en DV — pas de compression.", "Un déficit neurologique nouveau post-op est une urgence chirurgicale."],
+        "clinical": [
+          "La laminectomie multi-niveaux est plus hémorragique et longue que la simple discectomie.",
+          "La kétamine sub-anesthésique améliore l'analgésie et réduit la consommation d'opioïdes."
+        ],
+        "pitfalls": [
+          "Toujours vérifier les yeux après positionnement en DV — pas de compression.",
+          "Un déficit neurologique nouveau post-op est une urgence chirurgicale."
+        ],
         "references": [
-          { "source": "NICE — Lumbar Spinal Stenosis", "year": 2022, "note": "Indications et technique" }
+          {
+            "source": "NICE — Lumbar Spinal Stenosis",
+            "year": 2022,
+            "note": "Indications et technique"
+          }
         ]
       }
     }
@@ -773,14 +1127,43 @@
   {
     "id": "arthrodese_cervicale",
     "specialty": "Neurochirurgie",
-    "titles": { "fr": "Arthrodèse cervicale antérieure (ACDF)", "pt": "Artrodese cervical anterior (ACDF)", "en": "Anterior cervical discectomy and fusion (ACDF)" },
-    "synonyms": { "fr": ["ACDF", "arthrodèse cervicale", "discectomie cervicale"], "en": ["ACDF", "cervical fusion", "anterior cervical surgery"], "pt": ["ACDF", "artrodese cervical"] },
+    "titles": {
+      "fr": "Arthrodèse cervicale antérieure (ACDF)",
+      "pt": "Artrodese cervical anterior (ACDF)",
+      "en": "Anterior cervical discectomy and fusion (ACDF)"
+    },
+    "synonyms": {
+      "fr": ["ACDF", "arthrodèse cervicale", "discectomie cervicale"],
+      "en": ["ACDF", "cervical fusion", "anterior cervical surgery"],
+      "pt": ["ACDF", "artrodese cervical"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Évaluation neurologique cervicale complète", "Évaluation voies aériennes ++ (mobilité cervicale limitée)", "Imagerie rachis cervical disponible au bloc", "Bilan standard + coagulation"],
-        "intraop": ["AG + IOT prudente (fibroscopie si mobilité cervicale réduite)", "Position décubitus dorsal, cou en extension modérée", "Monitoring neurophysiologique (PES/PEM) selon indication", "Antibioprophylaxie : céfazoline 2g", "Attention compression œsophage par écarteur"],
-        "postop": ["Évaluation neurologique + voix (nerf récurrent)", "Surveillance hématome cervical (dyspnée, dysphagie = urgence)", "Analgésie : paracétamol + AINS, opioïdes en secours", "Minerve selon chirurgien"],
-        "red_flags": ["Hématome cervical compressif (dyspnée aiguë → réintubation urgente)", "Lésion nerf récurrent (dysphonie)", "Dysphagie post-op (œdème ou lésion œsophagienne)", "Déficit neurologique nouveau"],
+        "preop": [
+          "Évaluation neurologique cervicale complète",
+          "Évaluation voies aériennes ++ (mobilité cervicale limitée)",
+          "Imagerie rachis cervical disponible au bloc",
+          "Bilan standard + coagulation"
+        ],
+        "intraop": [
+          "AG + IOT prudente (fibroscopie si mobilité cervicale réduite)",
+          "Position décubitus dorsal, cou en extension modérée",
+          "Monitoring neurophysiologique (PES/PEM) selon indication",
+          "Antibioprophylaxie : céfazoline 2g",
+          "Attention compression œsophage par écarteur"
+        ],
+        "postop": [
+          "Évaluation neurologique + voix (nerf récurrent)",
+          "Surveillance hématome cervical (dyspnée, dysphagie = urgence)",
+          "Analgésie : paracétamol + AINS, opioïdes en secours",
+          "Minerve selon chirurgien"
+        ],
+        "red_flags": [
+          "Hématome cervical compressif (dyspnée aiguë → réintubation urgente)",
+          "Lésion nerf récurrent (dysphonie)",
+          "Dysphagie post-op (œdème ou lésion œsophagienne)",
+          "Déficit neurologique nouveau"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "rocuronium", "indication_tag": "intubation" },
@@ -793,10 +1176,21 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["L'intubation peut être difficile si canal cervical étroit — éviter l'hyperextension.", "Le monitoring neurophysiologique est recommandé pour les cas multi-niveaux.", "La dexaméthasone réduit l'œdème post-op et facilite la déglutition."],
-        "pitfalls": ["L'hématome cervical est une urgence vitale : ouverture au lit si détresse respiratoire.", "Toujours vérifier la voix en post-op (paralysie récurrentielle)."],
+        "clinical": [
+          "L'intubation peut être difficile si canal cervical étroit — éviter l'hyperextension.",
+          "Le monitoring neurophysiologique est recommandé pour les cas multi-niveaux.",
+          "La dexaméthasone réduit l'œdème post-op et facilite la déglutition."
+        ],
+        "pitfalls": [
+          "L'hématome cervical est une urgence vitale : ouverture au lit si détresse respiratoire.",
+          "Toujours vérifier la voix en post-op (paralysie récurrentielle)."
+        ],
         "references": [
-          { "source": "NASS — ACDF Clinical Guidelines", "year": 2022, "note": "Recommandations chirurgicales" }
+          {
+            "source": "NASS — ACDF Clinical Guidelines",
+            "year": 2022,
+            "note": "Recommandations chirurgicales"
+          }
         ]
       }
     }
@@ -804,14 +1198,42 @@
   {
     "id": "rtu_bexiga",
     "specialty": "Urologie",
-    "titles": { "fr": "Résection transurétrale de vessie (RTUV)", "pt": "Ressecção transuretral de bexiga (RTUV)", "en": "Transurethral resection of bladder (TURBT)" },
-    "synonyms": { "fr": ["RTUV", "résection vésicale", "tumeur vessie"], "en": ["TURBT", "bladder resection"], "pt": ["RTUV", "ressecção vesical"] },
+    "titles": {
+      "fr": "Résection transurétrale de vessie (RTUV)",
+      "pt": "Ressecção transuretral de bexiga (RTUV)",
+      "en": "Transurethral resection of bladder (TURBT)"
+    },
+    "synonyms": {
+      "fr": ["RTUV", "résection vésicale", "tumeur vessie"],
+      "en": ["TURBT", "bladder resection"],
+      "pt": ["RTUV", "ressecção vesical"]
+    },
     "quick": {
       "fr": {
-        "preop": ["ECBU stérile obligatoire", "Bilan standard + coagulation", "Arrêt anticoagulants selon recommandations", "Information : hématurie post-op attendue"],
-        "intraop": ["Rachianesthésie (T10) préférentielle", "Éviter fasciculations (stimulation nerf obturateur → perforation)", "Surveillance volume irrigation", "Antibioprophylaxie selon protocole"],
-        "postop": ["Irrigation vésicale continue si hématurie", "Surveillance diurèse et coloration urines", "Analgésie : paracétamol + antispasmodiques", "Retrait sonde J1-J2"],
-        "red_flags": ["Perforation vésicale (douleur abdominale, distension)", "Réflexe obturateur → perforation (curare si nécessaire)", "Hémorragie massive", "Hyponatrémie de dilution (si glycine)"],
+        "preop": [
+          "ECBU stérile obligatoire",
+          "Bilan standard + coagulation",
+          "Arrêt anticoagulants selon recommandations",
+          "Information : hématurie post-op attendue"
+        ],
+        "intraop": [
+          "Rachianesthésie (T10) préférentielle",
+          "Éviter fasciculations (stimulation nerf obturateur → perforation)",
+          "Surveillance volume irrigation",
+          "Antibioprophylaxie selon protocole"
+        ],
+        "postop": [
+          "Irrigation vésicale continue si hématurie",
+          "Surveillance diurèse et coloration urines",
+          "Analgésie : paracétamol + antispasmodiques",
+          "Retrait sonde J1-J2"
+        ],
+        "red_flags": [
+          "Perforation vésicale (douleur abdominale, distension)",
+          "Réflexe obturateur → perforation (curare si nécessaire)",
+          "Hémorragie massive",
+          "Hyponatrémie de dilution (si glycine)"
+        ],
         "drugs": [
           { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
           { "drug_id": "paracetamol", "indication_tag": "analgésie" },
@@ -821,10 +1243,20 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["La rachianesthésie permet de détecter la douleur d'une perforation vésicale.", "Le réflexe obturateur (adduction cuisse) peut perforer la vessie — curaresation parfois nécessaire."],
-        "pitfalls": ["Toujours surveiller le bilan liquidien (entrées/sorties irrigation).", "Ne pas confondre ballonnement vésical simple avec perforation."],
+        "clinical": [
+          "La rachianesthésie permet de détecter la douleur d'une perforation vésicale.",
+          "Le réflexe obturateur (adduction cuisse) peut perforer la vessie — curaresation parfois nécessaire."
+        ],
+        "pitfalls": [
+          "Toujours surveiller le bilan liquidien (entrées/sorties irrigation).",
+          "Ne pas confondre ballonnement vésical simple avec perforation."
+        ],
         "references": [
-          { "source": "EAU — Bladder Cancer Guidelines", "year": 2023, "note": "Recommandations RTUV" }
+          {
+            "source": "EAU — Bladder Cancer Guidelines",
+            "year": 2023,
+            "note": "Recommandations RTUV"
+          }
         ]
       }
     }
@@ -832,14 +1264,42 @@
   {
     "id": "nephrostomie_dj",
     "specialty": "Urologie",
-    "titles": { "fr": "Néphrostomie percutanée / Double-J", "pt": "Nefrostomia percutânea / Duplo-J", "en": "Percutaneous nephrostomy / Double-J stent" },
-    "synonyms": { "fr": ["néphrostomie", "double J", "drainage rénal"], "en": ["nephrostomy", "DJ stent", "renal drainage"], "pt": ["nefrostomia", "duplo J"] },
+    "titles": {
+      "fr": "Néphrostomie percutanée / Double-J",
+      "pt": "Nefrostomia percutânea / Duplo-J",
+      "en": "Percutaneous nephrostomy / Double-J stent"
+    },
+    "synonyms": {
+      "fr": ["néphrostomie", "double J", "drainage rénal"],
+      "en": ["nephrostomy", "DJ stent", "renal drainage"],
+      "pt": ["nefrostomia", "duplo J"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan rénal (créatinine, DFG)", "ECBU + bilan infectieux si pyélonéphrite", "Coagulation (procédure à risque hémorragique)", "Antibiothérapie si contexte septique"],
-        "intraop": ["AG courte ou sédation + AL selon technique", "Position DV ou DL pour néphrostomie percutanée", "Guidage fluoroscopique/échographique", "Antibioprophylaxie : céfazoline"],
-        "postop": ["Surveillance drain/néphrostomie (débit, aspect)", "Analgésie : paracétamol + AINS", "Surveillance diurèse et fonction rénale", "Bilan infectieux de contrôle"],
-        "red_flags": ["Hémorragie rénale (hématurie massive, choc)", "Sepsis (fièvre, frissons post-procédure)", "Pneumothorax (ponction haute)", "Lésion organes adjacents"],
+        "preop": [
+          "Bilan rénal (créatinine, DFG)",
+          "ECBU + bilan infectieux si pyélonéphrite",
+          "Coagulation (procédure à risque hémorragique)",
+          "Antibiothérapie si contexte septique"
+        ],
+        "intraop": [
+          "AG courte ou sédation + AL selon technique",
+          "Position DV ou DL pour néphrostomie percutanée",
+          "Guidage fluoroscopique/échographique",
+          "Antibioprophylaxie : céfazoline"
+        ],
+        "postop": [
+          "Surveillance drain/néphrostomie (débit, aspect)",
+          "Analgésie : paracétamol + AINS",
+          "Surveillance diurèse et fonction rénale",
+          "Bilan infectieux de contrôle"
+        ],
+        "red_flags": [
+          "Hémorragie rénale (hématurie massive, choc)",
+          "Sepsis (fièvre, frissons post-procédure)",
+          "Pneumothorax (ponction haute)",
+          "Lésion organes adjacents"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "sédation" },
           { "drug_id": "paracetamol", "indication_tag": "analgésie" },
@@ -849,8 +1309,14 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["La néphrostomie percutanée est souvent réalisée en urgence pour drainage d'un rein obstrué infecté.", "Le DJ est posé par voie endoscopique et souvent sous AL/sédation."],
-        "pitfalls": ["Attention au risque de sepsis sévère lors du drainage d'un rein infecté — antibiothérapie AVANT.", "Ponction haute (> 12e côte) : risque pneumothorax."],
+        "clinical": [
+          "La néphrostomie percutanée est souvent réalisée en urgence pour drainage d'un rein obstrué infecté.",
+          "Le DJ est posé par voie endoscopique et souvent sous AL/sédation."
+        ],
+        "pitfalls": [
+          "Attention au risque de sepsis sévère lors du drainage d'un rein infecté — antibiothérapie AVANT.",
+          "Ponction haute (> 12e côte) : risque pneumothorax."
+        ],
         "references": [
           { "source": "EAU — Urolithiasis Guidelines", "year": 2023, "note": "Drainage urgence" }
         ]
@@ -860,14 +1326,45 @@
   {
     "id": "cesarienne_elective",
     "specialty": "Obstétrique",
-    "titles": { "fr": "Césarienne élective (programmée)", "pt": "Cesariana eletiva (programada)", "en": "Elective caesarean section" },
-    "synonyms": { "fr": ["césarienne programmée", "césarienne élective", "c-section programmée"], "en": ["elective c-section", "planned caesarean"], "pt": ["cesariana programada", "cesariana eletiva"] },
+    "titles": {
+      "fr": "Césarienne élective (programmée)",
+      "pt": "Cesariana eletiva (programada)",
+      "en": "Elective caesarean section"
+    },
+    "synonyms": {
+      "fr": ["césarienne programmée", "césarienne élective", "c-section programmée"],
+      "en": ["elective c-section", "planned caesarean"],
+      "pt": ["cesariana programada", "cesariana eletiva"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan : NFS, groupage + RAI, coagulation", "Jeûne 6h solides / 2h liquides clairs", "Évaluation voies aériennes (modifications grossesse)", "Antiacide : citrate de sodium 30 mL PO", "VVP gros calibre (16-18G)"],
-        "intraop": ["Rachianesthésie : bupivacaïne hyperbare 10-12 mg + sufentanil 2.5 µg + morphine 100 µg IT", "Co-remplissage cristalloïdes + phényléphrine IVSE", "Antibioprophylaxie : céfazoline 2g avant incision", "Ocytocine 5 UI IV lente après extraction", "Normothermie (couverture chauffante)"],
-        "postop": ["Analgésie excellente via morphine IT (24-48h) + paracétamol + AINS", "Prévention NVPO : ondansétron", "Thromboprophylaxie HBPM", "Peau-à-peau et allaitement précoce", "Mobilisation précoce J0"],
-        "red_flags": ["Hémorragie du post-partum (> 500 mL)", "Hypotension sévère post-rachianesthésie", "Prurit intense (morphine IT)", "Dépression respiratoire tardive (morphine IT — surveillance 24h)"],
+        "preop": [
+          "Bilan : NFS, groupage + RAI, coagulation",
+          "Jeûne 6h solides / 2h liquides clairs",
+          "Évaluation voies aériennes (modifications grossesse)",
+          "Antiacide : citrate de sodium 30 mL PO",
+          "VVP gros calibre (16-18G)"
+        ],
+        "intraop": [
+          "Rachianesthésie : bupivacaïne hyperbare 10-12 mg + sufentanil 2.5 µg + morphine 100 µg IT",
+          "Co-remplissage cristalloïdes + phényléphrine IVSE",
+          "Antibioprophylaxie : céfazoline 2g avant incision",
+          "Ocytocine 5 UI IV lente après extraction",
+          "Normothermie (couverture chauffante)"
+        ],
+        "postop": [
+          "Analgésie excellente via morphine IT (24-48h) + paracétamol + AINS",
+          "Prévention NVPO : ondansétron",
+          "Thromboprophylaxie HBPM",
+          "Peau-à-peau et allaitement précoce",
+          "Mobilisation précoce J0"
+        ],
+        "red_flags": [
+          "Hémorragie du post-partum (> 500 mL)",
+          "Hypotension sévère post-rachianesthésie",
+          "Prurit intense (morphine IT)",
+          "Dépression respiratoire tardive (morphine IT — surveillance 24h)"
+        ],
         "drugs": [
           { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
           { "drug_id": "sufentanil", "indication_tag": "analgésie_IT" },
@@ -880,10 +1377,21 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["La morphine intrathécale offre une analgésie de 24-48h — gold standard pour la césarienne.", "La phényléphrine en perfusion continue prévient mieux l'hypotension que les bolus d'éphédrine.", "Le co-remplissage (500-1000 mL pendant la rachianesthésie) est plus efficace que le pré-remplissage."],
-        "pitfalls": ["Surveillance respiratoire 24h si morphine IT (dépression tardive possible).", "Le prurit est fréquent avec morphine IT — traiter par nalbuphine si sévère."],
+        "clinical": [
+          "La morphine intrathécale offre une analgésie de 24-48h — gold standard pour la césarienne.",
+          "La phényléphrine en perfusion continue prévient mieux l'hypotension que les bolus d'éphédrine.",
+          "Le co-remplissage (500-1000 mL pendant la rachianesthésie) est plus efficace que le pré-remplissage."
+        ],
+        "pitfalls": [
+          "Surveillance respiratoire 24h si morphine IT (dépression tardive possible).",
+          "Le prurit est fréquent avec morphine IT — traiter par nalbuphine si sévère."
+        ],
         "references": [
-          { "source": "SFAR/CARO — Césarienne programmée", "year": 2023, "note": "Protocole anesthésique" },
+          {
+            "source": "SFAR/CARO — Césarienne programmée",
+            "year": 2023,
+            "note": "Protocole anesthésique"
+          },
           { "source": "NICE — Caesarean birth", "year": 2021, "note": "Recommandations" }
         ]
       }
@@ -893,13 +1401,36 @@
     "id": "conisation_leep",
     "specialty": "Gynécologie",
     "titles": { "fr": "Conisation / LEEP", "pt": "Conização / LEEP", "en": "Conization / LEEP" },
-    "synonyms": { "fr": ["conisation", "LEEP", "résection anse diathermique", "CIN"], "en": ["conization", "LEEP", "LLETZ", "cervical excision"], "pt": ["conização", "LEEP", "CAF"] },
+    "synonyms": {
+      "fr": ["conisation", "LEEP", "résection anse diathermique", "CIN"],
+      "en": ["conization", "LEEP", "LLETZ", "cervical excision"],
+      "pt": ["conização", "LEEP", "CAF"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Test de grossesse si femme en âge de procréer", "Bilan standard minimal", "Jeûne standard", "Information ambulatoire"],
-        "intraop": ["AG masque laryngé (procédure courte 15-30 min)", "Position gynécologique", "Pas de curarisation nécessaire", "Prophylaxie NVPO si FDR (score Apfel)"],
-        "postop": ["Sortie ambulatoire J0", "Analgésie PO : paracétamol ± ibuprofène", "Surveillance saignement vaginal", "Consignes : consulter si saignement abondant ou fièvre"],
-        "red_flags": ["Hémorragie cervicale (rare, tamponnement local)", "Perforation utérine (exceptionnel)", "Réaction vagale"],
+        "preop": [
+          "Test de grossesse si femme en âge de procréer",
+          "Bilan standard minimal",
+          "Jeûne standard",
+          "Information ambulatoire"
+        ],
+        "intraop": [
+          "AG masque laryngé (procédure courte 15-30 min)",
+          "Position gynécologique",
+          "Pas de curarisation nécessaire",
+          "Prophylaxie NVPO si FDR (score Apfel)"
+        ],
+        "postop": [
+          "Sortie ambulatoire J0",
+          "Analgésie PO : paracétamol ± ibuprofène",
+          "Surveillance saignement vaginal",
+          "Consignes : consulter si saignement abondant ou fièvre"
+        ],
+        "red_flags": [
+          "Hémorragie cervicale (rare, tamponnement local)",
+          "Perforation utérine (exceptionnel)",
+          "Réaction vagale"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "paracetamol", "indication_tag": "analgésie" },
@@ -909,8 +1440,14 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["Procédure courte et ambulatoire par excellence.", "Le masque laryngé sans curarisation est suffisant."],
-        "pitfalls": ["La réaction vagale lors de la manipulation cervicale est fréquente — atropine prête.", "Saignement post-op rare mais possible à J7-J10 (chute d'escarre)."],
+        "clinical": [
+          "Procédure courte et ambulatoire par excellence.",
+          "Le masque laryngé sans curarisation est suffisant."
+        ],
+        "pitfalls": [
+          "La réaction vagale lors de la manipulation cervicale est fréquente — atropine prête.",
+          "Saignement post-op rare mais possible à J7-J10 (chute d'escarre)."
+        ],
         "references": [
           { "source": "CNGOF — Conisation", "year": 2020, "note": "Recommandations pratiques" }
         ]
@@ -920,14 +1457,42 @@
   {
     "id": "hernie_inguinale",
     "specialty": "Chirurgie générale",
-    "titles": { "fr": "Hernie inguinale (laparoscopie/TEP)", "pt": "Hérnia inguinal (laparoscopia/TEP)", "en": "Inguinal hernia repair (laparoscopic/TEP)" },
-    "synonyms": { "fr": ["hernie inguinale", "TEP", "TAPP", "cure de hernie"], "en": ["inguinal hernia", "TEP repair", "TAPP", "hernia surgery"], "pt": ["hérnia inguinal", "herniorrafia"] },
+    "titles": {
+      "fr": "Hernie inguinale (laparoscopie/TEP)",
+      "pt": "Hérnia inguinal (laparoscopia/TEP)",
+      "en": "Inguinal hernia repair (laparoscopic/TEP)"
+    },
+    "synonyms": {
+      "fr": ["hernie inguinale", "TEP", "TAPP", "cure de hernie"],
+      "en": ["inguinal hernia", "TEP repair", "TAPP", "hernia surgery"],
+      "pt": ["hérnia inguinal", "herniorrafia"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan standard", "Évaluation risque PONV", "Jeûne standard", "Information ambulatoire (sortie J0)"],
-        "intraop": ["AG + IOT (curarisation pour espace pré-péritonéal)", "Infiltration trocarts", "Antibioprophylaxie si prothèse (céfazoline)", "Pneumopéritoine (CO2) — surveillance Pplateau"],
-        "postop": ["Analgésie multimodale : paracétamol + AINS + infiltration", "RAAC — sortie J0 si critères remplis", "Reprise activité légère J1-J2", "Éviter efforts lourds 4-6 semaines"],
-        "red_flags": ["Hématome inguino-scrotal", "Lésion vésicale (TEP)", "Rétention urinaire post-op", "Douleur chronique post-hernioplastie (lésion nerveuse)"],
+        "preop": [
+          "Bilan standard",
+          "Évaluation risque PONV",
+          "Jeûne standard",
+          "Information ambulatoire (sortie J0)"
+        ],
+        "intraop": [
+          "AG + IOT (curarisation pour espace pré-péritonéal)",
+          "Infiltration trocarts",
+          "Antibioprophylaxie si prothèse (céfazoline)",
+          "Pneumopéritoine (CO2) — surveillance Pplateau"
+        ],
+        "postop": [
+          "Analgésie multimodale : paracétamol + AINS + infiltration",
+          "RAAC — sortie J0 si critères remplis",
+          "Reprise activité légère J1-J2",
+          "Éviter efforts lourds 4-6 semaines"
+        ],
+        "red_flags": [
+          "Hématome inguino-scrotal",
+          "Lésion vésicale (TEP)",
+          "Rétention urinaire post-op",
+          "Douleur chronique post-hernioplastie (lésion nerveuse)"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "rocuronium", "indication_tag": "intubation" },
@@ -939,10 +1504,20 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["La TEP nécessite une bonne curarisation pour l'espace pré-péritonéal.", "Le TAP block peut compléter l'analgésie post-op."],
-        "pitfalls": ["La rétention urinaire est fréquente — vérifier miction avant sortie ambulatoire.", "La douleur chronique post-hernioplastie touche 5-10% des patients."],
+        "clinical": [
+          "La TEP nécessite une bonne curarisation pour l'espace pré-péritonéal.",
+          "Le TAP block peut compléter l'analgésie post-op."
+        ],
+        "pitfalls": [
+          "La rétention urinaire est fréquente — vérifier miction avant sortie ambulatoire.",
+          "La douleur chronique post-hernioplastie touche 5-10% des patients."
+        ],
         "references": [
-          { "source": "HerniaSurge — International Guidelines", "year": 2018, "note": "Recommandations hernie inguinale" }
+          {
+            "source": "HerniaSurge — International Guidelines",
+            "year": 2018,
+            "note": "Recommandations hernie inguinale"
+          }
         ]
       }
     }
@@ -951,13 +1526,39 @@
     "id": "thyroidectomie",
     "specialty": "Chirurgie générale",
     "titles": { "fr": "Thyroïdectomie", "pt": "Tiroidectomia", "en": "Thyroidectomy" },
-    "synonyms": { "fr": ["thyroïdectomie", "thyroïde", "lobectomie thyroïdienne"], "en": ["thyroidectomy", "thyroid surgery"], "pt": ["tiroidectomia", "tiroide"] },
+    "synonyms": {
+      "fr": ["thyroïdectomie", "thyroïde", "lobectomie thyroïdienne"],
+      "en": ["thyroidectomy", "thyroid surgery"],
+      "pt": ["tiroidectomia", "tiroide"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan thyroïdien (TSH, T3, T4) — euthyroïdie obligatoire", "Laryngoscopie pré-op (mobilité cordes vocales)", "Évaluation voies aériennes (goitre compressif ?)", "Calcium + vitamine D de base", "Bilan standard"],
-        "intraop": ["AG + IOT (tube standard ou armé)", "Monitoring nerf récurrent (NIM) si disponible", "Position hyperextension cervicale", "Antibioprophylaxie non systématique", "Hémostase méticuleuse"],
-        "postop": ["Surveillance voix/dysphonie (nerf récurrent)", "Surveillance signes hypocalcémie (Chvostek, Trousseau) — calcémie H6+J1", "Surveillance hématome cervical (dyspnée = urgence)", "Analgésie : paracétamol ± AINS"],
-        "red_flags": ["Hématome cervical compressif (dyspnée → ouverture points au lit)", "Hypocalcémie aiguë (tétanie, spasme laryngé)", "Paralysie récurrentielle bilatérale (stridor → réintubation)", "Crise thyréotoxique (tachycardie, hyperthermie)"],
+        "preop": [
+          "Bilan thyroïdien (TSH, T3, T4) — euthyroïdie obligatoire",
+          "Laryngoscopie pré-op (mobilité cordes vocales)",
+          "Évaluation voies aériennes (goitre compressif ?)",
+          "Calcium + vitamine D de base",
+          "Bilan standard"
+        ],
+        "intraop": [
+          "AG + IOT (tube standard ou armé)",
+          "Monitoring nerf récurrent (NIM) si disponible",
+          "Position hyperextension cervicale",
+          "Antibioprophylaxie non systématique",
+          "Hémostase méticuleuse"
+        ],
+        "postop": [
+          "Surveillance voix/dysphonie (nerf récurrent)",
+          "Surveillance signes hypocalcémie (Chvostek, Trousseau) — calcémie H6+J1",
+          "Surveillance hématome cervical (dyspnée = urgence)",
+          "Analgésie : paracétamol ± AINS"
+        ],
+        "red_flags": [
+          "Hématome cervical compressif (dyspnée → ouverture points au lit)",
+          "Hypocalcémie aiguë (tétanie, spasme laryngé)",
+          "Paralysie récurrentielle bilatérale (stridor → réintubation)",
+          "Crise thyréotoxique (tachycardie, hyperthermie)"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "rocuronium", "indication_tag": "intubation" },
@@ -969,10 +1570,20 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["Le monitoring du nerf récurrent (NIM) nécessite l'absence de curarisation résiduelle lors de la stimulation.", "L'hypocalcémie est la complication la plus fréquente de la thyroïdectomie totale."],
-        "pitfalls": ["L'hématome cervical est une urgence vitale — kit d'ouverture de cervicotomie au chevet.", "La curarisation interfère avec le NIM : donner rocuronium faible dose ou pas du tout si NIM utilisé."],
+        "clinical": [
+          "Le monitoring du nerf récurrent (NIM) nécessite l'absence de curarisation résiduelle lors de la stimulation.",
+          "L'hypocalcémie est la complication la plus fréquente de la thyroïdectomie totale."
+        ],
+        "pitfalls": [
+          "L'hématome cervical est une urgence vitale — kit d'ouverture de cervicotomie au chevet.",
+          "La curarisation interfère avec le NIM : donner rocuronium faible dose ou pas du tout si NIM utilisé."
+        ],
         "references": [
-          { "source": "ATA — Thyroid Surgery Guidelines", "year": 2022, "note": "Recommandations peri-op" }
+          {
+            "source": "ATA — Thyroid Surgery Guidelines",
+            "year": 2022,
+            "note": "Recommandations peri-op"
+          }
         ]
       }
     }
@@ -980,14 +1591,43 @@
   {
     "id": "mastectomie",
     "specialty": "Chirurgie générale",
-    "titles": { "fr": "Mastectomie / tumorectomie", "pt": "Mastectomia / tumorectomia", "en": "Mastectomy / lumpectomy" },
-    "synonyms": { "fr": ["mastectomie", "tumorectomie", "chirurgie sein", "cancer sein"], "en": ["mastectomy", "lumpectomy", "breast surgery"], "pt": ["mastectomia", "tumorectomia", "cirurgia mama"] },
+    "titles": {
+      "fr": "Mastectomie / tumorectomie",
+      "pt": "Mastectomia / tumorectomia",
+      "en": "Mastectomy / lumpectomy"
+    },
+    "synonyms": {
+      "fr": ["mastectomie", "tumorectomie", "chirurgie sein", "cancer sein"],
+      "en": ["mastectomy", "lumpectomy", "breast surgery"],
+      "pt": ["mastectomia", "tumorectomia", "cirurgia mama"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan standard + coagulation", "Évaluation psychologique (anxiété +++)", "Repérage ganglion sentinelle si prévu", "Information sur douleur chronique post-mastectomie"],
-        "intraop": ["AG + IOT ou masque laryngé", "Bloc PECS I + II ou bloc serratus échoguidé", "Position décubitus dorsal, bras en abduction", "Antibioprophylaxie : céfazoline si prothèse immédiate", "Prophylaxie NVPO multimodale"],
-        "postop": ["Analgésie via bloc régional + paracétamol + AINS", "Surveillance drain et hématome", "Prévention NVPO agressive (femme + opioïdes = haut risque)", "Kinésithérapie épaule précoce"],
-        "red_flags": ["Hématome expansif (réintervention)", "Lymphœdème (à long terme)", "Douleur chronique post-mastectomie (SDPM)", "Pneumothorax (bloc PECS — rare)"],
+        "preop": [
+          "Bilan standard + coagulation",
+          "Évaluation psychologique (anxiété +++)",
+          "Repérage ganglion sentinelle si prévu",
+          "Information sur douleur chronique post-mastectomie"
+        ],
+        "intraop": [
+          "AG + IOT ou masque laryngé",
+          "Bloc PECS I + II ou bloc serratus échoguidé",
+          "Position décubitus dorsal, bras en abduction",
+          "Antibioprophylaxie : céfazoline si prothèse immédiate",
+          "Prophylaxie NVPO multimodale"
+        ],
+        "postop": [
+          "Analgésie via bloc régional + paracétamol + AINS",
+          "Surveillance drain et hématome",
+          "Prévention NVPO agressive (femme + opioïdes = haut risque)",
+          "Kinésithérapie épaule précoce"
+        ],
+        "red_flags": [
+          "Hématome expansif (réintervention)",
+          "Lymphœdème (à long terme)",
+          "Douleur chronique post-mastectomie (SDPM)",
+          "Pneumothorax (bloc PECS — rare)"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "bupivacaine", "indication_tag": "bloc_PECS" },
@@ -1000,10 +1640,20 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["Le bloc PECS II est le gold standard analgésique pour la chirurgie mammaire.", "La douleur chronique post-mastectomie touche 20-50% des patientes — la prévenir par analgésie multimodale."],
-        "pitfalls": ["Patientes à très haut risque PONV (femme + non-fumeuse + ATCD PONV) — prophylaxie triple.", "Le bloc PECS trop profond peut causer un pneumothorax — échoguidage obligatoire."],
+        "clinical": [
+          "Le bloc PECS II est le gold standard analgésique pour la chirurgie mammaire.",
+          "La douleur chronique post-mastectomie touche 20-50% des patientes — la prévenir par analgésie multimodale."
+        ],
+        "pitfalls": [
+          "Patientes à très haut risque PONV (femme + non-fumeuse + ATCD PONV) — prophylaxie triple.",
+          "Le bloc PECS trop profond peut causer un pneumothorax — échoguidage obligatoire."
+        ],
         "references": [
-          { "source": "ESRA — PECS Block Guidelines", "year": 2021, "note": "Technique et indications" }
+          {
+            "source": "ESRA — PECS Block Guidelines",
+            "year": 2021,
+            "note": "Technique et indications"
+          }
         ]
       }
     }
@@ -1011,14 +1661,42 @@
   {
     "id": "septoplastie",
     "specialty": "ORL",
-    "titles": { "fr": "Septoplastie / rhinoplastie fonctionnelle", "pt": "Septoplastia / rinoplastia funcional", "en": "Septoplasty / functional rhinoplasty" },
-    "synonyms": { "fr": ["septoplastie", "rhinoplastie", "déviation cloison nasale"], "en": ["septoplasty", "rhinoplasty", "nasal septum surgery"], "pt": ["septoplastia", "rinoplastia", "desvio septo nasal"] },
+    "titles": {
+      "fr": "Septoplastie / rhinoplastie fonctionnelle",
+      "pt": "Septoplastia / rinoplastia funcional",
+      "en": "Septoplasty / functional rhinoplasty"
+    },
+    "synonyms": {
+      "fr": ["septoplastie", "rhinoplastie", "déviation cloison nasale"],
+      "en": ["septoplasty", "rhinoplasty", "nasal septum surgery"],
+      "pt": ["septoplastia", "rinoplastia", "desvio septo nasal"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Bilan standard", "Évaluation voies aériennes", "Arrêt aspirine/AINS 7 jours avant", "Jeûne standard"],
-        "intraop": ["AG + IOT (tube oral RAE préféré)", "Méchage nasal vasoconstricteur (adrénaline + lidocaïne topique)", "Position proclive 15-20° (réduction saignement)", "Antibioprophylaxie non systématique", "Extubation prudente (sang dans oropharynx)"],
-        "postop": ["Méchage nasal (retrait J1-J2)", "Analgésie : paracétamol + AINS dès retrait mèches", "Humidification nasale", "Position tête surélevée"],
-        "red_flags": ["Hémorragie post-op (reprise méchage)", "Hématome de cloison (obstruction bilatérale → drainage urgence)", "Inhalation de sang à l'extubation"],
+        "preop": [
+          "Bilan standard",
+          "Évaluation voies aériennes",
+          "Arrêt aspirine/AINS 7 jours avant",
+          "Jeûne standard"
+        ],
+        "intraop": [
+          "AG + IOT (tube oral RAE préféré)",
+          "Méchage nasal vasoconstricteur (adrénaline + lidocaïne topique)",
+          "Position proclive 15-20° (réduction saignement)",
+          "Antibioprophylaxie non systématique",
+          "Extubation prudente (sang dans oropharynx)"
+        ],
+        "postop": [
+          "Méchage nasal (retrait J1-J2)",
+          "Analgésie : paracétamol + AINS dès retrait mèches",
+          "Humidification nasale",
+          "Position tête surélevée"
+        ],
+        "red_flags": [
+          "Hémorragie post-op (reprise méchage)",
+          "Hématome de cloison (obstruction bilatérale → drainage urgence)",
+          "Inhalation de sang à l'extubation"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "rocuronium", "indication_tag": "intubation" },
@@ -1030,8 +1708,14 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["L'extubation doit être prudente : aspiration oropharyngée systématique avant.", "La position proclive réduit significativement le saignement peropératoire."],
-        "pitfalls": ["L'hématome de cloison est une urgence : risque de nécrose cartilagineuse si non drainé.", "Ne pas oublier la protection oculaire (chirurgie faciale)."],
+        "clinical": [
+          "L'extubation doit être prudente : aspiration oropharyngée systématique avant.",
+          "La position proclive réduit significativement le saignement peropératoire."
+        ],
+        "pitfalls": [
+          "L'hématome de cloison est une urgence : risque de nécrose cartilagineuse si non drainé.",
+          "Ne pas oublier la protection oculaire (chirurgie faciale)."
+        ],
         "references": [
           { "source": "SFORL — Septoplastie", "year": 2020, "note": "Recommandations pratiques" }
         ]
@@ -1041,14 +1725,44 @@
   {
     "id": "microlaryngoscopie",
     "specialty": "ORL",
-    "titles": { "fr": "Microlaryngoscopie en suspension", "pt": "Microlaringoscopia em suspensão", "en": "Suspension microlaryngoscopy" },
-    "synonyms": { "fr": ["microlaryngoscopie", "MLS", "laryngoscopie directe", "chirurgie laryngée"], "en": ["microlaryngoscopy", "MLS", "direct laryngoscopy"], "pt": ["microlaringoscopia", "MLS"] },
+    "titles": {
+      "fr": "Microlaryngoscopie en suspension",
+      "pt": "Microlaringoscopia em suspensão",
+      "en": "Suspension microlaryngoscopy"
+    },
+    "synonyms": {
+      "fr": ["microlaryngoscopie", "MLS", "laryngoscopie directe", "chirurgie laryngée"],
+      "en": ["microlaryngoscopy", "MLS", "direct laryngoscopy"],
+      "pt": ["microlaringoscopia", "MLS"]
+    },
     "quick": {
       "fr": {
-        "preop": ["Évaluation voies aériennes ++ (stridor ? obstruction ?)", "Scanner cervical si tumeur volumineuse", "Bilan standard", "Discussion plan airway avec chirurgien (tube petit calibre vs jet ventilation)"],
-        "intraop": ["AG TIVA (propofol + rémifentanil) — pas de sévoflurane (voies aériennes ouvertes)", "IOT petit calibre (5.0-6.0) ou jet ventilation haute fréquence", "Curarisation profonde (immobilité cordes vocales)", "Protection oculaire + dentaire", "FiO2 < 0.4 si laser (risque combustion)"],
-        "postop": ["Surveillance respiratoire étroite (œdème laryngé)", "Dexaméthasone IV si œdème", "Repos vocal", "Position semi-assise", "Surveillance saturation"],
-        "red_flags": ["Œdème laryngé post-op (stridor → adrénaline nébulisée ± réintubation)", "Feu des voies aériennes (laser + O2 = combustion)", "Fracture dentaire (laryngoscope en suspension)", "Impossibilité de ventilation (tumeur obstructive)"],
+        "preop": [
+          "Évaluation voies aériennes ++ (stridor ? obstruction ?)",
+          "Scanner cervical si tumeur volumineuse",
+          "Bilan standard",
+          "Discussion plan airway avec chirurgien (tube petit calibre vs jet ventilation)"
+        ],
+        "intraop": [
+          "AG TIVA (propofol + rémifentanil) — pas de sévoflurane (voies aériennes ouvertes)",
+          "IOT petit calibre (5.0-6.0) ou jet ventilation haute fréquence",
+          "Curarisation profonde (immobilité cordes vocales)",
+          "Protection oculaire + dentaire",
+          "FiO2 < 0.4 si laser (risque combustion)"
+        ],
+        "postop": [
+          "Surveillance respiratoire étroite (œdème laryngé)",
+          "Dexaméthasone IV si œdème",
+          "Repos vocal",
+          "Position semi-assise",
+          "Surveillance saturation"
+        ],
+        "red_flags": [
+          "Œdème laryngé post-op (stridor → adrénaline nébulisée ± réintubation)",
+          "Feu des voies aériennes (laser + O2 = combustion)",
+          "Fracture dentaire (laryngoscope en suspension)",
+          "Impossibilité de ventilation (tumeur obstructive)"
+        ],
         "drugs": [
           { "drug_id": "propofol", "indication_tag": "TIVA" },
           { "drug_id": "rocuronium", "indication_tag": "curarisation_profonde" },
@@ -1059,10 +1773,21 @@
     },
     "deep": {
       "fr": {
-        "clinical": ["La TIVA est obligatoire si voies aériennes ouvertes (sévoflurane = pollution + risque explosion laser).", "La jet ventilation permet un champ opératoire sans tube mais nécessite une expertise.", "La curarisation profonde est essentielle pour l'immobilité des cordes vocales."],
-        "pitfalls": ["Le feu des voies aériennes avec le laser est une catastrophe — FiO2 < 0.4, tubes spéciaux laser.", "Toujours avoir un plan de sauvetage airway (cricothyroïdotomie prête)."],
+        "clinical": [
+          "La TIVA est obligatoire si voies aériennes ouvertes (sévoflurane = pollution + risque explosion laser).",
+          "La jet ventilation permet un champ opératoire sans tube mais nécessite une expertise.",
+          "La curarisation profonde est essentielle pour l'immobilité des cordes vocales."
+        ],
+        "pitfalls": [
+          "Le feu des voies aériennes avec le laser est une catastrophe — FiO2 < 0.4, tubes spéciaux laser.",
+          "Toujours avoir un plan de sauvetage airway (cricothyroïdotomie prête)."
+        ],
         "references": [
-          { "source": "SFORL — Microlaryngoscopie", "year": 2021, "note": "Recommandations anesthésiques" }
+          {
+            "source": "SFORL — Microlaryngoscopie",
+            "year": 2021,
+            "note": "Recommandations anesthésiques"
+          }
         ]
       }
     }

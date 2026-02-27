@@ -20,13 +20,20 @@ export function calculateDose(
     doseDecimals?: number;
     volumeDecimals?: number;
     patientWeights?: PatientWeights;
-  }
+  },
 ): DoseResult {
   const doseDecimals = options?.doseDecimals ?? 1;
   const volumeDecimals = options?.volumeDecimals ?? 1;
 
-  const empty: Pick<DoseResult, 'doseMgRaw' | 'doseMgFinal' | 'volumeMl' | 'scalarUsed' | 'weightUsed'> = {
-    doseMgRaw: null, doseMgFinal: null, volumeMl: null, scalarUsed: null, weightUsed: null,
+  const empty: Pick<
+    DoseResult,
+    'doseMgRaw' | 'doseMgFinal' | 'volumeMl' | 'scalarUsed' | 'weightUsed'
+  > = {
+    doseMgRaw: null,
+    doseMgFinal: null,
+    volumeMl: null,
+    scalarUsed: null,
+    weightUsed: null,
   };
 
   // mg_per_kg is null → protocol local
@@ -50,8 +57,7 @@ export function calculateDose(
   }
 
   const doseMgRaw = rule.mg_per_kg * effectiveWeight;
-  const doseMgFinal =
-    rule.max_mg !== null ? Math.min(doseMgRaw, rule.max_mg) : doseMgRaw;
+  const doseMgFinal = rule.max_mg !== null ? Math.min(doseMgRaw, rule.max_mg) : doseMgRaw;
 
   let volumeMl: number | null = null;
   if (

@@ -1,17 +1,17 @@
 import { lazy, Suspense } from 'react';
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { DataProvider } from "@/contexts/DataContext";
-import DisclaimerBanner from "@/components/anesia/DisclaimerBanner";
-import AppLayout from "@/components/anesia/AppLayout";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Toaster } from '@/components/ui/toaster';
+import { Toaster as Sonner } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { DataProvider } from '@/contexts/DataContext';
+import DisclaimerBanner from '@/components/anesia/DisclaimerBanner';
+import AppLayout from '@/components/anesia/AppLayout';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Home page loaded eagerly — visible immediately
-import Index from "./pages/Index";
+import Index from './pages/Index';
 
 // All other pages loaded on demand
 const ProcedurePage = lazy(() => import('./pages/ProcedurePage'));
@@ -42,38 +42,38 @@ function RouteFallback() {
 
 const App = () => {
   return (
-  <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <DataProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <DisclaimerBanner />
-            <AppLayout>
-              <Suspense fallback={<RouteFallback />}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/guidelines" element={<Guidelines />} />
-                  <Route path="/alr" element={<ALR />} />
-                  <Route path="/calculateurs" element={<Calculateurs />} />
-                  <Route path="/protocoles" element={<Protocoles />} />
-                  <Route path="/preanest" element={<PreAnest />} />
-                  <Route path="/p/:id" element={<ProcedurePage />} />
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/admin-content" element={<AdminContent />} />
-                  <Route path="/admin/import-procedures" element={<AdminImportProcedures />} />
-                  <Route path="/admin/quality" element={<AdminQuality />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </AppLayout>
-          </BrowserRouter>
-        </TooltipProvider>
-      </DataProvider>
-    </LanguageProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <DataProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <DisclaimerBanner />
+              <AppLayout>
+                <Suspense fallback={<RouteFallback />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/guidelines" element={<Guidelines />} />
+                    <Route path="/alr" element={<ALR />} />
+                    <Route path="/calculateurs" element={<Calculateurs />} />
+                    <Route path="/protocoles" element={<Protocoles />} />
+                    <Route path="/preanest" element={<PreAnest />} />
+                    <Route path="/p/:id" element={<ProcedurePage />} />
+                    <Route path="/account" element={<Account />} />
+                    <Route path="/admin-content" element={<AdminContent />} />
+                    <Route path="/admin/import-procedures" element={<AdminImportProcedures />} />
+                    <Route path="/admin/quality" element={<AdminQuality />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </AppLayout>
+            </BrowserRouter>
+          </TooltipProvider>
+        </DataProvider>
+      </LanguageProvider>
+    </QueryClientProvider>
   );
 };
 

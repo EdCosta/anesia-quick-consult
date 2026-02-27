@@ -24,7 +24,7 @@ export default function SpecialtyFilter({ specialties, selected, onSelect }: Spe
       >
         {t('all_specialties')}
       </button>
-      {specialties.map(s => (
+      {specialties.map((s) => (
         <button
           key={s}
           onClick={() => onSelect(s === selected ? null : s)}

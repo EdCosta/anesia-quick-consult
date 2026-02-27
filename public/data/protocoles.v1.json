@@ -105,9 +105,7 @@
         "9. Documentação sistemática do score NVPO e tratamento"
       ]
     },
-    "references": [
-      { "source": "Consensus Guidelines on PONV (Gan et al.)", "year": 2020 }
-    ],
+    "references": [{ "source": "Consensus Guidelines on PONV (Gan et al.)", "year": 2020 }],
     "tags": ["ponv", "apfel", "antiemetic", "rescue"],
     "source": "Consensus PONV",
     "version": "2025.1",
@@ -153,7 +151,11 @@
       ]
     },
     "references": [
-      { "source": "Fourth Consensus Guidelines for the Management of PONV", "year": 2020, "doi": "10.1213/ANE.0000000000004833" }
+      {
+        "source": "Fourth Consensus Guidelines for the Management of PONV",
+        "year": 2020,
+        "doi": "10.1213/ANE.0000000000004833"
+      }
     ],
     "tags": ["ponv", "apfel", "ambulatory", "rescue"],
     "source": "Consensus PONV",
@@ -203,8 +205,16 @@
       ]
     },
     "references": [
-      { "source": "DAS 2015 unanticipated difficult intubation guidelines", "year": 2015, "doi": "10.1111/anae.13101" },
-      { "source": "ASA 2022 Difficult Airway Guidelines", "year": 2022, "url": "https://pubs.asahq.org/anesthesiology/article/136/1/31/117915" }
+      {
+        "source": "DAS 2015 unanticipated difficult intubation guidelines",
+        "year": 2015,
+        "doi": "10.1111/anae.13101"
+      },
+      {
+        "source": "ASA 2022 Difficult Airway Guidelines",
+        "year": 2022,
+        "url": "https://pubs.asahq.org/anesthesiology/article/136/1/31/117915"
+      }
     ],
     "tags": ["airway", "difficult_airway", "cico", "videolaryngoscope", "rescue"],
     "source": "DAS / ASA",
@@ -358,9 +368,7 @@
         "8. Se estômago cheio: ISR obrigatória, documentar o risco"
       ]
     },
-    "references": [
-      { "source": "ESA Preoperative Fasting Guidelines", "year": 2022 }
-    ]
+    "references": [{ "source": "ESA Preoperative Fasting Guidelines", "year": 2022 }]
   },
   {
     "id": "malignant-hyperthermia",
@@ -513,9 +521,7 @@
         "9. Documentar hora da injeção no processo anestésico"
       ]
     },
-    "references": [
-      { "source": "SFAR RFE Antibioprophylaxie", "year": 2018 }
-    ]
+    "references": [{ "source": "SFAR RFE Antibioprophylaxie", "year": 2018 }]
   },
   {
     "id": "thromboprophylaxis-protocol",
@@ -614,8 +620,6 @@
         "10. Hemograma de controlo 1h após o fim da transfusão"
       ]
     },
-    "references": [
-      { "source": "SFAR RFE Transfusion", "year": 2019 }
-    ]
+    "references": [{ "source": "SFAR RFE Transfusion", "year": 2019 }]
   }
 ]

@@ -30,9 +30,18 @@ export function useRecommendationTags(procedureId: string | undefined, guideline
 
     (async () => {
       try {
-        const [{ data: procedureTags, error: procedureError }, { data: guidelineTags, error: guidelineError }] = await Promise.all([
-          supabase.from('procedure_tags' as any).select('tag_id').eq('procedure_id', procedureId),
-          supabase.from('guideline_tags' as any).select('guideline_id, tag_id').in('guideline_id', guidelineIds),
+        const [
+          { data: procedureTags, error: procedureError },
+          { data: guidelineTags, error: guidelineError },
+        ] = await Promise.all([
+          supabase
+            .from('procedure_tags' as any)
+            .select('tag_id')
+            .eq('procedure_id', procedureId),
+          supabase
+            .from('guideline_tags' as any)
+            .select('guideline_id, tag_id')
+            .in('guideline_id', guidelineIds),
         ]);
 
         if (procedureError) throw procedureError;
@@ -56,7 +65,10 @@ export function useRecommendationTags(procedureId: string | undefined, guideline
 
         setState({ procedureTagIds, guidelineTagIds });
       } catch (error) {
-        console.warn('[AnesIA] Failed to load normalized recommendation tags, falling back to legacy tags.', error);
+        console.warn(
+          '[AnesIA] Failed to load normalized recommendation tags, falling back to legacy tags.',
+          error,
+        );
         if (!active) return;
         setState({ procedureTagIds: null, guidelineTagIds: new Map() });
       }

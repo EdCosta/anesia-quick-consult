@@ -13,15 +13,21 @@ const FIELDS: { key: keyof RCRIInputs; label: string }[] = [
   { key: 'creatinineElevated', label: 'creatinine_elevated' },
 ];
 
-const EMPTY: RCRIInputs = { highRiskSurgery: false, ischemicHeart: false, congestiveHeart: false, cerebrovascular: false, insulinTherapy: false, creatinineElevated: false };
+const EMPTY: RCRIInputs = {
+  highRiskSurgery: false,
+  ischemicHeart: false,
+  congestiveHeart: false,
+  cerebrovascular: false,
+  insulinTherapy: false,
+  creatinineElevated: false,
+};
 
 export default function RCRIScore() {
   const { t } = useLang();
   const [inputs, setInputs] = useState<RCRIInputs>(EMPTY);
   const result = calcRCRI(inputs);
 
-  const toggle = (key: keyof RCRIInputs) =>
-    setInputs((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggle = (key: keyof RCRIInputs) => setInputs((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="space-y-3">
@@ -36,7 +42,10 @@ export default function RCRIScore() {
       <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
         <span className="text-2xl font-bold text-foreground">{result.score}/6</span>
         <div>
-          <Badge variant={result.category === 'low' ? 'secondary' : 'destructive'} className="text-xs">
+          <Badge
+            variant={result.category === 'low' ? 'secondary' : 'destructive'}
+            className="text-xs"
+          >
             {t(`risk_${result.category}`)}
           </Badge>
           <p className="text-xs mt-0.5 text-muted-foreground">{result.details}</p>

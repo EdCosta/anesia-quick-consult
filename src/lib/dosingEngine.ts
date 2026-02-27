@@ -4,7 +4,14 @@
  */
 export { calculateDose } from './dose';
 export type { DoseResult } from './dose';
-export { computeWeights, getScaledWeight, calcBMI, calcIBW, calcLBW, calcAdjBW } from './weightScalars';
+export {
+  computeWeights,
+  getScaledWeight,
+  calcBMI,
+  calcIBW,
+  calcLBW,
+  calcAdjBW,
+} from './weightScalars';
 export type { PatientWeights, DoseScalar, Sex } from './weightScalars';
 
 import type { DoseResult } from './dose';
@@ -17,9 +24,7 @@ export function explainDose(
   t: (key: string) => string,
 ): string {
   if (!result.canCalc) {
-    return result.reasonIfNoCalc === 'protocol_local'
-      ? t('protocol_local')
-      : t('enter_weight');
+    return result.reasonIfNoCalc === 'protocol_local' ? t('protocol_local') : t('enter_weight');
   }
 
   const parts: string[] = [];
@@ -36,7 +41,11 @@ export function explainDose(
     parts.push(`${mgPerKg} mg/kg × ${result.weightUsed} kg = ${result.doseMgRaw} mg`);
   }
 
-  if (result.doseMgFinal !== null && result.doseMgRaw !== null && result.doseMgFinal < result.doseMgRaw) {
+  if (
+    result.doseMgFinal !== null &&
+    result.doseMgRaw !== null &&
+    result.doseMgFinal < result.doseMgRaw
+  ) {
     parts.push(`${t('max_dose')}: ${result.doseMgFinal} mg`);
   }
 

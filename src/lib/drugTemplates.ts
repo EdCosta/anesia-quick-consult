@@ -66,5 +66,5 @@ export const DRUG_TEMPLATES: DrugTemplate[] = [
 ];
 
 export function getTemplateForSpecialty(specialty: string): DrugTemplate | undefined {
-  return DRUG_TEMPLATES.find(t => t.specialty === specialty);
+  return DRUG_TEMPLATES.find((t) => t.specialty === specialty);
 }

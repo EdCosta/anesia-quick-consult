@@ -1,8 +1,8 @@
-import enCatalog from "./en.json";
-import frCatalog from "./fr.json";
-import ptCatalog from "./pt.json";
+import enCatalog from './en.json';
+import frCatalog from './fr.json';
+import ptCatalog from './pt.json';
 
-export const SUPPORTED_LANGS = ["fr", "pt", "en"] as const;
+export const SUPPORTED_LANGS = ['fr', 'pt', 'en'] as const;
 
 export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 export type TranslationCatalog = Record<string, string>;
@@ -23,9 +23,9 @@ const catalogs: Record<SupportedLang, TranslationCatalog> = {
 };
 
 const fallbackOrder: Record<SupportedLang, SupportedLang[]> = {
-  fr: ["fr", "en", "pt"],
-  pt: ["pt", "fr", "en"],
-  en: ["en", "fr", "pt"],
+  fr: ['fr', 'en', 'pt'],
+  pt: ['pt', 'fr', 'en'],
+  en: ['en', 'fr', 'pt'],
 };
 
 const baseCatalog = catalogs.fr;
@@ -33,10 +33,10 @@ const catalogKeys = Array.from(
   new Set(Object.values(catalogs).flatMap((catalog) => Object.keys(catalog))),
 ).sort();
 
-export const DEFAULT_LANG: SupportedLang = "fr";
+export const DEFAULT_LANG: SupportedLang = 'fr';
 
 function hasOwnTranslation(lang: SupportedLang, key: string): boolean {
-  return Object.prototype.hasOwnProperty.call(catalogs[lang], key) && catalogs[lang][key] !== "";
+  return Object.prototype.hasOwnProperty.call(catalogs[lang], key) && catalogs[lang][key] !== '';
 }
 
 export function isSupportedLang(value: string | null | undefined): value is SupportedLang {
@@ -79,8 +79,8 @@ export function getMissingCatalogKeys(lang: SupportedLang): string[] {
 
 export function getMissingCatalogReport(): Record<SupportedLang, string[]> {
   return {
-    fr: getMissingCatalogKeys("fr"),
-    pt: getMissingCatalogKeys("pt"),
-    en: getMissingCatalogKeys("en"),
+    fr: getMissingCatalogKeys('fr'),
+    pt: getMissingCatalogKeys('pt'),
+    en: getMissingCatalogKeys('en'),
   };
 }

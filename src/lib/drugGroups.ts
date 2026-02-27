@@ -1,4 +1,10 @@
-export type DrugGroup = 'induction' | 'maintenance' | 'analgesia' | 'ponv' | 'prophylaxis' | 'other';
+export type DrugGroup =
+  | 'induction'
+  | 'maintenance'
+  | 'analgesia'
+  | 'ponv'
+  | 'prophylaxis'
+  | 'other';
 
 const DRUG_GROUP_MAP: Record<string, DrugGroup> = {
   propofol: 'induction',
@@ -10,12 +16,12 @@ const DRUG_GROUP_MAP: Record<string, DrugGroup> = {
   thiopental: 'induction',
   etomidate: 'induction',
   midazolam: 'induction',
-  
+
   sevoflurane: 'maintenance',
   desflurane: 'maintenance',
   isoflurane: 'maintenance',
   remifentanil: 'maintenance',
-  
+
   paracetamol: 'analgesia',
   ibuprofene: 'analgesia',
   ketorolac: 'analgesia',
@@ -23,11 +29,11 @@ const DRUG_GROUP_MAP: Record<string, DrugGroup> = {
   tramadol: 'analgesia',
   nefopam: 'analgesia',
   lidocaine: 'analgesia',
-  
+
   ondansetron: 'ponv',
   dexamethasone: 'ponv',
   droperidol: 'ponv',
-  
+
   cefazoline: 'prophylaxis',
   acide_tranexamique: 'prophylaxis',
   enoxaparine: 'prophylaxis',
@@ -60,7 +66,14 @@ export function getDrugGroup(drugId: string, indicationTag?: string): DrugGroup 
   return DRUG_GROUP_MAP[drugId] ?? 'other';
 }
 
-export const GROUP_ORDER: DrugGroup[] = ['induction', 'maintenance', 'analgesia', 'ponv', 'prophylaxis', 'other'];
+export const GROUP_ORDER: DrugGroup[] = [
+  'induction',
+  'maintenance',
+  'analgesia',
+  'ponv',
+  'prophylaxis',
+  'other',
+];
 
 export const GROUP_I18N_KEYS: Record<DrugGroup, string> = {
   induction: 'drug_group_induction',
@@ -71,9 +84,16 @@ export const GROUP_I18N_KEYS: Record<DrugGroup, string> = {
   other: 'drug_group_other',
 };
 
-export function groupDrugs<T extends { drug_id: string; indication_tag?: string }>(drugs: T[]): Record<DrugGroup, T[]> {
+export function groupDrugs<T extends { drug_id: string; indication_tag?: string }>(
+  drugs: T[],
+): Record<DrugGroup, T[]> {
   const groups: Record<DrugGroup, T[]> = {
-    induction: [], maintenance: [], analgesia: [], ponv: [], prophylaxis: [], other: [],
+    induction: [],
+    maintenance: [],
+    analgesia: [],
+    ponv: [],
+    prophylaxis: [],
+    other: [],
   };
   for (const drug of drugs) {
     const group = getDrugGroup(drug.drug_id, drug.indication_tag);

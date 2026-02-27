@@ -5,7 +5,9 @@ import { normalizeDrug, dbRowToDrug } from '@/data/normalize/normalizeDrug';
 export async function loadDrugsFromSupabase(): Promise<Drug[]> {
   const { data } = await supabase
     .from('drugs' as any)
-    .select('id,names,class,dosing,notes,contraindications,tags,presentations,standard_dilutions,compatibility_notes');
+    .select(
+      'id,names,class,dosing,notes,contraindications,tags,presentations,standard_dilutions,compatibility_notes',
+    );
   return ((data as any[]) || []).map(dbRowToDrug);
 }
 

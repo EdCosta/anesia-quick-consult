@@ -42,7 +42,7 @@ const GUIDE_CONTENT: Record<string, Record<'fr' | 'en' | 'pt', string[]>> = {
       'Profondeur orale ≈ 3 × ID ou (âge/2) + 12 cm',
       'Nasal : profondeur orale + 2 à 3 cm',
       'Pression du cuff : objectif 20–25 cmH₂O',
-      'Si enfant petit/grand pour l\'âge : ajuster ± 0.5 mm',
+      "Si enfant petit/grand pour l'âge : ajuster ± 0.5 mm",
     ],
     en: [
       'Cuffed ETT (preferred) ID = (age/4) + 3.5',

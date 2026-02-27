@@ -1,6 +1,7 @@
 # Clinical Content Roadmap
 
 ## Universal Safety Checklist
+
 - Content type: `protocoles`
 - Canonical id: `universal-safety-checklist`
 - Category: `safety`
@@ -12,6 +13,7 @@
   - Local adaptation notes per site
 
 ## Perioperative Anticoagulation
+
 - Content type: `guidelines`
 - Canonical ids:
   - `anticoag-doac-decision`
@@ -27,6 +29,7 @@
   - Red flags / call senior
 
 ## PONV
+
 - Content types: `guidelines` + `protocoles`
 - Canonical ids:
   - `ponv-risk-stratification`
@@ -40,6 +43,7 @@
   - Discharge triggers / escalation
 
 ## Difficult Airway
+
 - Content types: `guidelines` + `protocoles`
 - Canonical ids:
   - `difficult-airway-algorithm`
@@ -53,6 +57,7 @@
   - Rescue drug quick-reference aligned with local formulary
 
 ## ALR Block Enrichment
+
 - Content type: `alr_blocks`
 - Canonical field additions per block:
   - `sonoanatomy`

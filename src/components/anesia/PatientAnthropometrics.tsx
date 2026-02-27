@@ -39,7 +39,9 @@ export default function PatientAnthropometrics({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-foreground whitespace-nowrap">{t('weight_kg')}</label>
+        <label className="text-sm font-medium text-foreground whitespace-nowrap">
+          {t('weight_kg')}
+        </label>
         <input
           type="number"
           value={weightKg}
@@ -101,16 +103,22 @@ export default function PatientAnthropometrics({
 
           {weights && weights.bmi !== null && (
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span><strong>{t('bmi')}:</strong> {round1(weights.bmi)}</span>
-              <span><strong>{t('ibw')}:</strong> {round1(weights.ibw)} kg</span>
-              <span><strong>{t('lbw')}:</strong> {round1(weights.lbw)} kg</span>
-              <span><strong>{t('adjbw')}:</strong> {round1(weights.adjbw)} kg</span>
+              <span>
+                <strong>{t('bmi')}:</strong> {round1(weights.bmi)}
+              </span>
+              <span>
+                <strong>{t('ibw')}:</strong> {round1(weights.ibw)} kg
+              </span>
+              <span>
+                <strong>{t('lbw')}:</strong> {round1(weights.lbw)} kg
+              </span>
+              <span>
+                <strong>{t('adjbw')}:</strong> {round1(weights.adjbw)} kg
+              </span>
             </div>
           )}
           {advanced && (!sex || !height) && weight && (
-            <p className="text-[11px] text-muted-foreground italic">
-              {t('enter_height_sex')}
-            </p>
+            <p className="text-[11px] text-muted-foreground italic">{t('enter_height_sex')}</p>
           )}
         </div>
       )}

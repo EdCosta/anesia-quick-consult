@@ -15,6 +15,14 @@ interface ParsedRow {
   warnings: string[];
 }
 
+interface RowResult {
+  id: string;
+  status: 'ok' | 'error';
+  message: string;
+}
+
+const BATCH_SIZE = 50;
+
 function parseCSVLine(line: string): string[] {
   const fields: string[] = [];
   let current = '';
@@ -40,7 +48,12 @@ function parseCSVLine(line: string): string[] {
 }
 
 function parseCSV(text: string): ParsedRow[] {
-  const lines = text.split('\n').filter((l) => l.trim());
+  // Strip BOM (Excel UTF-8), normalize Windows CRLF and old Mac CR
+  const cleaned = text
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n');
+  const lines = cleaned.split('\n').filter((l) => l.trim());
   if (lines.length < 2) return [];
   const header = parseCSVLine(lines[0]).map((h) => h.trim().toLowerCase());
   const rows: ParsedRow[] = [];
@@ -133,6 +146,7 @@ export default function AdminImportProcedures() {
   const { t } = useLang();
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [importing, setImporting] = useState(false);
+  const [rowResults, setRowResults] = useState<RowResult[]>([]);
   const [result, setResult] = useState<{
     success: number;
     failed: number;
@@ -148,6 +162,7 @@ export default function AdminImportProcedures() {
       const parsed = parseCSV(text);
       setRows(parsed);
       setResult(null);
+      setRowResults([]);
     };
     reader.readAsText(file, 'utf-8');
   }, []);
@@ -155,29 +170,42 @@ export default function AdminImportProcedures() {
   const handleImport = async () => {
     if (rows.length === 0) return;
     setImporting(true);
-    const errors: string[] = [];
-    let success = 0;
-    let failed = 0;
+    setRowResults([]);
 
-    for (const row of rows) {
-      const { error } = await supabase.from('procedures' as any).upsert(
-        {
-          id: row.id,
-          specialty: row.specialty,
-          titles: row.titles,
-          synonyms: row.synonyms,
-          content: row.content,
-          tags: row.tags,
-        } as any,
-        { onConflict: 'id' },
+    const allResults: RowResult[] = [];
+
+    for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+      const batch = rows.slice(i, i + BATCH_SIZE);
+
+      const batchResults = await Promise.all(
+        batch.map(async (row): Promise<RowResult> => {
+          const { error } = await supabase.from('procedures' as any).upsert(
+            {
+              id: row.id,
+              specialty: row.specialty,
+              titles: row.titles,
+              synonyms: row.synonyms,
+              content: row.content,
+              tags: row.tags,
+            } as any,
+            { onConflict: 'id' },
+          );
+          if (error) {
+            return { id: row.id, status: 'error', message: error.message };
+          }
+          return { id: row.id, status: 'ok', message: 'OK' };
+        }),
       );
-      if (error) {
-        failed++;
-        errors.push(`${row.id}: ${error.message}`);
-      } else {
-        success++;
-      }
+
+      allResults.push(...batchResults);
+      setRowResults([...allResults]);
     }
+
+    const success = allResults.filter((r) => r.status === 'ok').length;
+    const failed = allResults.filter((r) => r.status === 'error').length;
+    const errors = allResults
+      .filter((r) => r.status === 'error')
+      .map((r) => `${r.id}: ${r.message}`);
 
     await supabase.from('import_logs' as any).insert({
       total: rows.length,
@@ -234,7 +262,9 @@ export default function AdminImportProcedures() {
                 disabled={importing}
                 className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {importing ? t('loading') : t('import_run')}
+                {importing
+                  ? `${t('loading')} ${rowResults.length}/${rows.length}`
+                  : t('import_run')}
               </button>
             </div>
             <div className="max-h-60 overflow-y-auto space-y-1">
@@ -265,36 +295,71 @@ export default function AdminImportProcedures() {
         </Card>
       )}
 
+      {/* Progress during import */}
+      {importing && rowResults.length > 0 && (
+        <Card className="clinical-shadow">
+          <CardContent className="p-4 space-y-2">
+            <p className="text-sm text-muted-foreground">
+              {t('loading')} {rowResults.length}/{rows.length}…
+            </p>
+            <RowResultTable results={rowResults} />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Result */}
       {result && (
         <Card className="clinical-shadow">
           <CardContent className="p-4 space-y-3">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <CheckCircle className="h-5 w-5 text-primary" />
               <span className="text-sm font-semibold text-foreground">
                 {t('import_success')}: {result.success}/{rows.length}
               </span>
+              {result.failed > 0 && (
+                <span className="flex items-center gap-1 text-sm font-semibold text-destructive">
+                  <XCircle className="h-4 w-4" />
+                  {t('import_failed')}: {result.failed}
+                </span>
+              )}
             </div>
-            {result.failed > 0 && (
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <XCircle className="h-4 w-4 text-destructive" />
-                  <span className="text-sm font-semibold text-destructive">
-                    {t('import_failed')}: {result.failed}
-                  </span>
-                </div>
-                <ul className="max-h-40 overflow-y-auto space-y-0.5">
-                  {result.errors.map((e, i) => (
-                    <li key={i} className="text-xs text-muted-foreground font-mono">
-                      {e}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {rowResults.length > 0 && <RowResultTable results={rowResults} />}
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
+
+function RowResultTable({ results }: { results: RowResult[] }) {
+  return (
+    <div className="max-h-60 overflow-y-auto rounded border border-border">
+      <table className="w-full text-xs">
+        <thead className="bg-muted/50 sticky top-0">
+          <tr>
+            <th className="px-2 py-1 text-left font-medium text-muted-foreground">ID</th>
+            <th className="px-2 py-1 text-left font-medium text-muted-foreground">Status</th>
+            <th className="px-2 py-1 text-left font-medium text-muted-foreground">Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          {results.map((r) => (
+            <tr key={r.id} className="border-t border-border hover:bg-muted/20">
+              <td className="px-2 py-1 font-mono text-muted-foreground">{r.id}</td>
+              <td className="px-2 py-1">
+                {r.status === 'ok' ? (
+                  <span className="text-primary font-medium">OK</span>
+                ) : (
+                  <span className="text-destructive font-medium">Error</span>
+                )}
+              </td>
+              <td className="px-2 py-1 text-muted-foreground truncate max-w-[200px]">
+                {r.message}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

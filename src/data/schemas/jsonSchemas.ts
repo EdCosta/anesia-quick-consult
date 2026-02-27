@@ -55,70 +55,80 @@ const StructuredReferenceSchema = z.object({
   url: z.string().url().optional(),
 });
 
+// ── Multilingual helpers ────────────────────────────────────────────────────────
+
+const MultiLangString = z.object({
+  fr: z.string(),
+  en: z.string().optional(),
+  pt: z.string().optional(),
+});
+
+const MultiLangStringArray = z.object({
+  fr: z.array(z.string()),
+  en: z.array(z.string()).optional(),
+  pt: z.array(z.string()).optional(),
+});
+
+const MultiLangQuickProcedure = z.object({
+  fr: ProcedureQuickFrSchema,
+  en: ProcedureQuickFrSchema.optional(),
+  pt: ProcedureQuickFrSchema.optional(),
+});
+
 // ── Top-level entity schemas ───────────────────────────────────────────────────
 
-export const ProcedureSchema = z
-  .object({
-    id: z.string(),
-    specialty: z.string(),
-    titles: z.object({ fr: z.string() }).passthrough(),
-    quick: z.object({ fr: ProcedureQuickFrSchema }).passthrough(),
-  })
-  .passthrough();
+export const ProcedureSchema = z.object({
+  id: z.string(),
+  specialty: z.string(),
+  titles: MultiLangString,
+  quick: MultiLangQuickProcedure,
+});
 
-export const DrugSchema = z
-  .object({
-    id: z.string(),
-    name: z.object({ fr: z.string() }).passthrough(),
-    dose_rules: z.array(DoseRuleSchema).optional().default([]),
-    concentrations: z.array(ConcentrationSchema).optional().default([]),
-    presentations: z.array(DrugPresentationSchema).optional().default([]),
-    standard_dilutions: z.array(StandardDilutionSchema).optional().default([]),
-    compatibility_notes: z.array(z.string()).optional().default([]),
-  })
-  .passthrough();
+export const DrugSchema = z.object({
+  id: z.string(),
+  name: MultiLangString,
+  dose_rules: z.array(DoseRuleSchema).optional().default([]),
+  concentrations: z.array(ConcentrationSchema).optional().default([]),
+  presentations: z.array(DrugPresentationSchema).optional().default([]),
+  standard_dilutions: z.array(StandardDilutionSchema).optional().default([]),
+  compatibility_notes: z.array(z.string()).optional().default([]),
+});
 
-export const GuidelineSchema = z
-  .object({
-    id: z.string(),
-    category: z.string(),
-    titles: z.object({ fr: z.string() }).passthrough(),
-    items: z.object({ fr: z.array(z.string()) }).passthrough(),
-    references: z.array(StructuredReferenceSchema).optional().default([]),
-    tags: z.array(z.string()).optional().default([]),
-    specialties: z.array(z.string()).optional().default([]),
-    version: z.string().optional(),
-    source: z.string().optional(),
-    published_at: z.string().optional(),
-    review_at: z.string().optional(),
-    evidence_grade: z.enum(['A', 'B', 'C']).optional(),
-  })
-  .passthrough();
+export const GuidelineSchema = z.object({
+  id: z.string(),
+  category: z.string(),
+  titles: MultiLangString,
+  items: MultiLangStringArray,
+  references: z.array(StructuredReferenceSchema).optional().default([]),
+  tags: z.array(z.string()).optional().default([]),
+  specialties: z.array(z.string()).optional().default([]),
+  version: z.string().optional(),
+  source: z.string().optional(),
+  published_at: z.string().optional(),
+  review_at: z.string().optional(),
+  evidence_grade: z.enum(['A', 'B', 'C']).optional(),
+});
 
-export const ProtocoleSchema = z
-  .object({
-    id: z.string(),
-    category: z.string(),
-    titles: z.object({ fr: z.string() }).passthrough(),
-    steps: z.object({ fr: z.array(z.string()) }).passthrough(),
-    references: z.array(StructuredReferenceSchema).optional().default([]),
-    tags: z.array(z.string()).optional().default([]),
-    version: z.string().optional(),
-    source: z.string().optional(),
-    published_at: z.string().optional(),
-    review_at: z.string().optional(),
-    evidence_grade: z.enum(['A', 'B', 'C']).optional(),
-  })
-  .passthrough();
+export const ProtocoleSchema = z.object({
+  id: z.string(),
+  category: z.string(),
+  titles: MultiLangString,
+  steps: MultiLangStringArray,
+  references: z.array(StructuredReferenceSchema).optional().default([]),
+  tags: z.array(z.string()).optional().default([]),
+  version: z.string().optional(),
+  source: z.string().optional(),
+  published_at: z.string().optional(),
+  review_at: z.string().optional(),
+  evidence_grade: z.enum(['A', 'B', 'C']).optional(),
+});
 
-export const ALRBlockSchema = z
-  .object({
-    id: z.string(),
-    region: z.string(),
-    titles: z.object({ fr: z.string() }).passthrough(),
-    tags: z.array(z.string()).optional().default([]),
-  })
-  .passthrough();
+export const ALRBlockSchema = z.object({
+  id: z.string(),
+  region: z.string(),
+  titles: MultiLangString,
+  tags: z.array(z.string()).optional().default([]),
+});
 
 // ── Validation helper ──────────────────────────────────────────────────────────
 

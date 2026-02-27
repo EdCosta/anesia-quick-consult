@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add src/components/anesia/DrugDoseRow.tsx)",
+      "Bash(npm run build)"
+    ]
+  }
+}

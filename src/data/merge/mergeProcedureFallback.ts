@@ -1,9 +1,6 @@
 import type { Procedure } from '@/lib/types';
-import { validateArray } from '../repositories/loadFromJson';
-import { z } from 'zod';
+import { validateArray, ProcedureSchema } from '@/data/schemas/jsonSchemas';
 import { mergeProcedureData, normalizeProcedure } from '../normalize/normalizeProcedure';
-
-const ProcedureSchema = z.object({ id: z.string(), specialty: z.string(), titles: z.object({ fr: z.string() }).passthrough(), quick: z.object({ fr: z.any() }).passthrough() }).passthrough();
 
 /**
  * Fill only missing procedure fields from JSON fallback (never overwrite DB data).

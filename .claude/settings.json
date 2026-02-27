@@ -8,7 +8,11 @@
       "Bash(node -e \"const d = require\\(''./public/data/drugs.v1.json''\\); const p = d.find\\(x => x.id === ''propofol''\\); console.log\\(JSON.stringify\\(p, null, 2\\)\\)\")",
       "Bash(node -e \":*)",
       "Bash(git add public/data/drugs.v1.json public/data/procedures.v3.json src/components/anesia/DrugDoseRow.tsx src/data/merge/enrichMedicationPlan.ts supabase/migrations/20260226230000_seed_drugs.sql)",
-      "mcp__claude_ai_Supabase__list_projects"
+      "mcp__claude_ai_Supabase__list_projects",
+      "Bash(git add src/App.tsx src/contexts/DataContext.tsx)",
+      "Bash(git add src/pages/Index.tsx)",
+      "Bash(node -e \"const fs=require\\(''fs''\\); const raw=fs.readFileSync\\(''./public/data/procedures.v3.json'',''utf8''\\); const p=JSON.parse\\(raw\\); console.log\\(Object.keys\\(p\\)\\)\")",
+      "Bash(node -e \"const fs=require\\(''fs''\\); const raw=fs.readFileSync\\(''./public/data/procedures.v3.json'',''utf8''\\); const p=JSON.parse\\(raw\\); const arr=Object.values\\(p\\); const specs=[...new Set\\(arr.map\\(x=>x.specialty\\)\\)]; console.log\\(specs.join\\(''\\\\n''\\)\\)\")"
     ]
   }
 }

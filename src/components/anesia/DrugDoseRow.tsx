@@ -20,7 +20,7 @@ export default function DrugDoseRow({
   weightKg,
   patientWeights,
 }: DrugDoseRowProps) {
-  const { t, resolveStr, lang } = useLang();
+  const { t, resolveStr } = useLang();
   const [expanded, setExpanded] = useState(false);
   const [selectedConc, setSelectedConc] = useState(0);
   const [dilutionOpen, setDilutionOpen] = useState(false);
@@ -53,46 +53,6 @@ export default function DrugDoseRow({
     return map[s] || s;
   };
 
-  const phaseLabel = (tag: string) => {
-    const normalized = tag
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
-
-    const pt = {
-      inducao: 'Inducao',
-      manutencao: 'Manutencao',
-      analgesia: 'Analgesia',
-      ponv: 'NVPO',
-      profilaxia: 'Profilaxia',
-      outro: 'Outro',
-    };
-    const fr = {
-      inducao: 'Induction',
-      manutencao: 'Entretien',
-      analgesia: 'Analgésie',
-      ponv: 'NVPO',
-      profilaxia: 'Prophylaxie',
-      outro: 'Autre',
-    };
-    const en = {
-      inducao: 'Induction',
-      manutencao: 'Maintenance',
-      analgesia: 'Analgesia',
-      ponv: 'PONV',
-      profilaxia: 'Prophylaxis',
-      outro: 'Other',
-    };
-    const dict = lang === 'pt' ? pt : lang === 'en' ? en : fr;
-
-    if (/(induction|isr|intubation|curarisation)/.test(normalized)) return dict.inducao;
-    if (/(entretien|maintenance|tiva)/.test(normalized)) return dict.manutencao;
-    if (/(analges)/.test(normalized)) return dict.analgesia;
-    if (/(ponv|nvpo)/.test(normalized)) return dict.ponv;
-    if (/(prophyl|antibioprophylaxie|thromboprophylaxie|antifibrinolytique)/.test(normalized)) return dict.profilaxia;
-    return dict.outro;
-  };
-
   return (
     <>
       <div className="rounded-lg border bg-card p-3 animate-fade-in">
@@ -106,7 +66,7 @@ export default function DrugDoseRow({
                 {drugName}
               </span>
               <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                {phaseLabel(indicationTag)}
+                {indicationTag.replace(/_/g, ' ')}
               </span>
               <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                 {rule.route}

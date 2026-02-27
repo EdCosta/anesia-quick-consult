@@ -540,6 +540,7 @@ const UI: Record<string, Record<Lang, string>> = {
   dose_calc_title: { fr: "Calculateur de doses", pt: "Calculador de doses", en: "Dose calculator" },
   select_drug: { fr: "Sélectionner un médicament", pt: "Selecionar medicamento", en: "Select a drug" },
   search_drug: { fr: "Rechercher un médicament...", pt: "Pesquisar medicamento...", en: "Search a drug..." },
+  expand_all: { fr: "Tout ouvrir", pt: "Expandir todos", en: "Expand all" },
   no_doses_configured: { fr: "Aucune dose configurée", pt: "Sem doses configuradas", en: "No doses configured" },
 
   // Caprini labels

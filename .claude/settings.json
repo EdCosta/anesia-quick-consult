@@ -3,7 +3,12 @@
     "allow": [
       "Bash(git commit:*)",
       "Bash(git push origin main)",
-      "Bash(git add supabase/schema_complete.sql supabase/seed_data.sql scripts/generate_seed.cjs)"
+      "Bash(git add supabase/schema_complete.sql supabase/seed_data.sql scripts/generate_seed.cjs)",
+      "Bash(git push)",
+      "Bash(node -e \"const d = require\\(''./public/data/drugs.v1.json''\\); const p = d.find\\(x => x.id === ''propofol''\\); console.log\\(JSON.stringify\\(p, null, 2\\)\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(git add public/data/drugs.v1.json public/data/procedures.v3.json src/components/anesia/DrugDoseRow.tsx src/data/merge/enrichMedicationPlan.ts supabase/migrations/20260226230000_seed_drugs.sql)",
+      "mcp__claude_ai_Supabase__list_projects"
     ]
   }
 }

@@ -358,6 +358,8 @@ function ChecklistBulletList({ items, prefix, checklistMode, checked, setChecked
 }
 
 function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientWeights, setPatientWeights, procedure, recommendations, t, resolveStr, getDrug, handleCopyChecklist, checklistMode, checked, setChecked }: any) {
+  const [expandAllDrugsSignal, setExpandAllDrugsSignal] = useState(0);
+
   return (
     <>
       {/* Key Points card */}
@@ -473,7 +475,19 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
       {/* Drugs & Doses — grouped */}
       {quick && (
         <div className="space-y-3">
-          <h2 className="text-base font-bold text-foreground">{t('drugs_doses')}</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-base font-bold text-foreground">{t('drugs_doses')}</h2>
+            {quick.drugs.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto px-2 py-1 text-xs"
+                onClick={() => setExpandAllDrugsSignal((current) => current + 1)}
+              >
+                {t('expand_all')}
+              </Button>
+            )}
+          </div>
           {quick.drugs.length > 0 ? (
             <>
               <Card className="clinical-shadow">
@@ -485,7 +499,14 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
                   />
                 </CardContent>
               </Card>
-              <DrugGroupedList drugs={quick.drugs} getDrug={getDrug} weight={weight} patientWeights={patientWeights} t={t} />
+              <DrugGroupedList
+                drugs={quick.drugs}
+                getDrug={getDrug}
+                weight={weight}
+                patientWeights={patientWeights}
+                t={t}
+                expandAllSignal={expandAllDrugsSignal}
+              />
             </>
           ) : (
             <Card className="clinical-shadow border-l-4 border-l-muted">
@@ -500,9 +521,24 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
   );
 }
 
-function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t }: any) {
+function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t, expandAllSignal }: any) {
   const grouped = groupDrugs(drugs);
   const activeGroups = GROUP_ORDER.filter(g => grouped[g].length > 0);
+  const activeGroupsKey = activeGroups.join('|');
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(activeGroups.map((group) => [group, group === 'induction']))
+  );
+
+  useEffect(() => {
+    setOpenGroups((prev) =>
+      Object.fromEntries(
+        activeGroups.map((group) => [
+          group,
+          expandAllSignal > 0 ? true : (prev[group] ?? group === 'induction'),
+        ])
+      )
+    );
+  }, [activeGroupsKey, expandAllSignal]);
 
   if (activeGroups.length <= 1) {
     // No grouping needed if all in one group
@@ -512,7 +548,13 @@ function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t }: any) {
           const drug = getDrug(drugRef.drug_id);
           if (!drug) return null;
           return (
-            <DrugDoseRow key={`${drugRef.drug_id}-${drugRef.indication_tag}-${i}`} drug={drug} indicationTag={drugRef.indication_tag} weightKg={weight} patientWeights={patientWeights} />
+            <DrugDoseRow
+              key={`${drugRef.drug_id}-${drugRef.indication_tag}-${i}`}
+              drug={drug}
+              indicationTag={drugRef.indication_tag}
+              weightKg={weight}
+              patientWeights={patientWeights}
+            />
           );
         })}
       </div>
@@ -522,7 +564,11 @@ function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t }: any) {
   return (
     <div className="space-y-2">
       {activeGroups.map(group => (
-        <Collapsible key={group} defaultOpen={group === 'induction'}>
+        <Collapsible
+          key={group}
+          open={!!openGroups[group]}
+          onOpenChange={(isOpen) => setOpenGroups((prev) => ({ ...prev, [group]: isOpen }))}
+        >
           <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-1.5 px-1 text-sm font-semibold text-foreground hover:text-accent transition-colors">
             <span>{t(GROUP_I18N_KEYS[group])}</span>
             <Badge variant="secondary" className="text-[10px]">{grouped[group].length}</Badge>
@@ -532,7 +578,13 @@ function DrugGroupedList({ drugs, getDrug, weight, patientWeights, t }: any) {
               const drug = getDrug(drugRef.drug_id);
               if (!drug) return null;
               return (
-                <DrugDoseRow key={`${drugRef.drug_id}-${drugRef.indication_tag}-${i}`} drug={drug} indicationTag={drugRef.indication_tag} weightKg={weight} patientWeights={patientWeights} />
+                <DrugDoseRow
+                  key={`${drugRef.drug_id}-${drugRef.indication_tag}-${i}`}
+                  drug={drug}
+                  indicationTag={drugRef.indication_tag}
+                  weightKg={weight}
+                  patientWeights={patientWeights}
+                />
               );
             })}
           </CollapsibleContent>

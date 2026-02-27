@@ -87,3 +87,18 @@ Security notes:
 - never expose `service_role` in Vite client env vars
 - the browser should use only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`
 - AnesIA stores medical knowledge content only and must not store patient data
+
+## Edge Functions
+
+Run functions locally:
+
+```sh
+supabase functions serve
+```
+
+Deploy the secure admin import function:
+
+```sh
+supabase functions deploy admin-import-procedures
+supabase functions deploy admin-import-guidelines
+```

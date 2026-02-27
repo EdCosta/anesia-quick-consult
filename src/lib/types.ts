@@ -1,3 +1,7 @@
+export type SupportedLang = 'fr' | 'en' | 'pt';
+
+export type Localized<T> = Record<SupportedLang, T>;
+
 export interface DrugRef {
   drug_id: string;
   indication_tag: string;
@@ -26,10 +30,12 @@ export interface ProcedureDeep {
 export interface Procedure {
   id: string;
   specialty: string;
-  titles: { fr: string; pt?: string; en?: string };
-  synonyms: { fr?: string[]; pt?: string[]; en?: string[] };
-  quick: { fr: ProcedureQuick; pt?: ProcedureQuick; en?: ProcedureQuick };
-  deep: { fr: ProcedureDeep; pt?: ProcedureDeep; en?: ProcedureDeep };
+  specialties: string[];
+  titles: Localized<string>;
+  synonyms: Localized<string[]>;
+  quick: Localized<ProcedureQuick>;
+  deep: Localized<ProcedureDeep>;
+  tags: string[];
   is_pro?: boolean;
 }
 
@@ -50,38 +56,45 @@ export interface Concentration {
 
 export interface Drug {
   id: string;
-  name: { fr: string; pt?: string; en?: string };
+  name: Localized<string>;
   dose_rules: DoseRule[];
   concentrations: Concentration[];
   contraindications_notes: string[];
   renal_hepatic_notes: string[];
+  tags: string[];
 }
 
 // Guidelines
 export interface Guideline {
   id: string;
   category: string;
-  titles: { fr: string; pt?: string; en?: string };
-  items: { fr: string[]; pt?: string[]; en?: string[] };
+  titles: Localized<string>;
+  items: Localized<string[]>;
   references: Reference[];
+  tags: string[];
+  specialties: string[];
+  organization?: string;
+  recommendation_strength?: number;
 }
 
 // Protocoles
 export interface Protocole {
   id: string;
   category: string;
-  titles: { fr: string; pt?: string; en?: string };
-  steps: { fr: string[]; pt?: string[]; en?: string[] };
+  titles: Localized<string>;
+  steps: Localized<string[]>;
   references: Reference[];
+  tags: string[];
 }
 
 // ALR Blocks
 export interface ALRBlock {
   id: string;
   region: string;
-  titles: { fr: string; pt?: string; en?: string };
-  indications: { fr: string[]; pt?: string[]; en?: string[] };
-  contraindications: { fr: string[]; pt?: string[]; en?: string[] };
-  technique: { fr: string[]; pt?: string[]; en?: string[] };
-  drugs: { fr: string[]; pt?: string[]; en?: string[] };
+  titles: Localized<string>;
+  indications: Localized<string[]>;
+  contraindications: Localized<string[]>;
+  technique: Localized<string[]>;
+  drugs: Localized<string[]>;
+  tags: string[];
 }

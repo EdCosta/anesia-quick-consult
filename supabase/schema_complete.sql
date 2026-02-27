@@ -36,6 +36,7 @@ LANGUAGE plpgsql SET search_path = public;
 CREATE TABLE public.procedures (
   id text PRIMARY KEY,
   specialty text NOT NULL,
+  specialties jsonb NOT NULL DEFAULT '[]',
   titles jsonb NOT NULL,
   synonyms jsonb DEFAULT '{}',
   content jsonb NOT NULL,
@@ -83,6 +84,9 @@ CREATE TABLE public.guidelines (
   items jsonb NOT NULL,
   refs jsonb DEFAULT '[]',
   tags jsonb DEFAULT '[]',
+  specialties jsonb NOT NULL DEFAULT '[]',
+  organization text,
+  recommendation_strength integer NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -168,6 +172,29 @@ INSERT INTO public.specialties (id, name, sort_base) VALUES
 
 
 -- ── 8. IMPORT LOGS & HOSPITAL PROFILES ───────────────────────
+
+CREATE TABLE public.procedure_translations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  procedure_id text NOT NULL REFERENCES public.procedures(id) ON DELETE CASCADE,
+  lang text NOT NULL CHECK (lang IN ('en', 'pt')),
+  section text NOT NULL DEFAULT 'quick' CHECK (section IN ('title', 'quick', 'deep')),
+  translated_content jsonb NOT NULL,
+  generated_at timestamptz NOT NULL DEFAULT now(),
+  review_status text NOT NULL DEFAULT 'pending' CHECK (review_status IN ('pending', 'approved', 'rejected')),
+  reviewed_at timestamptz,
+  reviewed_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (procedure_id, lang, section)
+);
+ALTER TABLE public.procedure_translations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read procedure_translations" ON public.procedure_translations FOR SELECT USING (true);
+CREATE POLICY "Admin insert procedure_translations" ON public.procedure_translations FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "Admin update procedure_translations" ON public.procedure_translations FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "Admin delete procedure_translations" ON public.procedure_translations FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+CREATE INDEX idx_guidelines_strength ON public.guidelines(recommendation_strength DESC);
+CREATE INDEX idx_procedure_translations_lookup ON public.procedure_translations(procedure_id, lang, section, review_status);
+CREATE TRIGGER update_procedure_translations_updated_at BEFORE UPDATE ON public.procedure_translations FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 CREATE TABLE public.import_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

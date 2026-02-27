@@ -22,6 +22,19 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import type { PatientWeights } from '@/lib/weightScalars';
+import type { Guideline } from '@/lib/types';
+
+function normalizeMatchKey(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function getGuidelineYear(guideline: Guideline) {
+  return Math.max(0, ...guideline.references.map((ref) => ref.year || 0));
+}
 
 export default function ProcedurePage() {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +48,7 @@ export default function ProcedurePage() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [showOriginal, setShowOriginal] = useState(false);
   const [savingTranslation, setSavingTranslation] = useState(false);
+  const [translationSaved, setTranslationSaved] = useState(false);
   const { isAdmin } = useIsAdmin();
   const procedure = getProcedure(id || '');
   const isFav = id ? favorites.includes(id) : false;
@@ -44,7 +58,7 @@ export default function ProcedurePage() {
 
   // Auto-translation
   const contentFr = procedure ? (procedure.quick as any)?.fr : null;
-  const { translatedContent, isTranslating, isAutoTranslated } = useAutoTranslation(
+  const { translatedContent, isTranslating, isAutoTranslated, isPersisted, reviewStatus } = useAutoTranslation(
     id || '', lang, contentFr, isFallbackLang && !showOriginal
   );
 
@@ -59,26 +73,42 @@ export default function ProcedurePage() {
 
   // Reset checklist when procedure changes
   useEffect(() => { setChecked({}); setChecklistMode(false); }, [id]);
+  useEffect(() => { setTranslationSaved(false); }, [id, lang]);
 
   const recommendations = useMemo(() => {
     if (!procedure || !guidelines.length) return [];
-    const procTags: string[] = (procedure as any).tags || [];
-    const specialty = procedure.specialty.toLowerCase();
+    const procTags = new Set(procedure.tags.map(normalizeMatchKey));
+    const procSpecialties = new Set(
+      [procedure.specialty, ...procedure.specialties].filter(Boolean).map(normalizeMatchKey)
+    );
 
     const scored = guidelines.map(g => {
-      let score = 0;
-      const gTags: string[] = (g as any).tags || [];
-      // Tag intersection scoring
-      if (procTags.length > 0 && gTags.length > 0) {
-        for (const tag of procTags) {
-          if (gTags.includes(tag)) score += 2;
-        }
+      const matchingTags = g.tags.filter((tag) => procTags.has(normalizeMatchKey(tag))).length;
+      const specialtyMatches = g.specialties.filter((spec) => procSpecialties.has(normalizeMatchKey(spec))).length;
+      let score = matchingTags * 10 + specialtyMatches * 3;
+      if (score === 0 && g.tags.length === 0 && g.specialties.length === 0 && ['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) {
+        score = 1;
       }
-      // Category match fallback
-      if (['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) score += 1;
-      return { guideline: g, score };
+      return {
+        guideline: g,
+        score,
+        matchingTags,
+        specialtyMatches,
+        strength: g.recommendation_strength || 0,
+        year: getGuidelineYear(g),
+      };
     });
-    return scored.filter(s => s.score > 0).sort((a, b) => b.score - a.score).slice(0, 5).map(s => s.guideline);
+    return scored
+      .filter((s) => s.score > 0)
+      .sort((a, b) => (
+        b.matchingTags - a.matchingTags ||
+        b.specialtyMatches - a.specialtyMatches ||
+        b.strength - a.strength ||
+        b.year - a.year ||
+        b.score - a.score
+      ))
+      .slice(0, 5)
+      .map((s) => s.guideline);
   }, [procedure, guidelines]);
 
   const weight = parseFloat(weightKg) || null;
@@ -180,6 +210,11 @@ export default function ProcedurePage() {
                 {t('auto_translated')}
               </Badge>
             )}
+            {isAutoTranslated && !showOriginal && (translationSaved || reviewStatus) && (
+              <Badge variant="secondary" className="text-[10px]">
+                {(translationSaved || reviewStatus === 'approved') ? 'Reviewed' : reviewStatus === 'rejected' ? 'Rejected' : 'Pending review'}
+              </Badge>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -226,23 +261,28 @@ export default function ProcedurePage() {
       )}
 
       {/* Admin save translation */}
-      {isAutoTranslated && isAdmin && !showOriginal && (
+      {isAutoTranslated && isAdmin && !showOriginal && !isPersisted && !translationSaved && (
         <button
           disabled={savingTranslation}
           onClick={async () => {
             if (!procedure || !translatedContent) return;
             setSavingTranslation(true);
             try {
+              const { data: userData } = await supabase.auth.getUser();
               const { error } = await supabase
-                .from('procedures' as any)
-                .update({
-                  content: {
-                    ...(procedure as any).content,
-                    quick: { ...(procedure.quick || {}), [lang]: translatedContent },
-                  },
-                } as any)
-                .eq('id', procedure.id);
+                .from('procedure_translations' as any)
+                .upsert({
+                  procedure_id: procedure.id,
+                  lang,
+                  section: 'quick',
+                  translated_content: translatedContent,
+                  generated_at: new Date().toISOString(),
+                  review_status: 'approved',
+                  reviewed_at: new Date().toISOString(),
+                  reviewed_by: userData.user?.id ?? null,
+                } as any, { onConflict: 'procedure_id,lang,section' });
               if (error) throw error;
+              setTranslationSaved(true);
               toast.success(t('translation_saved'));
             } catch (e: any) {
               toast.error(e.message || 'Save failed');
@@ -411,7 +451,13 @@ function ProcedureContent({ quick, deep, weight, weightKg, setWeightKg, patientW
                     {recommendations.map((g: any) => (
                       <Link key={g.id} to="/guidelines" className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors">
                         <p className="text-xs font-semibold text-card-foreground">{resolveStr(g.titles)}</p>
-                        <Badge variant="secondary" className="mt-1 text-[10px]">{g.category}</Badge>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-[10px]">{g.category}</Badge>
+                          {g.organization && <Badge variant="outline" className="text-[10px]">{g.organization}</Badge>}
+                          {!!g.recommendation_strength && (
+                            <Badge variant="outline" className="text-[10px]">S{g.recommendation_strength}</Badge>
+                          )}
+                        </div>
                       </Link>
                     ))}
                   </div>

@@ -6,7 +6,6 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 export type {
   DrugRef, Reference, ProcedureQuick, ProcedureDeep, Procedure,
@@ -16,8 +15,10 @@ export type {
 import type { Procedure, Drug, Guideline, Protocole, ALRBlock } from '@/lib/types';
 import { loadFromSupabase } from '@/data/repositories/loadFromSupabase';
 import { loadFromJson } from '@/data/repositories/loadFromJson';
-import { mergeProcedureFallback } from '@/data/merge/mergeProcedureFallback';
 import { enrichMedicationPlan } from '@/data/merge/enrichMedicationPlan';
+import { hydrateProcedures } from '@/data/repositories/proceduresRepo';
+import { resolveDrugs } from '@/data/repositories/drugsRepo';
+import { loadSpecialtiesFromSupabase, type SpecialtyRecord } from '@/data/repositories/specialtiesRepo';
 
 interface DataContextType {
   procedures: Procedure[];
@@ -30,7 +31,7 @@ interface DataContextType {
   getDrug: (id: string) => Drug | undefined;
   getProcedure: (id: string) => Procedure | undefined;
   specialties: string[];
-  specialtiesData: Array<{ id: string; name: Record<string, string>; sort_base: number }>;
+  specialtiesData: SpecialtyRecord[];
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -52,6 +53,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [guidelines, setGuidelines] = useState<Guideline[]>([]);
   const [protocoles, setProtocoles] = useState<Protocole[]>([]);
   const [alrBlocks, setAlrBlocks] = useState<ALRBlock[]>([]);
+  const [specialtiesData, setSpecialtiesData] = useState<SpecialtyRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,21 +62,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const dbData = await loadFromSupabase();
+        const [dbData, jsonData, specialtyRows] = await Promise.all([
+          loadFromSupabase(),
+          loadFromJson(),
+          loadSpecialtiesFromSupabase().catch(() => []),
+        ]);
         if (cancelled) return;
+        setSpecialtiesData(specialtyRows);
 
         if (dbData) {
           console.log('[AnesIA] Data loaded from database');
-          const mergedProcs = await mergeProcedureFallback(dbData.procedures);
-          let activeDrugs = dbData.drugs;
+          const mergedProcs = await hydrateProcedures(dbData.procedures, jsonData.procedures);
           if (cancelled) return;
-          // Fall back to JSON drugs if DB drugs table is not yet seeded
-          if (dbData.drugs.length === 0) {
-            console.log('[AnesIA] DB drugs empty — using JSON drugs fallback');
-            const jsonData = await loadFromJson();
-            if (cancelled) return;
-            activeDrugs = jsonData.drugs;
-          }
+          const activeDrugs = resolveDrugs(dbData.drugs, jsonData.drugs);
           const enriched = enrichMedicationPlan({ procedures: mergedProcs, drugs: activeDrugs });
           setProcedures(enriched.procedures);
           setDrugs(enriched.drugs);
@@ -83,9 +83,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
           setAlrBlocks(dbData.alrBlocks);
         } else {
           console.log('[AnesIA] Falling back to JSON files');
-          const jsonData = await loadFromJson();
+          const mergedProcs = await hydrateProcedures(jsonData.procedures, jsonData.procedures);
           if (cancelled) return;
-          const enriched = enrichMedicationPlan({ procedures: jsonData.procedures, drugs: jsonData.drugs });
+          const enriched = enrichMedicationPlan({
+            procedures: mergedProcs,
+            drugs: resolveDrugs([], jsonData.drugs),
+          });
           setProcedures(enriched.procedures);
           setDrugs(enriched.drugs);
           setGuidelines(jsonData.guidelines);
@@ -108,21 +111,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const getDrug = useCallback((id: string) => drugs.find((d) => d.id === id), [drugs]);
   const getProcedure = useCallback((id: string) => procedures.find((p) => p.id === id), [procedures]);
   const specialties = React.useMemo(() => {
-    const set = new Set(procedures.map((p) => p.specialty));
+    const set = new Set(procedures.map((p) => p.specialty).filter(Boolean));
     return Array.from(set).sort();
   }, [procedures]);
-
-  const [specialtiesData, setSpecialtiesData] = useState<Array<{ id: string; name: Record<string, string>; sort_base: number }>>([]);
-  useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await supabase.from('specialties' as any).select('*').eq('is_active', true).order('sort_base');
-        if (data && (data as any[]).length > 0) {
-          setSpecialtiesData((data as any[]).map((r: any) => ({ id: r.id, name: r.name || {}, sort_base: r.sort_base || 0 })));
-        }
-      } catch { /* fallback: specialtiesData stays empty */ }
-    })();
-  }, []);
 
   return (
     <DataContext.Provider value={{ procedures, drugs, guidelines, protocoles, alrBlocks, loading, error, getDrug, getProcedure, specialties, specialtiesData }}>

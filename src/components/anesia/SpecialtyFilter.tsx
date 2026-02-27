@@ -1,4 +1,6 @@
 import { useLang } from '@/contexts/LanguageContext';
+import { useData } from '@/contexts/DataContext';
+import { getSpecialtyDisplayName } from '@/lib/specialties';
 
 interface SpecialtyFilterProps {
   specialties: string[];
@@ -7,7 +9,8 @@ interface SpecialtyFilterProps {
 }
 
 export default function SpecialtyFilter({ specialties, selected, onSelect }: SpecialtyFilterProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const { specialtiesData } = useData();
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -31,7 +34,7 @@ export default function SpecialtyFilter({ specialties, selected, onSelect }: Spe
               : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
           }`}
         >
-          {s}
+          {getSpecialtyDisplayName(s, specialtiesData, lang)}
         </button>
       ))}
     </div>

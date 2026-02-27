@@ -21,6 +21,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/component
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
+import { getSpecialtyDisplayName } from '@/lib/specialties';
 import type { PatientWeights } from '@/lib/weightScalars';
 import type { Guideline } from '@/lib/types';
 
@@ -175,11 +176,7 @@ export default function ProcedurePage() {
     quick = translatedContent;
   }
 
-  const specialtyDisplayName = (() => {
-    const spec = specialtiesData.find((s) => s.id === procedure.specialty);
-    if (spec && spec.name) return spec.name[lang] || spec.name['fr'] || procedure.specialty;
-    return procedure.specialty;
-  })();
+  const specialtyDisplayName = getSpecialtyDisplayName(procedure.specialty, specialtiesData, lang);
 
   const toggleFav = () => {
     if (!id) return;

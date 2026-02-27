@@ -5,6 +5,7 @@ import { useData } from '@/contexts/DataContext';
 import type { Procedure } from '@/contexts/DataContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getSpecialtyDisplayName } from '@/lib/specialties';
 
 interface ProcedureCardProps {
   procedure: Procedure;
@@ -18,12 +19,7 @@ export default function ProcedureCard({ procedure, isFavorite, onToggleFavorite,
   const { resolveStr, lang } = useLang();
   const { specialtiesData } = useData();
   const title = resolveStr(procedure.titles);
-
-  const specialtyDisplayName = (() => {
-    const spec = specialtiesData.find((s) => s.id === procedure.specialty);
-    if (spec && spec.name) return spec.name[lang] || spec.name['fr'] || procedure.specialty;
-    return procedure.specialty;
-  })();
+  const specialtyDisplayName = getSpecialtyDisplayName(procedure.specialty, specialtiesData, lang);
 
   if (locked) {
     return (

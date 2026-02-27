@@ -5,13 +5,14 @@ import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { generateRecommendations, type PreAnestInput, type PreAnestOutput } from '@/lib/preanest-rules';
+import { getSpecialtyDisplayName } from '@/lib/specialties';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 
 const COMORBIDITIES = ['hta', 'diabetes', 'saos', 'obesity', 'cardiopathy', 'renal', 'liver', 'respiratory'];
 const ANTICOAG_OPTIONS = ['none', 'aspirin', 'clopidogrel', 'doac', 'avk', 'lmwh', 'dual_antiplatelet'];
 
-const DEFAULT_INPUT: PreAnestInput = {
+  const DEFAULT_INPUT: PreAnestInput = {
   age: 50, sex: 'M', weight: 70, height: 170, asa: 2,
   comorbidities: [], otherComorbidities: '',
   mallampati: 1, mouthOpening: 'normal', cervicalMobility: 'normal',
@@ -22,7 +23,7 @@ const DEFAULT_INPUT: PreAnestInput = {
 
 export default function PreAnest() {
   const { t, lang, resolveStr } = useLang();
-  const { procedures } = useData();
+  const { procedures, specialtiesData } = useData();
   const [saved, setSaved] = useLocalStorage<PreAnestInput>('anesia-preanest-last', DEFAULT_INPUT);
   const [input, setInput] = useState<PreAnestInput>(saved);
   const [result, setResult] = useState<PreAnestOutput | null>(null);
@@ -188,7 +189,7 @@ export default function PreAnest() {
                 {procResults.map(p => (
                   <button key={p.id} onClick={() => { set('procedureId', p.id); set('specialty', p.specialty); setProcSearch(''); setShowProcList(false); }}
                     className="w-full text-left px-3 py-2 text-xs hover:bg-muted/50 transition-colors">
-                    {resolveStr(p.titles)} <span className="text-muted-foreground">({p.specialty})</span>
+                    {resolveStr(p.titles)} <span className="text-muted-foreground">({getSpecialtyDisplayName(p.specialty, specialtiesData, lang)})</span>
                   </button>
                 ))}
               </div>

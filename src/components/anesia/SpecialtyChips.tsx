@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Plus, Search, X, ChevronUp, Check } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
+import { getSpecialtyDisplayName } from '@/lib/specialties';
 
 interface SpecialtyChipsProps {
   specialties: string[];
@@ -22,13 +23,7 @@ export default function SpecialtyChips({
   const [search, setSearch] = useState('');
   const [pendingSelection, setPendingSelection] = useState<string[]>([]);
 
-  const getDisplayName = (slug: string) => {
-    const spec = specialtiesData.find((s) => s.id === slug);
-    if (spec && spec.name) {
-      return spec.name[lang] || spec.name['fr'] || slug;
-    }
-    return slug;
-  };
+  const getDisplayName = (slug: string) => getSpecialtyDisplayName(slug, specialtiesData, lang);
 
   const visible = specialties.slice(0, maxVisible);
 

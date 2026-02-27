@@ -28,6 +28,7 @@ import ProGate from '@/components/anesia/ProGate';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getSpecialtyDisplayName, getSpecialtyTrackingKey } from '@/lib/specialties';
 
 export default function Index() {
   const { t, lang, resolveStr } = useLang();
@@ -100,7 +101,7 @@ export default function Index() {
   };
 
   const handleProcedureClick = (proc: Procedure) => {
-    incrementSpecialty(proc.specialty);
+    incrementSpecialty(getSpecialtyTrackingKey(proc.specialty, specialtiesData));
   };
 
   const searchResults = useMemo(() => {
@@ -353,7 +354,9 @@ export default function Index() {
                 {recentProcedures.map((p) => (
                   <Link key={p.id} to={`/p/${p.id}`} onClick={() => handleProcedureClick(p)} className="snap-start shrink-0 w-40 rounded-lg border bg-card p-3 clinical-shadow hover:clinical-shadow-md transition-all hover:-translate-y-0.5">
                     <p className="text-xs font-semibold text-card-foreground leading-tight line-clamp-2">{resolveStr(p.titles)}</p>
-                    <Badge variant="secondary" className="mt-1.5 text-[10px]">{p.specialty}</Badge>
+                    <Badge variant="secondary" className="mt-1.5 text-[10px]">
+                      {getSpecialtyDisplayName(p.specialty, specialtiesData, lang)}
+                    </Badge>
                   </Link>
                 ))}
               </div>

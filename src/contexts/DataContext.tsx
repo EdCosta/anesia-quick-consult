@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   useCallback,
   ReactNode,
@@ -19,6 +20,43 @@ import { enrichMedicationPlan } from '@/data/merge/enrichMedicationPlan';
 import { hydrateProcedures } from '@/data/repositories/proceduresRepo';
 import { resolveDrugs } from '@/data/repositories/drugsRepo';
 import { loadSpecialtiesFromSupabase, type SpecialtyRecord } from '@/data/repositories/specialtiesRepo';
+
+// ---------------------------------------------------------------------------
+// localStorage cache — stale-while-revalidate
+// ---------------------------------------------------------------------------
+const CACHE_KEY = 'anesia-data-v1';
+const CACHE_TTL = 30 * 60 * 1000; // 30 min
+
+interface CachedData {
+  procedures: Procedure[];
+  drugs: Drug[];
+  guidelines: Guideline[];
+  protocoles: Protocole[];
+  alrBlocks: ALRBlock[];
+  specialtiesData: SpecialtyRecord[];
+}
+
+function readCache(): CachedData | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { ts: number; data: CachedData };
+    if (Date.now() - parsed.ts > CACHE_TTL) return null;
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(data: CachedData): void {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+  } catch {
+    // quota exceeded — silently ignore
+  }
+}
+
+// ---------------------------------------------------------------------------
 
 interface DataContextType {
   procedures: Procedure[];
@@ -48,13 +86,18 @@ function DataErrorFallback({ error }: { error: string }) {
 }
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [procedures, setProcedures] = useState<Procedure[]>([]);
-  const [drugs, setDrugs] = useState<Drug[]>([]);
-  const [guidelines, setGuidelines] = useState<Guideline[]>([]);
-  const [protocoles, setProtocoles] = useState<Protocole[]>([]);
-  const [alrBlocks, setAlrBlocks] = useState<ALRBlock[]>([]);
-  const [specialtiesData, setSpecialtiesData] = useState<SpecialtyRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Read cache once synchronously before first render
+  const cachedRef = useRef(readCache());
+  const cached = cachedRef.current;
+
+  const [procedures, setProcedures] = useState<Procedure[]>(cached?.procedures ?? []);
+  const [drugs, setDrugs] = useState<Drug[]>(cached?.drugs ?? []);
+  const [guidelines, setGuidelines] = useState<Guideline[]>(cached?.guidelines ?? []);
+  const [protocoles, setProtocoles] = useState<Protocole[]>(cached?.protocoles ?? []);
+  const [alrBlocks, setAlrBlocks] = useState<ALRBlock[]>(cached?.alrBlocks ?? []);
+  const [specialtiesData, setSpecialtiesData] = useState<SpecialtyRecord[]>(cached?.specialtiesData ?? []);
+  // If we have cached data, show content immediately (no loading spinner)
+  const [loading, setLoading] = useState(!cached);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -62,17 +105,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const [dbData, specialtyRows] = await Promise.all([
+        const [dbData, specialtyRows, fallbackProcedures] = await Promise.all([
           loadFromSupabase(),
           loadSpecialtiesFromSupabase().catch(() => []),
+          loadProceduresFromJson().catch(() => []),
         ]);
         if (cancelled) return;
         setSpecialtiesData(specialtyRows);
 
         if (dbData) {
           console.log('[AnesIA] Data loaded from database');
-          const fallbackProcedures = await loadProceduresFromJson().catch(() => []);
-          if (cancelled) return;
           const fallbackDrugs = dbData.drugs.length === 0
             ? await loadDrugsFromJson().catch(() => [])
             : [];
@@ -89,6 +131,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
           setGuidelines(dbData.guidelines);
           setProtocoles(dbData.protocoles);
           setAlrBlocks(dbData.alrBlocks);
+          writeCache({
+            procedures: enriched.procedures,
+            drugs: enriched.drugs,
+            guidelines: dbData.guidelines,
+            protocoles: dbData.protocoles,
+            alrBlocks: dbData.alrBlocks,
+            specialtiesData: specialtyRows,
+          });
         } else {
           console.log('[AnesIA] Falling back to JSON files');
           const jsonData = await loadFromJson();
@@ -103,12 +153,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
           setGuidelines(jsonData.guidelines);
           setProtocoles(jsonData.protocoles);
           setAlrBlocks(jsonData.alrBlocks);
+          writeCache({
+            procedures: enriched.procedures,
+            drugs: enriched.drugs,
+            guidelines: jsonData.guidelines,
+            protocoles: jsonData.protocoles,
+            alrBlocks: jsonData.alrBlocks,
+            specialtiesData: specialtyRows,
+          });
         }
         setLoading(false);
       } catch (err) {
         console.error('Failed to load data:', err);
         if (!cancelled) {
-          setError('data_load_error');
+          // Only show error if we have no cached data to fall back on
+          if (!cached) setError('data_load_error');
           setLoading(false);
         }
       }

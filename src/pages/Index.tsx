@@ -46,6 +46,7 @@ export default function Index() {
   const [favsExpanded, setFavsExpanded] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const [showProGate, setShowProGate] = useState(false);
+  const [proceduresExpanded, setProceduresExpanded] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const heroSearchRef = useRef<HTMLDivElement>(null);
@@ -123,6 +124,7 @@ export default function Index() {
 
   useEffect(() => {
     setVisibleCount(24);
+    setProceduresExpanded(false);
   }, [filterResetKey]);
 
   useEffect(() => {
@@ -168,6 +170,15 @@ export default function Index() {
   const progressiveResults = filteredResults.slice(0, visibleCount);
   const visibleResults = isLimited ? progressiveResults.slice(0, procLimit) : progressiveResults;
   const lockedResults = isLimited ? progressiveResults.slice(procLimit) : [];
+
+  // Collapsed "all procedures" view
+  const INITIAL_PROC_COUNT = 8;
+  const totalProcs = visibleResults.length + lockedResults.length;
+  const showProcExpand = !proceduresExpanded && totalProcs > INITIAL_PROC_COUNT;
+  const displayVisible = proceduresExpanded ? visibleResults : visibleResults.slice(0, INITIAL_PROC_COUNT);
+  const displayLocked = proceduresExpanded
+    ? lockedResults
+    : lockedResults.slice(0, Math.max(0, INITIAL_PROC_COUNT - displayVisible.length));
 
   const searchInput = (
     <div className="relative">
@@ -360,7 +371,27 @@ export default function Index() {
               </div>
               {indexLoading && procedureIndex.length === 0 ? renderLoadingSkeleton() : filteredResults.length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
-              ) : renderProcedureGrid(visibleResults, lockedResults)}
+              ) : (
+                <>
+                  <div className="relative">
+                    {renderProcedureGrid(displayVisible, displayLocked)}
+                    {showProcExpand && (
+                      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+                    )}
+                  </div>
+                  {showProcExpand && (
+                    <div className="flex justify-center pt-1 pb-1">
+                      <button
+                        onClick={() => setProceduresExpanded(true)}
+                        className="flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent/80 transition-colors"
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                        {t('view_all_procedures')} ({totalProcs})
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </section>
           </div>
         </div>

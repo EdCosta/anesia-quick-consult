@@ -96,7 +96,9 @@ function parseProcedureCsv(csv: string): { rows: ProcedurePayload[]; errors: str
 
   const header = parseCSVLine(lines[0]).map((field) => field.trim().toLowerCase());
   const fieldIndex = (name: string) => header.indexOf(name);
-  const requiredColumns = ['id', 'specialty', 'titles'];
+  const hasJsonTitles = fieldIndex('titles') >= 0;
+  const hasMultiLangTitles = fieldIndex('title_fr') >= 0;
+  const requiredColumns = ['id', 'specialty'];
   const errors: string[] = [];
   const dedupedRows = new Map<string, ProcedurePayload>();
 
@@ -104,6 +106,10 @@ function parseProcedureCsv(csv: string): { rows: ProcedurePayload[]; errors: str
     if (fieldIndex(column) < 0) {
       errors.push(`Missing required column: ${column}`);
     }
+  }
+
+  if (!hasJsonTitles && !hasMultiLangTitles) {
+    errors.push('Missing required title columns: titles or title_fr');
   }
 
   if (errors.length > 0) {
@@ -119,10 +125,34 @@ function parseProcedureCsv(csv: string): { rows: ProcedurePayload[]; errors: str
     };
 
     try {
+      let titles: Record<string, unknown>;
+      if (hasJsonTitles) {
+        titles = parseJsonField(pick('titles'), {}, 'titles', lineNumber) as Record<
+          string,
+          unknown
+        >;
+      } else {
+        const fr = pick('title_fr');
+        const en = pick('title_en');
+        const pt = pick('title_pt');
+
+        if (!fr) {
+          throw new Error(`Line ${lineNumber}: title_fr is required`);
+        }
+
+        titles = { fr };
+        if (en) {
+          titles.en = en;
+        }
+        if (pt) {
+          titles.pt = pt;
+        }
+      }
+
       const parsedRow = procedureRowSchema.safeParse({
         id: pick('id'),
         specialty: pick('specialty'),
-        titles: parseJsonField(pick('titles'), {}, 'titles', lineNumber),
+        titles,
         synonyms: parseJsonField(pick('synonyms'), {}, 'synonyms', lineNumber),
         content: parseJsonField(pick('content'), {}, 'content', lineNumber),
         tags: parseJsonField(pick('tags'), [], 'tags', lineNumber),

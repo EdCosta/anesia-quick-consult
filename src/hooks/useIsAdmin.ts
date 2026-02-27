@@ -4,13 +4,18 @@ import { useState, useEffect } from 'react';
 
 export function useIsAdmin() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [sessionResolved, setSessionResolved] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id ?? null));
+    supabase.auth.getSession().then(({ data }) => {
+      setUserId(data.session?.user?.id ?? null);
+      setSessionResolved(true);
+    });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_e, session) => {
       setUserId(session?.user?.id ?? null);
+      setSessionResolved(true);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -19,12 +24,27 @@ export function useIsAdmin() {
     queryKey: ['is-admin', userId],
     queryFn: async () => {
       if (!userId) return false;
-      const { data } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+      const { data, error } = await supabase
+        .from('user_roles' as any)
+        .select('user_id')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+
       return !!data;
     },
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
   });
 
-  return { isAdmin, loading: isLoading && !!userId };
+  return {
+    isAdmin,
+    isAuthenticated: !!userId,
+    userId,
+    loading: !sessionResolved || (isLoading && !!userId),
+  };
 }

@@ -3,7 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { DataProvider } from '@/contexts/DataContext';
 import DisclaimerBanner from '@/components/anesia/DisclaimerBanner';
@@ -22,8 +22,13 @@ const Protocoles = lazy(() => import('./pages/Protocoles'));
 const PreAnest = lazy(() => import('./pages/PreAnest'));
 const Account = lazy(() => import('./pages/Account'));
 const Auth = lazy(() => import('./pages/Auth'));
+const AdminGuard = lazy(() => import('./components/admin/AdminGuard'));
+const AdminLayout = lazy(() => import('./pages/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminContent = lazy(() => import('./pages/AdminContent'));
 const AdminImportProcedures = lazy(() => import('./pages/AdminImportProcedures'));
+const AdminImportGuidelines = lazy(() => import('./pages/AdminImportGuidelines'));
+const AdminLogs = lazy(() => import('./pages/AdminLogs'));
 const AdminQuality = lazy(() => import('./pages/AdminQuality'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -62,8 +67,25 @@ const App = () => {
                     <Route path="/p/:id" element={<ProcedurePage />} />
                     <Route path="/account" element={<Account />} />
                     <Route path="/admin-content" element={<AdminContent />} />
-                    <Route path="/admin/import-procedures" element={<AdminImportProcedures />} />
                     <Route path="/admin/quality" element={<AdminQuality />} />
+                    <Route path="/admin" element={<AdminGuard />}>
+                      <Route element={<AdminLayout />}>
+                        <Route index element={<AdminDashboard />} />
+                        <Route
+                          path="import/procedures"
+                          element={<AdminImportProcedures />}
+                        />
+                        <Route
+                          path="import/guidelines"
+                          element={<AdminImportGuidelines />}
+                        />
+                        <Route path="logs" element={<AdminLogs />} />
+                      </Route>
+                    </Route>
+                    <Route
+                      path="/admin/import-procedures"
+                      element={<Navigate to="/admin/import/procedures" replace />}
+                    />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>

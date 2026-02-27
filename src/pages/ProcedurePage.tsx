@@ -79,16 +79,16 @@ export default function ProcedurePage() {
 
   const recommendations = useMemo(() => {
     if (!procedure || !guidelines.length) return [];
-    const procTags = new Set(procedure.tags.map(normalizeMatchKey));
+    const procTags = new Set((procedure.tags || []).map(normalizeMatchKey));
     const procSpecialties = new Set(
-      [procedure.specialty, ...procedure.specialties].filter(Boolean).map(normalizeMatchKey)
+      [procedure.specialty, ...(procedure.specialties || [])].filter(Boolean).map(normalizeMatchKey)
     );
 
     const scored = guidelines.map(g => {
-      const matchingTags = g.tags.filter((tag) => procTags.has(normalizeMatchKey(tag))).length;
-      const specialtyMatches = g.specialties.filter((spec) => procSpecialties.has(normalizeMatchKey(spec))).length;
+      const matchingTags = (g.tags || []).filter((tag) => procTags.has(normalizeMatchKey(tag))).length;
+      const specialtyMatches = (g.specialties || []).filter((spec) => procSpecialties.has(normalizeMatchKey(spec))).length;
       let score = matchingTags * 10 + specialtyMatches * 3;
-      if (score === 0 && g.tags.length === 0 && g.specialties.length === 0 && ['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) {
+      if (score === 0 && (g.tags || []).length === 0 && (g.specialties || []).length === 0 && ['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)) {
         score = 1;
       }
       return {

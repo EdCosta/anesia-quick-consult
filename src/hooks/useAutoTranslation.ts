@@ -20,21 +20,28 @@ export function useAutoTranslation(
   const { data, isLoading, error } = useQuery({
     queryKey: ['auto-translation', procedureId, lang],
     queryFn: async () => {
-      const { data: persistedRow, error: persistedError } = await supabase
-        .from('procedure_translations' as any)
-        .select('translated_content, review_status')
-        .eq('procedure_id', procedureId)
-        .eq('lang', lang)
-        .eq('section', 'quick')
-        .maybeSingle();
+      // Try to load persisted translation
+      try {
+        const { data: persistedRow, error: persistedError } = await supabase
+          .from('procedure_translations' as any)
+          .select('*')
+          .eq('procedure_id', procedureId)
+          .eq('lang', lang)
+          .eq('section', 'quick')
+          .maybeSingle();
 
-      if (persistedError) throw new Error(persistedError.message || 'Translation lookup failed');
-      if (persistedRow?.translated_content) {
-        return {
-          translated: persistedRow.translated_content,
-          source: 'database' as const,
-          reviewStatus: (persistedRow.review_status as 'pending' | 'approved' | 'rejected' | null) ?? 'pending',
-        };
+        if (!persistedError && persistedRow) {
+          const row = persistedRow as any;
+          if (row.translated_content) {
+            return {
+              translated: row.translated_content,
+              source: 'database' as const,
+              reviewStatus: (row.review_status as 'pending' | 'approved' | 'rejected' | null) ?? 'pending',
+            };
+          }
+        }
+      } catch {
+        // Table may not exist yet, continue to cache/generation
       }
 
       // Check localStorage cache first

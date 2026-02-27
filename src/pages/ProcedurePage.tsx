@@ -54,7 +54,9 @@ export default function ProcedurePage() {
   const isFav = id ? favorites.includes(id) : false;
 
   // Check if content is using fallback (FR only)
-  const isFallbackLang = lang !== 'fr' && !(procedure?.quick as any)?.[lang];
+  const isFallbackLang = lang !== 'fr' && !!procedure && (
+    JSON.stringify(procedure.quick[lang]) === JSON.stringify(procedure.quick.fr)
+  );
 
   // Auto-translation
   const contentFr = procedure ? (procedure.quick as any)?.fr : null;

@@ -14,7 +14,7 @@ export type {
 
 import type { Procedure, Drug, Guideline, Protocole, ALRBlock } from '@/lib/types';
 import { loadFromSupabase } from '@/data/repositories/loadFromSupabase';
-import { loadFromJson } from '@/data/repositories/loadFromJson';
+import { loadFromJson, loadProceduresFromJson, loadDrugsFromJson } from '@/data/repositories/loadFromJson';
 import { enrichMedicationPlan } from '@/data/merge/enrichMedicationPlan';
 import { hydrateProcedures } from '@/data/repositories/proceduresRepo';
 import { resolveDrugs } from '@/data/repositories/drugsRepo';
@@ -62,9 +62,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const [dbData, jsonData, specialtyRows] = await Promise.all([
+        const [dbData, specialtyRows] = await Promise.all([
           loadFromSupabase(),
-          loadFromJson(),
           loadSpecialtiesFromSupabase().catch(() => []),
         ]);
         if (cancelled) return;
@@ -72,9 +71,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         if (dbData) {
           console.log('[AnesIA] Data loaded from database');
-          const mergedProcs = await hydrateProcedures(dbData.procedures, jsonData.procedures);
+          const fallbackProcedures = await loadProceduresFromJson().catch(() => []);
           if (cancelled) return;
-          const activeDrugs = resolveDrugs(dbData.drugs, jsonData.drugs);
+          const fallbackDrugs = dbData.drugs.length === 0
+            ? await loadDrugsFromJson().catch(() => [])
+            : [];
+          if (cancelled) return;
+          const mergedProcs = await hydrateProcedures(
+            dbData.procedures,
+            fallbackProcedures.length > 0 ? fallbackProcedures : undefined,
+          );
+          if (cancelled) return;
+          const activeDrugs = resolveDrugs(dbData.drugs, fallbackDrugs);
           const enriched = enrichMedicationPlan({ procedures: mergedProcs, drugs: activeDrugs });
           setProcedures(enriched.procedures);
           setDrugs(enriched.drugs);
@@ -83,6 +91,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           setAlrBlocks(dbData.alrBlocks);
         } else {
           console.log('[AnesIA] Falling back to JSON files');
+          const jsonData = await loadFromJson();
           const mergedProcs = await hydrateProcedures(jsonData.procedures, jsonData.procedures);
           if (cancelled) return;
           const enriched = enrichMedicationPlan({

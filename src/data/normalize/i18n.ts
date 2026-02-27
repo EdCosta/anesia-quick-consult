@@ -20,12 +20,13 @@ export function normalizeLocalizedValue<T>(
   getFallback: () => T,
 ): Record<SupportedLang, T> {
   const source = isLocalizedRecord<T>(value) ? value : { fr: value as T };
-  const fr = source.fr ?? getFallback();
+  const defaultValue = getFallback();
+  const fr = mergeMissing(source.fr ?? defaultValue, defaultValue);
 
   return {
     fr,
-    en: source.en ?? fr,
-    pt: source.pt ?? fr,
+    en: source.en == null ? fr : mergeMissing(source.en, fr),
+    pt: source.pt == null ? fr : mergeMissing(source.pt, fr),
   };
 }
 

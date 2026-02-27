@@ -110,7 +110,17 @@ export default function Index() {
 
   const filteredResults = useMemo(() => {
     let source = searchResults ?? procedureIndex;
-    if (selectedSpecialties.length > 0) source = source.filter((p) => selectedSpecialties.includes(p.specialty));
+    if (selectedSpecialties.length > 0) {
+      // selectedSpecialties may be Supabase IDs; resolve to all name variants for matching
+      const resolvedNames = new Set(
+        selectedSpecialties.flatMap((id) => {
+          const rec = specialtiesData.find((s) => s.id === id);
+          if (!rec) return [id];
+          return [id, rec.name.fr, rec.name.en, rec.name.pt].filter(Boolean);
+        })
+      );
+      source = source.filter((p) => resolvedNames.has(p.specialty));
+    }
     if (showOnlyFavorites) source = source.filter((p) => favorites.includes(p.id));
     if (favoritesFirst) {
       const favs = source.filter((p) => favorites.includes(p.id));
@@ -118,7 +128,7 @@ export default function Index() {
       return [...favs, ...rest];
     }
     return source;
-  }, [searchResults, procedureIndex, selectedSpecialties, showOnlyFavorites, favoritesFirst, favorites]);
+  }, [searchResults, procedureIndex, selectedSpecialties, showOnlyFavorites, favoritesFirst, favorites, specialtiesData]);
 
   const filterResetKey = `${deferredSearchQuery}::${selectedSpecialties.join('|')}::${showOnlyFavorites ? 1 : 0}::${favoritesFirst ? 1 : 0}::${procedureIndex.length}`;
 

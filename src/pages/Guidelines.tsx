@@ -81,16 +81,16 @@ export default function Guidelines() {
         ))}
       </div>
 
-      <div className="space-y-3">
+      <div className="grid gap-3 md:grid-cols-2 items-start">
         {filtered.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
+          <p className="text-center text-sm text-muted-foreground py-8 md:col-span-2">{t('no_results')}</p>
         ) : (
           <>
             {visibleItems.map((g) => {
               const isOpen = expanded === g.id;
               const items = resolve(g.items);
               return (
-                <div key={g.id} className="rounded-xl border bg-card clinical-shadow overflow-hidden">
+                <div key={g.id} className={`rounded-xl border bg-card clinical-shadow overflow-hidden ${isOpen ? 'md:col-span-2' : ''}`}>
                   <button onClick={() => setExpanded(isOpen ? null : g.id)} className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors">
                     <div>
                       <h3 className="text-sm font-semibold text-card-foreground">{resolveStr(g.titles)}</h3>
@@ -122,7 +122,7 @@ export default function Guidelines() {
               );
             })}
             {lockedCount > 0 && (
-              <button onClick={() => setShowProModal(true)} className="w-full rounded-xl border-2 border-dashed border-muted p-6 text-center hover:bg-muted/10 transition-colors">
+              <button onClick={() => setShowProModal(true)} className="w-full rounded-xl border-2 border-dashed border-muted p-6 text-center hover:bg-muted/10 transition-colors md:col-span-2">
                 <Lock className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm font-medium text-foreground">{lockedCount} {t('content_locked')}</p>
                 <p className="text-xs text-muted-foreground mt-1">{t('upgrade_to_unlock')}</p>

@@ -42,6 +42,60 @@
     ]
   },
   {
+    "id": "difficult-airway-rescue-drugs",
+    "category": "airway",
+    "titles": {
+      "fr": "VAD: médicaments de ressource et doses critiques",
+      "en": "Difficult airway: rescue drugs and critical doses",
+      "pt": "Via aérea difícil: fármacos de resgate e doses críticas"
+    },
+    "items": {
+      "fr": [
+        "Préparation avant induction: étiqueter rocuronium, succinylcholine, sugammadex, adrénaline, atropine et kétamine",
+        "Induction hémodynamiquement fragile: kétamine 1-2 mg/kg IV ou étomidate selon profil, puis sécuriser le plan d'intubation",
+        "ISR adulte: rocuronium 1.0-1.2 mg/kg IV si succinylcholine non souhaitée ou contre-indiquée",
+        "Alternative si estomac plein et besoin de curarisation ultra-rapide: succinylcholine 1-1.5 mg/kg IV",
+        "Reversal d'urgence après rocuronium: sugammadex 16 mg/kg si scénario cannot intubate / cannot oxygenate",
+        "Bradycardie per-induction: atropine 0.5 mg IV chez l'adulte (pédiatrie selon poids)",
+        "Collapsus per-intubation: adrénaline 10-20 µg bolus IV titrés, puis perfusion si besoin",
+        "Hypotension sans arrêt: éphédrine 6-9 mg IV ou phényléphrine 50-100 µg IV selon fréquence cardiaque",
+        "Toujours vérifier la disponibilité réelle dans le profil hôpital avant de standardiser l'algorithme"
+      ],
+      "en": [
+        "Before induction: label rocuronium, succinylcholine, sugammadex, epinephrine, atropine and ketamine",
+        "Hemodynamically fragile induction: ketamine 1-2 mg/kg IV or etomidate depending on profile, then secure the intubation plan",
+        "Adult RSI: rocuronium 1.0-1.2 mg/kg IV if succinylcholine is not desired or contraindicated",
+        "Alternative for full stomach with need for ultra-fast paralysis: succinylcholine 1-1.5 mg/kg IV",
+        "Emergency reversal after rocuronium: sugammadex 16 mg/kg in cannot intubate / cannot oxygenate scenario",
+        "Peri-induction bradycardia: atropine 0.5 mg IV in adults (weight-based in pediatrics)",
+        "Peri-intubation collapse: epinephrine 10-20 mcg IV boluses titrated, then infusion if needed",
+        "Hypotension without arrest: ephedrine 6-9 mg IV or phenylephrine 50-100 mcg IV depending on heart rate",
+        "Always verify real stock in the hospital profile before standardizing the algorithm"
+      ],
+      "pt": [
+        "Antes da indução: rotular rocurónio, succinilcolina, sugamadex, adrenalina, atropina e cetamina",
+        "Indução com fragilidade hemodinâmica: cetamina 1-2 mg/kg IV ou etomidato conforme o perfil, depois assegurar o plano de intubação",
+        "ISR no adulto: rocurónio 1.0-1.2 mg/kg IV se a succinilcolina não for desejada ou estiver contraindicada",
+        "Alternativa se estômago cheio e necessidade de bloqueio ultra-rápido: succinilcolina 1-1.5 mg/kg IV",
+        "Reversão de urgência após rocurónio: sugamadex 16 mg/kg em cenário cannot intubate / cannot oxygenate",
+        "Bradicardia peri-indução: atropina 0.5 mg IV no adulto (na pediatria ajustar ao peso)",
+        "Colapso peri-intubação: adrenalina 10-20 µg em bólus IV titulados, depois perfusão se necessário",
+        "Hipotensão sem paragem: efedrina 6-9 mg IV ou fenilefrina 50-100 µg IV conforme a frequência cardíaca",
+        "Confirmar sempre o stock real no perfil hospital antes de padronizar o algoritmo"
+      ]
+    },
+    "tags": ["airway", "difficult_airway", "rescue", "cico", "formulary"],
+    "source": "DAS / ASA",
+    "version": "2025.1",
+    "published_at": "2025-01-15T00:00:00Z",
+    "review_at": "2027-01-15T00:00:00Z",
+    "evidence_grade": "B",
+    "references": [
+      { "source": "ASA Practice Guidelines for Management of the Difficult Airway", "year": 2022, "url": "https://pubs.asahq.org/anesthesiology/article/136/1/31/117915" },
+      { "source": "DAS Guidelines for unanticipated difficult intubation in adults", "year": 2015, "doi": "10.1111/anae.13101" }
+    ]
+  },
+  {
     "id": "hemodynamic-monitoring",
     "category": "hemodynamics",
     "titles": {
@@ -207,6 +261,54 @@
     "references": [
       { "source": "Consensus PONV (Gan et al.)", "year": 2020 },
       { "source": "SFAR RFE NVPO", "year": 2022 }
+    ]
+  },
+  {
+    "id": "ponv-risk-stratification",
+    "category": "ponv",
+    "titles": {
+      "fr": "NVPO: stratification du risque et échelle de prophylaxie",
+      "en": "PONV: risk stratification and prophylaxis ladder",
+      "pt": "NVPO: estratificação de risco e escada de profilaxia"
+    },
+    "items": {
+      "fr": [
+        "0-1 facteur d'Apfel: éviter la prophylaxie systématique, privilégier TIVA ou réduction des opioïdes si contexte à risque",
+        "2 facteurs: une classe antiémétique suffit le plus souvent (dexaméthasone OU antagoniste 5-HT3)",
+        "3 facteurs: bithérapie recommandée, ajouter une stratégie d'épargne opioïde",
+        "4 facteurs ou ATCD sévères: triple approche (TIVA + double prophylaxie + plan de secours documenté)",
+        "Risque majoré en ambulatoire, chirurgie laparoscopique, gynécologie, ORL et antécédent d'échec prophylactique",
+        "Si prophylaxie déjà donnée, le traitement curatif en SSPI doit changer de classe pharmacologique",
+        "Documenter score, prophylaxie, heure et traitement de secours pour audit local"
+      ],
+      "en": [
+        "0-1 Apfel factor: avoid routine prophylaxis, prioritize TIVA or opioid-sparing only if the context adds risk",
+        "2 factors: one antiemetic class is usually enough (dexamethasone OR a 5-HT3 antagonist)",
+        "3 factors: dual therapy recommended, add an opioid-sparing strategy",
+        "4 factors or severe history: triple approach (TIVA + dual prophylaxis + documented rescue plan)",
+        "Higher risk in ambulatory surgery, laparoscopy, gynecology, ENT and previous prophylaxis failure",
+        "If prophylaxis was already given, PACU rescue treatment should use a different pharmacologic class",
+        "Document score, prophylaxis, timing and rescue therapy for local audit"
+      ],
+      "pt": [
+        "0-1 fator de Apfel: evitar profilaxia de rotina, privilegiar TIVA ou redução de opióides apenas se o contexto aumentar o risco",
+        "2 fatores: uma classe antiemética é geralmente suficiente (dexametasona OU antagonista 5-HT3)",
+        "3 fatores: terapêutica dupla recomendada, acrescentar estratégia de poupança de opióides",
+        "4 fatores ou antecedentes graves: abordagem tripla (TIVA + dupla profilaxia + plano de resgate documentado)",
+        "Risco aumentado em ambulatório, laparoscopia, ginecologia, ORL e falha prévia de profilaxia",
+        "Se a profilaxia já foi feita, o resgate na UCPA deve usar classe farmacológica diferente",
+        "Documentar score, profilaxia, hora e terapêutica de resgate para auditoria local"
+      ]
+    },
+    "tags": ["ponv", "apfel", "antiemetic", "ambulatory", "rescue"],
+    "source": "Fourth Consensus Guidelines for PONV",
+    "version": "2025.1",
+    "published_at": "2025-02-01T00:00:00Z",
+    "review_at": "2027-02-01T00:00:00Z",
+    "evidence_grade": "A",
+    "references": [
+      { "source": "Fourth Consensus Guidelines for the Management of Postoperative Nausea and Vomiting", "year": 2020, "doi": "10.1213/ANE.0000000000004833" },
+      { "source": "Gan TJ et al. PONV Guidelines", "year": 2020, "url": "https://pubmed.ncbi.nlm.nih.gov/32467512/" }
     ]
   },
   {

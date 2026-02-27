@@ -107,7 +107,111 @@
     },
     "references": [
       { "source": "Consensus Guidelines on PONV (Gan et al.)", "year": 2020 }
-    ]
+    ],
+    "tags": ["ponv", "apfel", "antiemetic", "rescue"],
+    "source": "Consensus PONV",
+    "version": "2025.1",
+    "published_at": "2025-02-01T00:00:00Z",
+    "review_at": "2027-02-01T00:00:00Z",
+    "evidence_grade": "A"
+  },
+  {
+    "id": "ponv-risk-prophylaxis",
+    "category": "ponv",
+    "titles": {
+      "fr": "NVPO: conduite pratique par niveau de risque",
+      "en": "PONV: practical management by risk level",
+      "pt": "NVPO: conduta prática por nível de risco"
+    },
+    "steps": {
+      "fr": [
+        "1. Calculer le score d'Apfel et noter le niveau de risque avant l'induction",
+        "2. Si 0-1 facteur: pas de prophylaxie systématique, limiter halogénés et morphiniques si possible",
+        "3. Si 2 facteurs: choisir UNE option (dexaméthasone 4-8 mg IV à l'induction OU ondansétron 4 mg IV en fin d'intervention)",
+        "4. Si 3 facteurs: bithérapie (dexaméthasone + ondansétron) et stratégie d'épargne opioïde obligatoire",
+        "5. Si 4 facteurs ou antécédent sévère: TIVA propofol + bithérapie + plan de secours anticipé",
+        "6. En SSPI: si nausées malgré prophylaxie, choisir une classe non encore utilisée (dropéridol, métoclopramide, autre 5-HT3 selon délai)",
+        "7. Avant sortie: vérifier hydratation, douleur contrôlée, absence de vomissements répétés et documenter le traitement"
+      ],
+      "en": [
+        "1. Calculate Apfel score and record the risk level before induction",
+        "2. If 0-1 factor: no routine prophylaxis, reduce volatile agents and opioids whenever possible",
+        "3. If 2 factors: choose ONE option (dexamethasone 4-8 mg IV at induction OR ondansetron 4 mg IV at the end of surgery)",
+        "4. If 3 factors: dual therapy (dexamethasone + ondansetron) and an opioid-sparing plan are required",
+        "5. If 4 factors or severe history: propofol TIVA + dual therapy + pre-planned rescue strategy",
+        "6. In PACU: if symptoms occur despite prophylaxis, use a class not yet given (droperidol, metoclopramide, another 5-HT3 depending on timing)",
+        "7. Before discharge: confirm hydration, pain control, no repeated vomiting and document the treatment"
+      ],
+      "pt": [
+        "1. Calcular o score de Apfel e registar o nível de risco antes da indução",
+        "2. Se 0-1 fator: sem profilaxia de rotina, reduzir halogenados e opióides sempre que possível",
+        "3. Se 2 fatores: escolher UMA opção (dexametasona 4-8 mg IV na indução OU ondansetron 4 mg IV no fim da cirurgia)",
+        "4. Se 3 fatores: terapêutica dupla (dexametasona + ondansetron) e plano de poupança de opióides obrigatório",
+        "5. Se 4 fatores ou antecedente grave: TIVA com propofol + terapêutica dupla + estratégia de resgate previamente definida",
+        "6. Na UCPA: se houver sintomas apesar da profilaxia, usar classe ainda não administrada (droperidol, metoclopramida, outro 5-HT3 conforme o timing)",
+        "7. Antes da alta: confirmar hidratação, dor controlada, ausência de vómitos repetidos e documentar o tratamento"
+      ]
+    },
+    "references": [
+      { "source": "Fourth Consensus Guidelines for the Management of PONV", "year": 2020, "doi": "10.1213/ANE.0000000000004833" }
+    ],
+    "tags": ["ponv", "apfel", "ambulatory", "rescue"],
+    "source": "Consensus PONV",
+    "version": "2025.1",
+    "published_at": "2025-02-01T00:00:00Z",
+    "review_at": "2027-02-01T00:00:00Z",
+    "evidence_grade": "A"
+  },
+  {
+    "id": "difficult-airway-algorithm",
+    "category": "safety",
+    "titles": {
+      "fr": "Algorithme VAD / CICO adulte",
+      "en": "Adult difficult airway / CICO algorithm",
+      "pt": "Algoritmo de via aérea difícil / CICO no adulto"
+    },
+    "steps": {
+      "fr": [
+        "1. Avant induction: briefing, plan A/B/C, appel d'aide précoce, chariot VAD ouvert, capnographie et aspiration vérifiées",
+        "2. Préoxygéner de façon optimale (masque étanche, PEEP si besoin, position tête surélevée)",
+        "3. Plan A: 1re tentative la plus compétente avec vidéo-laryngoscope si disponible, limiter à 2 tentatives optimisées",
+        "4. Si échec: réoxygéner, corriger position, lame, mandrin, BURP, puis décider rapidement si une 2e tentative est défendable",
+        "5. Plan B: dispositif supraglottique de 2e génération, confirmer EtCO2, ventiler et décider réveil / poursuite / intubation via dispositif",
+        "6. Si oxygénation impossible: déclarer CICO à voix haute, demander matériel de front-of-neck access, poursuivre oxygénation maximale",
+        "7. Plan C: cricothyroïdotomie scalpel-bougie-tube selon protocole local, puis confirmer EtCO2 et stabiliser l'hémodynamique",
+        "8. Après l'événement: tracer la difficulté, informer l'équipe et le patient, sécuriser le plan pour les anesthésies futures"
+      ],
+      "en": [
+        "1. Before induction: team brief, plan A/B/C, early call for help, difficult airway cart open, capnography and suction checked",
+        "2. Preoxygenate optimally (tight mask seal, PEEP if needed, head-up positioning)",
+        "3. Plan A: first attempt by the most experienced operator, use video laryngoscopy if available, limit to 2 optimized attempts",
+        "4. If unsuccessful: reoxygenate, correct position, blade, stylet, external laryngeal manipulation, then decide fast whether a second attempt is justified",
+        "5. Plan B: 2nd-generation supraglottic device, confirm EtCO2, ventilate and decide wake-up / proceed / intubate through device",
+        "6. If oxygenation fails: declare CICO out loud, request front-of-neck access kit, continue maximal oxygenation efforts",
+        "7. Plan C: scalpel-bougie-tube cricothyrotomy according to local protocol, then confirm EtCO2 and stabilize hemodynamics",
+        "8. After the event: document the airway difficulty, debrief the team and patient, define the future airway plan"
+      ],
+      "pt": [
+        "1. Antes da indução: briefing de equipa, plano A/B/C, pedido precoce de ajuda, carro de via aérea difícil aberto, capnografia e aspiração verificadas",
+        "2. Pré-oxigenar de forma ótima (máscara selada, PEEP se necessário, posição com cabeça elevada)",
+        "3. Plano A: primeira tentativa pelo operador mais experiente, videolaringoscópio se disponível, limitar a 2 tentativas otimizadas",
+        "4. Se falhar: reoxigenar, corrigir posição, lâmina, mandril, manipulação laríngea externa, e decidir rapidamente se a 2ª tentativa é justificável",
+        "5. Plano B: dispositivo supraglótico de 2ª geração, confirmar EtCO2, ventilar e decidir despertar / prosseguir / intubar através do dispositivo",
+        "6. Se a oxigenação falhar: declarar CICO em voz alta, pedir kit de acesso anterior ao pescoço, manter esforço máximo de oxigenação",
+        "7. Plano C: cricotirotomia scalpel-bougie-tube segundo protocolo local, depois confirmar EtCO2 e estabilizar hemodinamicamente",
+        "8. Após o evento: documentar a dificuldade, fazer debrief da equipa e do doente, definir o plano para futuras anestesias"
+      ]
+    },
+    "references": [
+      { "source": "DAS 2015 unanticipated difficult intubation guidelines", "year": 2015, "doi": "10.1111/anae.13101" },
+      { "source": "ASA 2022 Difficult Airway Guidelines", "year": 2022, "url": "https://pubs.asahq.org/anesthesiology/article/136/1/31/117915" }
+    ],
+    "tags": ["airway", "difficult_airway", "cico", "videolaryngoscope", "rescue"],
+    "source": "DAS / ASA",
+    "version": "2025.1",
+    "published_at": "2025-01-15T00:00:00Z",
+    "review_at": "2027-01-15T00:00:00Z",
+    "evidence_grade": "A"
   },
   {
     "id": "massive-hemorrhage",

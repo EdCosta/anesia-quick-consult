@@ -55,7 +55,7 @@ export default function Index() {
 
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const [visibleCount, setVisibleCount] = useState(24);
-  const isSearching = searchQuery.trim().length > 0;
+  const isSearching = searchQuery.trim().length > 0 || selectedSpecialties.length > 0;
 
   const sortedSpecialties = useMemo(() => {
     const dbIds = specialtiesData.map((s) => s.id);

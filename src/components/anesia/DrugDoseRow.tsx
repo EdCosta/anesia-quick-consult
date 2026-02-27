@@ -30,6 +30,13 @@ export default function DrugDoseRow({
 
   if (!rule) return null;
 
+  // µg display mode: convert mg values × 1000 for display when unit_override is 'µg'
+  const isMcg = rule.unit_override === 'µg';
+  const displayMultiplier = isMcg ? 1000 : 1;
+  const displayUnit = isMcg ? 'µg' : 'mg';
+  const displayDosePerKg = rule.mg_per_kg !== null ? rule.mg_per_kg * displayMultiplier : null;
+  const displayMax = rule.max_mg !== null ? rule.max_mg * displayMultiplier : null;
+
   const validConcentrations = drug.concentrations.filter(
     (c) => c.mg_per_ml !== null && c.mg_per_ml > 0
   );
@@ -125,9 +132,9 @@ export default function DrugDoseRow({
             {!doseResult.canCalc &&
               doseResult.reasonIfNoCalc === 'enter_weight' && (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {rule.mg_per_kg} {t('mg_per_kg')}
-                  {rule.max_mg !== null &&
-                    ` · ${t('max_dose')}: ${rule.max_mg} mg`}
+                  {displayDosePerKg} {displayUnit}/kg
+                  {displayMax !== null &&
+                    ` · ${t('max_dose')}: ${displayMax} ${displayUnit}`}
                   {' · '}
                   <span className="italic">{t('enter_weight')}</span>
                 </p>
@@ -137,15 +144,15 @@ export default function DrugDoseRow({
             {doseResult.canCalc && doseResult.doseMgFinal !== null && (
               <div className="mt-1 flex flex-wrap items-center gap-3 text-xs">
                 <span className="text-muted-foreground">
-                  {rule.mg_per_kg} {t('mg_per_kg')}
+                  {displayDosePerKg} {displayUnit}/kg
                 </span>
-                {rule.max_mg !== null && (
+                {displayMax !== null && (
                   <span className="text-muted-foreground">
-                    {t('max_dose')}: {rule.max_mg} mg
+                    {t('max_dose')}: {displayMax} {displayUnit}
                   </span>
                 )}
                 <span className="font-semibold text-primary">
-                  {t('dose_calc')}: {doseResult.doseMgFinal} mg
+                  {t('dose_calc')}: {isMcg ? Math.round(doseResult.doseMgFinal * 1000 * 10) / 10 : doseResult.doseMgFinal} {displayUnit}
                 </span>
                 {doseResult.volumeMl !== null ? (
                   <span className="font-semibold text-primary">
@@ -183,9 +190,9 @@ export default function DrugDoseRow({
                     <p><strong>{t('scalar_used')}:</strong> {scalarLabel(doseResult.scalarUsed)}</p>
                     <p><strong>{t('weight_kg')}:</strong> {doseResult.weightUsed} kg</p>
                     <p>
-                      {rule.mg_per_kg} mg/kg × {doseResult.weightUsed} kg = {doseResult.doseMgRaw} mg
-                      {rule.max_mg !== null && doseResult.doseMgRaw !== doseResult.doseMgFinal && (
-                        <span className="text-destructive"> → {t('max_dose')} {rule.max_mg} mg</span>
+                      {displayDosePerKg} {displayUnit}/kg × {doseResult.weightUsed} kg = {isMcg ? Math.round((doseResult.doseMgRaw ?? 0) * 1000 * 10) / 10 : doseResult.doseMgRaw} {displayUnit}
+                      {displayMax !== null && doseResult.doseMgRaw !== doseResult.doseMgFinal && (
+                        <span className="text-destructive"> → {t('max_dose')} {displayMax} {displayUnit}</span>
                       )}
                     </p>
                     <p className="italic text-muted-foreground">{t('validate_clinically')}</p>

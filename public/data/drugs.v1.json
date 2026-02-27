@@ -88,21 +88,13 @@
         "route": "IV",
         "mg_per_kg": 2,
         "max_mg": 300,
-        "notes": ["Injection lente 30-60s", "Réduire chez sujet âgé/hypovolémique : 1-1.5 mg/kg", "Douleur injection : lidocaïne 20-40 mg IV avant"]
-      },
-      {
-        "indication_tag": "induction_ISR",
-        "route": "IV",
-        "mg_per_kg": 2,
-        "max_mg": 300,
-        "notes": ["Induction séquence rapide", "Ne pas réduire la dose en ISR"]
-      },
-      {
-        "indication_tag": "induction_AG",
-        "route": "IV",
-        "mg_per_kg": 2,
-        "max_mg": 300,
-        "notes": ["AG si échec/CI rachianesthésie"]
+        "notes": [
+          "Injection lente 30-60s",
+          "Réduire chez sujet âgé/hypovolémique : 1-1.5 mg/kg",
+          "Douleur injection : lidocaïne 20-40 mg IV avant",
+          "ISR : ne pas réduire la dose",
+          "AG si échec/CI rachianesthésie"
+        ]
       }
     ],
     "concentrations": [{ "label": "1% (10 mg/mL)", "mg_per_ml": 10 }, { "label": "2% (20 mg/mL)", "mg_per_ml": 20 }],
@@ -284,9 +276,9 @@
       {
         "indication_tag": "analgésie_perop",
         "route": "IV",
-        "mg_per_kg": null,
-        "max_mg": null,
-        "notes": ["Bolus : 0.2-0.5 µg/kg à l'induction", "Entretien : 0.15-0.7 µg/kg/h", "5-10× plus puissant que le fentanyl"],
+        "mg_per_kg": 0.0003,
+        "max_mg": 0.05,
+        "notes": ["Bolus induction : 0.3 µg/kg (range 0.2-0.5 µg/kg)", "Entretien : 0.15-0.7 µg/kg/h IVSE", "5-10× plus puissant que le fentanyl — titration prudente"],
         "unit_override": "µg"
       },
       {

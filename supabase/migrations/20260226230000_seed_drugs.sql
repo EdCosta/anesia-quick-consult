@@ -47,13 +47,13 @@ INSERT INTO public.drugs (id, names, dosing, notes, contraindications) VALUES
 
 ('propofol',
  '{"fr":"Propofol","pt":"Propofol","en":"Propofol"}'::jsonb,
- '{"dose_rules":[{"indication_tag":"induction","route":"IV","mg_per_kg":2,"max_mg":300,"notes":["Injection lente 30-60s","Réduire chez sujet âgé/hypovolémique : 1-1.5 mg/kg","Douleur injection : lidocaïne 20-40 mg IV avant"]},{"indication_tag":"induction_ISR","route":"IV","mg_per_kg":2,"max_mg":300,"notes":["Induction séquence rapide","Ne pas réduire la dose en ISR"]},{"indication_tag":"induction_AG","route":"IV","mg_per_kg":2,"max_mg":300,"notes":["AG si échec/CI rachianesthésie"]}],"concentrations":[{"label":"1% (10 mg/mL)","mg_per_ml":10},{"label":"2% (20 mg/mL)","mg_per_ml":20}]}'::jsonb,
+ '{"dose_rules":[{"indication_tag":"induction","route":"IV","mg_per_kg":2,"max_mg":300,"notes":["Injection lente 30-60s","Réduire chez sujet âgé/hypovolémique : 1-1.5 mg/kg","Douleur injection : lidocaïne 20-40 mg IV avant","ISR : ne pas réduire la dose","AG si échec/CI rachianesthésie"]}],"concentrations":[{"label":"1% (10 mg/mL)","mg_per_ml":10},{"label":"2% (20 mg/mL)","mg_per_ml":20}]}'::jsonb,
  '{"renal_hepatic_notes":["Pas d''ajustement nécessaire"]}'::jsonb,
  '["Allergie soja/œuf (controversé, très rare)","Choc hypovolémique non réanimé"]'::jsonb),
 
 ('sufentanil',
  '{"fr":"Sufentanil","pt":"Sufentanil","en":"Sufentanil"}'::jsonb,
- '{"dose_rules":[{"indication_tag":"analgésie_perop","route":"IV","mg_per_kg":null,"max_mg":null,"notes":["Bolus : 0.2-0.5 µg/kg à l''induction","Entretien : 0.15-0.7 µg/kg/h","5-10× plus puissant que le fentanyl"],"unit_override":"µg"},{"indication_tag":"analgésie_IT","route":"IT","mg_per_kg":null,"max_mg":null,"notes":["2.5-5 µg IT (adjuvant rachianesthésie)","Attention dépression respiratoire tardive (surveillance ≥ 12h)"],"unit_override":"µg"}],"concentrations":[{"label":"5 µg/mL","mg_per_ml":0.005},{"label":"50 µg/mL","mg_per_ml":0.05}]}'::jsonb,
+ '{"dose_rules":[{"indication_tag":"analgésie_perop","route":"IV","mg_per_kg":0.0003,"max_mg":0.05,"notes":["Bolus induction : 0.3 µg/kg (range 0.2-0.5 µg/kg)","Entretien : 0.15-0.7 µg/kg/h IVSE","5-10× plus puissant que le fentanyl — titration prudente"],"unit_override":"µg"},{"indication_tag":"analgésie_IT","route":"IT","mg_per_kg":null,"max_mg":null,"notes":["2.5-5 µg IT (adjuvant rachianesthésie)","Attention dépression respiratoire tardive (surveillance ≥ 12h)"],"unit_override":"µg"}],"concentrations":[{"label":"5 µg/mL","mg_per_ml":0.005},{"label":"50 µg/mL","mg_per_ml":0.05}]}'::jsonb,
  '{"renal_hepatic_notes":["Réduire si IHC","IRC : accumulation possible"]}'::jsonb,
  '["Dépression respiratoire sévère","Insuffisance respiratoire aiguë"]'::jsonb),
 
@@ -77,7 +77,7 @@ INSERT INTO public.drugs (id, names, dosing, notes, contraindications) VALUES
 
 ('etomidate',
  '{"fr":"Étomidate","pt":"Etomidato","en":"Etomidate"}'::jsonb,
- '{"dose_rules":[{"indication_tag":"induction","route":"IV","mg_per_kg":0.3,"max_mg":30,"notes":["Induction hémodynamiquement stable","Privilégier chez patient à risque cardiovasculaire ou hypovolémique","Myoclonies fréquentes (prétraitement midazolam 0.03 mg/kg)","Injection douloureuse — voie de gros calibre"]},{"indication_tag":"induction_ISR","route":"IV","mg_per_kg":0.3,"max_mg":30,"notes":["Alternative à propofol en ISR pour patient instable"]}],"concentrations":[{"label":"2 mg/mL","mg_per_ml":2}]}'::jsonb,
+ '{"dose_rules":[{"indication_tag":"induction","route":"IV","mg_per_kg":0.3,"max_mg":30,"notes":["Induction hémodynamiquement stable","Privilégier chez patient à risque cardiovasculaire ou hypovolémique","Myoclonies fréquentes (prétraitement midazolam 0.03 mg/kg)","Injection douloureuse — voie de gros calibre","ISR : alternative à propofol si instabilité hémodynamique"]}],"concentrations":[{"label":"2 mg/mL","mg_per_ml":2}]}'::jsonb,
  '{"renal_hepatic_notes":["Pas d''ajustement nécessaire habituellement"]}'::jsonb,
  '["Insuffisance surrénalienne connue (CI relative)","Usage prolongé CI (inhibition cortisol)"]'::jsonb),
 

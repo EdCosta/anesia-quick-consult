@@ -218,7 +218,7 @@
         "drugs": [
           { "drug_id": "bupivacaine", "indication_tag": "rachianesthésie" },
           { "drug_id": "sufentanil", "indication_tag": "analgésie_IT" },
-          { "drug_id": "propofol", "indication_tag": "induction_AG" },
+          { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "rocuronium", "indication_tag": "ISR" },
           { "drug_id": "sugammadex", "indication_tag": "reversal_urgence" },
           { "drug_id": "ephedrine", "indication_tag": "hypotension" },
@@ -341,11 +341,12 @@
           "Abcès post-opératoire"
         ],
         "drugs": [
-          { "drug_id": "propofol", "indication_tag": "induction_ISR" },
+          { "drug_id": "propofol", "indication_tag": "induction" },
           { "drug_id": "rocuronium", "indication_tag": "ISR" },
           { "drug_id": "sugammadex", "indication_tag": "reversal" },
           { "drug_id": "cefazoline", "indication_tag": "antibioprophylaxie" },
           { "drug_id": "paracetamol", "indication_tag": "analgésie" },
+          { "drug_id": "sufentanil", "indication_tag": "analgésie_perop" },
           { "drug_id": "morphine", "indication_tag": "analgésie_postop" },
           { "drug_id": "ondansetron", "indication_tag": "PONV" }
         ]
@@ -993,7 +994,7 @@
           { "drug_id": "paracetamol", "indication_tag": "analgésie" },
           { "drug_id": "ketorolac", "indication_tag": "analgésie" },
           { "drug_id": "ondansetron", "indication_tag": "PONV" },
-          { "drug_id": "dexamethasone", "indication_tag": "PONV" }
+          { "drug_id": "dexamethasone", "indication_tag": "PONV_anti-oedème" }
         ]
       }
     },

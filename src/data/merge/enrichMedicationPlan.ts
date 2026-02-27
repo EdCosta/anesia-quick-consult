@@ -21,13 +21,6 @@ const EXTRA_DOSE_RULES: Record<string, DoseRule[]> = {
   ],
   dexamethasone: [
     {
-      indication_tag: 'PONV',
-      route: 'IV',
-      mg_per_kg: 0.15,
-      max_mg: 8,
-      notes: ['Administrer a l induction', 'Prophylaxie NVPO'],
-    },
-    {
       indication_tag: 'anti-oedème',
       route: 'IV',
       mg_per_kg: null,
@@ -107,6 +100,7 @@ const PROCEDURE_MED_PLAN: Record<string, DrugRef[]> = {
   ureteroscopie_dj: [
     { drug_id: 'rocuronium', indication_tag: 'intubation' },
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
+    { drug_id: 'sufentanil', indication_tag: 'analgésie_perop' },
   ],
   cesarienne_urgente: [
     { drug_id: 'phenylephrine', indication_tag: 'hypotension' },
@@ -114,9 +108,11 @@ const PROCEDURE_MED_PLAN: Record<string, DrugRef[]> = {
   ],
   cholecystectomie_lap: [
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
+    { drug_id: 'sufentanil', indication_tag: 'analgésie_perop' },
   ],
   appendicectomie_urgente: [
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
+    { drug_id: 'sufentanil', indication_tag: 'analgésie_perop' },
   ],
   hernie_discale_lombaire: [
     { drug_id: 'propofol', indication_tag: 'induction' },
@@ -130,9 +126,11 @@ const PROCEDURE_MED_PLAN: Record<string, DrugRef[]> = {
   ],
   hysteroscopie_ambulatoire: [
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
+    { drug_id: 'sufentanil', indication_tag: 'analgésie_perop' },
   ],
   amygdalectomie_enfant: [
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
+    { drug_id: 'sufentanil', indication_tag: 'analgésie_perop' },
   ],
   arthroscopie_genou: [
     { drug_id: 'propofol', indication_tag: 'induction' },
@@ -169,15 +167,17 @@ const PROCEDURE_MED_PLAN: Record<string, DrugRef[]> = {
   ],
   cesarienne_elective: [
     { drug_id: 'phenylephrine', indication_tag: 'hypotension' },
-    { drug_id: 'propofol', indication_tag: 'induction_AG' },
+    { drug_id: 'propofol', indication_tag: 'induction' },
     { drug_id: 'rocuronium', indication_tag: 'ISR' },
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
   ],
   conisation_leep: [
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
+    { drug_id: 'sufentanil', indication_tag: 'analgésie_perop' },
   ],
   hernie_inguinale: [
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
+    { drug_id: 'sufentanil', indication_tag: 'analgésie_perop' },
   ],
   thyroidectomie: [
     { drug_id: 'sevoflurane', indication_tag: 'entretien' },
@@ -193,7 +193,7 @@ const PROCEDURE_MED_PLAN: Record<string, DrugRef[]> = {
   ],
   microlaryngoscopie: [
     { drug_id: 'propofol', indication_tag: 'TIVA' },
-    { drug_id: 'sufentanil', indication_tag: 'analgésie_perop' },
+    { drug_id: 'remifentanil', indication_tag: 'TIVA' },
   ],
 };
 

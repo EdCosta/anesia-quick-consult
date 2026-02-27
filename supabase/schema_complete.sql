@@ -501,6 +501,83 @@ INSERT INTO public.protocoles (id, category, titles, steps, refs, tags) VALUES
 ('transfusion-protocol', 'emergency', '{"fr":"Protocole transfusionnel","en":"Transfusion Protocol","pt":"Protocolo transfusional"}'::jsonb, '{"fr":["1. Vérifier indication: Hb < 7 g/dL (sain), < 8-9 g/dL (coronarien/âgé)","2. Vérifier groupe sanguin + RAI (validité < 72h)","3. Commander produits sanguins labiles au dépôt","4. Contrôle ultime au lit du patient (CUSP): identité + concordance","5. Régler débit: 1 CGR en 30-60 min (sauf urgence vitale)","6. Surveiller les 15 premières minutes (réaction hémolytique immédiate)","7. Monitorage: température, PA, FC, signes de réaction transfusionnelle","8. En cas de réaction: ARRÊTER la transfusion, prélever hémocultures + bilan hémolytique","9. Documentation: traçabilité dans le dossier (numéro PSL, heure début/fin)","10. NFS de contrôle 1h après la fin de la transfusion"],"en":["1. Verify indication: Hb < 7 g/dL (healthy), < 8-9 g/dL (coronary disease/elderly)","2. Verify blood group + antibody screen (valid < 72h)","3. Order blood products from blood bank","4. Bedside compatibility check: identity + crossmatch verification","5. Set rate: 1 RBC unit in 30-60 min (unless life-threatening)","6. Monitor first 15 minutes (immediate hemolytic reaction)","7. Monitoring: temperature, BP, HR, signs of transfusion reaction","8. If reaction: STOP transfusion, blood cultures + hemolysis workup","9. Documentation: traceability in record (product number, start/end time)","10. CBC control 1h after transfusion completion"],"pt":["1. Verificar indicação: Hb < 7 g/dL (saudável), < 8-9 g/dL (coronário/idoso)","2. Verificar grupo sanguíneo + pesquisa de anticorpos (validade < 72h)","3. Requisitar produtos sanguíneos ao serviço de sangue","4. Controlo final à cabeceira: identidade + concordância","5. Regular débito: 1 CE em 30-60 min (salvo urgência vital)","6. Vigiar os primeiros 15 minutos (reação hemolítica imediata)","7. Monitorização: temperatura, PA, FC, sinais de reação transfusional","8. Em caso de reação: PARAR transfusão, hemoculturas + estudo hemolítico","9. Documentação: rastreabilidade no processo (número PSL, hora início/fim)","10. Hemograma de controlo 1h após o fim da transfusão"]}'::jsonb, '[{"source":"SFAR RFE Transfusion","year":2019}]'::jsonb, '[]'::jsonb)
 ON CONFLICT (id) DO NOTHING;
 
+UPDATE public.guidelines
+SET
+  tags = CASE id
+    WHEN 'airway-management' THEN '["airway","intubation","difficult-airway","cico","video-laryngoscope"]'::jsonb
+    WHEN 'hemodynamic-monitoring' THEN '["hemodynamics","monitoring","arterial-line","goal-directed-therapy"]'::jsonb
+    WHEN 'temperature-management' THEN '["temperature","hypothermia","warming"]'::jsonb
+    WHEN 'pain-multimodal' THEN '["analgesia","multimodal","opioid-sparing","regional"]'::jsonb
+    WHEN 'ponv-prevention' THEN '["ponv","nvpo","antiemesis","apfel"]'::jsonb
+    WHEN 'fluid-management' THEN '["fluids","hemodynamics","goal-directed-therapy","transfusion"]'::jsonb
+    WHEN 'preop-fasting' THEN '["fasting","aspiration","rsi","safety"]'::jsonb
+    WHEN 'blood-products' THEN '["transfusion","bleeding","coagulation","massive-transfusion"]'::jsonb
+    WHEN 'neuromuscular-blockade' THEN '["airway","nmb","reversal","sugammadex"]'::jsonb
+    WHEN 'antibiotic-prophylaxis' THEN '["antibioprophylaxis","infection","safety"]'::jsonb
+    WHEN 'thromboprophylaxis' THEN '["thrombosis","anticoag","vte","prophylaxis"]'::jsonb
+    WHEN 'rapid-sequence-induction' THEN '["airway","rsi","aspiration","full-stomach"]'::jsonb
+    ELSE tags
+  END,
+  specialties = CASE id
+    WHEN 'airway-management' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","orl","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'hemodynamic-monitoring' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","orl","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'temperature-management' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","orl","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'pain-multimodal' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","orl","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'ponv-prevention' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","orl","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'fluid-management' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'preop-fasting' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","orl","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'blood-products' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'neuromuscular-blockade' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","orl","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'antibiotic-prophylaxis' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","orl","neurochirurgie","obstetrique"]'::jsonb
+    WHEN 'thromboprophylaxis' THEN '["chirurgie-generale","orthopedie","urologie","gynecologie","obstetrique"]'::jsonb
+    WHEN 'rapid-sequence-induction' THEN '["chirurgie-generale","urologie","gynecologie","orl","obstetrique"]'::jsonb
+    ELSE specialties
+  END,
+  organization = CASE id
+    WHEN 'airway-management' THEN 'DAS/ASA'
+    WHEN 'hemodynamic-monitoring' THEN 'ESAIC/ASA'
+    WHEN 'temperature-management' THEN 'NICE'
+    WHEN 'pain-multimodal' THEN 'SFAR/PROSPECT'
+    WHEN 'ponv-prevention' THEN 'Consensus/SFAR'
+    WHEN 'fluid-management' THEN 'SFAR'
+    WHEN 'preop-fasting' THEN 'ESAIC/ASA'
+    WHEN 'blood-products' THEN 'ESAIC/SFAR'
+    WHEN 'neuromuscular-blockade' THEN 'ESAIC/SFAR'
+    WHEN 'antibiotic-prophylaxis' THEN 'WHO/SFAR'
+    WHEN 'thromboprophylaxis' THEN 'ACCP/SFAR'
+    WHEN 'rapid-sequence-induction' THEN 'SFAR/ASA'
+    ELSE organization
+  END,
+  recommendation_strength = CASE id
+    WHEN 'airway-management' THEN 5
+    WHEN 'hemodynamic-monitoring' THEN 4
+    WHEN 'temperature-management' THEN 4
+    WHEN 'pain-multimodal' THEN 5
+    WHEN 'ponv-prevention' THEN 5
+    WHEN 'fluid-management' THEN 4
+    WHEN 'preop-fasting' THEN 5
+    WHEN 'blood-products' THEN 4
+    WHEN 'neuromuscular-blockade' THEN 5
+    WHEN 'antibiotic-prophylaxis' THEN 4
+    WHEN 'thromboprophylaxis' THEN 4
+    WHEN 'rapid-sequence-induction' THEN 5
+    ELSE recommendation_strength
+  END
+WHERE id IN (
+  'airway-management',
+  'hemodynamic-monitoring',
+  'temperature-management',
+  'pain-multimodal',
+  'ponv-prevention',
+  'fluid-management',
+  'preop-fasting',
+  'blood-products',
+  'neuromuscular-blockade',
+  'antibiotic-prophylaxis',
+  'thromboprophylaxis',
+  'rapid-sequence-induction'
+);
+
 -- ── 15. ALR BLOCKS ──────────────────────────────────────────
 
 INSERT INTO public.alr_blocks (id, region, titles, indications, contraindications, technique, drugs, tags) VALUES

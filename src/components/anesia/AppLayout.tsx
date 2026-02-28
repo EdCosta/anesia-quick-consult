@@ -230,7 +230,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 onClick={async () => {
                   await supabase.auth.signOut();
                 }}
-                className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/5 px-2.5 text-primary-foreground/75 transition-all duration-200 hover:w-28 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-28 focus-visible:text-primary-foreground"
+                className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/5 px-2.5 text-primary-foreground/75 transition-all duration-200 hover:w-32 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-32 focus-visible:text-primary-foreground"
                 aria-label={t('sign_out')}
                 title={t('sign_out')}
               >
@@ -243,7 +243,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <>
                 <Link
                   to="/auth?mode=signup"
-                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-primary-foreground transition-all duration-200 hover:w-28 hover:bg-primary-foreground/15 focus-visible:w-28"
+                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-primary-foreground transition-all duration-200 hover:w-36 hover:bg-primary-foreground/15 focus-visible:w-36"
                   aria-label={t('sign_up')}
                   title={t('sign_up')}
                 >
@@ -254,7 +254,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </Link>
                 <Link
                   to="/auth?mode=signin"
-                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 px-2.5 text-primary-foreground/85 transition-all duration-200 hover:w-28 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-28"
+                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 px-2.5 text-primary-foreground/85 transition-all duration-200 hover:w-32 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-32"
                   aria-label={t('sign_in')}
                   title={t('sign_in')}
                 >

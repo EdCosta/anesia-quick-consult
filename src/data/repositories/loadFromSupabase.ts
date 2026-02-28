@@ -44,7 +44,7 @@ export async function loadFromSupabase(): Promise<{
       alrBlocks: ((alrRes.data as any[]) || []).map(dbRowToALRBlock),
     };
   } catch (err) {
-    console.warn('[AnesIA] Supabase load failed, falling back to JSON:', err);
+    console.warn('[AnesIA] Supabase load failed:', err);
     return null;
   }
 }

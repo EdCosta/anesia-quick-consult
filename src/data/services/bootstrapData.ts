@@ -2,11 +2,6 @@ import type { ALRBlock, Drug, Guideline, Procedure, Protocole } from '@/lib/type
 import { normalizeProcedure } from '@/data/normalize/normalizeProcedure';
 import { enrichMedicationPlan } from '@/data/merge/enrichMedicationPlan';
 import { resolveDrugs } from '@/data/repositories/drugsRepo';
-import {
-  loadFromJson,
-  loadDrugsFromJson,
-  loadProceduresFromJson,
-} from '@/data/repositories/loadFromJson';
 import { loadFromSupabase } from '@/data/repositories/loadFromSupabase';
 import {
   hydrateProcedures,
@@ -106,72 +101,42 @@ export function readCachedFullData(): FullDataSnapshot | null {
 }
 
 export async function loadProcedureIndexSnapshot(): Promise<ProcedureIndexSnapshot> {
-  try {
-    const [procedures, specialtiesData] = await Promise.all([
-      loadProcedureIndexFromSupabase(),
-      loadSpecialtiesFromSupabase().catch(() => []),
-    ]);
+  const [procedures, specialtiesData] = await Promise.all([
+    loadProcedureIndexFromSupabase(),
+    loadSpecialtiesFromSupabase().catch(() => []),
+  ]);
 
-    if (procedures.length > 0) {
-      const snapshot = { procedures, specialtiesData };
-      writeIndexSnapshot(snapshot);
-      return snapshot;
-    }
-  } catch {
-    // Fall back below.
+  if (procedures.length === 0) {
+    throw new Error('No procedures available in Supabase');
   }
 
-  const fallbackProcedures = await loadProceduresFromJson().catch(() => []);
-  const snapshot = toIndexSnapshot(fallbackProcedures, []);
+  const snapshot = { procedures, specialtiesData };
   writeIndexSnapshot(snapshot);
   return snapshot;
 }
 
 export async function loadFullDataSnapshot(): Promise<FullDataSnapshot> {
-  const [dbData, specialtyRows, fallbackProcedures] = await Promise.all([
+  const [dbData, specialtyRows] = await Promise.all([
     loadFromSupabase(),
     loadSpecialtiesFromSupabase().catch(() => []),
-    loadProceduresFromJson().catch(() => []),
   ]);
 
-  if (dbData) {
-    const fallbackDrugs =
-      dbData.drugs.length === 0 ? await loadDrugsFromJson().catch(() => []) : [];
-    const mergedProcedures = await hydrateProcedures(
-      dbData.procedures,
-      fallbackProcedures.length > 0 ? fallbackProcedures : undefined,
-    );
-    const activeDrugs = resolveDrugs(dbData.drugs, fallbackDrugs);
-    const enriched = enrichMedicationPlan({
-      procedures: mergedProcedures,
-      drugs: activeDrugs,
-    });
-
-    const snapshot: FullDataSnapshot = {
-      procedures: enriched.procedures,
-      drugs: enriched.drugs,
-      guidelines: dbData.guidelines,
-      protocoles: dbData.protocoles,
-      alrBlocks: dbData.alrBlocks,
-      specialtiesData: specialtyRows,
-    };
-    writeFullSnapshot(snapshot);
-    return snapshot;
+  if (!dbData) {
+    throw new Error('Supabase knowledge base is empty or unavailable');
   }
 
-  const jsonData = await loadFromJson();
-  const mergedProcedures = await hydrateProcedures(jsonData.procedures, jsonData.procedures);
+  const mergedProcedures = await hydrateProcedures(dbData.procedures);
   const enriched = enrichMedicationPlan({
     procedures: mergedProcedures,
-    drugs: resolveDrugs([], jsonData.drugs),
+    drugs: resolveDrugs(dbData.drugs, []),
   });
 
   const snapshot: FullDataSnapshot = {
     procedures: enriched.procedures,
     drugs: enriched.drugs,
-    guidelines: jsonData.guidelines,
-    protocoles: jsonData.protocoles,
-    alrBlocks: jsonData.alrBlocks,
+    guidelines: dbData.guidelines,
+    protocoles: dbData.protocoles,
+    alrBlocks: dbData.alrBlocks,
     specialtiesData: specialtyRows,
   };
   writeFullSnapshot(snapshot);

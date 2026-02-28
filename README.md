@@ -2,6 +2,15 @@
 
 AnesIA is a Vite + React + TypeScript application backed by Supabase for structured anesthesia procedures, guideline metadata, and recommendation content.
 
+## Source of truth
+
+Supabase is the canonical runtime source of truth for procedures, guidelines, recommendations, and admin-managed knowledge content.
+
+- Use Supabase migrations for schema changes.
+- Use the admin import flows or seed scripts for content updates.
+- Treat `public/data/*` as legacy backup/export material only.
+- Do not edit `public/data/*` expecting the app to pick up those changes in production.
+
 ## Local app setup
 
 ```sh
@@ -25,7 +34,7 @@ supabase db reset
 
 ## Procedure seed pipeline
 
-The canonical procedure CSV snapshot lives at `data/procedures/procedures.csv`. It is currently derived from the existing `public/data/procedures-import.csv` export and is the baseline file for future updates.
+The canonical procedure CSV snapshot lives at `data/procedures/procedures.csv`. It is currently derived from the existing `public/data/procedures-import.csv` export and is the baseline seed/backup file for future updates.
 
 Seed the `procedures` table with UPSERT semantics:
 

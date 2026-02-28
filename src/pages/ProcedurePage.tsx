@@ -34,7 +34,7 @@ import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { dbRowToProcedure, normalizeProcedure } from '@/data/normalize/normalizeProcedure';
+import { dbRowToProcedure } from '@/data/normalize/normalizeProcedure';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import { getSpecialtyDisplayName } from '@/lib/specialties';
 import type { PatientWeights } from '@/lib/weightScalars';
@@ -67,19 +67,7 @@ async function loadProcedureOnDemand(id: string): Promise<Procedure | null> {
     console.warn('[AnesIA] Direct procedure fetch from Supabase failed', error);
   }
 
-  try {
-    const response = await fetch('/data/procedures.v3.json');
-    if (!response.ok) return null;
-    const json = await response.json();
-    if (!Array.isArray(json)) return null;
-    const match = json.find((item: unknown) => {
-      return !!item && typeof item === 'object' && 'id' in item && (item as { id?: string }).id === id;
-    });
-    return match ? normalizeProcedure(match as Partial<Procedure>) : null;
-  } catch (error) {
-    console.warn('[AnesIA] Direct procedure fetch from JSON failed', error);
-    return null;
-  }
+  return null;
 }
 
 export default function ProcedurePage() {

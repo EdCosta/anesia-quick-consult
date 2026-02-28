@@ -4,7 +4,7 @@ import Fuse from 'fuse.js';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useContentLimits } from '@/hooks/useContentLimits';
-import { useEntitlements } from '@/hooks/useEntitlements';
+import { useViewMode } from '@/hooks/useViewMode';
 import type { Protocole } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import ProFeaturePage from '@/components/anesia/ProFeaturePage';
@@ -27,7 +27,7 @@ const CATEGORY_MAP: Record<string, string> = {
 export default function Protocoles() {
   const { t, lang, resolveStr } = useLang();
   const { protocoles, loading } = useData();
-  const { isPro, loading: entitlementLoading } = useEntitlements();
+  const { isProView } = useViewMode();
   const { protocols: protoLimit, isLimited } = useContentLimits();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -64,7 +64,7 @@ export default function Protocoles() {
     return (obj as any)[lang] ?? (obj as any)['fr'] ?? (obj as any)['en'] ?? [];
   };
 
-  if (loading || entitlementLoading) {
+  if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-muted-foreground">{t('loading')}</p>
@@ -72,7 +72,7 @@ export default function Protocoles() {
     );
   }
 
-  if (!isPro) {
+  if (!isProView) {
     return <ProFeaturePage title={t('protocoles')} description={t('protocoles_desc')} />;
   }
 

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { useLang } from '@/contexts/LanguageContext';
-import { useEntitlements } from '@/hooks/useEntitlements';
+import { useViewMode } from '@/hooks/useViewMode';
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ interface ProGateProps {
 }
 
 export default function ProGate({ children, fallback }: ProGateProps) {
-  const { isPro, loading } = useEntitlements();
+  const { isPro, isProView, loading, setViewMode } = useViewMode();
   const { t } = useLang();
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -31,7 +31,21 @@ export default function ProGate({ children, fallback }: ProGateProps) {
     );
   }
 
-  if (isPro) return <>{children}</>;
+  if (isProView) return <>{children}</>;
+
+  if (isPro) {
+    return (
+      <div onClick={() => setViewMode('pro')} className="cursor-pointer">
+        {fallback || (
+          <div className="rounded-lg border-2 border-dashed border-muted p-6 text-center">
+            <Lock className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+            <p className="text-sm font-medium text-foreground">{t('switch_mode')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('mode_pro')}</p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <>

@@ -3,6 +3,7 @@ import { normalizeProcedure } from '@/data/normalize/normalizeProcedure';
 import { enrichMedicationPlan } from '@/data/merge/enrichMedicationPlan';
 import { resolveDrugs } from '@/data/repositories/drugsRepo';
 import { loadFromSupabase } from '@/data/repositories/loadFromSupabase';
+import { loadFromJson, loadProceduresFromJson } from '@/data/repositories/loadFromJson';
 import {
   hydrateProcedures,
   loadProcedureIndexFromSupabase,
@@ -101,28 +102,35 @@ export function readCachedFullData(): FullDataSnapshot | null {
 }
 
 export async function loadProcedureIndexSnapshot(): Promise<ProcedureIndexSnapshot> {
-  const [procedures, specialtiesData] = await Promise.all([
-    loadProcedureIndexFromSupabase(),
-    loadSpecialtiesFromSupabase().catch(() => []),
-  ]);
+  try {
+    const [procedures, specialtiesData] = await Promise.all([
+      loadProcedureIndexFromSupabase(),
+      loadSpecialtiesFromSupabase().catch(() => []),
+    ]);
 
-  if (procedures.length === 0) {
-    throw new Error('No procedures available in Supabase');
+    if (procedures.length === 0) {
+      throw new Error('No procedures available in Supabase');
+    }
+
+    const snapshot = { procedures, specialtiesData };
+    writeIndexSnapshot(snapshot);
+    return snapshot;
+  } catch (error) {
+    console.warn('[AnesIA] Falling back to local procedure index JSON', error);
+    const procedures = await loadProceduresFromJson();
+    const snapshot = { procedures: projectProcedureIndex(procedures), specialtiesData: [] };
+    writeIndexSnapshot(snapshot);
+    return snapshot;
   }
-
-  const snapshot = { procedures, specialtiesData };
-  writeIndexSnapshot(snapshot);
-  return snapshot;
 }
 
 export async function loadFullDataSnapshot(): Promise<FullDataSnapshot> {
-  const [dbData, specialtyRows] = await Promise.all([
-    loadFromSupabase(),
-    loadSpecialtiesFromSupabase().catch(() => []),
-  ]);
+  let dbData = await loadFromSupabase();
+  const specialtyRows = await loadSpecialtiesFromSupabase().catch(() => []);
 
   if (!dbData) {
-    throw new Error('Supabase knowledge base is empty or unavailable');
+    console.warn('[AnesIA] Falling back to local full JSON snapshot');
+    dbData = await loadFromJson();
   }
 
   const mergedProcedures = await hydrateProcedures(dbData.procedures);

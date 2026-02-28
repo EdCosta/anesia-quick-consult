@@ -18,7 +18,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAutoTranslation } from '@/hooks/useAutoTranslation';
 import { useHospitalProfile } from '@/hooks/useHospitalProfile';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
-import { useEntitlements } from '@/hooks/useEntitlements';
+import { useViewMode } from '@/hooks/useViewMode';
 import { useRecommendationTags } from '@/hooks/useRecommendationTags';
 import Section, { BulletList } from '@/components/anesia/Section';
 import IntubationGuide from '@/components/anesia/IntubationGuide';
@@ -88,7 +88,7 @@ export default function ProcedurePage() {
   const [directProcedureLoading, setDirectProcedureLoading] = useState(false);
   const [attemptedProcedureId, setAttemptedProcedureId] = useState<string | null>(null);
   const { isAdmin } = useIsAdmin();
-  const { isPro } = useEntitlements();
+  const { isPro, isProView } = useViewMode();
   const hospitalProfile = useHospitalProfile();
   const procedure = getProcedure(id || '') || directProcedure;
   const isFav = id ? favorites.includes(id) : false;
@@ -156,14 +156,14 @@ export default function ProcedurePage() {
     lang,
     'quick',
     contentFr,
-    isPro && isQuickFallbackLang && !showOriginal,
+    isPro && isProView && isQuickFallbackLang && !showOriginal,
   );
   const deepTranslation = useAutoTranslation(
     id || '',
     lang,
     'deep',
     contentDeepFr,
-    isPro && isDeepFallbackLang && !showOriginal,
+    isPro && isProView && isDeepFallbackLang && !showOriginal,
   );
 
   useEffect(() => {

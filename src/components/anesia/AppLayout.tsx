@@ -29,7 +29,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [activeProfile, setActiveProfile] = useState<string | null>(() =>
     localStorage.getItem('anesia-hospital-profile'),
   );
-  const { plan, isPro } = useEntitlements();
+  const { isPro } = useEntitlements();
   const { viewMode, setViewMode } = useViewMode();
 
   useEffect(() => {
@@ -196,7 +196,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             {/* View mode pill toggle — always visible for testing */}
             <button
               onClick={() => setViewMode(viewMode === 'normal' ? 'pro' : 'normal')}
-              title={viewMode === 'pro' ? 'Mudar para modo Normal' : 'Mudar para modo Pro'}
+              title={t('switch_mode')}
               className="relative inline-flex h-7 w-28 shrink-0 cursor-pointer items-center rounded-full border border-primary-foreground/25 bg-primary-foreground/10 p-0.5 transition-colors hover:bg-primary-foreground/15"
             >
               {/* sliding pill */}
@@ -212,7 +212,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   viewMode === 'normal' ? 'text-accent-foreground' : 'text-primary-foreground/50'
                 }`}
               >
-                Normal
+                {t('mode_normal')}
               </span>
               {/* Pro label */}
               <span
@@ -221,7 +221,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 }`}
               >
                 <Crown className="h-2.5 w-2.5" />
-                Pro
+                {t('mode_pro')}
               </span>
             </button>
             <LanguageSwitcher />

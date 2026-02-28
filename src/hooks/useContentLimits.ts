@@ -1,11 +1,11 @@
-import { useViewMode } from './useViewMode';
+import { useEntitlements } from './useEntitlements';
 
 const LIMITS_NORMAL = {
-  procedures: 5,
-  protocols: 3,
-  alr: 3,
-  calculators: 3,
-  guidelines: 3,
+  procedures: Infinity,
+  protocols: 0,
+  alr: 0,
+  calculators: Infinity,
+  guidelines: 0,
 };
 
 const LIMITS_PRO = {
@@ -17,11 +17,11 @@ const LIMITS_PRO = {
 };
 
 export function useContentLimits() {
-  const { isProView } = useViewMode();
-  const limits = isProView ? LIMITS_PRO : LIMITS_NORMAL;
+  const { isPro } = useEntitlements();
+  const limits = isPro ? LIMITS_PRO : LIMITS_NORMAL;
 
   return {
     ...limits,
-    isLimited: !isProView,
+    isLimited: !isPro,
   };
 }

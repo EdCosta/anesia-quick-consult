@@ -4,8 +4,10 @@ import Fuse from 'fuse.js';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useContentLimits } from '@/hooks/useContentLimits';
+import { useEntitlements } from '@/hooks/useEntitlements';
 import type { Guideline } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
+import ProFeaturePage from '@/components/anesia/ProFeaturePage';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +30,7 @@ const CATEGORY_MAP: Record<string, string> = {
 export default function Guidelines() {
   const { t, lang, resolveStr } = useLang();
   const { guidelines, loading } = useData();
+  const { isPro, loading: entitlementLoading } = useEntitlements();
   const { guidelines: guideLimit, isLimited } = useContentLimits();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -64,12 +67,16 @@ export default function Guidelines() {
     return (obj as any)[lang] ?? (obj as any)['fr'] ?? (obj as any)['en'] ?? [];
   };
 
-  if (loading) {
+  if (loading || entitlementLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-muted-foreground">{t('loading')}</p>
       </div>
     );
+  }
+
+  if (!isPro) {
+    return <ProFeaturePage title={t('guidelines')} description={t('guidelines_desc')} />;
   }
 
   return (

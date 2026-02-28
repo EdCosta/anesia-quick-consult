@@ -1,5 +1,6 @@
 import { useLocalStorage } from './useLocalStorage';
 import { useEntitlements } from './useEntitlements';
+import { useEffect } from 'react';
 
 export type ViewMode = 'normal' | 'pro';
 
@@ -7,9 +8,14 @@ export function useViewMode() {
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('anesia-view-mode', 'normal');
   const { isPro } = useEntitlements();
 
-  // TODO: re-enable entitlement check before going to production
-  // const isProView = viewMode === 'pro' && isPro;
-  const isProView = viewMode === 'pro';
+  useEffect(() => {
+    if (viewMode === 'pro' && !isPro) {
+      setViewMode('normal');
+    }
+  }, [viewMode, isPro, setViewMode]);
 
-  return { viewMode, setViewMode, isProView, isPro };
+  const safeViewMode = viewMode === 'pro' && isPro ? 'pro' : 'normal';
+  const isProView = safeViewMode === 'pro';
+
+  return { viewMode: safeViewMode, setViewMode, isProView, isPro };
 }

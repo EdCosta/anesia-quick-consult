@@ -123,6 +123,7 @@ export default function Auth() {
           user_id: data.user.id,
           email: signUpEmail.trim(),
           name: signUpUsername.trim(),
+          plan: 'free',
         } as any,
         { onConflict: 'user_id' },
       );

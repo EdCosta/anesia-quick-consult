@@ -18,16 +18,7 @@ export default function AdminGuard() {
   }
 
   if (!isAdmin) {
-    return (
-      <div className="container max-w-3xl space-y-4 py-6">
-        <div className="rounded-lg border bg-card p-4">
-          <h1 className="font-heading text-xl font-bold text-foreground">Admin only</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This area is restricted to authenticated administrators.
-          </p>
-        </div>
-      </div>
-    );
+    return <Navigate to="/" replace state={{ from: location.pathname }} />;
   }
 
   return <Outlet />;

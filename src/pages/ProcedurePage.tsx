@@ -18,6 +18,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAutoTranslation } from '@/hooks/useAutoTranslation';
 import { useHospitalProfile } from '@/hooks/useHospitalProfile';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useEntitlements } from '@/hooks/useEntitlements';
 import { useRecommendationTags } from '@/hooks/useRecommendationTags';
 import Section, { BulletList } from '@/components/anesia/Section';
 import IntubationGuide from '@/components/anesia/IntubationGuide';
@@ -87,6 +88,7 @@ export default function ProcedurePage() {
   const [directProcedureLoading, setDirectProcedureLoading] = useState(false);
   const [attemptedProcedureId, setAttemptedProcedureId] = useState<string | null>(null);
   const { isAdmin } = useIsAdmin();
+  const { isPro } = useEntitlements();
   const hospitalProfile = useHospitalProfile();
   const procedure = getProcedure(id || '') || directProcedure;
   const isFav = id ? favorites.includes(id) : false;
@@ -154,14 +156,14 @@ export default function ProcedurePage() {
     lang,
     'quick',
     contentFr,
-    isQuickFallbackLang && !showOriginal,
+    isPro && isQuickFallbackLang && !showOriginal,
   );
   const deepTranslation = useAutoTranslation(
     id || '',
     lang,
     'deep',
     contentDeepFr,
-    isDeepFallbackLang && !showOriginal,
+    isPro && isDeepFallbackLang && !showOriginal,
   );
 
   useEffect(() => {
@@ -511,48 +513,24 @@ export default function ProcedurePage() {
         )}
       </div>
 
-      {/* Pro gate for pro procedures */}
-      {procedure.is_pro ? (
-        <ProGate>
-          <ProcedureContent
-            quick={quick}
-            deep={deep}
-            weight={weight}
-            weightKg={weightKg}
-            setWeightKg={setWeightKg}
-            patientWeights={patientWeights}
-            setPatientWeights={setPatientWeights}
-            procedure={procedure}
-            recommendations={recommendations}
-            t={t}
-            resolveStr={resolveStr}
-            getDrug={getDrug}
-            handleCopyChecklist={handleCopyChecklist}
-            checklistMode={checklistMode}
-            checked={checked}
-            setChecked={setChecked}
-          />
-        </ProGate>
-      ) : (
-        <ProcedureContent
-          quick={quick}
-          deep={deep}
-          weight={weight}
-          weightKg={weightKg}
-          setWeightKg={setWeightKg}
-          patientWeights={patientWeights}
-          setPatientWeights={setPatientWeights}
-          procedure={procedure}
-          recommendations={recommendations}
-          t={t}
-          resolveStr={resolveStr}
-          getDrug={getDrug}
-          handleCopyChecklist={handleCopyChecklist}
-          checklistMode={checklistMode}
-          checked={checked}
-          setChecked={setChecked}
-        />
-      )}
+      <ProcedureContent
+        quick={quick}
+        deep={deep}
+        weight={weight}
+        weightKg={weightKg}
+        setWeightKg={setWeightKg}
+        patientWeights={patientWeights}
+        setPatientWeights={setPatientWeights}
+        procedure={procedure}
+        recommendations={recommendations}
+        t={t}
+        resolveStr={resolveStr}
+        getDrug={getDrug}
+        handleCopyChecklist={handleCopyChecklist}
+        checklistMode={checklistMode}
+        checked={checked}
+        setChecked={setChecked}
+      />
     </div>
   );
 }
@@ -792,84 +770,88 @@ function ProcedureContent({
           </TabsContent>
 
           <TabsContent value="detail" className="mt-3 space-y-3">
-            {deep && (
+            <ProGate>
               <>
-                <Card className="clinical-shadow">
-                  <CardContent className="p-4">
-                    <Section title={t('clinical_notes')} variant="info">
-                      <BulletList items={deep.clinical} />
-                    </Section>
-                  </CardContent>
-                </Card>
-                <Card className="clinical-shadow">
-                  <CardContent className="p-4">
-                    <Section title={t('pitfalls')} variant="redflag">
-                      <BulletList items={deep.pitfalls} />
-                    </Section>
-                  </CardContent>
-                </Card>
-                {deep.references.length > 0 && (
-                  <Card className="clinical-shadow">
+                {deep && (
+                  <>
+                    <Card className="clinical-shadow">
+                      <CardContent className="p-4">
+                        <Section title={t('clinical_notes')} variant="info">
+                          <BulletList items={deep.clinical} />
+                        </Section>
+                      </CardContent>
+                    </Card>
+                    <Card className="clinical-shadow">
+                      <CardContent className="p-4">
+                        <Section title={t('pitfalls')} variant="redflag">
+                          <BulletList items={deep.pitfalls} />
+                        </Section>
+                      </CardContent>
+                    </Card>
+                    {deep.references.length > 0 && (
+                      <Card className="clinical-shadow">
+                        <CardContent className="p-4">
+                          <Section title={t('references_title')} variant="info">
+                            <ul className="space-y-2">
+                              {deep.references.map((ref: any, i: number) => (
+                                <li key={i} className="text-xs text-card-foreground">
+                                  <span className="font-semibold">{ref.source}</span>
+                                  {ref.year && (
+                                    <span className="text-muted-foreground"> ({ref.year})</span>
+                                  )}
+                                  {ref.note && (
+                                    <span className="text-muted-foreground"> — {ref.note}</span>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </Section>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </>
+                )}
+
+                {recommendations.length > 0 && (
+                  <Card className="clinical-shadow border-l-4 border-l-clinical-info">
                     <CardContent className="p-4">
-                      <Section title={t('references_title')} variant="info">
-                        <ul className="space-y-2">
-                          {deep.references.map((ref: any, i: number) => (
-                            <li key={i} className="text-xs text-card-foreground">
-                              <span className="font-semibold">{ref.source}</span>
-                              {ref.year && (
-                                <span className="text-muted-foreground"> ({ref.year})</span>
+                      <h3 className="mb-3 text-sm font-bold text-clinical-info flex items-center gap-1.5">
+                        <BookOpen className="h-4 w-4" />
+                        {t('recommendations')}
+                      </h3>
+                      <div className="space-y-2">
+                        {recommendations.map((g: any) => (
+                          <Link
+                            key={g.id}
+                            to="/guidelines"
+                            className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors"
+                          >
+                            <p className="text-xs font-semibold text-card-foreground">
+                              {resolveStr(g.titles)}
+                            </p>
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              <Badge variant="secondary" className="text-[10px]">
+                                {g.category}
+                              </Badge>
+                              {g.organization && (
+                                <Badge variant="outline" className="text-[10px]">
+                                  {g.organization}
+                                </Badge>
                               )}
-                              {ref.note && (
-                                <span className="text-muted-foreground"> — {ref.note}</span>
+                              {!!g.recommendation_strength && (
+                                <Badge variant="outline" className="text-[10px]">
+                                  S{g.recommendation_strength}
+                                </Badge>
                               )}
-                            </li>
-                          ))}
-                        </ul>
-                      </Section>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
                 )}
               </>
-            )}
-
-            {recommendations.length > 0 && (
-              <Card className="clinical-shadow border-l-4 border-l-clinical-info">
-                <CardContent className="p-4">
-                  <h3 className="mb-3 text-sm font-bold text-clinical-info flex items-center gap-1.5">
-                    <BookOpen className="h-4 w-4" />
-                    {t('recommendations')}
-                  </h3>
-                  <div className="space-y-2">
-                    {recommendations.map((g: any) => (
-                      <Link
-                        key={g.id}
-                        to="/guidelines"
-                        className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors"
-                      >
-                        <p className="text-xs font-semibold text-card-foreground">
-                          {resolveStr(g.titles)}
-                        </p>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          <Badge variant="secondary" className="text-[10px]">
-                            {g.category}
-                          </Badge>
-                          {g.organization && (
-                            <Badge variant="outline" className="text-[10px]">
-                              {g.organization}
-                            </Badge>
-                          )}
-                          {!!g.recommendation_strength && (
-                            <Badge variant="outline" className="text-[10px]">
-                              S{g.recommendation_strength}
-                            </Badge>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            </ProGate>
           </TabsContent>
         </Tabs>
       )}

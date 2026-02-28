@@ -26,17 +26,37 @@ export function useEntitlements(): EntitlementResult {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return null;
-      const { data } = await supabase
-        .from('user_entitlements')
-        .select('plan_id')
+      if (!user) return 'free';
+
+      const { data: profileRow } = await supabase
+        .from('user_profiles' as any)
+        .select('plan')
         .eq('user_id', user.id)
         .maybeSingle();
-      return data?.plan_id ?? null;
+
+      const profilePlan = (profileRow as { plan?: string } | null)?.plan;
+      if (profilePlan === 'pro' || profilePlan === 'free') {
+        return profilePlan;
+      }
+
+      const { data: entitlementRow } = await supabase
+        .from('user_entitlements' as any)
+        .select('plan_id, active, expires_at')
+        .eq('user_id', user.id)
+        .eq('active', true)
+        .maybeSingle();
+
+      const expiresAt = (entitlementRow as { expires_at?: string | null } | null)?.expires_at;
+      const isExpired = !!expiresAt && new Date(expiresAt).getTime() <= Date.now();
+      if ((entitlementRow as { plan_id?: string } | null)?.plan_id === 'pro' && !isExpired) {
+        return 'pro';
+      }
+
+      return 'free';
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  const plan = (data === 'pro' ? 'pro' : 'free') as 'free' | 'pro';
+  const plan = data === 'pro' ? 'pro' : 'free';
   return { plan, isPro: plan === 'pro', loading: isLoading };
 }

@@ -66,10 +66,10 @@ const App = () => {
                     <Route path="/preanest" element={<PreAnest />} />
                     <Route path="/p/:id" element={<ProcedurePage />} />
                     <Route path="/account" element={<Account />} />
-                    <Route path="/admin-content" element={<AdminContent />} />
-                    <Route path="/admin/quality" element={<AdminQuality />} />
-                    <Route path="/admin" element={<AdminGuard />}>
-                      <Route element={<AdminLayout />}>
+                    <Route element={<AdminGuard />}>
+                      <Route path="/admin-content" element={<AdminContent />} />
+                      <Route path="/admin/quality" element={<AdminQuality />} />
+                      <Route path="/admin" element={<AdminLayout />}>
                         <Route index element={<AdminDashboard />} />
                         <Route
                           path="import/procedures"

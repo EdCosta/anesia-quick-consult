@@ -23,7 +23,13 @@ export default function ProGate({ children, fallback }: ProGateProps) {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
-  if (loading) return <>{children}</>;
+  if (loading) {
+    return (
+      <div className="rounded-lg border-2 border-dashed border-muted p-6 text-center">
+        <p className="text-sm text-muted-foreground">{t('loading')}</p>
+      </div>
+    );
+  }
 
   if (isPro) return <>{children}</>;
 

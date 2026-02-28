@@ -4,7 +4,9 @@ import Fuse from 'fuse.js';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useContentLimits } from '@/hooks/useContentLimits';
+import { useEntitlements } from '@/hooks/useEntitlements';
 import type { ALRBlock } from '@/lib/types';
+import ProFeaturePage from '@/components/anesia/ProFeaturePage';
 import {
   Dialog,
   DialogContent,
@@ -48,6 +50,7 @@ const TABS: { key: TabKey; labelKey: string; bulletClass: string }[] = [
 export default function ALR() {
   const { t, lang, resolveStr } = useLang();
   const { alrBlocks, loading } = useData();
+  const { isPro, loading: entitlementLoading } = useEntitlements();
   const { alr: alrLimit, isLimited } = useContentLimits();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -99,12 +102,16 @@ export default function ALR() {
     }
   };
 
-  if (loading) {
+  if (loading || entitlementLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-muted-foreground">{t('loading')}</p>
       </div>
     );
+  }
+
+  if (!isPro) {
+    return <ProFeaturePage title={t('alr_full')} description={t('pro_feature_desc')} />;
   }
 
   return (

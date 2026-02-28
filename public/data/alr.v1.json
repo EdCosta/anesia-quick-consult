@@ -8,70 +8,26 @@
       "pt": "Bloqueio interescalênico"
     },
     "indications": {
-      "fr": ["Chirurgie de l'épaule", "Chirurgie de la clavicule", "Humérus proximal"],
-      "en": ["Shoulder surgery", "Clavicle surgery", "Proximal humerus"],
-      "pt": ["Cirurgia do ombro", "Cirurgia da clavícula", "Úmero proximal"]
+      "fr": ["Chirurgie de l'épaule (PTÉ, coiffe des rotateurs, Bankart)", "Chirurgie de la clavicule", "Humérus proximal", "Analgésie postopératoire épaule"],
+      "en": ["Shoulder surgery (TSA, rotator cuff, Bankart)", "Clavicle surgery", "Proximal humerus", "Postoperative shoulder analgesia"],
+      "pt": ["Cirurgia do ombro (PTÉ, coifa dos rotadores, Bankart)", "Cirurgia da clavícula", "Úmero proximal", "Analgesia pós-op do ombro"]
     },
     "contraindications": {
-      "fr": [
-        "Paralysie phrénique controlatérale",
-        "Pneumonectomie controlatérale",
-        "BPCO sévère (relative)",
-        "Refus du patient"
-      ],
-      "en": [
-        "Contralateral phrenic nerve palsy",
-        "Contralateral pneumonectomy",
-        "Severe COPD (relative)",
-        "Patient refusal"
-      ],
-      "pt": [
-        "Paralisia frénica contralateral",
-        "Pneumonectomia contralateral",
-        "DPOC grave (relativa)",
-        "Recusa do doente"
-      ]
+      "fr": ["Paralysie phrénique controlatérale", "Pneumonectomie controlatérale", "BPCO sévère — CVF <50% (relative)", "Refus du patient"],
+      "en": ["Contralateral phrenic nerve palsy", "Contralateral pneumonectomy", "Severe COPD — FVC <50% (relative)", "Patient refusal"],
+      "pt": ["Paralisia frénica contralateral", "Pneumonectomia contralateral", "DPOC grave — CVF <50% (relativa)", "Recusa do doente"]
     },
     "technique": {
-      "fr": [
-        "Repère échographique: racines C5-C6 entre scalène antérieur et moyen",
-        "Aiguille dans le plan, direction latérale vers médiale",
-        "Injection périneurale, hydrodissection",
-        "Volume: 15-20 mL",
-        "Attention: nerf phrénique ipsilatéral bloqué dans ~100% des cas"
-      ],
-      "en": [
-        "Ultrasound landmark: C5-C6 roots between anterior and middle scalene",
-        "In-plane needle, lateral to medial approach",
-        "Perineural injection, hydrodissection",
-        "Volume: 15-20 mL",
-        "Note: ipsilateral phrenic nerve blocked in ~100% of cases"
-      ],
-      "pt": [
-        "Referência ecográfica: raízes C5-C6 entre escaleno anterior e médio",
-        "Agulha no plano, direção lateral para medial",
-        "Injeção perineural, hidrodissecção",
-        "Volume: 15-20 mL",
-        "Atenção: nervo frénico ipsilateral bloqueado em ~100% dos casos"
-      ]
+      "fr": ["Sonde linéaire haute fréquence, coupe axiale à la base du cou", "Repère: racines C5-C6 entre scalène antérieur et moyen (aspect hyperéchogène «en chapelet»)", "Aiguille dans le plan, direction postéro-antérieure ou latéro-médiale", "Hydrodissection progressive, injection périneurale", "Volume: 15-20 mL (≤15 mL réduit le bloc phrénique)", "Attention: bloc phrénique ipsilatéral dans ~100% des cas — surveillance respiratoire"],
+      "en": ["High-frequency linear probe, axial view at neck base", "Landmark: C5-C6 roots between anterior and middle scalene (hyperechoic 'string of beads')", "In-plane needle, posteroanterior or lateral-to-medial approach", "Progressive hydrodissection, perineural injection", "Volume: 15-20 mL (≤15 mL reduces phrenic block)", "Note: ipsilateral phrenic nerve blocked ~100% — respiratory monitoring"],
+      "pt": ["Sonda linear de alta frequência, corte axial na base do pescoço", "Referência: raízes C5-C6 entre escaleno anterior e médio (aspeto hiperecogénico 'em rosário')", "Agulha no plano, direção postero-anterior ou latero-medial", "Hidrodissecção progressiva, injeção perineural", "Volume: 15-20 mL (≤15 mL reduz bloqueio frénico)", "Atenção: nervo frénico ipsilateral bloqueado em ~100% — monitorização respiratória"]
     },
     "drugs": {
-      "fr": [
-        "Ropivacaïne 0.375-0.5% (15-20 mL)",
-        "OU Lévobupivacaïne 0.25-0.5% (15-20 mL)",
-        "Adjuvant optionnel: dexaméthasone 4mg périneurale"
-      ],
-      "en": [
-        "Ropivacaine 0.375-0.5% (15-20 mL)",
-        "OR Levobupivacaine 0.25-0.5% (15-20 mL)",
-        "Optional adjuvant: dexamethasone 4mg perineural"
-      ],
-      "pt": [
-        "Ropivacaína 0.375-0.5% (15-20 mL)",
-        "OU Levobupivacaína 0.25-0.5% (15-20 mL)",
-        "Adjuvante opcional: dexametasona 4mg perineural"
-      ]
-    }
+      "fr": ["Ropivacaïne 0.375-0.5% (15-20 mL)", "OU Lévobupivacaïne 0.25-0.5% (15-20 mL)", "Adjuvant: dexaméthasone 4 mg périneurale (↑ durée ~6h)", "OU dexaméthasone IV 8 mg (effet systémique équivalent)"],
+      "en": ["Ropivacaine 0.375-0.5% (15-20 mL)", "OR Levobupivacaine 0.25-0.5% (15-20 mL)", "Adjuvant: dexamethasone 4 mg perineural (↑ duration ~6h)", "OR IV dexamethasone 8 mg (equivalent systemic effect)"],
+      "pt": ["Ropivacaína 0.375-0.5% (15-20 mL)", "OU Levobupivacaína 0.25-0.5% (15-20 mL)", "Adjuvante: dexametasona 4 mg perineural (↑ duração ~6h)", "OU dexametasona IV 8 mg (efeito sistémico equivalente)"]
+    },
+    "tags": ["regional", "upper_limb"]
   },
   {
     "id": "supraclavicular",
@@ -82,58 +38,86 @@
       "pt": "Bloqueio supraclavicular"
     },
     "indications": {
-      "fr": [
-        "Chirurgie du coude",
-        "Chirurgie de l'avant-bras",
-        "Chirurgie de la main",
-        "Anesthésie du membre supérieur sous l'épaule"
-      ],
-      "en": [
-        "Elbow surgery",
-        "Forearm surgery",
-        "Hand surgery",
-        "Upper limb anesthesia below shoulder"
-      ],
-      "pt": [
-        "Cirurgia do cotovelo",
-        "Cirurgia do antebraço",
-        "Cirurgia da mão",
-        "Anestesia do membro superior abaixo do ombro"
-      ]
+      "fr": ["Chirurgie du coude, avant-bras et main", "Anesthésie du membre supérieur sous l'épaule", "Alternative au bloc interscalénique sans bloc phrénique", "Fistule artério-veineuse"],
+      "en": ["Elbow, forearm and hand surgery", "Upper limb anesthesia below shoulder", "Alternative to interscalene without phrenic block", "Arteriovenous fistula"],
+      "pt": ["Cirurgia do cotovelo, antebraço e mão", "Anestesia do membro superior abaixo do ombro", "Alternativa ao interescalénico sem bloqueio frénico", "Fístula artério-venosa"]
     },
     "contraindications": {
-      "fr": ["Pneumothorax controlatéral", "Insuffisance respiratoire sévère", "Coagulopathie"],
-      "en": ["Contralateral pneumothorax", "Severe respiratory failure", "Coagulopathy"],
-      "pt": ["Pneumotórax contralateral", "Insuficiência respiratória grave", "Coagulopatia"]
+      "fr": ["Pneumothorax controlatéral", "Insuffisance respiratoire sévère", "Coagulopathie sévère", "Infection au site"],
+      "en": ["Contralateral pneumothorax", "Severe respiratory failure", "Severe coagulopathy", "Site infection"],
+      "pt": ["Pneumotórax contralateral", "Insuficiência respiratória grave", "Coagulopatia grave", "Infeção no local"]
     },
     "technique": {
-      "fr": [
-        "Repère: plexus brachial au-dessus de la clavicule, latéral à l'artère sous-clavière",
-        "Sonde linéaire haute fréquence",
-        "Aiguille dans le plan, direction latérale vers médiale",
-        "Volume: 20-25 mL",
-        "Risque de pneumothorax: rester superficiel, ne pas dépasser la 1ère côte"
-      ],
-      "en": [
-        "Landmark: brachial plexus above clavicle, lateral to subclavian artery",
-        "High-frequency linear probe",
-        "In-plane needle, lateral to medial",
-        "Volume: 20-25 mL",
-        "Pneumothorax risk: stay superficial, do not pass first rib"
-      ],
-      "pt": [
-        "Referência: plexo braquial acima da clavícula, lateral à artéria subclávia",
-        "Sonda linear de alta frequência",
-        "Agulha no plano, direção lateral para medial",
-        "Volume: 20-25 mL",
-        "Risco de pneumotórax: manter superficial, não ultrapassar a 1ª costela"
-      ]
+      "fr": ["Sonde linéaire haute fréquence, coupe coronale au-dessus de la clavicule", "Repère: plexus brachial latéral à l'artère sous-clavière («grape cluster»)", "Aiguille dans le plan, direction latérale vers médiale", "Injection au pôle inférieur du plexus («corner pocket»)", "Volume: 20-25 mL", "Risque de pneumothorax: ne pas pointer vers la plèvre, ne pas dépasser la 1ère côte"],
+      "en": ["High-frequency linear probe, coronal view above clavicle", "Landmark: brachial plexus lateral to subclavian artery ('grape cluster')", "In-plane needle, lateral to medial", "Injection at inferior pole of plexus ('corner pocket')", "Volume: 20-25 mL", "Pneumothorax risk: do not aim at pleura, do not pass first rib"],
+      "pt": ["Sonda linear de alta frequência, corte coronal acima da clavícula", "Referência: plexo braquial lateral à artéria subclávia ('cacho de uvas')", "Agulha no plano, direção lateral para medial", "Injeção no polo inferior do plexo ('corner pocket')", "Volume: 20-25 mL", "Risco de pneumotórax: não apontar para a pleura, não ultrapassar a 1ª costela"]
     },
     "drugs": {
-      "fr": ["Ropivacaïne 0.5% (20-25 mL)", "OU Lévobupivacaïne 0.375% (20-25 mL)"],
-      "en": ["Ropivacaine 0.5% (20-25 mL)", "OR Levobupivacaine 0.375% (20-25 mL)"],
-      "pt": ["Ropivacaína 0.5% (20-25 mL)", "OU Levobupivacaína 0.375% (20-25 mL)"]
-    }
+      "fr": ["Ropivacaïne 0.5% (20-25 mL)", "OU Lévobupivacaïne 0.375% (20-25 mL)", "Adjuvant: dexaméthasone 4 mg périneurale"],
+      "en": ["Ropivacaine 0.5% (20-25 mL)", "OR Levobupivacaine 0.375% (20-25 mL)", "Adjuvant: dexamethasone 4 mg perineural"],
+      "pt": ["Ropivacaína 0.5% (20-25 mL)", "OU Levobupivacaína 0.375% (20-25 mL)", "Adjuvante: dexametasona 4 mg perineural"]
+    },
+    "tags": ["regional", "upper_limb"]
+  },
+  {
+    "id": "infraclavicular",
+    "region": "upper_limb",
+    "titles": {
+      "fr": "Bloc infraclaviculaire",
+      "en": "Infraclavicular block",
+      "pt": "Bloqueio infraclavicular"
+    },
+    "indications": {
+      "fr": ["Chirurgie du coude, avant-bras et main", "Idéal pour pose de cathéter continu", "Fistule artério-veineuse", "Meilleure immobilité du cathéter que l'axillaire"],
+      "en": ["Elbow, forearm and hand surgery", "Ideal for continuous catheter placement", "Arteriovenous fistula", "Better catheter stability than axillary"],
+      "pt": ["Cirurgia do cotovelo, antebraço e mão", "Ideal para cateter contínuo", "Fístula artério-venosa", "Maior estabilidade do cateter que o axilar"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Coagulopathie sévère", "Pneumothorax controlatéral (relatif)"],
+      "en": ["Infection at puncture site", "Severe coagulopathy", "Contralateral pneumothorax (relative)"],
+      "pt": ["Infeção no local de punção", "Coagulopatia grave", "Pneumotórax contralateral (relativa)"]
+    },
+    "technique": {
+      "fr": ["Sonde linéaire ou convexe, vue sagittale sous la clavicule", "Repère: artère axillaire, faisceaux latéral/postérieur/médial du plexus", "Aiguille dans le plan, direction crânio-caudale", "Cible: faisceau postérieur (position 6h par rapport à l'artère)", "Injection unique postérieure — diffusion circumférentielle", "Volume: 20-30 mL", "Avantage: pas de risque phrénique, cathéter stable en sous-claviculaire"],
+      "en": ["Linear or curved probe, sagittal view below clavicle", "Landmark: axillary artery, lateral/posterior/medial cords of plexus", "In-plane needle, craniocaudal direction", "Target: posterior cord (6 o'clock position relative to artery)", "Single posterior injection — circumferential spread", "Volume: 20-30 mL", "Advantage: no phrenic risk, stable infraclavicular catheter"],
+      "pt": ["Sonda linear ou convexa, vista sagital abaixo da clavícula", "Referência: artéria axilar, feixes lateral/posterior/medial do plexo", "Agulha no plano, direção crânio-caudal", "Alvo: feixe posterior (posição 6h em relação à artéria)", "Injeção única posterior — difusão circunferencial", "Volume: 20-30 mL", "Vantagem: sem risco frénico, cateter infraclavicular estável"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.375-0.5% (20-30 mL)", "Perfusion cathéter: ropivacaïne 0.2% 5-8 mL/h", "Adjuvant: dexaméthasone 4 mg périneurale"],
+      "en": ["Ropivacaine 0.375-0.5% (20-30 mL)", "Catheter infusion: ropivacaine 0.2% 5-8 mL/h", "Adjuvant: dexamethasone 4 mg perineural"],
+      "pt": ["Ropivacaína 0.375-0.5% (20-30 mL)", "Perfusão cateter: ropivacaína 0.2% 5-8 mL/h", "Adjuvante: dexametasona 4 mg perineural"]
+    },
+    "tags": ["regional", "upper_limb"]
+  },
+  {
+    "id": "costoclavicular",
+    "region": "upper_limb",
+    "titles": {
+      "fr": "Bloc costoclaviculaire",
+      "en": "Costoclavicular block",
+      "pt": "Bloqueio costoclavicular"
+    },
+    "indications": {
+      "fr": ["Chirurgie du coude, avant-bras et main", "Alternative au supraclaviculaire (risque pneumothorax plus faible)", "Patient obèse ou cou court (accès difficile)"],
+      "en": ["Elbow, forearm and hand surgery", "Alternative to supraclavicular (lower pneumothorax risk)", "Obese patient or short neck (difficult access)"],
+      "pt": ["Cirurgia do cotovelo, antebraço e mão", "Alternativa ao supraclavicular (menor risco de pneumotórax)", "Doente obeso ou pescoço curto (acesso difícil)"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site", "Coagulopathie sévère", "Clavicule fracturée ou remaniée"],
+      "en": ["Site infection", "Severe coagulopathy", "Fractured or remodeled clavicle"],
+      "pt": ["Infeção no local", "Coagulopatia grave", "Clavícula fraturada ou remodelada"]
+    },
+    "technique": {
+      "fr": ["Sonde linéaire, vue sagittale dans l'espace costoclaviculaire", "Repère: faisceaux du plexus brachial groupés entre clavicule et 1ère côte, latéraux à l'artère axillaire", "Aiguille dans le plan, direction médio-latérale", "Injection centrale entre les 3 faisceaux", "Volume: 20-25 mL", "Profil de sécurité favorable: loin de la plèvre et du nerf phrénique"],
+      "en": ["Linear probe, sagittal view in costoclavicular space", "Landmark: brachial plexus cords grouped between clavicle and 1st rib, lateral to axillary artery", "In-plane needle, medial-to-lateral direction", "Central injection between the 3 cords", "Volume: 20-25 mL", "Favorable safety profile: away from pleura and phrenic nerve"],
+      "pt": ["Sonda linear, vista sagital no espaço costoclavicular", "Referência: feixes do plexo braquial agrupados entre clavícula e 1ª costela, laterais à artéria axilar", "Agulha no plano, direção médio-lateral", "Injeção central entre os 3 feixes", "Volume: 20-25 mL", "Perfil de segurança favorável: longe da pleura e do nervo frénico"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.375-0.5% (20-25 mL)", "OU Lévobupivacaïne 0.25-0.375% (20-25 mL)"],
+      "en": ["Ropivacaine 0.375-0.5% (20-25 mL)", "OR Levobupivacaine 0.25-0.375% (20-25 mL)"],
+      "pt": ["Ropivacaína 0.375-0.5% (20-25 mL)", "OU Levobupivacaína 0.25-0.375% (20-25 mL)"]
+    },
+    "tags": ["regional", "upper_limb"]
   },
   {
     "id": "axillary",
@@ -144,21 +128,9 @@
       "pt": "Bloqueio axilar"
     },
     "indications": {
-      "fr": [
-        "Chirurgie du coude, avant-bras et main",
-        "Chirurgie de la fistule artério-veineuse",
-        "Bloc le plus sûr du membre supérieur"
-      ],
-      "en": [
-        "Elbow, forearm and hand surgery",
-        "Arteriovenous fistula surgery",
-        "Safest upper limb block"
-      ],
-      "pt": [
-        "Cirurgia do cotovelo, antebraço e mão",
-        "Cirurgia de fístula artério-venosa",
-        "Bloqueio mais seguro do membro superior"
-      ]
+      "fr": ["Chirurgie du coude, avant-bras et main", "Chirurgie de la fistule artério-veineuse", "Bloc le plus sûr du membre supérieur — pas de risque phrénique ni pleural"],
+      "en": ["Elbow, forearm and hand surgery", "Arteriovenous fistula surgery", "Safest upper limb block — no phrenic or pleural risk"],
+      "pt": ["Cirurgia do cotovelo, antebraço e mão", "Cirurgia de fístula artério-venosa", "Bloqueio mais seguro do membro superior — sem risco frénico ou pleural"]
     },
     "contraindications": {
       "fr": ["Infection au site de ponction", "Lymphœdème du membre"],
@@ -166,45 +138,106 @@
       "pt": ["Infeção no local de punção", "Linfedema do membro"]
     },
     "technique": {
-      "fr": [
-        "Bras en abduction 90°, coude fléchi",
-        "Repère: artère axillaire, nerfs médian/ulnaire/radial/musculocutané",
-        "Injection périneurale de chaque nerf cible",
-        "Volume: 5-7 mL par nerf (total 20-30 mL)",
-        "Ne pas oublier le musculocutané (dans le coracobrachial)"
-      ],
-      "en": [
-        "Arm abducted 90°, elbow flexed",
-        "Landmark: axillary artery, median/ulnar/radial/musculocutaneous nerves",
-        "Perineural injection of each target nerve",
-        "Volume: 5-7 mL per nerve (total 20-30 mL)",
-        "Don't forget musculocutaneous (in coracobrachialis)"
-      ],
-      "pt": [
-        "Braço em abdução 90°, cotovelo fletido",
-        "Referência: artéria axilar, nervos mediano/ulnar/radial/musculocutâneo",
-        "Injeção perineural de cada nervo alvo",
-        "Volume: 5-7 mL por nervo (total 20-30 mL)",
-        "Não esquecer o musculocutâneo (no coracobraquial)"
-      ]
+      "fr": ["Bras en abduction 90°, coude fléchi à 90°", "Sonde linéaire, vue axiale en aisselle", "Repère: artère axillaire, nerfs médian (11h), ulnaire (14h), radial (17h), musculocutané (dans le coracobrachial)", "Injection périneurale de chaque nerf — volume 5-7 mL par nerf", "Volume total: 20-30 mL", "Ne pas oublier le musculocutané: injecter dans le corps du coracobrachial"],
+      "en": ["Arm abducted 90°, elbow flexed 90°", "Linear probe, axial view in axilla", "Landmark: axillary artery, median nerve (11h), ulnar (14h), radial (17h), musculocutaneous (in coracobrachialis)", "Perineural injection of each nerve — 5-7 mL per nerve", "Total volume: 20-30 mL", "Don't forget musculocutaneous: inject into body of coracobrachialis"],
+      "pt": ["Braço em abdução 90°, cotovelo fletido 90°", "Sonda linear, vista axial na axila", "Referência: artéria axilar, nervo mediano (11h), ulnar (14h), radial (17h), musculocutâneo (no coracobraquial)", "Injeção perineural de cada nervo — 5-7 mL por nervo", "Volume total: 20-30 mL", "Não esquecer o musculocutâneo: injetar no corpo do coracobraquial"]
     },
     "drugs": {
-      "fr": [
-        "Lidocaïne 1.5% + adrénaline (chirurgie courte)",
-        "OU Ropivacaïne 0.375-0.5% (chirurgie longue)",
-        "Mépivacaïne 1.5% (durée intermédiaire)"
-      ],
-      "en": [
-        "Lidocaine 1.5% + epinephrine (short surgery)",
-        "OR Ropivacaine 0.375-0.5% (long surgery)",
-        "Mepivacaine 1.5% (intermediate duration)"
-      ],
-      "pt": [
-        "Lidocaína 1.5% + adrenalina (cirurgia curta)",
-        "OU Ropivacaína 0.375-0.5% (cirurgia longa)",
-        "Mepivacaína 1.5% (duração intermédia)"
-      ]
-    }
+      "fr": ["Lidocaïne 1.5% + adrénaline 1:200 000 (chirurgie <2h)", "OU Mépivacaïne 1.5% (durée intermédiaire 3-4h)", "OU Ropivacaïne 0.375-0.5% (chirurgie longue ou analgésie)"],
+      "en": ["Lidocaine 1.5% + epinephrine 1:200,000 (surgery <2h)", "OR Mepivacaine 1.5% (intermediate duration 3-4h)", "OR Ropivacaine 0.375-0.5% (long surgery or analgesia)"],
+      "pt": ["Lidocaína 1.5% + adrenalina 1:200.000 (cirurgia <2h)", "OU Mepivacaína 1.5% (duração intermédia 3-4h)", "OU Ropivacaína 0.375-0.5% (cirurgia longa ou analgesia)"]
+    },
+    "tags": ["regional", "upper_limb"]
+  },
+  {
+    "id": "wrist-block",
+    "region": "upper_limb",
+    "titles": {
+      "fr": "Bloc du poignet (3 nerfs)",
+      "en": "Wrist block (3 nerves)",
+      "pt": "Bloqueio do punho (3 nervos)"
+    },
+    "indications": {
+      "fr": ["Chirurgie de la main et des doigts", "Complément d'un bloc plexique incomplet", "Patient à risque cardiaque (pas de toxicité systémique)", "Petites interventions en ambulatoire"],
+      "en": ["Hand and finger surgery", "Supplement to incomplete plexus block", "High cardiac risk patient (no systemic toxicity)", "Minor outpatient procedures"],
+      "pt": ["Cirurgia da mão e dedos", "Complemento de bloqueio plexular incompleto", "Doente com risco cardíaco (sem toxicidade sistémica)", "Pequenas intervenções em ambulatório"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Allergie aux anesthésiques locaux"],
+      "en": ["Infection at puncture site", "Local anesthetic allergy"],
+      "pt": ["Infeção no local de punção", "Alergia a anestésicos locais"]
+    },
+    "technique": {
+      "fr": ["Nerf médian: entre fléchisseur radial du carpe et long palmaire, à 2 cm du pli de flexion", "Nerf ulnaire: médial au tendon du fléchisseur ulnaire du carpe, profond à l'artère ulnaire", "Nerf radial (branches superficielles): injections sous-cutanées en éventail sur le dos du poignet", "Volume: 3-5 mL par nerf", "Technique aveugle ou échoguidée — sonde linéaire haute fréquence"],
+      "en": ["Median nerve: between flexor carpi radialis and palmaris longus, 2 cm proximal to wrist crease", "Ulnar nerve: medial to flexor carpi ulnaris tendon, deep to ulnar artery", "Radial nerve (superficial branches): fan-shaped subcutaneous injections on dorsal wrist", "Volume: 3-5 mL per nerve", "Landmark or ultrasound-guided — high-frequency linear probe"],
+      "pt": ["Nervo mediano: entre flexor radial do carpo e palmar longo, a 2 cm da prega de flexão", "Nervo ulnar: medial ao tendão do flexor ulnar do carpo, profundo à artéria ulnar", "Nervo radial (ramos superficiais): injeções subcutâneas em leque no dorso do punho", "Volume: 3-5 mL por nervo", "Técnica por repères ou ecoguidada — sonda linear de alta frequência"]
+    },
+    "drugs": {
+      "fr": ["Lidocaïne 1-2% (courte durée, geste rapide)", "OU Ropivacaïne 0.5% (analgésie prolongée)", "Pas d'adrénaline aux extrémités"],
+      "en": ["Lidocaine 1-2% (short duration, quick procedure)", "OR Ropivacaine 0.5% (prolonged analgesia)", "No epinephrine at extremities"],
+      "pt": ["Lidocaína 1-2% (curta duração, procedimento rápido)", "OU Ropivacaína 0.5% (analgesia prolongada)", "Sem adrenalina nas extremidades"]
+    },
+    "tags": ["regional", "upper_limb"]
+  },
+  {
+    "id": "peng-block",
+    "region": "lower_limb",
+    "titles": {
+      "fr": "PENG block (Pericapsular Nerve Group)",
+      "en": "PENG block (Pericapsular Nerve Group)",
+      "pt": "PENG block (Grupo de Nervos Pericapsulares)"
+    },
+    "indications": {
+      "fr": ["Fracture du col du fémur (analgésie — gold standard émergent)", "Chirurgie de la hanche (PTH, ostéotomie)", "Analgésie préopératoire fracture hanche aux urgences", "Préservation motrice du quadriceps"],
+      "en": ["Femoral neck fracture (analgesia — emerging gold standard)", "Hip surgery (THA, osteotomy)", "Preoperative analgesia for hip fracture in ED", "Quadriceps motor sparing"],
+      "pt": ["Fratura do colo do fémur (analgesia — gold standard emergente)", "Cirurgia da anca (PTH, osteotomia)", "Analgesia pré-operatória fratura da anca no SU", "Preservação motora do quadricípite"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Coagulopathie sévère", "Prothèse de hanche (adaptation nécessaire)"],
+      "en": ["Infection at puncture site", "Severe coagulopathy", "Hip prosthesis (adaptation needed)"],
+      "pt": ["Infeção no local de punção", "Coagulopatia grave", "Prótese da anca (adaptação necessária)"]
+    },
+    "technique": {
+      "fr": ["Patient en décubitus dorsal, sonde convexe ou linéaire en vue axiale sur le col fémoral", "Repère: éminence ilio-pubienne, tendon du psoas, artère fémorale latéralement", "Cible: espace entre éminence ilio-pubienne (face antérieure) et tendon du psoas", "Aiguille dans le plan, direction médio-latérale jusqu'au contact osseux", "Injection profonde au tendon du psoas — diffuse vers nerfs articulaires (accessoire obturateur, fémoral, génitofémoral)", "Volume: 20-25 mL"],
+      "en": ["Patient supine, curved or linear probe, axial view on femoral neck", "Landmark: iliopubic eminence, psoas tendon, femoral artery laterally", "Target: space between iliopubic eminence (anterior surface) and psoas tendon", "In-plane needle, medial-to-lateral to bone contact", "Injection deep to psoas tendon — spreads to articular branches (accessory obturator, femoral, genitofemoral)", "Volume: 20-25 mL"],
+      "pt": ["Doente em decúbito dorsal, sonda convexa ou linear, vista axial no colo femoral", "Referência: eminência ilio-púbica, tendão do psoas, artéria femoral lateralmente", "Alvo: espaço entre eminência ilio-púbica (face anterior) e tendão do psoas", "Agulha no plano, direção médio-lateral até contacto ósseo", "Injeção profunda ao tendão do psoas — difunde para ramos articulares (acessório obturador, femoral, genitofemoral)", "Volume: 20-25 mL"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.2-0.375% (20-25 mL)", "OU Bupivacaïne 0.25% (20-25 mL)", "Adjuvant: dexaméthasone 4 mg périneurale"],
+      "en": ["Ropivacaine 0.2-0.375% (20-25 mL)", "OR Bupivacaine 0.25% (20-25 mL)", "Adjuvant: dexamethasone 4 mg perineural"],
+      "pt": ["Ropivacaína 0.2-0.375% (20-25 mL)", "OU Bupivacaína 0.25% (20-25 mL)", "Adjuvante: dexametasona 4 mg perineural"]
+    },
+    "tags": ["regional", "lower_limb"]
+  },
+  {
+    "id": "ficb",
+    "region": "lower_limb",
+    "titles": {
+      "fr": "Fascia Iliaca Compartment Block (FICB)",
+      "en": "Fascia Iliaca Compartment Block (FICB)",
+      "pt": "Bloqueio do Compartimento da Fáscia Ilíaca (FICB)"
+    },
+    "indications": {
+      "fr": ["Fracture du col du fémur et fracture fémorale (urgences)", "Chirurgie de la hanche et de la cuisse", "Prélèvement de greffon iliaque", "Analgésie multimodale prothèse totale de hanche"],
+      "en": ["Femoral neck and femoral shaft fracture (ED)", "Hip and thigh surgery", "Iliac bone graft harvest", "Multimodal analgesia for total hip replacement"],
+      "pt": ["Fratura do colo do fémur e fratura femoral (urgência)", "Cirurgia da anca e coxa", "Enxerto ósseo ilíaco", "Analgesia multimodal artroplastia total da anca"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Coagulopathie sévère", "Obésité morbide (difficulté technique)"],
+      "en": ["Infection at puncture site", "Severe coagulopathy", "Morbid obesity (technical difficulty)"],
+      "pt": ["Infeção no local de punção", "Coagulopatia grave", "Obesidade mórbida (dificuldade técnica)"]
+    },
+    "technique": {
+      "fr": ["Approche infra-claviculaire (Dolan): sonde linéaire, coupe axiale sous le ligament inguinal", "Repère: fascia iliaca profond au sartorius, muscle iliaque sous-jacent", "Aiguille dans le plan, direction latéro-médiale, passage des 2 fascias (click)", "Injection profonde au fascia iliaca — diffusion vers nerfs fémoral, cutané latéral et accessoire obturateur", "Volume: 30-40 mL — volume élevé indispensable à la diffusion", "Approche alternative supra-inguinale (Hebbard) — bloc fémoral + obturateur plus complet"],
+      "en": ["Infrainguinal approach (Dolan): linear probe, axial view below inguinal ligament", "Landmark: iliaca fascia deep to sartorius, underlying iliacus muscle", "In-plane needle, lateral-to-medial, crossing 2 fascial layers (click)", "Injection deep to iliac fascia — spread to femoral, lateral femoral cutaneous and accessory obturator nerves", "Volume: 30-40 mL — high volume essential for spread", "Alternative suprainguinal approach (Hebbard) — more complete femoral + obturator block"],
+      "pt": ["Abordagem infrainguinal (Dolan): sonda linear, corte axial abaixo do ligamento inguinal", "Referência: fáscia ilíaca profunda ao sartório, músculo ilíaco subjacente", "Agulha no plano, direção latero-medial, passagem de 2 fáscias (click)", "Injeção profunda à fáscia ilíaca — difusão para nervos femoral, cutâneo lateral e acessório obturador", "Volume: 30-40 mL — volume elevado essencial para a difusão", "Abordagem alternativa suprainguinal (Hebbard) — bloqueio femoral + obturador mais completo"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.2-0.375% (30-40 mL)", "OU Lévobupivacaïne 0.25% (30-40 mL)", "Attention dose totale d'AL: max 3 mg/kg ropivacaïne"],
+      "en": ["Ropivacaine 0.2-0.375% (30-40 mL)", "OR Levobupivacaine 0.25% (30-40 mL)", "Watch total LA dose: max 3 mg/kg ropivacaine"],
+      "pt": ["Ropivacaína 0.2-0.375% (30-40 mL)", "OU Levobupivacaína 0.25% (30-40 mL)", "Atenção dose total de AL: máx 3 mg/kg ropivacaína"]
+    },
+    "tags": ["regional", "lower_limb"]
   },
   {
     "id": "femoral",
@@ -215,114 +248,26 @@
       "pt": "Bloqueio femoral"
     },
     "indications": {
-      "fr": [
-        "Chirurgie du genou (LCA, PTG)",
-        "Fracture du fémur (analgésie)",
-        "Chirurgie de la cuisse antérieure"
-      ],
-      "en": ["Knee surgery (ACL, TKR)", "Femur fracture (analgesia)", "Anterior thigh surgery"],
-      "pt": [
-        "Cirurgia do joelho (LCA, PTJ)",
-        "Fratura do fémur (analgesia)",
-        "Cirurgia da coxa anterior"
-      ]
+      "fr": ["Chirurgie du genou (LCA, PTG — complété par obturateur)", "Fracture du fémur — analgésie (remplacé par PENG pour la hanche)", "Chirurgie de la cuisse antérieure"],
+      "en": ["Knee surgery (ACL, TKR — supplement with obturator)", "Femur fracture — analgesia (replaced by PENG for hip)", "Anterior thigh surgery"],
+      "pt": ["Cirurgia do joelho (LCA, PTJ — complementar com obturador)", "Fratura do fémur — analgesia (substituído por PENG para a anca)", "Cirurgia da coxa anterior"]
     },
     "contraindications": {
-      "fr": [
-        "Infection inguinale",
-        "Chirurgie vasculaire fémorale récente",
-        "Neuropathie fémorale préexistante"
-      ],
-      "en": [
-        "Inguinal infection",
-        "Recent femoral vascular surgery",
-        "Pre-existing femoral neuropathy"
-      ],
-      "pt": [
-        "Infeção inguinal",
-        "Cirurgia vascular femoral recente",
-        "Neuropatia femoral pré-existente"
-      ]
+      "fr": ["Infection inguinale", "Chirurgie vasculaire fémorale récente", "Neuropathie fémorale préexistante"],
+      "en": ["Inguinal infection", "Recent femoral vascular surgery", "Pre-existing femoral neuropathy"],
+      "pt": ["Infeção inguinal", "Cirurgia vascular femoral recente", "Neuropatia femoral pré-existente"]
     },
     "technique": {
-      "fr": [
-        "Repère: nerf fémoral latéral à l'artère fémorale, sous le ligament inguinal",
-        "Sonde linéaire haute fréquence",
-        "Aiguille dans le plan",
-        "Volume: 15-20 mL",
-        "Attention: faiblesse du quadriceps (risque de chute postop)"
-      ],
-      "en": [
-        "Landmark: femoral nerve lateral to femoral artery, below inguinal ligament",
-        "High-frequency linear probe",
-        "In-plane needle",
-        "Volume: 15-20 mL",
-        "Note: quadriceps weakness (postop fall risk)"
-      ],
-      "pt": [
-        "Referência: nervo femoral lateral à artéria femoral, abaixo do ligamento inguinal",
-        "Sonda linear de alta frequência",
-        "Agulha no plano",
-        "Volume: 15-20 mL",
-        "Atenção: fraqueza do quadricípite (risco de queda pós-op)"
-      ]
+      "fr": ["Sonde linéaire haute fréquence, vue axiale sous le ligament inguinal", "Repère: nerf fémoral latéral à l'artère fémorale, sous le fascia iliaca", "Aiguille dans le plan, direction latéro-médiale", "Injection sous le fascia iliaca — hydrodissection", "Volume: 15-20 mL", "Risque de chute postopératoire par faiblesse du quadriceps — préférer le canal des adducteurs pour PTG"],
+      "en": ["High-frequency linear probe, axial view below inguinal ligament", "Landmark: femoral nerve lateral to femoral artery, below iliac fascia", "In-plane needle, lateral-to-medial", "Injection below iliac fascia — hydrodissection", "Volume: 15-20 mL", "Postoperative fall risk from quadriceps weakness — prefer adductor canal for TKR"],
+      "pt": ["Sonda linear de alta frequência, vista axial abaixo do ligamento inguinal", "Referência: nervo femoral lateral à artéria femoral, abaixo da fáscia ilíaca", "Agulha no plano, direção latero-medial", "Injeção abaixo da fáscia ilíaca — hidrodissecção", "Volume: 15-20 mL", "Risco de queda pós-op por fraqueza do quadricípite — preferir canal adutor para PTJ"]
     },
     "drugs": {
       "fr": ["Ropivacaïne 0.375% (15-20 mL)", "OU Lévobupivacaïne 0.25% (15-20 mL)"],
       "en": ["Ropivacaine 0.375% (15-20 mL)", "OR Levobupivacaine 0.25% (15-20 mL)"],
       "pt": ["Ropivacaína 0.375% (15-20 mL)", "OU Levobupivacaína 0.25% (15-20 mL)"]
-    }
-  },
-  {
-    "id": "sciatic",
-    "region": "lower_limb",
-    "titles": {
-      "fr": "Bloc sciatique (poplité)",
-      "en": "Sciatic (popliteal) block",
-      "pt": "Bloqueio ciático (poplíteo)"
     },
-    "indications": {
-      "fr": [
-        "Chirurgie du pied et de la cheville",
-        "Chirurgie du tendon d'Achille",
-        "Amputation du pied"
-      ],
-      "en": ["Foot and ankle surgery", "Achilles tendon surgery", "Foot amputation"],
-      "pt": ["Cirurgia do pé e tornozelo", "Cirurgia do tendão de Aquiles", "Amputação do pé"]
-    },
-    "contraindications": {
-      "fr": ["Neuropathie sciatique préexistante", "Infection au site de ponction"],
-      "en": ["Pre-existing sciatic neuropathy", "Infection at puncture site"],
-      "pt": ["Neuropatia ciática pré-existente", "Infeção no local de punção"]
-    },
-    "technique": {
-      "fr": [
-        "Abord poplité postérieur: patient en décubitus ventral ou latéral",
-        "Repère: bifurcation du nerf sciatique (tibial + péronier commun) en creux poplité",
-        "Injection 1-3 cm au-dessus de la bifurcation",
-        "Volume: 20-25 mL",
-        "Abord antérieur possible (patient en décubitus dorsal)"
-      ],
-      "en": [
-        "Posterior popliteal approach: patient prone or lateral",
-        "Landmark: sciatic nerve bifurcation (tibial + common peroneal) in popliteal fossa",
-        "Inject 1-3 cm above bifurcation",
-        "Volume: 20-25 mL",
-        "Anterior approach possible (patient supine)"
-      ],
-      "pt": [
-        "Abordagem poplítea posterior: doente em decúbito ventral ou lateral",
-        "Referência: bifurcação do nervo ciático (tibial + peroneal comum) na fossa poplítea",
-        "Injeção 1-3 cm acima da bifurcação",
-        "Volume: 20-25 mL",
-        "Abordagem anterior possível (doente em decúbito dorsal)"
-      ]
-    },
-    "drugs": {
-      "fr": ["Ropivacaïne 0.5% (20-25 mL)", "OU Lévobupivacaïne 0.375% (20-25 mL)"],
-      "en": ["Ropivacaine 0.5% (20-25 mL)", "OR Levobupivacaine 0.375% (20-25 mL)"],
-      "pt": ["Ropivacaína 0.5% (20-25 mL)", "OU Levobupivacaína 0.375% (20-25 mL)"]
-    }
+    "tags": ["regional", "lower_limb"]
   },
   {
     "id": "adductor-canal",
@@ -333,21 +278,9 @@
       "pt": "Bloqueio do canal adutor"
     },
     "indications": {
-      "fr": [
-        "PTG (alternative au bloc fémoral)",
-        "Chirurgie du genou (analgésie avec préservation motrice)",
-        "Arthroscopie du genou"
-      ],
-      "en": [
-        "TKR (alternative to femoral block)",
-        "Knee surgery (analgesia with motor sparing)",
-        "Knee arthroscopy"
-      ],
-      "pt": [
-        "PTJ (alternativa ao bloqueio femoral)",
-        "Cirurgia do joelho (analgesia com preservação motora)",
-        "Artroscopia do joelho"
-      ]
+      "fr": ["PTG — alternative au bloc fémoral avec préservation motrice", "Chirurgie du genou (arthroscopie, ligamentoplastie)", "Analgésie postopératoire genou — déambulation précoce facilitée"],
+      "en": ["TKR — motor-sparing alternative to femoral block", "Knee surgery (arthroscopy, ligament reconstruction)", "Postoperative knee analgesia — facilitates early mobilization"],
+      "pt": ["PTJ — alternativa ao femoral com preservação motora", "Cirurgia do joelho (artroscopia, ligamentoplastia)", "Analgesia pós-op joelho — mobilização precoce facilitada"]
     },
     "contraindications": {
       "fr": ["Infection au site de ponction", "Coagulopathie sévère"],
@@ -355,42 +288,136 @@
       "pt": ["Infeção no local de punção", "Coagulopatia grave"]
     },
     "technique": {
-      "fr": [
-        "Repère: artère fémorale superficielle sous le sartorius, mi-cuisse",
-        "Sonde linéaire, coupe axiale",
-        "Injection profonde au sartorius, latérale à l'artère",
-        "Volume: 15-20 mL",
-        "Avantage: préservation de la force du quadriceps vs bloc fémoral"
-      ],
-      "en": [
-        "Landmark: superficial femoral artery under sartorius, mid-thigh",
-        "Linear probe, axial view",
-        "Injection deep to sartorius, lateral to artery",
-        "Volume: 15-20 mL",
-        "Advantage: quadriceps strength preserved vs femoral block"
-      ],
-      "pt": [
-        "Referência: artéria femoral superficial sob o sartório, a meio da coxa",
-        "Sonda linear, corte axial",
-        "Injeção profunda ao sartório, lateral à artéria",
-        "Volume: 15-20 mL",
-        "Vantagem: preservação da força do quadricípite vs bloqueio femoral"
-      ]
+      "fr": ["Sonde linéaire, vue axiale face médiale de la cuisse, au tiers moyen", "Repère: artère fémorale superficielle sous le sartorius, nerf saphène latéral à l'artère", "Aiguille dans le plan, direction médio-latérale", "Injection latérale à l'artère, sous le sartorius", "Volume: 15-20 mL", "Associer IPACK block pour douleur postérieure de genou"],
+      "en": ["Linear probe, axial view on medial thigh, mid-third", "Landmark: superficial femoral artery under sartorius, saphenous nerve lateral to artery", "In-plane needle, medial-to-lateral", "Injection lateral to artery, below sartorius", "Volume: 15-20 mL", "Combine with IPACK block for posterior knee pain"],
+      "pt": ["Sonda linear, vista axial face medial da coxa, terço médio", "Referência: artéria femoral superficial sob o sartório, nervo safeno lateral à artéria", "Agulha no plano, direção médio-lateral", "Injeção lateral à artéria, sob o sartório", "Volume: 15-20 mL", "Associar bloqueio IPACK para dor posterior do joelho"]
     },
     "drugs": {
-      "fr": [
-        "Ropivacaïne 0.25-0.375% (15-20 mL)",
-        "Adjuvant: dexaméthasone 4mg périneurale (optionnel)"
-      ],
-      "en": [
-        "Ropivacaine 0.25-0.375% (15-20 mL)",
-        "Adjuvant: dexamethasone 4mg perineural (optional)"
-      ],
-      "pt": [
-        "Ropivacaína 0.25-0.375% (15-20 mL)",
-        "Adjuvante: dexametasona 4mg perineural (opcional)"
-      ]
-    }
+      "fr": ["Ropivacaïne 0.25-0.375% (15-20 mL)", "Adjuvant: dexaméthasone 4 mg périneurale (optionnel)"],
+      "en": ["Ropivacaine 0.25-0.375% (15-20 mL)", "Adjuvant: dexamethasone 4 mg perineural (optional)"],
+      "pt": ["Ropivacaína 0.25-0.375% (15-20 mL)", "Adjuvante: dexametasona 4 mg perineural (opcional)"]
+    },
+    "tags": ["regional", "lower_limb"]
+  },
+  {
+    "id": "ipack",
+    "region": "lower_limb",
+    "titles": {
+      "fr": "IPACK block (Interspace Popliteal Artery and Capsule of Knee)",
+      "en": "IPACK block (Interspace Popliteal Artery and Capsule of Knee)",
+      "pt": "IPACK block (Espaço entre Artéria Poplítea e Cápsula do Joelho)"
+    },
+    "indications": {
+      "fr": ["Complément du canal des adducteurs pour douleur postérieure de genou (PTG)", "Chirurgie du genou — couverture capsule postérieure", "Analgésie sans bloc moteur du nerf sciatique"],
+      "en": ["Complement to adductor canal for posterior knee pain (TKR)", "Knee surgery — posterior capsule coverage", "Analgesia without sciatic motor block"],
+      "pt": ["Complemento do canal adutor para dor posterior do joelho (PTJ)", "Cirurgia do joelho — cobertura da cápsula posterior", "Analgesia sem bloqueio motor do ciático"]
+    },
+    "contraindications": {
+      "fr": ["Infection au creux poplité", "Coagulopathie sévère"],
+      "en": ["Infection in popliteal fossa", "Severe coagulopathy"],
+      "pt": ["Infeção na fossa poplítea", "Coagulopatia grave"]
+    },
+    "technique": {
+      "fr": ["Patient en décubitus dorsal, genou légèrement fléchi ou en décubitus ventral", "Sonde curviligne ou linéaire, vue sagittale ou axiale en creux poplité", "Repère: artère poplitée et capsule articulaire postérieure du genou", "Aiguille dans le plan — injection dans l'espace entre artère poplitée et surface osseuse", "Cible: rameaux articulaires postérieurs (branches du tibial et du péronier commun)", "Volume: 20-30 mL", "Bloc sensitif pur — pas de faiblesse motrice"],
+      "en": ["Patient supine with knee slightly flexed or prone", "Curved or linear probe, sagittal or axial view in popliteal fossa", "Landmark: popliteal artery and posterior joint capsule of knee", "In-plane needle — injection in space between popliteal artery and bone surface", "Target: posterior articular branches (tibial and common peroneal)", "Volume: 20-30 mL", "Pure sensory block — no motor weakness"],
+      "pt": ["Doente em decúbito dorsal com joelho ligeiramente fletido ou em decúbito ventral", "Sonda curvilínea ou linear, vista sagital ou axial na fossa poplítea", "Referência: artéria poplítea e cápsula articular posterior do joelho", "Agulha no plano — injeção no espaço entre artéria poplítea e superfície óssea", "Alvo: ramos articulares posteriores (ramos do tibial e peroneal comum)", "Volume: 20-30 mL", "Bloqueio sensitivo puro — sem fraqueza motora"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.2-0.25% (20-30 mL)", "OU Bupivacaïne 0.125-0.25% (20-30 mL)"],
+      "en": ["Ropivacaine 0.2-0.25% (20-30 mL)", "OR Bupivacaine 0.125-0.25% (20-30 mL)"],
+      "pt": ["Ropivacaína 0.2-0.25% (20-30 mL)", "OU Bupivacaína 0.125-0.25% (20-30 mL)"]
+    },
+    "tags": ["regional", "lower_limb"]
+  },
+  {
+    "id": "sciatic",
+    "region": "lower_limb",
+    "titles": {
+      "fr": "Bloc sciatique (poplité)",
+      "en": "Sciatic (popliteal) block",
+      "pt": "Bloqueio ciático (poplíteo)"
+    },
+    "indications": {
+      "fr": ["Chirurgie du pied et de la cheville (seul ou combiné avec saphène/fémoral)", "Chirurgie du tendon d'Achille", "Amputation du pied", "Plaies et infections du pied"],
+      "en": ["Foot and ankle surgery (alone or combined with saphenous/femoral)", "Achilles tendon surgery", "Foot amputation", "Foot wounds and infections"],
+      "pt": ["Cirurgia do pé e tornozelo (isolado ou combinado com safeno/femoral)", "Cirurgia do tendão de Aquiles", "Amputação do pé", "Feridas e infeções do pé"]
+    },
+    "contraindications": {
+      "fr": ["Neuropathie sciatique préexistante", "Infection au site de ponction"],
+      "en": ["Pre-existing sciatic neuropathy", "Infection at puncture site"],
+      "pt": ["Neuropatia ciática pré-existente", "Infeção no local de punção"]
+    },
+    "technique": {
+      "fr": ["Abord poplité postérieur (préféré): patient en décubitus ventral ou latéral", "Sonde linéaire, vue axiale au creux poplité, 5-7 cm au-dessus de la bifurcation", "Repère: nerf sciatique hyperéchogène avant bifurcation en tibial + péronier commun", "Injection 1-3 cm au-dessus de la bifurcation pour bloquer les 2 contingents", "Volume: 20-25 mL", "Abord antérieur sous-glutéal possible — patient en décubitus dorsal"],
+      "en": ["Posterior popliteal approach (preferred): patient prone or lateral", "Linear probe, axial view in popliteal fossa, 5-7 cm above bifurcation", "Landmark: hyperechoic sciatic nerve before splitting into tibial + common peroneal", "Inject 1-3 cm above bifurcation to block both components", "Volume: 20-25 mL", "Anterior subgluteal approach possible — patient supine"],
+      "pt": ["Abordagem poplítea posterior (preferida): doente em decúbito ventral ou lateral", "Sonda linear, vista axial na fossa poplítea, 5-7 cm acima da bifurcação", "Referência: nervo ciático hiperecogénico antes da bifurcação em tibial + peroneal comum", "Injeção 1-3 cm acima da bifurcação para bloquear ambos os contingentes", "Volume: 20-25 mL", "Abordagem anterior subglútea possível — doente em decúbito dorsal"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.5% (20-25 mL) — longue durée (12-18h)", "OU Lévobupivacaïne 0.375-0.5% (20-25 mL)", "Adjuvant: dexaméthasone 4 mg périneurale (↑ durée)"],
+      "en": ["Ropivacaine 0.5% (20-25 mL) — long duration (12-18h)", "OR Levobupivacaine 0.375-0.5% (20-25 mL)", "Adjuvant: dexamethasone 4 mg perineural (↑ duration)"],
+      "pt": ["Ropivacaína 0.5% (20-25 mL) — longa duração (12-18h)", "OU Levobupivacaína 0.375-0.5% (20-25 mL)", "Adjuvante: dexametasona 4 mg perineural (↑ duração)"]
+    },
+    "tags": ["regional", "lower_limb"]
+  },
+  {
+    "id": "ankle-block",
+    "region": "lower_limb",
+    "titles": {
+      "fr": "Bloc de la cheville (5 nerfs)",
+      "en": "Ankle block (5 nerves)",
+      "pt": "Bloqueio do tornozelo (5 nervos)"
+    },
+    "indications": {
+      "fr": ["Chirurgie du pied (avant-pied, métatarses, orteils)", "Hallux valgus, fusion d'orteils", "Alternative au bloc sciatique pour chirurgie distale", "Patient anticoagulé (technique superficielle — risque faible)"],
+      "en": ["Foot surgery (forefoot, metatarsals, toes)", "Hallux valgus, toe fusion", "Alternative to sciatic block for distal surgery", "Anticoagulated patient (superficial technique — low risk)"],
+      "pt": ["Cirurgia do pé (ante-pé, metatarsos, dedos)", "Hallux valgus, fusão dos dedos", "Alternativa ao bloqueio ciático para cirurgia distal", "Doente anticoagulado (técnica superficial — baixo risco)"]
+    },
+    "contraindications": {
+      "fr": ["Infection locale", "Ischémie du pied (relative — éviter vasoconstricteurs)"],
+      "en": ["Local infection", "Foot ischemia (relative — avoid vasoconstrictors)"],
+      "pt": ["Infeção local", "Isquémia do pé (relativa — evitar vasoconstritores)"]
+    },
+    "technique": {
+      "fr": ["5 nerfs à bloquer: tibial postérieur (médial à l'artère tibiale postérieure), péronier superficiel + sural (injection sous-cutanée en éventail), péronier profond (entre tendons extenseurs), saphène (face médiale)", "Volume: 3-5 mL par nerf", "Sonde linéaire haute fréquence ou technique de repère anatomique", "Pas d'adrénaline (risque ischémique)", "Attention: patient doit garder son pied immobile — installation confortable essentielle"],
+      "en": ["5 nerves to block: posterior tibial (medial to posterior tibial artery), superficial peroneal + sural (fan subcutaneous), deep peroneal (between extensor tendons), saphenous (medial aspect)", "Volume: 3-5 mL per nerve", "High-frequency linear probe or anatomical landmark technique", "No epinephrine (ischemic risk)", "Patient must keep foot still — comfortable positioning essential"],
+      "pt": ["5 nervos a bloquear: tibial posterior (medial à artéria tibial posterior), peroneal superficial + sural (injeção subcutânea em leque), peroneal profundo (entre tendões extensores), safeno (face medial)", "Volume: 3-5 mL por nervo", "Sonda linear de alta frequência ou técnica de referência anatómica", "Sem adrenalina (risco isquémico)", "Doente deve manter o pé imóvel — posicionamento confortável essencial"]
+    },
+    "drugs": {
+      "fr": ["Lidocaïne 1-2% (chirurgie courte, installation rapide)", "OU Ropivacaïne 0.5% (analgésie postopératoire prolongée)", "Sans adrénaline — risque de vasospasme aux extrémités"],
+      "en": ["Lidocaine 1-2% (short surgery, rapid onset)", "OR Ropivacaine 0.5% (prolonged postoperative analgesia)", "Without epinephrine — vasospasm risk at extremities"],
+      "pt": ["Lidocaína 1-2% (cirurgia curta, instalação rápida)", "OU Ropivacaína 0.5% (analgesia pós-op prolongada)", "Sem adrenalina — risco de vasoespasmo nas extremidades"]
+    },
+    "tags": ["regional", "lower_limb"]
+  },
+  {
+    "id": "obturator",
+    "region": "lower_limb",
+    "titles": {
+      "fr": "Bloc obturateur",
+      "en": "Obturator nerve block",
+      "pt": "Bloqueio do nervo obturador"
+    },
+    "indications": {
+      "fr": ["Complément du bloc fémoral pour PTG (face médiale du genou)", "Chirurgie de la face médiale de la cuisse", "Prévention du réflexe obturateur en RTVU (résection transurétrale)"],
+      "en": ["Complement to femoral block for TKR (medial knee)", "Medial thigh surgery", "Prevention of obturator reflex during TURB (transurethral resection)"],
+      "pt": ["Complemento ao bloqueio femoral para PTJ (face medial do joelho)", "Cirurgia da face medial da coxa", "Prevenção do reflexo obturador em RTU-B (ressecção transuretral)"]
+    },
+    "contraindications": {
+      "fr": ["Infection inguinale ou médiale de cuisse", "Coagulopathie sévère"],
+      "en": ["Inguinal or medial thigh infection", "Severe coagulopathy"],
+      "pt": ["Infeção inguinal ou face medial da coxa", "Coagulopatia grave"]
+    },
+    "technique": {
+      "fr": ["Sonde linéaire, vue axiale face médiale de cuisse (sous le pli inguinal)", "Repère: muscle pectiné, court adducteur, entre les branches antérieure et postérieure du nerf obturateur", "Aiguille dans le plan, injection entre pectiné et court adducteur (branche antérieure) et entre court et grand adducteur (branche postérieure)", "Volume: 5-7 mL par branche (total 10-15 mL)", "Alternative: injection intra-foraminale (plus difficile, plus complète)"],
+      "en": ["Linear probe, axial view on medial thigh (below inguinal crease)", "Landmark: pectineus muscle, short adductor, between anterior and posterior branches of obturator nerve", "In-plane needle, injection between pectineus and short adductor (anterior branch) and between short and long adductor (posterior branch)", "Volume: 5-7 mL per branch (total 10-15 mL)", "Alternative: intraforaminal injection (more difficult, more complete)"],
+      "pt": ["Sonda linear, vista axial na face medial da coxa (abaixo da prega inguinal)", "Referência: músculo pectíneo, adutor curto, entre ramos anterior e posterior do nervo obturador", "Agulha no plano, injeção entre pectíneo e adutor curto (ramo anterior) e entre adutor curto e longo (ramo posterior)", "Volume: 5-7 mL por ramo (total 10-15 mL)", "Alternativa: injeção intraforaminal (mais difícil, mais completa)"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.375-0.5% (10-15 mL total)", "OU Lévobupivacaïne 0.25% (10-15 mL)"],
+      "en": ["Ropivacaine 0.375-0.5% (10-15 mL total)", "OR Levobupivacaine 0.25% (10-15 mL)"],
+      "pt": ["Ropivacaína 0.375-0.5% (10-15 mL total)", "OU Levobupivacaína 0.25% (10-15 mL)"]
+    },
+    "tags": ["regional", "lower_limb"]
   },
   {
     "id": "tap-block",
@@ -401,67 +428,176 @@
       "pt": "TAP block (Plano do Transverso Abdominal)"
     },
     "indications": {
-      "fr": [
-        "Chirurgie abdominale (appendicectomie, cholécystectomie, césarienne)",
-        "Hernie inguinale",
-        "Analgésie pariétale abdominale"
-      ],
-      "en": [
-        "Abdominal surgery (appendectomy, cholecystectomy, cesarean)",
-        "Inguinal hernia",
-        "Abdominal wall analgesia"
-      ],
-      "pt": [
-        "Cirurgia abdominal (apendicectomia, colecistectomia, cesariana)",
-        "Hérnia inguinal",
-        "Analgesia parietal abdominal"
-      ]
+      "fr": ["Chirurgie abdominale infra-ombilicale (appendicectomie, cholécystectomie, colostomie)", "Césarienne (complément au bloc sous-arachnoïdien)", "Hernie inguinale", "Analgésie pariétale en ambulatoire"],
+      "en": ["Infraumbilical abdominal surgery (appendectomy, cholecystectomy, colostomy)", "Cesarean section (complement to spinal block)", "Inguinal hernia", "Ambulatory parietal analgesia"],
+      "pt": ["Cirurgia abdominal infra-umbilical (apendicectomia, colecistectomia, colostomia)", "Cesariana (complemento ao bloqueio subaracnoideu)", "Hérnia inguinal", "Analgesia parietal em ambulatório"]
     },
     "contraindications": {
-      "fr": ["Infection au site de ponction", "Allergie aux anesthésiques locaux"],
-      "en": ["Infection at puncture site", "Local anesthetic allergy"],
-      "pt": ["Infeção no local de punção", "Alergia a anestésicos locais"]
+      "fr": ["Infection au site de ponction", "Allergie aux anesthésiques locaux", "Coagulopathie sévère"],
+      "en": ["Infection at puncture site", "Local anesthetic allergy", "Severe coagulopathy"],
+      "pt": ["Infeção no local de punção", "Alergia a anestésicos locais", "Coagulopatia grave"]
     },
     "technique": {
-      "fr": [
-        "Repère: triangle de Petit ou approche sous-costale",
-        "Sonde linéaire, entre crête iliaque et rebord costal",
-        "Injection entre oblique interne et transverse de l'abdomen",
-        "Volume: 20 mL par côté (bilatéral = 40 mL total)",
-        "Attention aux doses maximales d'AL en bilatéral"
-      ],
-      "en": [
-        "Landmark: Petit triangle or subcostal approach",
-        "Linear probe, between iliac crest and costal margin",
-        "Injection between internal oblique and transversus abdominis",
-        "Volume: 20 mL per side (bilateral = 40 mL total)",
-        "Mind maximum LA doses in bilateral blocks"
-      ],
-      "pt": [
-        "Referência: triângulo de Petit ou abordagem subcostal",
-        "Sonda linear, entre crista ilíaca e rebordo costal",
-        "Injeção entre oblíquo interno e transverso do abdómen",
-        "Volume: 20 mL por lado (bilateral = 40 mL total)",
-        "Atenção às doses máximas de AL em bilateral"
-      ]
+      "fr": ["Approche latérale: sonde linéaire entre crête iliaque et rebord costal, ligne axillaire moyenne", "Repère: plan fascial entre oblique interne et transverse de l'abdomen", "Aiguille dans le plan, injection avec visualisation de la diffusion dans le plan fascial", "Volume: 20 mL par côté (bilatéral = 40 mL total)", "Approche sous-costale (Hebbard): pour couverture sus-ombilicale", "Attention aux doses maximales d'AL en bilatéral"],
+      "en": ["Lateral approach: linear probe between iliac crest and costal margin, mid-axillary line", "Landmark: fascial plane between internal oblique and transversus abdominis", "In-plane needle, injection with visualization of fascial plane spread", "Volume: 20 mL per side (bilateral = 40 mL total)", "Subcostal approach (Hebbard): for supraumbilical coverage", "Watch maximum LA doses in bilateral blocks"],
+      "pt": ["Abordagem lateral: sonda linear entre crista ilíaca e rebordo costal, linha axilar média", "Referência: plano fascial entre oblíquo interno e transverso do abdómen", "Agulha no plano, injeção com visualização da difusão no plano fascial", "Volume: 20 mL por lado (bilateral = 40 mL total)", "Abordagem subcostal (Hebbard): para cobertura supra-umbilical", "Atenção às doses máximas de AL em bilateral"]
     },
     "drugs": {
-      "fr": [
-        "Ropivacaïne 0.25-0.375% (20 mL/côté)",
-        "OU Bupivacaïne 0.25% (20 mL/côté)",
-        "Dose max ropivacaïne: 3 mg/kg"
-      ],
-      "en": [
-        "Ropivacaine 0.25-0.375% (20 mL/side)",
-        "OR Bupivacaine 0.25% (20 mL/side)",
-        "Max dose ropivacaine: 3 mg/kg"
-      ],
-      "pt": [
-        "Ropivacaína 0.25-0.375% (20 mL/lado)",
-        "OU Bupivacaína 0.25% (20 mL/lado)",
-        "Dose máx ropivacaína: 3 mg/kg"
-      ]
-    }
+      "fr": ["Ropivacaïne 0.25-0.375% (20 mL/côté) — dose max 3 mg/kg", "OU Bupivacaïne 0.25% (20 mL/côté) — dose max 2 mg/kg", "Adjuvant: dexaméthasone 4 mg dans le mélange (allongement de durée)"],
+      "en": ["Ropivacaine 0.25-0.375% (20 mL/side) — max dose 3 mg/kg", "OR Bupivacaine 0.25% (20 mL/side) — max dose 2 mg/kg", "Adjuvant: dexamethasone 4 mg in mixture (duration extension)"],
+      "pt": ["Ropivacaína 0.25-0.375% (20 mL/lado) — dose máx 3 mg/kg", "OU Bupivacaína 0.25% (20 mL/lado) — dose máx 2 mg/kg", "Adjuvante: dexametasona 4 mg na mistura (prolongamento de duração)"]
+    },
+    "tags": ["regional", "trunk"]
+  },
+  {
+    "id": "rectus-sheath",
+    "region": "trunk",
+    "titles": {
+      "fr": "Bloc des gaines des droits (Rectus Sheath Block)",
+      "en": "Rectus Sheath Block",
+      "pt": "Bloqueio das bainhas dos retos"
+    },
+    "indications": {
+      "fr": ["Chirurgie sur la ligne médiane (laparotomie, laparoscopie)", "Hernies ombilicales et épigastriques", "Chirurgie gynécologique médiane", "Complément du TAP block pour incision médiane"],
+      "en": ["Midline surgery (laparotomy, laparoscopy)", "Umbilical and epigastric hernias", "Midline gynecological surgery", "Complement to TAP block for midline incision"],
+      "pt": ["Cirurgia sobre a linha média (laparotomia, laparoscopia)", "Hérnias umbilicais e epigástricas", "Cirurgia ginecológica mediana", "Complemento ao TAP block para incisão mediana"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Distorsion anatomique majeure (cicatrice, hernie complexe)"],
+      "en": ["Infection at puncture site", "Major anatomical distortion (scar, complex hernia)"],
+      "pt": ["Infeção no local de ponção", "Distorção anatómica major (cicatriz, hérnia complexa)"]
+    },
+    "technique": {
+      "fr": ["Sonde linéaire, vue axiale sur le muscle grand droit de l'abdomen", "Repère: gaine postérieure du grand droit (en dessous du muscle)", "Aiguille dans le plan, direction latéro-médiale", "Injection dans l'espace entre le muscle et la gaine postérieure", "Volume: 10-15 mL par côté (bilatéral pour ligne médiane)", "Effectuer 1-2 niveaux selon l'étendue de l'incision (T8-T12)"],
+      "en": ["Linear probe, axial view on rectus abdominis muscle", "Landmark: posterior rectus sheath (below the muscle)", "In-plane needle, lateral-to-medial direction", "Injection in space between muscle and posterior sheath", "Volume: 10-15 mL per side (bilateral for midline)", "Perform 1-2 levels according to incision extent (T8-T12)"],
+      "pt": ["Sonda linear, vista axial sobre o músculo reto abdominal", "Referência: bainha posterior do reto abdominal (abaixo do músculo)", "Agulha no plano, direção latero-medial", "Injeção no espaço entre o músculo e a bainha posterior", "Volume: 10-15 mL por lado (bilateral para linha média)", "Realizar 1-2 níveis conforme extensão da incisão (T8-T12)"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.25-0.375% (10-15 mL/côté)", "OU Bupivacaïne 0.25% (10-15 mL/côté)"],
+      "en": ["Ropivacaine 0.25-0.375% (10-15 mL/side)", "OR Bupivacaine 0.25% (10-15 mL/side)"],
+      "pt": ["Ropivacaína 0.25-0.375% (10-15 mL/lado)", "OU Bupivacaína 0.25% (10-15 mL/lado)"]
+    },
+    "tags": ["regional", "trunk"]
+  },
+  {
+    "id": "pecs-block",
+    "region": "trunk",
+    "titles": {
+      "fr": "PECS I & II (Pectoral Nerve Blocks)",
+      "en": "PECS I & II (Pectoral Nerve Blocks)",
+      "pt": "PECS I & II (Bloqueios dos Nervos Peitorais)"
+    },
+    "indications": {
+      "fr": ["Chirurgie du sein (mastectomie, tumorectomie, reconstruction)", "Pose de port-a-cath", "Analgésie multimodale sein — alternative au paravertébral (ESRA recommande)"],
+      "en": ["Breast surgery (mastectomy, lumpectomy, reconstruction)", "Port-a-cath placement", "Multimodal breast analgesia — alternative to paravertebral (ESRA recommends)"],
+      "pt": ["Cirurgia da mama (mastectomia, tumorectomia, reconstrução)", "Colocação de port-a-cath", "Analgesia multimodal mama — alternativa ao paravertebral (ESRA recomenda)"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Coagulopathie sévère", "Allergie aux anesthésiques locaux"],
+      "en": ["Infection at puncture site", "Severe coagulopathy", "Local anesthetic allergy"],
+      "pt": ["Infeção no local de punção", "Coagulopatia grave", "Alergia a anestésicos locais"]
+    },
+    "technique": {
+      "fr": ["PECS I: plan entre grand et petit pectoral, niveau 3ème côte — bloque nerfs pectoraux médial et latéral (implant, prothèse)", "PECS II: plan entre petit pectoral et serratus, niveau 2ème–3ème côte — bloque nerfs intercostaux latéraux T2-T6", "Sonde linéaire, vue axiale parasternale ou sub-claviculaire", "Volume PECS I: 10 mL; PECS II: 20 mL (souvent combinés = 30 mL total)", "Associer bloc du serratus pour couverture axillaire complète"],
+      "en": ["PECS I: plane between pectoralis major and minor, 3rd rib level — blocks medial and lateral pectoral nerves (implant, prosthesis)", "PECS II: plane between pectoralis minor and serratus, 2nd–3rd rib level — blocks lateral intercostal nerves T2-T6", "Linear probe, axial view parasternal or subclavicular", "Volume PECS I: 10 mL; PECS II: 20 mL (often combined = 30 mL total)", "Add serratus plane block for complete axillary coverage"],
+      "pt": ["PECS I: plano entre grande e pequeno peitoral, nível 3ª costela — bloqueia nervos peitorais medial e lateral (implante, prótese)", "PECS II: plano entre pequeno peitoral e serrátil, nível 2ª–3ª costela — bloqueia nervos intercostais laterais T2-T6", "Sonda linear, vista axial paraesternal ou subclavicular", "Volume PECS I: 10 mL; PECS II: 20 mL (frequentemente combinados = 30 mL total)", "Associar bloqueio do serrátil para cobertura axilar completa"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.25-0.375% (10-20 mL selon niveau)", "OU Bupivacaïne 0.25% (10-20 mL selon niveau)", "Dose totale combinée: ne pas dépasser 3 mg/kg ropivacaïne"],
+      "en": ["Ropivacaine 0.25-0.375% (10-20 mL per level)", "OR Bupivacaine 0.25% (10-20 mL per level)", "Combined total dose: do not exceed 3 mg/kg ropivacaine"],
+      "pt": ["Ropivacaína 0.25-0.375% (10-20 mL por nível)", "OU Bupivacaína 0.25% (10-20 mL por nível)", "Dose total combinada: não exceder 3 mg/kg ropivacaína"]
+    },
+    "tags": ["regional", "trunk"]
+  },
+  {
+    "id": "serratus-plane",
+    "region": "trunk",
+    "titles": {
+      "fr": "Bloc du plan du serratus (Serratus Anterior Plane)",
+      "en": "Serratus Anterior Plane Block",
+      "pt": "Bloqueio do Plano do Serrátil Anterior"
+    },
+    "indications": {
+      "fr": ["Fractures de côtes (analgésie — efficacité démontrée ESRA 2023)", "Chirurgie du sein avec curage axillaire", "Thoracotomie et VATS (complément)", "Zona thoracique douloureux"],
+      "en": ["Rib fractures (analgesia — efficacy demonstrated ESRA 2023)", "Breast surgery with axillary dissection", "Thoracotomy and VATS (complement)", "Thoracic herpes zoster pain"],
+      "pt": ["Fraturas de costelas (analgesia — eficácia demonstrada ESRA 2023)", "Cirurgia da mama com esvaziamento axilar", "Toracotomia e VATS (complemento)", "Zona torácico doloroso"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Coagulopathie sévère"],
+      "en": ["Infection at puncture site", "Severe coagulopathy"],
+      "pt": ["Infeção no local de ponção", "Coagulopatia grave"]
+    },
+    "technique": {
+      "fr": ["Patient en décubitus latéral ou dorsal (bras levé)", "Sonde linéaire, vue sagittale ou axiale sur la ligne axillaire, niveau 4ème–5ème côte", "Repère: muscle serratus antérieur sur les côtes", "Plan superficiel (entre grand dorsal et serratus) ou profond (entre serratus et côtes)", "Plan profond: couverture plus complète T2-T9", "Volume: 20-30 mL", "Cathéter possible pour fractures de côtes multiples"],
+      "en": ["Patient lateral or supine (arm raised)", "Linear probe, sagittal or axial view on axillary line, 4th–5th rib level", "Landmark: serratus anterior muscle on ribs", "Superficial plane (between latissimus dorsi and serratus) or deep (between serratus and ribs)", "Deep plane: more complete T2-T9 coverage", "Volume: 20-30 mL", "Catheter possible for multiple rib fractures"],
+      "pt": ["Doente em decúbito lateral ou dorsal (braço levantado)", "Sonda linear, vista sagital ou axial na linha axilar, nível 4ª–5ª costela", "Referência: músculo serrátil anterior sobre as costelas", "Plano superficial (entre grande dorsal e serrátil) ou profundo (entre serrátil e costelas)", "Plano profundo: cobertura mais completa T2-T9", "Volume: 20-30 mL", "Cateter possível para fraturas costais múltiplas"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.375% (20-30 mL)", "OU Bupivacaïne 0.25% (20-30 mL)", "Perfusion cathéter: ropivacaïne 0.2% 6-10 mL/h (fractures côtes)"],
+      "en": ["Ropivacaine 0.375% (20-30 mL)", "OR Bupivacaine 0.25% (20-30 mL)", "Catheter infusion: ropivacaine 0.2% 6-10 mL/h (rib fractures)"],
+      "pt": ["Ropivacaína 0.375% (20-30 mL)", "OU Bupivacaína 0.25% (20-30 mL)", "Perfusão cateter: ropivacaína 0.2% 6-10 mL/h (fraturas costais)"]
+    },
+    "tags": ["regional", "trunk"]
+  },
+  {
+    "id": "ql-block",
+    "region": "trunk",
+    "titles": {
+      "fr": "Bloc du carré des lombes (Quadratus Lumborum — QL block)",
+      "en": "Quadratus Lumborum block (QL block)",
+      "pt": "Bloqueio do Quadrado Lombar (QL block)"
+    },
+    "indications": {
+      "fr": ["Chirurgie abdominale basse et pelvienne (colectomie, hystérectomie)", "Chirurgie de la hanche et du fémur proximal", "Alternative ou complément au TAP block — diffusion intrathécale vers paravertébral", "Césarienne (analgésie postopératoire)"],
+      "en": ["Lower abdominal and pelvic surgery (colectomy, hysterectomy)", "Hip and proximal femur surgery", "Alternative or complement to TAP block — spread towards paravertebral space", "Cesarean section (postoperative analgesia)"],
+      "pt": ["Cirurgia abdominal baixa e pélvica (colectomia, histerectomia)", "Cirurgia da anca e fémur proximal", "Alternativa ou complemento ao TAP block — difusão para o espaço paravertebral", "Cesariana (analgesia pós-operatória)"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Coagulopathie sévère (bloc profond)"],
+      "en": ["Infection at puncture site", "Severe coagulopathy (deep block)"],
+      "pt": ["Infeção no local de punção", "Coagulopatia grave (bloqueio profundo)"]
+    },
+    "technique": {
+      "fr": ["Patient en décubitus latéral, sonde convexe basse fréquence", "Repère: carré des lombes, psoas, transverse, aponévrose thoraco-lombaire", "3 approches: latérale (QL1, entre oblique externe et carré), postérieure (QL2, entre carré et son aponévrose postérieure), antérieure/transmuscular (QL3, entre psoas et carré)", "QL3 (antérieur) = meilleure diffusion vers paravertébral", "Volume: 20-30 mL par côté", "Bloc profond — prudence coagulation (espace rétropéritonéal)"],
+      "en": ["Patient lateral, low-frequency curved probe", "Landmark: quadratus lumborum, psoas, transversus, thoracolumbar fascia", "3 approaches: lateral (QL1, between external oblique and QL), posterior (QL2, between QL and its posterior aponeurosis), anterior/transmuscular (QL3, between psoas and QL)", "QL3 (anterior) = best paravertebral spread", "Volume: 20-30 mL per side", "Deep block — coagulation caution (retroperitoneal space)"],
+      "pt": ["Doente em decúbito lateral, sonda convexa de baixa frequência", "Referência: quadrado lombar, psoas, transverso, aponeurose toracolombar", "3 abordagens: lateral (QL1, entre oblíquo externo e QL), posterior (QL2, entre QL e sua aponeurose posterior), anterior/transmuscular (QL3, entre psoas e QL)", "QL3 (anterior) = melhor difusão para paravertebral", "Volume: 20-30 mL por lado", "Bloqueio profundo — cuidado com coagulação (espaço retroperitoneal)"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.2-0.375% (20-30 mL/côté)", "OU Bupivacaïne 0.25% (20-30 mL/côté)", "Dose totale max en bilatéral: 3 mg/kg ropivacaïne"],
+      "en": ["Ropivacaine 0.2-0.375% (20-30 mL/side)", "OR Bupivacaine 0.25% (20-30 mL/side)", "Max total dose bilateral: 3 mg/kg ropivacaine"],
+      "pt": ["Ropivacaína 0.2-0.375% (20-30 mL/lado)", "OU Bupivacaína 0.25% (20-30 mL/lado)", "Dose total máx em bilateral: 3 mg/kg ropivacaína"]
+    },
+    "tags": ["regional", "trunk"]
+  },
+  {
+    "id": "ilioinguinal",
+    "region": "trunk",
+    "titles": {
+      "fr": "Bloc ilio-inguinal / ilio-hypogastrique",
+      "en": "Ilioinguinal / iliohypogastric block",
+      "pt": "Bloqueio ilio-inguinal / ilio-hipogástrico"
+    },
+    "indications": {
+      "fr": ["Hernie inguinale (adulte et enfant)", "Orchidopexie", "Chirurgie de la région inguinale et du scrotum", "Analgésie après chirurgie gynécologique (pfannenstiel)"],
+      "en": ["Inguinal hernia (adult and child)", "Orchidopexy", "Inguinal region and scrotal surgery", "Analgesia after gynecological surgery (Pfannenstiel)"],
+      "pt": ["Hérnia inguinal (adulto e criança)", "Orquidopexia", "Cirurgia da região inguinal e escroto", "Analgesia após cirurgia ginecológica (Pfannenstiel)"]
+    },
+    "contraindications": {
+      "fr": ["Infection au site de ponction", "Distorsion anatomique (cicatrices, hernies complexes)"],
+      "en": ["Infection at puncture site", "Anatomical distortion (scars, complex hernias)"],
+      "pt": ["Infeção no local de punção", "Distorção anatómica (cicatrizes, hérnias complexas)"]
+    },
+    "technique": {
+      "fr": ["Sonde linéaire haute fréquence, vue axiale médiale à l'épine iliaque antéro-supérieure (EIAS)", "Repère: les deux nerfs entre oblique interne et transverse (aspect hyperéchogène oval)", "Aiguille dans le plan, injection périneurale de chaque nerf", "Volume: 5-10 mL par nerf (total 10-20 mL)", "Technique repère anatomique: injection 2 cm en dedans et 2 cm en dessous de l'EIAS (moins précis)"],
+      "en": ["High-frequency linear probe, axial view medial to anterior superior iliac spine (ASIS)", "Landmark: both nerves between internal oblique and transversus (oval hyperechoic appearance)", "In-plane needle, perineural injection of each nerve", "Volume: 5-10 mL per nerve (total 10-20 mL)", "Anatomical landmark technique: injection 2 cm medial and 2 cm below ASIS (less precise)"],
+      "pt": ["Sonda linear de alta frequência, vista axial medial à espinha ilíaca ântero-superior (EIAS)", "Referência: ambos os nervos entre oblíquo interno e transverso (aspeto hiperecogénico oval)", "Agulha no plano, injeção perineural de cada nervo", "Volume: 5-10 mL por nervo (total 10-20 mL)", "Técnica de referência anatómica: injeção 2 cm medial e 2 cm abaixo da EIAS (menos precisa)"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.375-0.5% (5-10 mL/nerf)", "OU Bupivacaïne 0.25% (5-10 mL/nerf)", "Lidocaïne 1% + adrénaline en ambulatoire courte durée"],
+      "en": ["Ropivacaine 0.375-0.5% (5-10 mL/nerve)", "OR Bupivacaine 0.25% (5-10 mL/nerve)", "Lidocaine 1% + epinephrine for short outpatient procedures"],
+      "pt": ["Ropivacaína 0.375-0.5% (5-10 mL/nervo)", "OU Bupivacaína 0.25% (5-10 mL/nervo)", "Lidocaína 1% + adrenalina em procedimentos ambulatórios curtos"]
+    },
+    "tags": ["regional", "trunk"]
   },
   {
     "id": "paravertebral",
@@ -472,75 +608,26 @@
       "pt": "Bloqueio paravertebral"
     },
     "indications": {
-      "fr": [
-        "Chirurgie thoracique (thoracotomie, VATS)",
-        "Chirurgie du sein",
-        "Fractures de côtes (analgésie)",
-        "Alternative à la péridurale thoracique"
-      ],
-      "en": [
-        "Thoracic surgery (thoracotomy, VATS)",
-        "Breast surgery",
-        "Rib fractures (analgesia)",
-        "Alternative to thoracic epidural"
-      ],
-      "pt": [
-        "Cirurgia torácica (toracotomia, VATS)",
-        "Cirurgia da mama",
-        "Fraturas de costelas (analgesia)",
-        "Alternativa à peridural torácica"
-      ]
+      "fr": ["Chirurgie thoracique (thoracotomie, VATS)", "Chirurgie du sein (alternative PECS si cathéter souhaité)", "Fractures de côtes multiples", "Alternative à la péridurale thoracique (profil bénéfice/risque favorable)"],
+      "en": ["Thoracic surgery (thoracotomy, VATS)", "Breast surgery (alternative to PECS if catheter desired)", "Multiple rib fractures", "Alternative to thoracic epidural (favorable benefit/risk profile)"],
+      "pt": ["Cirurgia torácica (toracotomia, VATS)", "Cirurgia da mama (alternativa ao PECS se cateter desejado)", "Fraturas costais múltiplas", "Alternativa à peridural torácica (perfil benefício/risco favorável)"]
     },
     "contraindications": {
-      "fr": [
-        "Infection au site de ponction",
-        "Tumeur paravertébrale",
-        "Coagulopathie sévère",
-        "Empyème"
-      ],
-      "en": ["Infection at puncture site", "Paravertebral tumor", "Severe coagulopathy", "Empyema"],
-      "pt": ["Infeção no local de punção", "Tumor paravertebral", "Coagulopatia grave", "Empiema"]
+      "fr": ["Infection au site de ponction", "Tumeur paravertébrale ou empyème", "Coagulopathie sévère", "Anomalie vertébrale majeure"],
+      "en": ["Infection at puncture site", "Paravertebral tumor or empyema", "Severe coagulopathy", "Major vertebral abnormality"],
+      "pt": ["Infeção no local de punção", "Tumor paravertebral ou empiema", "Coagulopatia grave", "Anomalia vertebral major"]
     },
     "technique": {
-      "fr": [
-        "Repère: apophyse transverse, espace paravertébral",
-        "Échoguidage ou repères anatomiques",
-        "Aiguille perpendiculaire, contact transverse puis avance de 1-1.5 cm",
-        "Volume: 3-5 mL par niveau (multi-niveaux) ou 15-20 mL (injection unique)",
-        "Cathéter possible pour analgésie prolongée"
-      ],
-      "en": [
-        "Landmark: transverse process, paravertebral space",
-        "Ultrasound-guided or anatomical landmarks",
-        "Perpendicular needle, contact transverse process then advance 1-1.5 cm",
-        "Volume: 3-5 mL per level (multi-level) or 15-20 mL (single injection)",
-        "Catheter possible for prolonged analgesia"
-      ],
-      "pt": [
-        "Referência: apófise transversa, espaço paravertebral",
-        "Ecoguidado ou referências anatómicas",
-        "Agulha perpendicular, contacto com transversa e avançar 1-1.5 cm",
-        "Volume: 3-5 mL por nível (multi-nível) ou 15-20 mL (injeção única)",
-        "Cateter possível para analgesia prolongada"
-      ]
+      "fr": ["Sonde linéaire, vue sagittale paralatérale (2-3 cm de la ligne médiane)", "Repère: apophyse transverse, plèvre, espace paravertébral (hyperéchogène)", "Aiguille dans le plan, direction crânio-caudale, contact apophyse transverse puis avance 1-1.5 cm", "Visualiser dépression de la plèvre à l'injection (confirmation de la position)", "Volume: 3-5 mL/niveau (multi-niveaux) ou 15-20 mL (unique — diffusion 3-5 niveaux)", "Cathéter: avantage pour analgésie postopératoire prolongée"],
+      "en": ["Linear probe, paralateral sagittal view (2-3 cm from midline)", "Landmark: transverse process, pleura, paravertebral space (hyperechoic)", "In-plane needle, craniocaudal direction, contact transverse process then advance 1-1.5 cm", "Visualize pleural depression on injection (position confirmation)", "Volume: 3-5 mL/level (multi-level) or 15-20 mL (single — spreads 3-5 levels)", "Catheter: advantage for prolonged postoperative analgesia"],
+      "pt": ["Sonda linear, vista sagital paralateral (2-3 cm da linha média)", "Referência: apófise transversa, pleura, espaço paravertebral (hiperecogénico)", "Agulha no plano, direção crânio-caudal, contacto apófise transversa e avançar 1-1.5 cm", "Visualizar depressão pleural na injeção (confirmação de posição)", "Volume: 3-5 mL/nível (multi-nível) ou 15-20 mL (único — difusão 3-5 níveis)", "Cateter: vantagem para analgesia pós-op prolongada"]
     },
     "drugs": {
-      "fr": [
-        "Ropivacaïne 0.5% (3-5 mL/niveau)",
-        "OU Bupivacaïne 0.25-0.5%",
-        "Perfusion continue: ropivacaïne 0.2% 5-10 mL/h"
-      ],
-      "en": [
-        "Ropivacaine 0.5% (3-5 mL/level)",
-        "OR Bupivacaine 0.25-0.5%",
-        "Continuous infusion: ropivacaine 0.2% 5-10 mL/h"
-      ],
-      "pt": [
-        "Ropivacaína 0.5% (3-5 mL/nível)",
-        "OU Bupivacaína 0.25-0.5%",
-        "Perfusão contínua: ropivacaína 0.2% 5-10 mL/h"
-      ]
-    }
+      "fr": ["Ropivacaïne 0.5% (3-5 mL/niveau ou 15-20 mL en dose unique)", "OU Bupivacaïne 0.25-0.5%", "Perfusion continue cathéter: ropivacaïne 0.2% 5-10 mL/h"],
+      "en": ["Ropivacaine 0.5% (3-5 mL/level or 15-20 mL single dose)", "OR Bupivacaine 0.25-0.5%", "Continuous catheter infusion: ropivacaine 0.2% 5-10 mL/h"],
+      "pt": ["Ropivacaína 0.5% (3-5 mL/nível ou 15-20 mL dose única)", "OU Bupivacaína 0.25-0.5%", "Perfusão contínua cateter: ropivacaína 0.2% 5-10 mL/h"]
+    },
+    "tags": ["regional", "trunk"]
   },
   {
     "id": "erector-spinae",
@@ -548,76 +635,119 @@
     "titles": {
       "fr": "Bloc de l'érecteur du rachis (ESP block)",
       "en": "Erector Spinae Plane (ESP) block",
-      "pt": "Bloqueio do eretor da espinha (ESP block)"
+      "pt": "Bloqueio do Eretor da Espinha (ESP block)"
     },
     "indications": {
-      "fr": [
-        "Chirurgie thoracique et abdominale",
-        "Fractures de côtes",
-        "Chirurgie du sein",
-        "Analgésie postopératoire multimodale",
-        "Alternative au paravertébral (plus sûr)"
-      ],
-      "en": [
-        "Thoracic and abdominal surgery",
-        "Rib fractures",
-        "Breast surgery",
-        "Multimodal postoperative analgesia",
-        "Alternative to paravertebral (safer)"
-      ],
-      "pt": [
-        "Cirurgia torácica e abdominal",
-        "Fraturas de costelas",
-        "Cirurgia da mama",
-        "Analgesia pós-operatória multimodal",
-        "Alternativa ao paravertebral (mais seguro)"
-      ]
+      "fr": ["Chirurgie thoracique et abdominale (alternative au paravertébral — plus sûr)", "Fractures de côtes", "Chirurgie du sein", "Douleur chronique thoracique et lombaire", "Chirurgie rachidienne (laminectomie, arthrodèse)"],
+      "en": ["Thoracic and abdominal surgery (paravertebral alternative — safer)", "Rib fractures", "Breast surgery", "Chronic thoracic and lumbar pain", "Spinal surgery (laminectomy, fusion)"],
+      "pt": ["Cirurgia torácica e abdominal (alternativa ao paravertebral — mais seguro)", "Fraturas de costelas", "Cirurgia da mama", "Dor crónica torácica e lombar", "Cirurgia raquidiana (laminectomia, artrodese)"]
     },
     "contraindications": {
       "fr": ["Infection au site de ponction", "Allergie aux anesthésiques locaux"],
       "en": ["Infection at puncture site", "Local anesthetic allergy"],
-      "pt": ["Infeção no local de punção", "Alergia a anestésicos locais"]
+      "pt": ["Infeção no local de ponção", "Alergia a anestésicos locais"]
     },
     "technique": {
-      "fr": [
-        "Repère: apophyse transverse du niveau cible",
-        "Sonde linéaire, vue sagittale paravertébrale",
-        "Injection dans le plan fascial profond au muscle érecteur du rachis",
-        "Volume: 20-30 mL (diffusion crânio-caudale extensive)",
-        "Bloc superficiel = sécurité (pas de risque de pneumothorax)"
-      ],
-      "en": [
-        "Landmark: transverse process at target level",
-        "Linear probe, paravertebral sagittal view",
-        "Injection in fascial plane deep to erector spinae muscle",
-        "Volume: 20-30 mL (extensive craniocaudal spread)",
-        "Superficial block = safety (no pneumothorax risk)"
-      ],
-      "pt": [
-        "Referência: apófise transversa do nível alvo",
-        "Sonda linear, vista sagital paravertebral",
-        "Injeção no plano fascial profundo ao músculo eretor da espinha",
-        "Volume: 20-30 mL (difusão crânio-caudal extensa)",
-        "Bloqueio superficial = segurança (sem risco de pneumotórax)"
-      ]
+      "fr": ["Sonde linéaire, vue sagittale paravertébrale (2-3 cm de la ligne médiane)", "Repère: apophyse transverse du niveau cible (T5 pour thorax supérieur, T7-T9 pour abdomen)", "Injection dans le plan fascial profond au muscle érecteur du rachis, en superficie de l'apophyse transverse", "Volume: 20-30 mL — diffusion crânio-caudale extensive sur 4-5 niveaux", "Bloc superficiel = sécurité: pas de risque de pneumothorax ni de dépression pleurale", "Cathéter possible pour analgésie continue"],
+      "en": ["Linear probe, paravertebral sagittal view (2-3 cm from midline)", "Landmark: transverse process at target level (T5 for upper thorax, T7-T9 for abdomen)", "Injection in fascial plane deep to erector spinae muscle, superficial to transverse process", "Volume: 20-30 mL — extensive craniocaudal spread over 4-5 levels", "Superficial block = safety: no pneumothorax or pleural depression risk", "Catheter possible for continuous analgesia"],
+      "pt": ["Sonda linear, vista sagital paravertebral (2-3 cm da linha média)", "Referência: apófise transversa do nível alvo (T5 para tórax superior, T7-T9 para abdómen)", "Injeção no plano fascial profundo ao músculo eretor da espinha, superficialmente à apófise transversa", "Volume: 20-30 mL — difusão crânio-caudal extensa em 4-5 níveis", "Bloqueio superficial = segurança: sem risco de pneumotórax nem depressão pleural", "Cateter possível para analgesia contínua"]
     },
     "drugs": {
-      "fr": [
-        "Ropivacaïne 0.375% (20-30 mL)",
-        "OU Bupivacaïne 0.25% (20-30 mL)",
-        "Cathéter possible: ropivacaïne 0.2% 8-10 mL/h"
-      ],
-      "en": [
-        "Ropivacaine 0.375% (20-30 mL)",
-        "OR Bupivacaine 0.25% (20-30 mL)",
-        "Catheter possible: ropivacaine 0.2% 8-10 mL/h"
-      ],
-      "pt": [
-        "Ropivacaína 0.375% (20-30 mL)",
-        "OU Bupivacaína 0.25% (20-30 mL)",
-        "Cateter possível: ropivacaína 0.2% 8-10 mL/h"
-      ]
-    }
+      "fr": ["Ropivacaïne 0.375% (20-30 mL)", "OU Bupivacaïne 0.25% (20-30 mL)", "Perfusion cathéter: ropivacaïne 0.2% 8-10 mL/h"],
+      "en": ["Ropivacaine 0.375% (20-30 mL)", "OR Bupivacaine 0.25% (20-30 mL)", "Catheter infusion: ropivacaine 0.2% 8-10 mL/h"],
+      "pt": ["Ropivacaína 0.375% (20-30 mL)", "OU Bupivacaína 0.25% (20-30 mL)", "Perfusão cateter: ropivacaína 0.2% 8-10 mL/h"]
+    },
+    "tags": ["regional", "trunk"]
+  },
+  {
+    "id": "superficial-cervical-plexus",
+    "region": "head_neck",
+    "titles": {
+      "fr": "Bloc du plexus cervical superficiel",
+      "en": "Superficial cervical plexus block",
+      "pt": "Bloqueio do plexo cervical superficial"
+    },
+    "indications": {
+      "fr": ["Endartériectomie carotidienne (combiné au profond)", "Chirurgie de la thyroïde et des glandes parathyroïdes", "Chirurgie cervicale antérieure (adénopathies, lipomes)", "Réduction de fracture claviculaire (zone de distribution C3-C4)"],
+      "en": ["Carotid endarterectomy (combined with deep block)", "Thyroid and parathyroid surgery", "Anterior cervical surgery (adenopathy, lipomas)", "Clavicle fracture reduction (C3-C4 distribution)"],
+      "pt": ["Endarterectomia carotídea (combinado com profundo)", "Cirurgia da tiroide e paratiroide", "Cirurgia cervical anterior (adenopatias, lipomas)", "Redução de fratura da clavícula (distribuição C3-C4)"]
+    },
+    "contraindications": {
+      "fr": ["Infection cervicale", "Allergie aux anesthésiques locaux", "Anticoagulation (relatif — technique superficielle)"],
+      "en": ["Cervical infection", "Local anesthetic allergy", "Anticoagulation (relative — superficial technique)"],
+      "pt": ["Infeção cervical", "Alergia a anestésicos locais", "Anticoagulação (relativa — técnica superficial)"]
+    },
+    "technique": {
+      "fr": ["Repère: bord postérieur du muscle sterno-cléido-mastoïdien (SCM), point de Erb (milieu du SCM)", "Injection sous-cutanée en éventail le long du bord postérieur du SCM, C3-C4", "Sonde linéaire: repérer le point de sortie des branches cutanées (entre fascia SCM et fascia cervical superficiel)", "Volume: 10-15 mL", "Technique simple, faible morbidité"],
+      "en": ["Landmark: posterior border of sternocleidomastoid (SCM), Erb's point (midpoint of SCM)", "Fan-shaped subcutaneous injection along posterior border of SCM, C3-C4", "Linear probe: identify exit point of cutaneous branches (between SCM fascia and superficial cervical fascia)", "Volume: 10-15 mL", "Simple technique, low morbidity"],
+      "pt": ["Referência: bordo posterior do músculo esternocleidomastoideu (ECM), ponto de Erb (ponto médio do ECM)", "Injeção subcutânea em leque ao longo do bordo posterior do ECM, C3-C4", "Sonda linear: identificar ponto de saída dos ramos cutâneos (entre fáscia do ECM e fáscia cervical superficial)", "Volume: 10-15 mL", "Técnica simples, baixa morbilidade"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.375-0.5% (10-15 mL)", "OU Lévobupivacaïne 0.25% (10-15 mL)", "Lidocaïne 1-2% si installation rapide requise (endartériectomie)"],
+      "en": ["Ropivacaine 0.375-0.5% (10-15 mL)", "OR Levobupivacaine 0.25% (10-15 mL)", "Lidocaine 1-2% if rapid onset required (endarterectomy)"],
+      "pt": ["Ropivacaína 0.375-0.5% (10-15 mL)", "OU Levobupivacaína 0.25% (10-15 mL)", "Lidocaína 1-2% se instalação rápida necessária (endarterectomia)"]
+    },
+    "tags": ["regional", "head_neck"]
+  },
+  {
+    "id": "deep-cervical-plexus",
+    "region": "head_neck",
+    "titles": {
+      "fr": "Bloc du plexus cervical profond",
+      "en": "Deep cervical plexus block",
+      "pt": "Bloqueio do plexo cervical profundo"
+    },
+    "indications": {
+      "fr": ["Endartériectomie carotidienne (anesthésie locorégionale exclusive)", "Chirurgie cervicale profonde", "Douleur cervicogène sévère"],
+      "en": ["Carotid endarterectomy (exclusive regional anesthesia)", "Deep cervical surgery", "Severe cervicogenic pain"],
+      "pt": ["Endarterectomia carotídea (anestesia locorregional exclusiva)", "Cirurgia cervical profunda", "Dor cervicogénica grave"]
+    },
+    "contraindications": {
+      "fr": ["Coagulopathie (bloc profond)", "Infection cervicale", "Artère vertébrale anormale", "BPCO sévère (risque phrénique)", "Chirurgie cervicale controlatérale récente"],
+      "en": ["Coagulopathy (deep block)", "Cervical infection", "Abnormal vertebral artery", "Severe COPD (phrenic risk)", "Recent contralateral cervical surgery"],
+      "pt": ["Coagulopatia (bloqueio profundo)", "Infeção cervical", "Artéria vertebral anormal", "DPOC grave (risco frénico)", "Cirurgia cervical contralateral recente"]
+    },
+    "technique": {
+      "fr": ["Sonde linéaire haute fréquence, vue axiale à C3-C4 (niveau du cartilage thyroïde)", "Repère: processus transverses de C2-C4, artère vertébrale à éviter", "Aiguille dans le plan, direction postéro-antérieure", "Injection à la face antérieure des processus transverses (espace prévertébral)", "Volume: 3-5 mL par niveau ou 10-15 mL en injection unique à C3-C4", "Risques: bloc phrénique (~80%), diffusion intrathécale/épidurale (< 1%) — monitorer"],
+      "en": ["High-frequency linear probe, axial view at C3-C4 (thyroid cartilage level)", "Landmark: C2-C4 transverse processes, vertebral artery to avoid", "In-plane needle, posteroanterior direction", "Injection on anterior face of transverse processes (prevertebral space)", "Volume: 3-5 mL per level or 10-15 mL single injection at C3-C4", "Risks: phrenic block (~80%), intrathecal/epidural spread (<1%) — monitor"],
+      "pt": ["Sonda linear de alta frequência, vista axial em C3-C4 (nível do cartilagem tireoide)", "Referência: processos transversos de C2-C4, artéria vertebral a evitar", "Agulha no plano, direção postero-anterior", "Injeção na face anterior dos processos transversos (espaço pré-vertebral)", "Volume: 3-5 mL por nível ou 10-15 mL injeção única em C3-C4", "Riscos: bloqueio frénico (~80%), difusão intratecal/epidural (<1%) — monitorizar"]
+    },
+    "drugs": {
+      "fr": ["Ropivacaïne 0.375-0.5% (3-5 mL/niveau ou 10-15 mL)", "OU Lévobupivacaïne 0.25% (10-15 mL)", "Éviter grandes volumes — risque de diffusion"],
+      "en": ["Ropivacaine 0.375-0.5% (3-5 mL/level or 10-15 mL)", "OR Levobupivacaine 0.25% (10-15 mL)", "Avoid large volumes — spread risk"],
+      "pt": ["Ropivacaína 0.375-0.5% (3-5 mL/nível ou 10-15 mL)", "OU Levobupivacaína 0.25% (10-15 mL)", "Evitar volumes grandes — risco de difusão"]
+    },
+    "tags": ["regional", "head_neck", "difficult_airway"]
+  },
+  {
+    "id": "peribulbar",
+    "region": "head_neck",
+    "titles": {
+      "fr": "Bloc péribulbaire",
+      "en": "Peribulbar block",
+      "pt": "Bloqueio peribulbar"
+    },
+    "indications": {
+      "fr": ["Chirurgie de la cataracte", "Chirurgie du segment antérieur et postérieur", "Chirurgie du strabisme (adulte)", "Vitrectomie", "Alternative à l'anesthésie générale pour chirurgie oculaire"],
+      "en": ["Cataract surgery", "Anterior and posterior segment surgery", "Strabismus surgery (adult)", "Vitrectomy", "Alternative to general anesthesia for ocular surgery"],
+      "pt": ["Cirurgia da catarata", "Cirurgia do segmento anterior e posterior", "Cirurgia do estrabismo (adulto)", "Vitrectomia", "Alternativa à anestesia geral para cirurgia ocular"]
+    },
+    "contraindications": {
+      "fr": ["Globe perforé ou post-traumatique", "Infection péri-orbitaire", "Allergie aux anesthésiques locaux", "Anticoagulation (relatif)", "Globe allongé (>26 mm — risque de perforation)"],
+      "en": ["Perforated or post-traumatic globe", "Periorbital infection", "Local anesthetic allergy", "Anticoagulation (relative)", "Elongated globe (>26 mm — perforation risk)"],
+      "pt": ["Globo perfurado ou pós-traumático", "Infeção periorbitária", "Alergia a anestésicos locais", "Anticoagulação (relativa)", "Globo alongado (>26 mm — risco de perfuração)"]
+    },
+    "technique": {
+      "fr": ["Patient en décubitus dorsal, regard en position primaire", "Injection infero-temporale: aiguille courte (25G, 25 mm) à la jonction tiers externe/interne du rebord orbitaire inférieur", "Avancer parallèle au plancher orbitaire jusqu'au-delà de l'équateur du globe", "Volume: 6-8 mL (injection lente — compression douce 2-3 min post-injection)", "Injection supero-nasale complémentaire si akinésie incomplète (2-3 mL)", "Compression oculaire 5-10 min pour diffusion — vérifier tension intraoculaire avant incision"],
+      "en": ["Patient supine, primary gaze position", "Inferotemporal injection: short needle (25G, 25 mm) at junction of outer/inner third of inferior orbital rim", "Advance parallel to orbital floor beyond globe equator", "Volume: 6-8 mL (slow injection — gentle compression 2-3 min post-injection)", "Supplemental superonasal injection if incomplete akinesia (2-3 mL)", "Ocular compression 5-10 min for spread — check intraocular pressure before incision"],
+      "pt": ["Doente em decúbito dorsal, posição primária do olhar", "Injeção ínfero-temporal: agulha curta (25G, 25 mm) na junção terço externo/interno do rebordo orbitário inferior", "Avançar paralela ao pavimento orbitário além do equador do globo", "Volume: 6-8 mL (injeção lenta — compressão suave 2-3 min pós-injeção)", "Injeção supero-nasal complementar se acinésia incompleta (2-3 mL)", "Compressão ocular 5-10 min para difusão — verificar pressão intraocular antes da incisão"]
+    },
+    "drugs": {
+      "fr": ["Lidocaïne 2% + hyaluronidase 15-50 UI/mL (améliore la diffusion)", "OU Ropivacaïne 0.75% (longue durée)", "OU Mélange lidocaïne 2% + bupivacaïne 0.5% (1:1)", "Adrénaline déconseillée en péribulbaire (risque vasospasme)"],
+      "en": ["Lidocaine 2% + hyaluronidase 15-50 IU/mL (improves spread)", "OR Ropivacaine 0.75% (long duration)", "OR Mixture lidocaine 2% + bupivacaine 0.5% (1:1)", "Epinephrine not recommended in peribulbar (vasospasm risk)"],
+      "pt": ["Lidocaína 2% + hialuronidase 15-50 UI/mL (melhora difusão)", "OU Ropivacaína 0.75% (longa duração)", "OU Mistura lidocaína 2% + bupivacaína 0.5% (1:1)", "Adrenalina não recomendada em peribulbar (risco de vasoespasmo)"]
+    },
+    "tags": ["regional", "head_neck"]
   },
   {
     "id": "scalp-block",
@@ -628,17 +758,9 @@
       "pt": "Bloqueio do escalpe"
     },
     "indications": {
-      "fr": [
-        "Craniotomie éveillée",
-        "Craniotomie conventionnelle (analgésie)",
-        "Chirurgie de la voûte crânienne"
-      ],
-      "en": ["Awake craniotomy", "Conventional craniotomy (analgesia)", "Skull vault surgery"],
-      "pt": [
-        "Craniotomia acordada",
-        "Craniotomia convencional (analgesia)",
-        "Cirurgia da calota craniana"
-      ]
+      "fr": ["Craniotomie éveillée (cartographie fonctionnelle)", "Craniotomie conventionnelle (analgésie peropératoire et postopératoire)", "Chirurgie de la voûte crânienne", "Pose de dérivation ventriculaire externe"],
+      "en": ["Awake craniotomy (functional mapping)", "Conventional craniotomy (intraoperative and postoperative analgesia)", "Skull vault surgery", "External ventricular drain placement"],
+      "pt": ["Craniotomia acordada (mapeamento funcional)", "Craniotomia convencional (analgesia intraoperatória e pós-op)", "Cirurgia da calota craniana", "Colocação de derivação ventricular externa"]
     },
     "contraindications": {
       "fr": ["Infection au site d'injection", "Allergie aux anesthésiques locaux"],
@@ -646,41 +768,15 @@
       "pt": ["Infeção no local de injeção", "Alergia a anestésicos locais"]
     },
     "technique": {
-      "fr": [
-        "Blocage de 6 nerfs bilatéraux: supra-orbitaire, supra-trochléaire, zygomatico-temporal, auriculo-temporal, grand occipital, petit occipital",
-        "Injection sous-cutanée au site de chaque nerf",
-        "Volume: 2-3 mL par nerf (total 25-35 mL)",
-        "Technique de repère anatomique ou échoguidée"
-      ],
-      "en": [
-        "Block of 6 bilateral nerves: supraorbital, supratrochlear, zygomaticotemporal, auriculotemporal, greater occipital, lesser occipital",
-        "Subcutaneous injection at each nerve site",
-        "Volume: 2-3 mL per nerve (total 25-35 mL)",
-        "Anatomical landmark or ultrasound-guided technique"
-      ],
-      "pt": [
-        "Bloqueio de 6 nervos bilaterais: supra-orbitário, supratroclear, zigomático-temporal, aurículo-temporal, grande occipital, pequeno occipital",
-        "Injeção subcutânea no local de cada nervo",
-        "Volume: 2-3 mL por nervo (total 25-35 mL)",
-        "Técnica de referência anatómica ou ecoguidada"
-      ]
+      "fr": ["6 nerfs bilatéraux à bloquer (12 injections au total)", "Supra-orbitaire + supra-trochléaire: injection à la sortie du foramen supra-orbitaire", "Zygomatico-temporal: au-dessus de l'arcade zygomatique en temporal", "Auriculo-temporal: devant le tragus, pulsation de l'artère temporale", "Grand occipital (Arnold): médial à l'artère occipitale, ligne nucale supérieure", "Petit occipital: derrière le muscle SCM, 2 cm au-dessus de la mastoïde", "Volume: 2-3 mL par nerf (total 25-40 mL)"],
+      "en": ["6 bilateral nerves to block (12 injections total)", "Supraorbital + supratrochlear: injection at exit of supraorbital foramen", "Zygomaticotemporal: above zygomatic arch in temporal region", "Auriculotemporal: anterior to tragus, temporal artery pulse", "Greater occipital (Arnold): medial to occipital artery, superior nuchal line", "Lesser occipital: posterior to SCM, 2 cm above mastoid", "Volume: 2-3 mL per nerve (total 25-40 mL)"],
+      "pt": ["6 nervos bilaterais a bloquear (12 injeções no total)", "Supra-orbitário + supratroclear: injeção na saída do foramen supra-orbitário", "Zigomático-temporal: acima do arco zigomático na região temporal", "Aurículo-temporal: anterior ao tragus, pulsação da artéria temporal", "Grande occipital (Arnold): medial à artéria occipital, linha nucal superior", "Pequeno occipital: posterior ao ECM, 2 cm acima do mastóide", "Volume: 2-3 mL por nervo (total 25-40 mL)"]
     },
     "drugs": {
-      "fr": [
-        "Ropivacaïne 0.75% (2-3 mL/nerf)",
-        "OU Bupivacaïne 0.25% + adrénaline 1:200000",
-        "Dose totale: ne pas dépasser 3 mg/kg ropivacaïne"
-      ],
-      "en": [
-        "Ropivacaine 0.75% (2-3 mL/nerve)",
-        "OR Bupivacaine 0.25% + epinephrine 1:200,000",
-        "Total dose: do not exceed 3 mg/kg ropivacaine"
-      ],
-      "pt": [
-        "Ropivacaína 0.75% (2-3 mL/nervo)",
-        "OU Bupivacaína 0.25% + adrenalina 1:200.000",
-        "Dose total: não exceder 3 mg/kg ropivacaína"
-      ]
-    }
+      "fr": ["Ropivacaïne 0.75% (2-3 mL/nerf) — longue durée recommandée", "OU Bupivacaïne 0.25% + adrénaline 1:200 000 (réduit saignement)", "Dose totale: ne pas dépasser 3 mg/kg ropivacaïne ou 2 mg/kg bupivacaïne"],
+      "en": ["Ropivacaine 0.75% (2-3 mL/nerve) — long duration recommended", "OR Bupivacaine 0.25% + epinephrine 1:200,000 (reduces bleeding)", "Total dose: do not exceed 3 mg/kg ropivacaine or 2 mg/kg bupivacaine"],
+      "pt": ["Ropivacaína 0.75% (2-3 mL/nervo) — longa duração recomendada", "OU Bupivacaína 0.25% + adrenalina 1:200.000 (reduz hemorragia)", "Dose total: não exceder 3 mg/kg ropivacaína ou 2 mg/kg bupivacaína"]
+    },
+    "tags": ["regional", "head_neck"]
   }
 ]

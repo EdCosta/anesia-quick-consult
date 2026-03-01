@@ -17,6 +17,7 @@ interface AppLayoutProps {
   children: ReactNode;
 }
 
+const HOSPITAL_PROFILE_ID_KEY = 'anesia-hospital-profile';
 const HOSPITAL_PROFILE_DATA_KEY = 'anesia-hospital-profile-data';
 
 export default function AppLayout({ children }: AppLayoutProps) {
@@ -27,7 +28,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profiles, setProfiles] = useState<HospitalProfile[]>([]);
   const [activeProfile, setActiveProfile] = useState<string | null>(() =>
-    localStorage.getItem('anesia-hospital-profile'),
+    localStorage.getItem(HOSPITAL_PROFILE_ID_KEY),
   );
   const { isPro } = useEntitlements();
   const { viewMode, setViewMode } = useViewMode();
@@ -68,7 +69,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     if (!activeProfile || profiles.length === 0) return;
     if (!profiles.some((profile) => profile.id === activeProfile)) {
       setActiveProfile(null);
-      localStorage.removeItem('anesia-hospital-profile');
+      localStorage.removeItem(HOSPITAL_PROFILE_ID_KEY);
     }
   }, [activeProfile, profiles]);
 
@@ -152,7 +153,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       key={p.id}
                       onClick={() => {
                         setActiveProfile(p.id);
-                        localStorage.setItem('anesia-hospital-profile', p.id);
+                        localStorage.setItem(HOSPITAL_PROFILE_ID_KEY, p.id);
                         setLang(p.default_lang);
                       }}
                       className={`w-full text-left rounded px-2 py-1.5 text-xs transition-colors ${
@@ -171,7 +172,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <button
                       onClick={() => {
                         setActiveProfile(null);
-                        localStorage.removeItem('anesia-hospital-profile');
+                        localStorage.removeItem(HOSPITAL_PROFILE_ID_KEY);
                       }}
                       className="w-full mt-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
                     >

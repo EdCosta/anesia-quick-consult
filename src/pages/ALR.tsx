@@ -1,20 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Target, Search, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { Target, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { useContentLimits } from '@/hooks/useContentLimits';
 import { useViewMode } from '@/hooks/useViewMode';
 import type { ALRBlock } from '@/lib/types';
 import ProFeaturePage from '@/components/anesia/ProFeaturePage';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { useNavigate } from 'react-router-dom';
 
 const REGION_MAP: Record<string, string> = {
   upper_limb: 'upper_limb',
@@ -48,16 +39,13 @@ const TABS: { key: TabKey; labelKey: string; bulletClass: string }[] = [
 ];
 
 export default function ALR() {
-  const { t, lang, resolveStr } = useLang();
+  const { t, lang, resolveStr, resolve } = useLang();
   const { alrBlocks, loading } = useData();
   const { isProView } = useViewMode();
-  const { alr: alrLimit, isLimited } = useContentLimits();
-  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [region, setRegion] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Record<string, TabKey>>({});
-  const [showProModal, setShowProModal] = useState(false);
 
   const fuse = useMemo(
     () =>
@@ -80,27 +68,9 @@ export default function ALR() {
     return results;
   }, [search, region, fuse, alrBlocks]);
 
-  const visibleItems = isLimited ? filtered.slice(0, alrLimit) : filtered;
-  const lockedCount = isLimited ? Math.max(0, filtered.length - alrLimit) : 0;
-
-  const resolve = (obj: Partial<Record<string, string[]>> | undefined): string[] => {
-    if (!obj) return [];
-    return (obj as any)[lang] ?? (obj as any)['fr'] ?? (obj as any)['en'] ?? [];
-  };
-
   const getTabForBlock = (id: string): TabKey => activeTab[id] ?? 'indications';
 
-  const handleExpand = (id: string) => {
-    if (expanded === id) {
-      setExpanded(null);
-    } else {
-      setExpanded(id);
-      // Default to indications tab, preserve if already set
-      if (!activeTab[id]) {
-        setActiveTab((prev) => ({ ...prev, [id]: 'indications' }));
-      }
-    }
-  };
+  const handleExpand = (id: string) => setExpanded(expanded === id ? null : id);
 
   if (loading) {
     return (
@@ -161,9 +131,9 @@ export default function ALR() {
           <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
         ) : (
           <>
-            {visibleItems.map((block) => {
+            {filtered.map((block) => {
               const isOpen = expanded === block.id;
-              const indications = resolve(block.indications);
+              const indications = resolve<string[]>(block.indications) ?? [];
               const borderColor = REGION_COLOR[block.region] ?? 'border-l-muted';
               const currentTab = getTabForBlock(block.id);
 
@@ -206,7 +176,7 @@ export default function ALR() {
                       {/* Tab bar */}
                       <div className="flex border-b overflow-x-auto scrollbar-none">
                         {TABS.map(({ key, labelKey }) => {
-                          const items = resolve(
+                          const items = resolve<string[]>(
                             key === 'indications'
                               ? block.indications
                               : key === 'contraindications'
@@ -214,7 +184,7 @@ export default function ALR() {
                                 : key === 'technique'
                                   ? block.technique
                                   : block.drugs,
-                          );
+                          ) ?? [];
                           if (items.length === 0) return null;
                           const isActive = currentTab === key;
                           return (
@@ -237,7 +207,7 @@ export default function ALR() {
                       <div className="px-4 py-3">
                         {TABS.map(({ key, bulletClass }) => {
                           if (currentTab !== key) return null;
-                          const items = resolve(
+                          const items = resolve<string[]>(
                             key === 'indications'
                               ? block.indications
                               : key === 'contraindications'
@@ -245,7 +215,7 @@ export default function ALR() {
                                 : key === 'technique'
                                   ? block.technique
                                   : block.drugs,
-                          );
+                          ) ?? [];
                           if (items.length === 0) return (
                             <p key={key} className="text-xs text-muted-foreground italic">—</p>
                           );
@@ -267,42 +237,9 @@ export default function ALR() {
               );
             })}
 
-            {lockedCount > 0 && (
-              <button
-                onClick={() => setShowProModal(true)}
-                className="w-full rounded-xl border-2 border-dashed border-muted p-5 text-center hover:bg-muted/10 transition-colors"
-              >
-                <Lock className="h-5 w-5 mx-auto text-muted-foreground mb-1.5" />
-                <p className="text-sm font-medium text-foreground">
-                  {lockedCount} {t('content_locked')}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t('upgrade_to_unlock')}</p>
-              </button>
-            )}
           </>
         )}
       </div>
-
-      <Dialog open={showProModal} onOpenChange={setShowProModal}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-accent" />
-              {t('pro_feature')}
-            </DialogTitle>
-            <DialogDescription>{t('pro_feature_desc')}</DialogDescription>
-          </DialogHeader>
-          <button
-            onClick={() => {
-              setShowProModal(false);
-              navigate('/account');
-            }}
-            className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            {t('upgrade_pro')}
-          </button>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

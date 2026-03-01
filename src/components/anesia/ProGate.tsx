@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useViewMode } from '@/hooks/useViewMode';
 import {
@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

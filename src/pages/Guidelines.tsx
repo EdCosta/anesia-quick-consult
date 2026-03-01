@@ -1,21 +1,12 @@
 import { useMemo, useState } from 'react';
-import { BookOpen, Search, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { BookOpen, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { useContentLimits } from '@/hooks/useContentLimits';
 import { useViewMode } from '@/hooks/useViewMode';
 import type { Guideline } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import ProFeaturePage from '@/components/anesia/ProFeaturePage';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { useNavigate } from 'react-router-dom';
 
 const CATEGORY_MAP: Record<string, string> = {
   airway: 'airway_cat',
@@ -28,15 +19,12 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 
 export default function Guidelines() {
-  const { t, lang, resolveStr } = useLang();
+  const { t, lang, resolveStr, resolve } = useLang();
   const { guidelines, loading } = useData();
   const { isProView } = useViewMode();
-  const { guidelines: guideLimit, isLimited } = useContentLimits();
-  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [showProModal, setShowProModal] = useState(false);
 
   const fuse = useMemo(
     () =>
@@ -58,14 +46,6 @@ export default function Guidelines() {
     if (category) results = results.filter((g) => g.category === category);
     return results;
   }, [search, category, fuse, guidelines]);
-
-  const visibleItems = isLimited ? filtered.slice(0, guideLimit) : filtered;
-  const lockedCount = isLimited ? Math.max(0, filtered.length - guideLimit) : 0;
-
-  const resolve = (obj: Partial<Record<string, string[]>> | undefined): string[] => {
-    if (!obj) return [];
-    return (obj as any)[lang] ?? (obj as any)['fr'] ?? (obj as any)['en'] ?? [];
-  };
 
   if (loading) {
     return (
@@ -125,9 +105,9 @@ export default function Guidelines() {
           </p>
         ) : (
           <>
-            {visibleItems.map((g) => {
+            {filtered.map((g) => {
               const isOpen = expanded === g.id;
-              const items = resolve(g.items);
+              const items = resolve<string[]>(g.items) ?? [];
               return (
                 <div
                   key={g.id}
@@ -196,42 +176,9 @@ export default function Guidelines() {
                 </div>
               );
             })}
-            {lockedCount > 0 && (
-              <button
-                onClick={() => setShowProModal(true)}
-                className="w-full rounded-xl border-2 border-dashed border-muted p-6 text-center hover:bg-muted/10 transition-colors md:col-span-2"
-              >
-                <Lock className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm font-medium text-foreground">
-                  {lockedCount} {t('content_locked')}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">{t('upgrade_to_unlock')}</p>
-              </button>
-            )}
           </>
         )}
       </div>
-
-      <Dialog open={showProModal} onOpenChange={setShowProModal}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-accent" />
-              {t('pro_feature')}
-            </DialogTitle>
-            <DialogDescription>{t('pro_feature_desc')}</DialogDescription>
-          </DialogHeader>
-          <button
-            onClick={() => {
-              setShowProModal(false);
-              navigate('/account');
-            }}
-            className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            {t('upgrade_pro')}
-          </button>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

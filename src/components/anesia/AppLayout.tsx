@@ -20,6 +20,15 @@ interface AppLayoutProps {
 const HOSPITAL_PROFILE_ID_KEY = 'anesia-hospital-profile';
 const HOSPITAL_PROFILE_DATA_KEY = 'anesia-hospital-profile-data';
 
+type HospitalProfileRow = {
+  id: string;
+  name: string;
+  country?: string | null;
+  default_lang?: string | null;
+  formulary?: HospitalProfile['formulary'] | null;
+  protocol_overrides?: HospitalProfile['protocol_overrides'] | null;
+};
+
 export default function AppLayout({ children }: AppLayoutProps) {
   const { t, setLang } = useLang();
   const location = useLocation();
@@ -35,13 +44,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   useEffect(() => {
     supabase
-      .from('hospital_profiles' as any)
+      .from('hospital_profiles')
       .select('id, name, country, default_lang, formulary, protocol_overrides')
       .then(({ data }) => {
-        if (!data) return;
+        const rows = (data ?? []) as HospitalProfileRow[];
+        if (rows.length === 0) return;
 
         setProfiles(
-          (data as any[]).map((p: any) => ({
+          rows.map((p) => ({
             id: p.id,
             name: p.name,
             country: p.country || undefined,

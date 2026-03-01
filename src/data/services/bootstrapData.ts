@@ -125,10 +125,11 @@ export async function loadProcedureIndexSnapshot(): Promise<ProcedureIndexSnapsh
 }
 
 export async function loadFullDataSnapshot(): Promise<FullDataSnapshot> {
-  let [dbData, specialtyRows] = await Promise.all([
+  const [loadedDbData, specialtyRows] = await Promise.all([
     loadFromSupabase(),
     loadSpecialtiesFromSupabase().catch(() => []),
   ]);
+  let dbData = loadedDbData;
 
   if (!dbData) {
     console.warn('[AnesIA] Falling back to local full JSON snapshot');

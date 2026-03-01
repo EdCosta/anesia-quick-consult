@@ -27,7 +27,7 @@ export function calculateDilution(input: DilutionInput): DilutionResult {
   }
 
   // Determine final volume
-  let finalVol = input.finalVolume_ml ?? input.syringeVolume_ml ?? null;
+  const finalVol = input.finalVolume_ml ?? input.syringeVolume_ml ?? null;
 
   if (!finalVol || finalVol <= 0) {
     return {

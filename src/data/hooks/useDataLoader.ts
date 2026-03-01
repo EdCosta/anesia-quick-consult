@@ -102,7 +102,7 @@ export function useDataLoader(): DataState {
       cancelled = true;
       cancelIdle();
     };
-  }, []);
+  }, [cachedFull, cachedIndex]);
 
   const getDrug = useCallback((id: string) => drugs.find((d) => d.id === id), [drugs]);
   const getProcedure = useCallback(

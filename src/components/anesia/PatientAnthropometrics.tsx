@@ -32,7 +32,7 @@ export default function PatientAnthropometrics({
 
   useEffect(() => {
     onWeightsChange(weights);
-  }, [weights]);
+  }, [weights, onWeightsChange]);
 
   const round1 = (v: number | null) => (v !== null ? Math.round(v * 10) / 10 : '–');
 

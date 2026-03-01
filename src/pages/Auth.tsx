@@ -117,18 +117,6 @@ export default function Auth() {
       return;
     }
 
-    if (data.session && data.user) {
-      await supabase.from('user_profiles' as any).upsert(
-        {
-          user_id: data.user.id,
-          email: signUpEmail.trim(),
-          name: signUpUsername.trim(),
-          plan: 'free',
-        } as any,
-        { onConflict: 'user_id' },
-      );
-    }
-
     setFeedback({ type: 'success', message: t('auth_sign_up_success') });
     setLoading(false);
 

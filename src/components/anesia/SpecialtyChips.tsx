@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Plus, Search, X, ChevronUp, Check } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
@@ -27,7 +27,7 @@ export default function SpecialtyChips({
 
   const visible = specialties.slice(0, maxVisible);
 
-  const filteredAll = useMemo(() => {
+  const filteredAll = (() => {
     if (!search.trim()) return specialties;
     const q = search.toLowerCase();
     return specialties.filter((s) => {
@@ -35,7 +35,7 @@ export default function SpecialtyChips({
       const name = getDisplayName(s).toLowerCase();
       return name.includes(q);
     });
-  }, [specialties, search, lang, specialtiesData]);
+  })();
 
   const chipClass = (active: boolean) =>
     `rounded-full px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
@@ -89,12 +89,16 @@ export default function SpecialtyChips({
           </button>
         ))}
 
-        <button
-          onClick={() => {
-            expanded ? handleClosePanel() : handleOpenPanel();
-          }}
-          className={`flex items-center justify-center h-7 w-7 rounded-full transition-colors ${
-            expanded
+          <button
+            onClick={() => {
+              if (expanded) {
+                handleClosePanel();
+                return;
+              }
+              handleOpenPanel();
+            }}
+            className={`flex items-center justify-center h-7 w-7 rounded-full transition-colors ${
+              expanded
               ? 'bg-primary text-primary-foreground'
               : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
           }`}

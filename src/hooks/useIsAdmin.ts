@@ -25,7 +25,7 @@ export function useIsAdmin() {
     queryFn: async () => {
       if (!userId) return false;
       const { data, error } = await supabase
-        .from('user_roles' as any)
+        .from('user_roles')
         .select('user_id')
         .eq('user_id', userId)
         .eq('role', 'admin')

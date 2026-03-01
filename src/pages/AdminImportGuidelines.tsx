@@ -1,83 +1,207 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-
-type GuidelinesImportResponse = {
-  inserted: number;
-  updated: number;
-  errors: string[];
-};
+import {
+  parseGuidelineImportJson,
+  guidelineImportResponseSchema,
+  type GuidelineImportResponse,
+} from '@/lib/admin/guidelineImport';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Upload, CheckCircle, XCircle, FileText, AlertTriangle } from 'lucide-react';
 
 export default function AdminImportGuidelines() {
-  const [payload, setPayload] = useState('');
+  const [jsonText, setJsonText] = useState('');
   const [filename, setFilename] = useState('guidelines.json');
+  const [rows, setRows] = useState<ReturnType<typeof parseGuidelineImportJson>['rows']>([]);
+  const [parseErrors, setParseErrors] = useState<string[]>([]);
+  const [result, setResult] = useState<GuidelineImportResponse | null>(null);
+
+  const totalWarnings = useMemo(
+    () => rows.reduce((acc, row) => acc + row.warnings.length, 0),
+    [rows],
+  );
+  const previewRows = useMemo(() => rows.slice(0, 10), [rows]);
 
   const importMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke<GuidelinesImportResponse>(
+      const { data, error } = await supabase.functions.invoke<GuidelineImportResponse>(
         'admin-import-guidelines',
         {
-          body: {
-            payload: payload ? JSON.parse(payload) : undefined,
-            filename,
-          },
+          body: { json: jsonText, filename },
         },
       );
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      return data;
+      return guidelineImportResponseSchema.parse(data);
+    },
+    onSuccess: (data) => {
+      setResult(data);
     },
   });
 
+  const handleFile = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      const text = loadEvent.target?.result as string;
+      const parsed = parseGuidelineImportJson(text);
+
+      setJsonText(text);
+      setFilename(file.name);
+      setRows(parsed.rows);
+      setParseErrors(parsed.errors);
+      setResult(null);
+    };
+    reader.readAsText(file, 'utf-8');
+  }, []);
+
+  async function handleImport() {
+    if (rows.length === 0 || parseErrors.length > 0 || !jsonText) return;
+    await importMutation.mutateAsync();
+  }
+
   return (
-    <Card className="clinical-shadow">
-      <CardHeader>
-        <CardTitle>Guidelines import</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          This flow is stubbed for now. It already calls the protected Edge Function and records
-          an import log entry.
-        </p>
-        <input
-          value={filename}
-          onChange={(event) => setFilename(event.target.value)}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          placeholder="guidelines.json"
-        />
-        <Textarea
-          value={payload}
-          onChange={(event) => setPayload(event.target.value)}
-          className="min-h-40"
-          placeholder='Optional JSON payload, e.g. {"items":[]}'
-        />
-        <Button onClick={() => importMutation.mutate()} disabled={importMutation.isPending}>
-          {importMutation.isPending ? 'Submitting...' : 'Run stub import'}
-        </Button>
-        {importMutation.error && (
-          <p className="text-sm text-destructive">
-            {(importMutation.error as Error).message || 'Import failed'}
-          </p>
-        )}
-        {importMutation.data && (
-          <div className="rounded-md border border-border bg-muted/20 p-3 text-sm">
-            <p>
-              Inserted: {importMutation.data.inserted} | Updated: {importMutation.data.updated}
+    <div className="container max-w-3xl py-6 space-y-5">
+      <h1 className="text-xl font-bold text-foreground">Import guidelines</h1>
+
+      <Card className="clinical-shadow">
+        <CardContent className="p-4">
+          <label className="flex flex-col items-center gap-3 cursor-pointer rounded-lg border-2 border-dashed border-border p-6 hover:border-accent/50 transition-colors">
+            <Upload className="h-8 w-8 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Upload JSON</span>
+            <p className="text-xs text-muted-foreground mt-1">
+              Format: array of objects with <code>id</code>, <code>category</code>,{' '}
+              <code>titles.fr</code>, <code>items.fr</code>, <code>refs</code>
             </p>
-            {importMutation.data.errors.length > 0 && (
-              <p className="mt-2 text-muted-foreground">
-                {importMutation.data.errors.join(', ')}
+            <input type="file" accept=".json" onChange={handleFile} className="hidden" />
+          </label>
+        </CardContent>
+      </Card>
+
+      {parseErrors.length > 0 && (
+        <Card className="clinical-shadow border-destructive/40">
+          <CardContent className="p-4 space-y-2">
+            <h2 className="text-sm font-semibold text-destructive">Validation errors</h2>
+            <ul className="space-y-1 text-xs text-muted-foreground">
+              {parseErrors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {rows.length > 0 && !result && (
+        <Card className="clinical-shadow">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Preview: {rows.length} parsed row{rows.length === 1 ? '' : 's'}
+                {totalWarnings > 0 && (
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] gap-0.5 border-amber-400 text-amber-600"
+                  >
+                    <AlertTriangle className="h-2.5 w-2.5" />
+                    {totalWarnings} warnings
+                  </Badge>
+                )}
+              </h2>
+              <button
+                onClick={() => void handleImport()}
+                disabled={importMutation.isPending || parseErrors.length > 0}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {importMutation.isPending ? 'Importing...' : 'Run secure import'}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">Source file: {filename}</p>
+            <div className="max-h-60 overflow-y-auto space-y-1">
+              {previewRows.map((row) => (
+                <div
+                  key={`${row.id}-${row.rowIndex}`}
+                  className="flex items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted/30"
+                >
+                  <span className="font-mono text-muted-foreground">{row.id}</span>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {row.category}
+                  </Badge>
+                  <span className="text-foreground truncate">{row.titles.fr || '–'}</span>
+                  {row.warnings.length > 0 && (
+                    <span
+                      className="text-amber-500 text-[10px] ml-auto"
+                      title={row.warnings.join(', ')}
+                    >
+                      ⚠ {row.warnings.length}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+            {rows.length > previewRows.length && (
+              <p className="text-xs text-muted-foreground">
+                Showing first {previewRows.length} rows only.
               </p>
             )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+
+      {importMutation.error && (
+        <Card className="clinical-shadow border-destructive/40">
+          <CardContent className="p-4">
+            <p className="text-sm text-destructive">
+              {(importMutation.error as Error).message || 'Import failed'}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {result && (
+        <Card className="clinical-shadow">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <CheckCircle className="h-5 w-5 text-primary" />
+              <span className="text-sm font-semibold text-foreground">
+                Inserted: {result.inserted} | Updated: {result.updated}
+              </span>
+              {result.errors.length > 0 && (
+                <span className="flex items-center gap-1 text-sm font-semibold text-destructive">
+                  <XCircle className="h-4 w-4" />
+                  Validation errors: {result.total_errors ?? result.errors.length}
+                </span>
+              )}
+            </div>
+            {result.errors.length > 0 ? (
+              <div className="max-h-60 overflow-y-auto rounded border border-border">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/50 sticky top-0">
+                    <tr>
+                      <th className="px-2 py-1 text-left font-medium text-muted-foreground">
+                        Error
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.errors.map((error) => (
+                      <tr key={error} className="border-t border-border hover:bg-muted/20">
+                        <td className="px-2 py-1 text-muted-foreground">{error}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Import completed without row errors.</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

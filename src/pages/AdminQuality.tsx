@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Languages, Pill, Tags } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Languages, Pill, Tags, SendHorizonal } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
 import { getMissingCatalogKeys } from '@/i18n';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
@@ -108,6 +109,27 @@ export default function AdminQuality() {
 
     return { noDrugs, missingInfo, drugsNoDosing, drugsNoUnits, guidelinesNoTags };
   }, [procedures, drugs, guidelines, resolve]);
+
+  const unpublishedGuidelines = useMemo(
+    () => guidelines.filter((g) => !g.published_at),
+    [guidelines],
+  );
+
+  const [publishedIds, setPublishedIds] = useState<Set<string>>(new Set());
+
+  const publishMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase.functions.invoke(
+        'admin-publish-guideline-version',
+        { body: { id } },
+      );
+      if (error) throw error;
+      return data as { ok: boolean; id: string; published_at: string };
+    },
+    onSuccess: (data) => {
+      setPublishedIds((prev) => new Set(prev).add(data.id));
+    },
+  });
 
   const missingUiTranslations = useMemo(
     () =>
@@ -267,6 +289,40 @@ export default function AdminQuality() {
             </p>
           ))}
           {issues.guidelinesNoTags.length === 0 && (
+            <p className="text-sm text-muted-foreground">✅ {t('no_results')}</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="clinical-shadow">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <SendHorizonal className="h-4 w-4 text-accent" />
+            Unpublished guidelines
+            <Badge variant="secondary" className="text-[10px]">
+              {unpublishedGuidelines.filter((g) => !publishedIds.has(g.id)).length}
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0 space-y-1">
+          {unpublishedGuidelines.filter((g) => !publishedIds.has(g.id)).map((g) => (
+            <div key={g.id} className="flex items-center justify-between gap-2">
+              <p className="text-sm text-muted-foreground truncate">{g.id}</p>
+              <button
+                onClick={() => publishMutation.mutate(g.id)}
+                disabled={publishMutation.isPending}
+                className="shrink-0 rounded px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                Publish
+              </button>
+            </div>
+          ))}
+          {publishMutation.error && (
+            <p className="text-xs text-destructive">
+              {(publishMutation.error as Error).message || 'Publish failed'}
+            </p>
+          )}
+          {unpublishedGuidelines.filter((g) => !publishedIds.has(g.id)).length === 0 && (
             <p className="text-sm text-muted-foreground">✅ {t('no_results')}</p>
           )}
         </CardContent>

@@ -33,7 +33,7 @@ CREATE POLICY "Admins can manage roles" ON public.user_roles
 -- ============================================================
 -- PROCEDURES
 -- ============================================================
-CREATE TABLE public.procedures (
+CREATE TABLE IF NOT EXISTS public.procedures (
   id text PRIMARY KEY,
   specialty text NOT NULL,
   titles jsonb NOT NULL,
@@ -48,7 +48,7 @@ CREATE POLICY "Public read procedures" ON public.procedures FOR SELECT USING (tr
 CREATE POLICY "Admin write procedures" ON public.procedures FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(), 'admin'));
 CREATE POLICY "Admin update procedures" ON public.procedures FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin'));
 CREATE POLICY "Admin delete procedures" ON public.procedures FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'));
-CREATE INDEX idx_procedures_specialty ON public.procedures(specialty);
+CREATE INDEX IF NOT EXISTS idx_procedures_specialty ON public.procedures(specialty);
 
 -- ============================================================
 -- DRUGS
@@ -143,6 +143,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
+DROP TRIGGER IF EXISTS update_procedures_updated_at ON public.procedures;
 CREATE TRIGGER update_procedures_updated_at BEFORE UPDATE ON public.procedures FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_drugs_updated_at BEFORE UPDATE ON public.drugs FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 CREATE TRIGGER update_guidelines_updated_at BEFORE UPDATE ON public.guidelines FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();

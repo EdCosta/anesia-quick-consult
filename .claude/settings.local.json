@@ -15,7 +15,15 @@
       "Bash(git add public/data/alr.v1.json)",
       "Bash(npx supabase db remote status)",
       "Bash(ls .env*)",
-      "Read(//c/Users/meg_e/Documents/**)"
+      "Read(//c/Users/meg_e/Documents/**)",
+      "Bash(npm install)",
+      "Bash(npx supabase functions deploy translate-content admin-import-guidelines admin-publish-guideline-version admin-import-procedures)",
+      "Bash(npx supabase link --project-ref sdoxdvldfonuaxjltrcc)",
+      "Bash(npx supabase db query \"select u.email, u.email_confirmed_at, r.role from auth.users u left join public.user_roles r on r.user_id = u.id order by u.created_at desc limit 5;\")",
+      "Bash(npx supabase --experimental db execute --sql \"select u.email, u.email_confirmed_at is not null as confirmed, r.role from auth.users u left join public.user_roles r on r.user_id = u.id order by u.created_at desc limit 5;\")",
+      "Bash(npx supabase inspect db calls)",
+      "Bash(npx supabase --help)",
+      "Bash(npx supabase snippets list)"
     ]
   }
 }

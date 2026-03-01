@@ -10,7 +10,12 @@
       "mcp__claude_ai_Supabase__list_tables",
       "mcp__claude_ai_Supabase__list_migrations",
       "mcp__claude_ai_Supabase__apply_migration",
-      "mcp__claude_ai_Supabase__execute_sql"
+      "mcp__claude_ai_Supabase__execute_sql",
+      "Bash(git add src/pages/ALR.tsx)",
+      "Bash(git add public/data/alr.v1.json)",
+      "Bash(npx supabase db remote status)",
+      "Bash(ls .env*)",
+      "Read(//c/Users/meg_e/Documents/**)"
     ]
   }
 }

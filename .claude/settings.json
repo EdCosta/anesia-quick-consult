@@ -12,7 +12,13 @@
       "Bash(git add src/App.tsx src/contexts/DataContext.tsx)",
       "Bash(git add src/pages/Index.tsx)",
       "Bash(node -e \"const fs=require\\(''fs''\\); const raw=fs.readFileSync\\(''./public/data/procedures.v3.json'',''utf8''\\); const p=JSON.parse\\(raw\\); console.log\\(Object.keys\\(p\\)\\)\")",
-      "Bash(node -e \"const fs=require\\(''fs''\\); const raw=fs.readFileSync\\(''./public/data/procedures.v3.json'',''utf8''\\); const p=JSON.parse\\(raw\\); const arr=Object.values\\(p\\); const specs=[...new Set\\(arr.map\\(x=>x.specialty\\)\\)]; console.log\\(specs.join\\(''\\\\n''\\)\\)\")"
+      "Bash(node -e \"const fs=require\\(''fs''\\); const raw=fs.readFileSync\\(''./public/data/procedures.v3.json'',''utf8''\\); const p=JSON.parse\\(raw\\); const arr=Object.values\\(p\\); const specs=[...new Set\\(arr.map\\(x=>x.specialty\\)\\)]; console.log\\(specs.join\\(''\\\\n''\\)\\)\")",
+      "Bash(npx supabase projects list)",
+      "Read(//c/Users/meg_e/.claude/**)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(list\\(d.get\\(''mcpServers'',{}\\).keys\\(\\)\\)\\)\")",
+      "Read(//c/Users/meg_e/AppData/Roaming/Claude/**)",
+      "Bash(git add supabase/migrations/20260228140000_seed_alr_blocks.sql)",
+      "Bash(xargs grep -l \"SUPABASE_SERVICE_ROLE\\\\|service_role_key\\\\|SERVICE_ROLE\")"
     ]
   }
 }

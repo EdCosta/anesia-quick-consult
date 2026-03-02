@@ -24,7 +24,14 @@ DECLARE
   profile_name text;
 BEGIN
   profile_name := NULLIF(
-    btrim(COALESCE(NEW.raw_user_meta_data ->> 'name', NEW.raw_user_meta_data ->> 'username', '')),
+    btrim(
+      COALESCE(
+        NEW.raw_user_meta_data ->> 'full_name',
+        NEW.raw_user_meta_data ->> 'name',
+        NEW.raw_user_meta_data ->> 'username',
+        ''
+      )
+    ),
     ''
   );
 

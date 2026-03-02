@@ -60,7 +60,7 @@ export default function Auth() {
     setFeedback(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}/auth` },
     });
     if (error) {
       setFeedback({ type: 'error', message: error.message });
@@ -104,9 +104,11 @@ export default function Auth() {
       email: signUpEmail.trim(),
       password: signUpPassword,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth`,
         data: {
           username: signUpUsername.trim(),
           name: signUpUsername.trim(),
+          full_name: signUpUsername.trim(),
         },
       },
     });

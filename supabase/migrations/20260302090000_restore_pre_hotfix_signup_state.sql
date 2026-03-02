@@ -1,5 +1,8 @@
 BEGIN;
 
+-- Restore the pre-hotfix signup/profile behavior from before the emergency
+-- no-op and non-blocking trigger changes.
+
 CREATE TABLE IF NOT EXISTS public.user_profiles (
   user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email text,
@@ -72,8 +75,56 @@ BEGIN
       USING (auth.uid() = user_id)
       WITH CHECK (auth.uid() = user_id);
   END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'user_profiles'
+      AND policyname = 'user_profiles_manage_admin'
+  ) THEN
+    CREATE POLICY user_profiles_manage_admin
+      ON public.user_profiles
+      FOR ALL
+      USING (public.is_admin())
+      WITH CHECK (public.is_admin());
+  END IF;
 END
 $$;
+
+CREATE OR REPLACE FUNCTION public.guard_user_profile_plan()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF auth.role() = 'service_role' OR public.is_admin() THEN
+    RETURN NEW;
+  END IF;
+
+  IF TG_OP = 'INSERT' THEN
+    NEW.plan := COALESCE(NEW.plan, 'free');
+    IF NEW.plan <> 'free' THEN
+      RAISE EXCEPTION 'Only admins can assign plan values other than free';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF NEW.plan IS DISTINCT FROM OLD.plan THEN
+    RAISE EXCEPTION 'Only admins can change plan';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS guard_user_profile_plan_insert_update ON public.user_profiles;
+
+CREATE TRIGGER guard_user_profile_plan_insert_update
+  BEFORE INSERT OR UPDATE ON public.user_profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.guard_user_profile_plan();
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger

@@ -7,7 +7,7 @@ export async function loadDrugsFromSupabase(): Promise<Drug[]> {
     supabase
       .from('drugs' as any)
       .select(
-        'id,names,class,dosing,notes,contraindications,tags,presentations,standard_dilutions,compatibility_notes',
+        'id,names,class,dosing,notes,contraindications,tags,compatibility_notes',
       ),
     supabase
       .from('drug_presentations' as any)

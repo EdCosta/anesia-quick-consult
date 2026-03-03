@@ -59,6 +59,37 @@ function dedupeProcedures(procedures: Procedure[]): Procedure[] {
   });
 }
 
+function pickPreferredProcedure(current: Procedure, next: Procedure, canonicalId: string): Procedure {
+  const currentIsCanonical = current.id === canonicalId;
+  const nextIsCanonical = next.id === canonicalId;
+
+  if (currentIsCanonical && !nextIsCanonical) return current;
+  if (nextIsCanonical && !currentIsCanonical) return next;
+
+  return current;
+}
+
+function dedupeHospitalScopedProcedures(
+  procedures: Procedure[],
+  aliases: Record<string, string>,
+): Procedure[] {
+  const grouped = new Map<string, Procedure>();
+
+  for (const procedure of procedures) {
+    const canonicalId = aliases[procedure.id] || procedure.id;
+    const existing = grouped.get(canonicalId);
+
+    if (!existing) {
+      grouped.set(canonicalId, procedure);
+      continue;
+    }
+
+    grouped.set(canonicalId, pickPreferredProcedure(existing, procedure, canonicalId));
+  }
+
+  return Array.from(grouped.values());
+}
+
 export function getHospitalProcedureIds(profile: HospitalProfile | null | undefined): Set<string> | null {
   const ids = getProtocolOverrides(profile)?.procedure_ids;
   if (!isStringArray(ids) || ids.length === 0) return null;
@@ -125,9 +156,12 @@ export function filterProceduresForHospitalMode(
   isHospitalView: boolean,
 ): Procedure[] {
   const scopedIds = getHospitalProcedureIds(profile);
-  const source =
-    isHospitalView && scopedIds
-      ? procedures.filter((procedure) => scopedIds.has(procedure.id))
-      : procedures;
+  const aliases = getHospitalProcedureAliases(profile);
+  const source = isHospitalView && scopedIds
+    ? dedupeHospitalScopedProcedures(
+        procedures.filter((procedure) => scopedIds.has(procedure.id)),
+        aliases,
+      )
+    : procedures;
   return dedupeProcedures(source);
 }

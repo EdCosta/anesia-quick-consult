@@ -4,11 +4,14 @@ import Fuse from 'fuse.js';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useHospitalProfile } from '@/hooks/useHospitalProfile';
+import { useViewMode } from '@/hooks/useViewMode';
 import {
   generateRecommendations,
   type PreAnestInput,
   type PreAnestOutput,
 } from '@/lib/preanest-rules';
+import { filterProceduresForHospitalMode } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName } from '@/lib/specialties';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -55,6 +58,8 @@ const DEFAULT_INPUT: PreAnestInput = {
 export default function PreAnest() {
   const { t, lang, resolveStr } = useLang();
   const { procedures, specialtiesData } = useData();
+  const hospitalProfile = useHospitalProfile();
+  const { isHospitalView } = useViewMode();
   const [saved, setSaved] = useLocalStorage<PreAnestInput>('anesia-preanest-last', DEFAULT_INPUT);
   const [input, setInput] = useState<PreAnestInput>(saved);
   const [result, setResult] = useState<PreAnestOutput | null>(null);
@@ -62,23 +67,28 @@ export default function PreAnest() {
   const [showProcList, setShowProcList] = useState(false);
   const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
 
+  const visibleProcedures = useMemo(
+    () => filterProceduresForHospitalMode(procedures, hospitalProfile, isHospitalView),
+    [procedures, hospitalProfile, isHospitalView],
+  );
+
   const fuse = useMemo(
     () =>
-      new Fuse(procedures, {
+      new Fuse(visibleProcedures, {
         keys: [`titles.${lang}`, 'titles.fr', 'specialty'],
         threshold: 0.4,
         ignoreLocation: true,
       }),
-    [procedures, lang],
+    [visibleProcedures, lang],
   );
 
   const procResults = useMemo(() => {
-    if (!procSearch.trim()) return procedures.slice(0, 10);
+    if (!procSearch.trim()) return visibleProcedures.slice(0, 10);
     return fuse
       .search(procSearch)
       .slice(0, 10)
       .map((r) => r.item);
-  }, [procSearch, fuse, procedures]);
+  }, [procSearch, fuse, visibleProcedures]);
 
   const set = <K extends keyof PreAnestInput>(key: K, val: PreAnestInput[K]) => {
     setInput((prev) => ({ ...prev, [key]: val }));
@@ -99,7 +109,7 @@ export default function PreAnest() {
     setExpandedBlock('preop');
   };
 
-  const selectedProc = procedures.find((p) => p.id === input.procedureId);
+  const selectedProc = visibleProcedures.find((p) => p.id === input.procedureId);
 
   const blocks = result
     ? [

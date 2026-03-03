@@ -22,12 +22,15 @@ import type { Procedure } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useSpecialtyUsage } from '@/hooks/useSpecialtyUsage';
 import { useContentLimits } from '@/hooks/useContentLimits';
+import { useHospitalProfile } from '@/hooks/useHospitalProfile';
+import { useViewMode } from '@/hooks/useViewMode';
 import SpecialtyChips from '@/components/anesia/SpecialtyChips';
 import ProcedureCard from '@/components/anesia/ProcedureCard';
 import ProGate from '@/components/anesia/ProGate';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
+import { filterProceduresForHospitalMode } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName, getSpecialtyTrackingKey } from '@/lib/specialties';
 
 export default function Index() {
@@ -36,6 +39,8 @@ export default function Index() {
   const navigate = useNavigate();
   const { increment: incrementSpecialty, getSorted: getSortedSpecialties } = useSpecialtyUsage();
   const { procedures: procLimit, isLimited } = useContentLimits();
+  const hospitalProfile = useHospitalProfile();
+  const { isHospitalView } = useViewMode();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
@@ -59,6 +64,11 @@ export default function Index() {
   const isSearching = searchQuery.trim().length > 0 || selectedSpecialties.length > 0;
   const hasActiveFilters = selectedSpecialties.length > 0 || showOnlyFavorites || favoritesFirst;
 
+  const visibleProcedureIndex = useMemo(
+    () => filterProceduresForHospitalMode(procedureIndex, hospitalProfile, isHospitalView),
+    [procedureIndex, hospitalProfile, isHospitalView],
+  );
+
   const searchSuggestions = useMemo(() => {
     if (lang === 'pt') return ['apendicectomia', 'TIVA', 'PONV'];
     if (lang === 'en') return ['appendectomy', 'TIVA', 'PONV'];
@@ -68,9 +78,9 @@ export default function Index() {
   const sortedSpecialties = useMemo(() => {
     const dbIds = specialtiesData.map((s) => s.id);
     if (dbIds.length > 0) return getSortedSpecialties(dbIds);
-    const set = new Set(procedureIndex.map((p) => p.specialty));
+    const set = new Set(visibleProcedureIndex.map((p) => p.specialty));
     return getSortedSpecialties(Array.from(set));
-  }, [specialtiesData, procedureIndex, getSortedSpecialties]);
+  }, [specialtiesData, visibleProcedureIndex, getSortedSpecialties]);
 
   useEffect(() => {
     const el = heroSearchRef.current;
@@ -84,7 +94,7 @@ export default function Index() {
   }, []);
 
   const fuse = useMemo(() => {
-    return new Fuse(procedureIndex, {
+    return new Fuse(visibleProcedureIndex, {
       keys: [
         { name: `titles.${lang}`, weight: 2 },
         { name: 'titles.fr', weight: 1.5 },
@@ -96,7 +106,7 @@ export default function Index() {
       includeScore: true,
       ignoreLocation: true,
     });
-  }, [procedureIndex, lang]);
+  }, [visibleProcedureIndex, lang]);
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
@@ -117,7 +127,7 @@ export default function Index() {
   }, [deferredSearchQuery, fuse]);
 
   const filteredResults = useMemo(() => {
-    let source = searchResults ?? procedureIndex;
+    let source = searchResults ?? visibleProcedureIndex;
     if (selectedSpecialties.length > 0) {
       // selectedSpecialties may be Supabase IDs; resolve to all name variants for matching
       const resolvedNames = new Set(
@@ -138,7 +148,7 @@ export default function Index() {
     return source;
   }, [
     searchResults,
-    procedureIndex,
+    visibleProcedureIndex,
     selectedSpecialties,
     showOnlyFavorites,
     favoritesFirst,
@@ -146,7 +156,7 @@ export default function Index() {
     specialtiesData,
   ]);
 
-  const filterResetKey = `${deferredSearchQuery}::${selectedSpecialties.join('|')}::${showOnlyFavorites ? 1 : 0}::${favoritesFirst ? 1 : 0}::${procedureIndex.length}`;
+  const filterResetKey = `${deferredSearchQuery}::${selectedSpecialties.join('|')}::${showOnlyFavorites ? 1 : 0}::${favoritesFirst ? 1 : 0}::${visibleProcedureIndex.length}`;
 
   useEffect(() => {
     setVisibleCount(24);
@@ -163,14 +173,18 @@ export default function Index() {
 
   const favProcedures = useMemo(
     () =>
-      favorites.map((id) => procedureIndex.find((p) => p.id === id)).filter(Boolean) as Procedure[],
-    [favorites, procedureIndex],
+      favorites
+        .map((id) => visibleProcedureIndex.find((p) => p.id === id))
+        .filter(Boolean) as Procedure[],
+    [favorites, visibleProcedureIndex],
   );
 
   const recentProcedures = useMemo(
     () =>
-      recents.map((id) => procedureIndex.find((p) => p.id === id)).filter(Boolean) as Procedure[],
-    [recents, procedureIndex],
+      recents
+        .map((id) => visibleProcedureIndex.find((p) => p.id === id))
+        .filter(Boolean) as Procedure[],
+    [recents, visibleProcedureIndex],
   );
 
   const handleClearSearch = () => {
@@ -393,7 +407,7 @@ export default function Index() {
         {isSearching && (
           <div className="w-full max-w-lg mt-3">
             <h2 className="text-sm font-semibold text-muted-foreground mb-2">{t('results')}</h2>
-            {indexLoading && procedureIndex.length === 0 ? (
+            {indexLoading && visibleProcedureIndex.length === 0 ? (
               renderLoadingSkeleton()
             ) : filteredResults.length === 0 ? (
               renderEmptyState()
@@ -487,7 +501,7 @@ export default function Index() {
                   </button>
                 </div>
               </div>
-              {indexLoading && procedureIndex.length === 0 ? (
+              {indexLoading && visibleProcedureIndex.length === 0 ? (
                 renderLoadingSkeleton()
               ) : filteredResults.length === 0 ? (
                 renderEmptyState()

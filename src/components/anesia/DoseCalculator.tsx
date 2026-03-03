@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { Search, X } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
+import { useHospitalProfile } from '@/hooks/useHospitalProfile';
+import { useViewMode } from '@/hooks/useViewMode';
 import PatientAnthropometrics from './PatientAnthropometrics';
 import DrugDoseRow from './DrugDoseRow';
 import type { PatientWeights } from '@/lib/weightScalars';
@@ -9,23 +11,34 @@ import type { PatientWeights } from '@/lib/weightScalars';
 export default function DoseCalculator() {
   const { t, resolveStr } = useLang();
   const { drugs } = useData();
+  const { isHospitalView } = useViewMode();
+  const hospitalProfile = useHospitalProfile();
   const [search, setSearch] = useState('');
   const [selectedDrugId, setSelectedDrugId] = useState<string | null>(null);
   const [weightKg, setWeightKg] = useState('');
   const [patientWeights, setPatientWeights] = useState<PatientWeights | null>(null);
 
   const weight = parseFloat(weightKg) || null;
+  const formularyDrugIds = useMemo(() => {
+    if (!isHospitalView) return null;
+    const ids = hospitalProfile?.formulary?.drug_ids || [];
+    return ids.length > 0 ? new Set(ids) : null;
+  }, [hospitalProfile, isHospitalView]);
+  const visibleDrugs = useMemo(() => {
+    if (!formularyDrugIds) return drugs;
+    return drugs.filter((drug) => formularyDrugIds.has(drug.id));
+  }, [drugs, formularyDrugIds]);
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return drugs.slice(0, 20);
+    if (!search.trim()) return visibleDrugs.slice(0, 20);
     const q = search.toLowerCase();
-    return drugs.filter((d) => {
+    return visibleDrugs.filter((d) => {
       const name = resolveStr(d.name).toLowerCase();
       return name.includes(q);
     });
-  }, [drugs, search, resolveStr]);
+  }, [visibleDrugs, search, resolveStr]);
 
-  const selectedDrug = selectedDrugId ? drugs.find((d) => d.id === selectedDrugId) : null;
+  const selectedDrug = selectedDrugId ? visibleDrugs.find((d) => d.id === selectedDrugId) : null;
 
   return (
     <div className="space-y-4">

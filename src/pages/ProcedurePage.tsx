@@ -37,6 +37,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { dbRowToProcedure } from '@/data/normalize/normalizeProcedure';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
+import { getHospitalProcedureIds } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName } from '@/lib/specialties';
 import type { PatientWeights } from '@/lib/weightScalars';
 import type { Guideline, Procedure, ProcedureQuick } from '@/lib/types';
@@ -88,16 +89,22 @@ export default function ProcedurePage() {
   const [directProcedureLoading, setDirectProcedureLoading] = useState(false);
   const [attemptedProcedureId, setAttemptedProcedureId] = useState<string | null>(null);
   const { isAdmin } = useIsAdmin();
-  const { isPro, isProView } = useViewMode();
+  const { isPro, isProView, isHospitalView } = useViewMode();
   const hospitalProfile = useHospitalProfile();
-  const procedure = getProcedure(id || '') || directProcedure;
+  const hospitalProcedureIds = useMemo(
+    () => (isHospitalView ? getHospitalProcedureIds(hospitalProfile) : null),
+    [hospitalProfile, isHospitalView],
+  );
+  const isProcedureInHospitalScope = !id || !hospitalProcedureIds || hospitalProcedureIds.has(id);
+  const procedure = isProcedureInHospitalScope ? getProcedure(id || '') || directProcedure : null;
   const isFav = id ? favorites.includes(id) : false;
   const guidelineIds = useMemo(() => guidelines.map((guideline) => guideline.id), [guidelines]);
   const { procedureTagIds, guidelineTagIds } = useRecommendationTags(procedure?.id, guidelineIds);
   const formularyDrugIds = useMemo(() => {
+    if (!isHospitalView) return null;
     const ids = hospitalProfile?.formulary?.drug_ids || [];
     return ids.length > 0 ? new Set(ids) : null;
-  }, [hospitalProfile]);
+  }, [hospitalProfile, isHospitalView]);
 
   const applyHospitalFormulary = useCallback(
     (content: ProcedureQuick | null | undefined): ProcedureQuick | null | undefined => {
@@ -117,7 +124,7 @@ export default function ProcedurePage() {
   }, [id]);
 
   useEffect(() => {
-    if (!id || procedure || directProcedureLoading || attemptedProcedureId === id) return;
+    if (!id || !isProcedureInHospitalScope || procedure || directProcedureLoading || attemptedProcedureId === id) return;
 
     let cancelled = false;
 
@@ -136,7 +143,7 @@ export default function ProcedurePage() {
     return () => {
       cancelled = true;
     };
-  }, [id, procedure, directProcedureLoading, attemptedProcedureId]);
+  }, [id, isProcedureInHospitalScope, procedure, directProcedureLoading, attemptedProcedureId]);
 
   const isTranslatedFallback = useCallback(
     <T,>(content: Partial<Record<typeof lang, T>> | undefined) =>

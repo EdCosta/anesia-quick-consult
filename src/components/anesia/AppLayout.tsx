@@ -151,54 +151,66 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           <div className="ml-auto flex items-center gap-2">
             {/* Hospital profile selector */}
-            {user && profiles.length > 0 && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                    title={t('hospital_profile')}
-                  >
-                    <Building2 className="h-4 w-4" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-48 p-2">
-                  <p className="text-xs font-semibold text-foreground mb-2">
-                    {t('select_profile')}
-                  </p>
-                  {profiles.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => {
-                        setActiveProfile(p.id);
-                        localStorage.setItem(HOSPITAL_PROFILE_ID_KEY, p.id);
-                        setLang(p.default_lang);
-                      }}
-                      className={`w-full text-left rounded px-2 py-1.5 text-xs transition-colors ${
-                        activeProfile === p.id
-                          ? 'bg-primary/10 text-primary font-medium'
-                          : 'hover:bg-muted text-foreground'
-                      }`}
-                    >
-                      <span className="block">{p.name}</span>
-                      <span className="block text-[10px] text-muted-foreground">
-                        {[p.country, p.default_lang.toUpperCase()].filter(Boolean).join(' · ')}
-                      </span>
-                    </button>
-                  ))}
-                  {activeProfile && (
-                    <button
-                      onClick={() => {
-                        setActiveProfile(null);
-                        localStorage.removeItem(HOSPITAL_PROFILE_ID_KEY);
-                      }}
-                      className="w-full mt-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
-                    >
-                      {t('clear')}
-                    </button>
-                  )}
-                </PopoverContent>
-              </Popover>
-            )}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+                  title={t('hospital_profile')}
+                >
+                  <Building2 className="h-4 w-4" />
+                  <span>{t('hospital_profile')}</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2">
+                <p className="mb-2 text-xs font-semibold text-foreground">
+                  {t('select_profile')}
+                </p>
+                {profiles.length === 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">
+                      No hospital profiles loaded yet.
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Apply the St Pierre hospital profile migration in Supabase to make it selectable.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {profiles.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          setActiveProfile(p.id);
+                          localStorage.setItem(HOSPITAL_PROFILE_ID_KEY, p.id);
+                          setLang(p.default_lang);
+                        }}
+                        className={`w-full text-left rounded px-2 py-1.5 text-xs transition-colors ${
+                          activeProfile === p.id
+                            ? 'bg-primary/10 text-primary font-medium'
+                            : 'hover:bg-muted text-foreground'
+                        }`}
+                      >
+                        <span className="block">{p.name}</span>
+                        <span className="block text-[10px] text-muted-foreground">
+                          {[p.country, p.default_lang.toUpperCase()].filter(Boolean).join(' · ')}
+                        </span>
+                      </button>
+                    ))}
+                    {activeProfile && (
+                      <button
+                        onClick={() => {
+                          setActiveProfile(null);
+                          localStorage.removeItem(HOSPITAL_PROFILE_ID_KEY);
+                        }}
+                        className="mt-1 w-full rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+                      >
+                        {t('clear')}
+                      </button>
+                    )}
+                  </>
+                )}
+              </PopoverContent>
+            </Popover>
             {/* Plan badge - links to /account */}
             {user && (
               <Link to="/account">

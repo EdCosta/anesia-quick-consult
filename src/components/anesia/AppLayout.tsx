@@ -11,7 +11,6 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { useViewMode } from '@/hooks/useViewMode';
 import { Badge } from '@/components/ui/badge';
 import { isSupportedLang } from '@/i18n';
-import type { Database } from '@/integrations/supabase/types';
 import type { HospitalProfile } from '@/lib/types';
 import AIWidget from './AIWidget';
 
@@ -30,10 +29,15 @@ type HospitalProfileSettings = {
   protocol_overrides?: HospitalProfile['protocol_overrides'] | null;
 };
 
-type HospitalProfileRow = Pick<
-  Database['public']['Tables']['hospital_profiles']['Row'],
-  'id' | 'name' | 'settings'
->;
+type HospitalProfileRow = {
+  id: string;
+  name: string;
+  settings?: unknown;
+  country?: string | null;
+  default_lang?: string | null;
+  formulary?: HospitalProfile['formulary'] | null;
+  protocol_overrides?: HospitalProfile['protocol_overrides'] | null;
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -59,8 +63,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     setLoadingProfiles(true);
     supabase
-      .from('hospital_profiles')
-      .select('id, name, settings')
+      .from('hospital_profiles' as any)
+      .select('id, name, settings, country, default_lang, formulary, protocol_overrides')
       .then(({ data, error }) => {
         if (error) {
           console.error('Error loading hospital profiles:', error);
@@ -76,20 +80,25 @@ export default function AppLayout({ children }: AppLayoutProps) {
               return [{ id: row.id, name: row.name, settings: row.settings }];
             })
           : [];
-        if (rows.length === 0) return;
+        if (rows.length === 0) {
+          setProfiles([]);
+          setLoadingProfiles(false);
+          return;
+        }
 
         setProfiles(
           rows.map((p) => {
             const settings = isRecord(p.settings) ? (p.settings as HospitalProfileSettings) : {};
-            const defaultLang = isSupportedLang(settings.default_lang) ? settings.default_lang : 'fr';
+            const defaultLangSource = p.default_lang ?? settings.default_lang;
+            const defaultLang = isSupportedLang(defaultLangSource) ? defaultLangSource : 'fr';
 
             return {
               id: p.id,
               name: p.name,
-              country: settings.country || undefined,
+              country: p.country || settings.country || undefined,
               default_lang: defaultLang,
-              formulary: settings.formulary || { drug_ids: [], presentations: [] },
-              protocol_overrides: settings.protocol_overrides || {},
+              formulary: p.formulary || settings.formulary || { drug_ids: [], presentations: [] },
+              protocol_overrides: p.protocol_overrides || settings.protocol_overrides || {},
             };
           }),
         );

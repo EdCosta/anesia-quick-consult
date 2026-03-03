@@ -167,6 +167,19 @@ export interface HospitalDrugAvailability {
   local_note?: string | null;
 }
 
+export interface HospitalProcedureContext {
+  title?: Partial<Localized<string>>;
+  summary?: Partial<Localized<string[]>>;
+  source_pages?: number[];
+  linked_procedure_ids?: string[];
+}
+
+export interface HospitalProtocolOverrides extends Record<string, unknown> {
+  procedure_ids?: string[];
+  procedure_aliases?: Record<string, string>;
+  procedure_contexts?: Record<string, HospitalProcedureContext>;
+}
+
 export interface HospitalProfile {
   id: string;
   name: string;
@@ -177,5 +190,5 @@ export interface HospitalProfile {
     items?: HospitalFormularyEntry[];
     presentations?: DrugPresentation[];
   };
-  protocol_overrides: Record<string, unknown>;
+  protocol_overrides: HospitalProtocolOverrides;
 }

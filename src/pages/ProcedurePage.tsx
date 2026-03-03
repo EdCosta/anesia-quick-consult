@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ClipboardCopy,
   BookOpen,
+  Building2,
   Crown,
   CheckSquare,
   FileText,
@@ -37,10 +38,20 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { dbRowToProcedure } from '@/data/normalize/normalizeProcedure';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
-import { getHospitalProcedureIds } from '@/lib/hospitalProfile';
+import {
+  getHospitalProcedureContext,
+  getHospitalProcedureIds,
+  resolveHospitalProcedureId,
+} from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName } from '@/lib/specialties';
 import type { PatientWeights } from '@/lib/weightScalars';
-import type { Guideline, Procedure, ProcedureQuick } from '@/lib/types';
+import type {
+  Guideline,
+  HospitalProcedureContext,
+  Procedure,
+  ProcedureQuick,
+  SupportedLang,
+} from '@/lib/types';
 
 function normalizeMatchKey(value: string) {
   return value
@@ -52,6 +63,27 @@ function normalizeMatchKey(value: string) {
 
 function getGuidelineYear(guideline: Guideline) {
   return Math.max(0, ...guideline.references.map((ref) => ref.year || 0));
+}
+
+function resolveLocalizedHospitalTitle(
+  value: HospitalProcedureContext['title'],
+  lang: SupportedLang,
+): string | null {
+  if (!value) return null;
+  return value[lang] || value.fr || value.en || value.pt || null;
+}
+
+function resolveLocalizedHospitalSummary(
+  value: HospitalProcedureContext['summary'],
+  lang: SupportedLang,
+): string[] {
+  if (!value) return [];
+  return value[lang] || value.fr || value.en || value.pt || [];
+}
+
+function formatHospitalSourcePages(pages: number[] | undefined): string | null {
+  if (!pages || pages.length === 0) return null;
+  return `${pages.length === 1 ? 'p.' : 'pp.'} ${pages.join(', ')}`;
 }
 
 async function loadProcedureOnDemand(id: string): Promise<Procedure | null> {
@@ -91,13 +123,22 @@ export default function ProcedurePage() {
   const { isAdmin } = useIsAdmin();
   const { isPro, isProView, isHospitalView } = useViewMode();
   const hospitalProfile = useHospitalProfile();
+  const requestedProcedureId = id || '';
+  const resolvedProcedureId = useMemo(
+    () => resolveHospitalProcedureId(requestedProcedureId, hospitalProfile, isHospitalView),
+    [requestedProcedureId, hospitalProfile, isHospitalView],
+  );
   const hospitalProcedureIds = useMemo(
     () => (isHospitalView ? getHospitalProcedureIds(hospitalProfile) : null),
     [hospitalProfile, isHospitalView],
   );
-  const isProcedureInHospitalScope = !id || !hospitalProcedureIds || hospitalProcedureIds.has(id);
-  const procedure = isProcedureInHospitalScope ? getProcedure(id || '') || directProcedure : null;
-  const isFav = id ? favorites.includes(id) : false;
+  const isProcedureInHospitalScope =
+    !requestedProcedureId || !hospitalProcedureIds || hospitalProcedureIds.has(resolvedProcedureId);
+  const procedure = isProcedureInHospitalScope
+    ? getProcedure(resolvedProcedureId) || directProcedure
+    : null;
+  const favoriteId = procedure?.id || requestedProcedureId || null;
+  const isFav = favoriteId ? favorites.includes(favoriteId) : false;
   const guidelineIds = useMemo(() => guidelines.map((guideline) => guideline.id), [guidelines]);
   const { procedureTagIds, guidelineTagIds } = useRecommendationTags(procedure?.id, guidelineIds);
   const formularyDrugIds = useMemo(() => {
@@ -121,16 +162,24 @@ export default function ProcedurePage() {
     setDirectProcedure(null);
     setDirectProcedureLoading(false);
     setAttemptedProcedureId(null);
-  }, [id]);
+  }, [resolvedProcedureId]);
 
   useEffect(() => {
-    if (!id || !isProcedureInHospitalScope || procedure || directProcedureLoading || attemptedProcedureId === id) return;
+    if (
+      !resolvedProcedureId ||
+      !isProcedureInHospitalScope ||
+      procedure ||
+      directProcedureLoading ||
+      attemptedProcedureId === resolvedProcedureId
+    ) {
+      return;
+    }
 
     let cancelled = false;
 
     setDirectProcedureLoading(true);
-    setAttemptedProcedureId(id);
-    void loadProcedureOnDemand(id)
+    setAttemptedProcedureId(resolvedProcedureId);
+    void loadProcedureOnDemand(resolvedProcedureId)
       .then((loaded) => {
         if (cancelled) return;
         setDirectProcedure(loaded);
@@ -143,7 +192,13 @@ export default function ProcedurePage() {
     return () => {
       cancelled = true;
     };
-  }, [id, isProcedureInHospitalScope, procedure, directProcedureLoading, attemptedProcedureId]);
+  }, [
+    resolvedProcedureId,
+    isProcedureInHospitalScope,
+    procedure,
+    directProcedureLoading,
+    attemptedProcedureId,
+  ]);
 
   const isTranslatedFallback = useCallback(
     <T,>(content: Partial<Record<typeof lang, T>> | undefined) =>
@@ -159,14 +214,14 @@ export default function ProcedurePage() {
   const isQuickFallbackLang = !!procedure && isTranslatedFallback(procedure.quick);
   const isDeepFallbackLang = !!procedure && isTranslatedFallback(procedure.deep);
   const quickTranslation = useAutoTranslation(
-    id || '',
+    procedure?.id || resolvedProcedureId,
     lang,
     'quick',
     contentFr,
     isPro && isProView && isQuickFallbackLang && !showOriginal,
   );
   const deepTranslation = useAutoTranslation(
-    id || '',
+    procedure?.id || resolvedProcedureId,
     lang,
     'deep',
     contentDeepFr,
@@ -174,22 +229,22 @@ export default function ProcedurePage() {
   );
 
   useEffect(() => {
-    if (id && procedure) {
+    if (favoriteId && procedure) {
       setRecents((prev) => {
-        const filtered = prev.filter((r) => r !== id);
-        return [id, ...filtered].slice(0, 10);
+        const filtered = prev.filter((r) => r !== favoriteId);
+        return [favoriteId, ...filtered].slice(0, 10);
       });
     }
-  }, [id, procedure]);
+  }, [favoriteId, procedure]);
 
   // Reset checklist when procedure changes
   useEffect(() => {
     setChecked({});
     setChecklistMode(false);
-  }, [id]);
+  }, [requestedProcedureId]);
   useEffect(() => {
     setTranslationSaved(false);
-  }, [id, lang]);
+  }, [requestedProcedureId, lang]);
 
   const isTranslating = quickTranslation.isTranslating || deepTranslation.isTranslating;
   const isAutoTranslated = quickTranslation.isAutoTranslated || deepTranslation.isAutoTranslated;
@@ -347,10 +402,18 @@ export default function ProcedurePage() {
   quick = applyHospitalFormulary(quick);
 
   const specialtyDisplayName = getSpecialtyDisplayName(procedure.specialty, specialtiesData, lang);
+  const hospitalProcedureContext = isHospitalView
+    ? getHospitalProcedureContext(hospitalProfile, requestedProcedureId, procedure.id)
+    : null;
+  const hospitalContextTitle = resolveLocalizedHospitalTitle(hospitalProcedureContext?.title, lang);
+  const hospitalContextSummary = resolveLocalizedHospitalSummary(hospitalProcedureContext?.summary, lang);
+  const hospitalContextSourcePages = formatHospitalSourcePages(hospitalProcedureContext?.source_pages);
 
   const toggleFav = () => {
-    if (!id) return;
-    setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
+    if (!favoriteId) return;
+    setFavorites((prev) =>
+      prev.includes(favoriteId) ? prev.filter((f) => f !== favoriteId) : [...prev, favoriteId],
+    );
   };
 
   // Checklist progress
@@ -435,6 +498,30 @@ export default function ProcedurePage() {
           <span>⏳</span>
           <span>{t('translating')}</span>
         </div>
+      )}
+
+      {hospitalContextSummary.length > 0 && (
+        <Card className="border-l-4 border-l-primary clinical-shadow">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="flex items-center gap-1.5 text-sm font-bold text-foreground">
+                <Building2 className="h-4 w-4 text-primary" />
+                {hospitalProfile?.name}
+              </h2>
+              {hospitalContextSourcePages && (
+                <Badge variant="secondary" className="text-[10px]">
+                  {hospitalContextSourcePages}
+                </Badge>
+              )}
+            </div>
+            {hospitalContextTitle && hospitalContextTitle !== hospitalProfile?.name && (
+              <p className="mt-1 text-xs font-medium text-muted-foreground">{hospitalContextTitle}</p>
+            )}
+            <div className="mt-3">
+              <BulletList items={hospitalContextSummary} />
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Toggle original / translated */}

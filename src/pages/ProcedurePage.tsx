@@ -21,6 +21,7 @@ import { useHospitalProfile } from '@/hooks/useHospitalProfile';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useViewMode } from '@/hooks/useViewMode';
 import { useRecommendationTags } from '@/hooks/useRecommendationTags';
+import { useAIProcedureContext } from '@/contexts/AIProcedureContext';
 import Section, { BulletList } from '@/components/anesia/Section';
 import IntubationGuide from '@/components/anesia/IntubationGuide';
 import DrugDoseRow from '@/components/anesia/DrugDoseRow';
@@ -122,6 +123,7 @@ export default function ProcedurePage() {
   const [attemptedProcedureId, setAttemptedProcedureId] = useState<string | null>(null);
   const { isAdmin } = useIsAdmin();
   const { isPro, isProView, isHospitalView } = useViewMode();
+  const { setProcedureContext } = useAIProcedureContext();
   const hospitalProfile = useHospitalProfile();
   const requestedProcedureId = id || '';
   const resolvedProcedureId = useMemo(
@@ -310,6 +312,31 @@ export default function ProcedurePage() {
   }, [procedure, guidelines, procedureTagIds, guidelineTagIds]);
 
   const weight = parseFloat(weightKg) || null;
+
+  useEffect(() => {
+    if (!requestedProcedureId) {
+      setProcedureContext(null);
+      return;
+    }
+
+    const currentProcedureId = procedure?.id || resolvedProcedureId || requestedProcedureId;
+    const currentProcedureTitle = procedure ? resolveStr(procedure.titles) : undefined;
+
+    setProcedureContext({
+      procedureId: currentProcedureId,
+      procedureTitle: currentProcedureTitle,
+    });
+
+    return () => {
+      setProcedureContext(null);
+    };
+  }, [
+    procedure,
+    requestedProcedureId,
+    resolvedProcedureId,
+    resolveStr,
+    setProcedureContext,
+  ]);
 
   const handleCopyChecklist = () => {
     if (!procedure) return;

@@ -1,6 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Building2, Crown, UserPlus, ChevronDown } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, Building2, Crown, UserPlus, ChevronDown, Loader2 } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { isSupportedLang } from '@/i18n';
 import type { Database } from '@/integrations/supabase/types';
 import type { HospitalProfile } from '@/lib/types';
+import AIWidget from './AIWidget';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -51,14 +52,22 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profiles, setProfiles] = useState<HospitalProfile[]>([]);
+  const [loadingProfiles, setLoadingProfiles] = useState(true);
   const [activeProfile, setActiveProfile] = useState<string | null>(() => readStoredHospitalProfileId());
   const { viewMode, setViewMode, isPro } = useViewMode();
 
   useEffect(() => {
+    setLoadingProfiles(true);
     supabase
       .from('hospital_profiles')
       .select('id, name, settings')
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Error loading hospital profiles:', error);
+          setLoadingProfiles(false);
+          return;
+        }
+
         const rows: HospitalProfileRow[] = Array.isArray(data)
           ? data.flatMap((row) => {
               if (!isRecord(row)) return [];
@@ -84,6 +93,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             };
           }),
         );
+        setLoadingProfiles(false);
       });
   }, []);
 
@@ -196,7 +206,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <p className="mb-2 text-xs font-semibold text-foreground">
                   {t('select_profile')}
                 </p>
-                {profiles.length === 0 ? (
+                {loadingProfiles ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                ) : profiles.length === 0 ? (
                   <div className="space-y-2">
                     <p className="text-xs text-muted-foreground">
                       No hospital profiles loaded yet.
@@ -358,6 +372,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
       {/* Content */}
       <div className="flex-1">{children}</div>
+      <AIWidget />
     </div>
   );
 }

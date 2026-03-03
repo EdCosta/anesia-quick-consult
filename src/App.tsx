@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { AIProcedureProvider } from '@/contexts/AIProcedureContext';
 import { DataProvider } from '@/contexts/DataContext';
 import DisclaimerBanner from '@/components/anesia/DisclaimerBanner';
 import AppLayout from '@/components/anesia/AppLayout';
@@ -53,45 +54,47 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
-              <DisclaimerBanner />
-              <AppLayout>
-                <Suspense fallback={<RouteFallback />}>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/guidelines" element={<Guidelines />} />
-                    <Route path="/alr" element={<ALR />} />
-                    <Route path="/calculateurs" element={<Calculateurs />} />
-                    <Route path="/protocoles" element={<Protocoles />} />
-                    <Route path="/preanest" element={<PreAnest />} />
-                    <Route path="/p/:id" element={<ProcedurePage />} />
-                    <Route path="/account" element={<Account />} />
-                    <Route element={<AdminGuard />}>
-                      <Route path="/admin-content" element={<AdminContent />} />
-                      <Route path="/admin/quality" element={<AdminQuality />} />
-                      <Route path="/admin" element={<AdminLayout />}>
-                        <Route index element={<AdminDashboard />} />
-                        <Route
-                          path="import/procedures"
-                          element={<AdminImportProcedures />}
-                        />
-                        <Route
-                          path="import/guidelines"
-                          element={<AdminImportGuidelines />}
-                        />
-                        <Route path="logs" element={<AdminLogs />} />
+            <AIProcedureProvider>
+              <BrowserRouter>
+                <DisclaimerBanner />
+                <AppLayout>
+                  <Suspense fallback={<RouteFallback />}>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/guidelines" element={<Guidelines />} />
+                      <Route path="/alr" element={<ALR />} />
+                      <Route path="/calculateurs" element={<Calculateurs />} />
+                      <Route path="/protocoles" element={<Protocoles />} />
+                      <Route path="/preanest" element={<PreAnest />} />
+                      <Route path="/p/:id" element={<ProcedurePage />} />
+                      <Route path="/account" element={<Account />} />
+                      <Route element={<AdminGuard />}>
+                        <Route path="/admin-content" element={<AdminContent />} />
+                        <Route path="/admin/quality" element={<AdminQuality />} />
+                        <Route path="/admin" element={<AdminLayout />}>
+                          <Route index element={<AdminDashboard />} />
+                          <Route
+                            path="import/procedures"
+                            element={<AdminImportProcedures />}
+                          />
+                          <Route
+                            path="import/guidelines"
+                            element={<AdminImportGuidelines />}
+                          />
+                          <Route path="logs" element={<AdminLogs />} />
+                        </Route>
                       </Route>
-                    </Route>
-                    <Route
-                      path="/admin/import-procedures"
-                      element={<Navigate to="/admin/import/procedures" replace />}
-                    />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </AppLayout>
-            </BrowserRouter>
+                      <Route
+                        path="/admin/import-procedures"
+                        element={<Navigate to="/admin/import/procedures" replace />}
+                      />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </AppLayout>
+              </BrowserRouter>
+            </AIProcedureProvider>
           </TooltipProvider>
         </DataProvider>
       </LanguageProvider>

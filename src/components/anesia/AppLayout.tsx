@@ -77,7 +77,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
               if (!isRecord(row)) return [];
               if (typeof row.id !== 'string' || typeof row.name !== 'string') return [];
 
-              return [{ id: row.id, name: row.name, settings: row.settings }];
+              return [
+                {
+                  id: row.id,
+                  name: row.name,
+                  settings: row.settings,
+                  country: typeof row.country === 'string' ? row.country : null,
+                  default_lang: typeof row.default_lang === 'string' ? row.default_lang : null,
+                  formulary: isRecord(row.formulary)
+                    ? (row.formulary as HospitalProfile['formulary'])
+                    : null,
+                  protocol_overrides: isRecord(row.protocol_overrides)
+                    ? (row.protocol_overrides as HospitalProfile['protocol_overrides'])
+                    : null,
+                },
+              ];
             })
           : [];
         if (rows.length === 0) {

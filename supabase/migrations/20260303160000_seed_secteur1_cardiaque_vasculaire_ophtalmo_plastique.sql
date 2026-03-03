@@ -234,7 +234,7 @@ VALUES (
   'ablation_arythmie_rythmologie',
   'cardiologie-interventionnelle',
   '["cardiologie-interventionnelle"]'::jsonb,
-  '{"fr":"Ablation d'arythmie — Électrophysiologie interventionnelle","en":"Cardiac arrhythmia ablation — Interventional electrophysiology","pt":"Ablação de arritmia — Eletrofisiologia intervencionista"}'::jsonb,
+  '{"fr":"Ablation d''arythmie — Électrophysiologie interventionnelle","en":"Cardiac arrhythmia ablation — Interventional electrophysiology","pt":"Ablação de arritmia — Eletrofisiologia intervencionista"}'::jsonb,
   '{"fr":["ablation flutter","ablation FA","ablation TSVP","ablation ESV","ablation AVNRT","ablation AVRT","ablation fibrillation auriculaire","rythmologie"],"en":["AF ablation","flutter ablation","SVT ablation","EP study","PVI"],"pt":["ablação flutter","ablação FA","ablação TSV"]}'::jsonb,
   $content4${
     "quick": {

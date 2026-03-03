@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import { useEntitlements } from './useEntitlements';
 import { useHospitalProfile } from './useHospitalProfile';
@@ -10,18 +10,26 @@ function normalizeViewMode(value: string): ViewMode {
 }
 
 export function useViewMode() {
-  const [storedViewMode, setViewMode] = useLocalStorage<string>('anesia-view-mode', 'normal');
+  const [storedViewMode, setStoredViewMode] = useLocalStorage<string>('anesia-view-mode', 'normal');
   const { isPro, loading } = useEntitlements();
   const hospitalProfile = useHospitalProfile();
-  const viewMode = normalizeViewMode(storedViewMode);
+  const normalizedStoredViewMode = normalizeViewMode(storedViewMode);
+  const viewMode = isPro ? normalizedStoredViewMode : 'normal';
   const isProView = viewMode === 'pro';
   const isHospitalView = !!hospitalProfile;
 
+  const setViewMode = useCallback(
+    (nextMode: ViewMode) => {
+      setStoredViewMode(nextMode === 'pro' && !isPro ? 'normal' : nextMode);
+    },
+    [isPro, setStoredViewMode],
+  );
+
   useEffect(() => {
     if (storedViewMode !== viewMode) {
-      setViewMode(viewMode);
+      setStoredViewMode(viewMode);
     }
-  }, [storedViewMode, viewMode, setViewMode]);
+  }, [storedViewMode, viewMode, setStoredViewMode]);
 
   return { viewMode, setViewMode, isProView, isHospitalView, isPro, loading };
 }

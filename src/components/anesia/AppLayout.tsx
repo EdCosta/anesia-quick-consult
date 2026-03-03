@@ -8,9 +8,10 @@ import { HEADER_ITEMS } from '@/config/nav';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { useEntitlements } from '@/hooks/useEntitlements';
 import { useViewMode } from '@/hooks/useViewMode';
 import { Badge } from '@/components/ui/badge';
+import { isSupportedLang } from '@/i18n';
+import type { Database } from '@/integrations/supabase/types';
 import type { HospitalProfile } from '@/lib/types';
 
 interface AppLayoutProps {
@@ -20,14 +21,27 @@ interface AppLayoutProps {
 const HOSPITAL_PROFILE_ID_KEY = 'anesia-hospital-profile';
 const HOSPITAL_PROFILE_DATA_KEY = 'anesia-hospital-profile-data';
 
-type HospitalProfileRow = {
+type HospitalProfileSettings = {
   id: string;
-  name: string;
   country?: string | null;
   default_lang?: string | null;
   formulary?: HospitalProfile['formulary'] | null;
   protocol_overrides?: HospitalProfile['protocol_overrides'] | null;
 };
+
+type HospitalProfileRow = Pick<
+  Database['public']['Tables']['hospital_profiles']['Row'],
+  'id' | 'name' | 'settings'
+>;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function readStoredHospitalProfileId() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(HOSPITAL_PROFILE_ID_KEY);
+}
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const { t, setLang } = useLang();
@@ -36,29 +50,38 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profiles, setProfiles] = useState<HospitalProfile[]>([]);
-  const [activeProfile, setActiveProfile] = useState<string | null>(() =>
-    localStorage.getItem(HOSPITAL_PROFILE_ID_KEY),
-  );
-  const { isPro } = useEntitlements();
-  const { viewMode, setViewMode } = useViewMode();
+  const [activeProfile, setActiveProfile] = useState<string | null>(() => readStoredHospitalProfileId());
+  const { viewMode, setViewMode, isPro } = useViewMode();
 
   useEffect(() => {
     supabase
       .from('hospital_profiles')
-      .select('id, name, country, default_lang, formulary, protocol_overrides')
+      .select('id, name, settings')
       .then(({ data }) => {
-        const rows = (data ?? []) as HospitalProfileRow[];
+        const rows: HospitalProfileRow[] = Array.isArray(data)
+          ? data.flatMap((row) => {
+              if (!isRecord(row)) return [];
+              if (typeof row.id !== 'string' || typeof row.name !== 'string') return [];
+
+              return [{ id: row.id, name: row.name, settings: row.settings }];
+            })
+          : [];
         if (rows.length === 0) return;
 
         setProfiles(
-          rows.map((p) => ({
-            id: p.id,
-            name: p.name,
-            country: p.country || undefined,
-            default_lang: p.default_lang || 'fr',
-            formulary: p.formulary || { drug_ids: [], presentations: [] },
-            protocol_overrides: p.protocol_overrides || {},
-          })),
+          rows.map((p) => {
+            const settings = isRecord(p.settings) ? (p.settings as HospitalProfileSettings) : {};
+            const defaultLang = isSupportedLang(settings.default_lang) ? settings.default_lang : 'fr';
+
+            return {
+              id: p.id,
+              name: p.name,
+              country: settings.country || undefined,
+              default_lang: defaultLang,
+              formulary: settings.formulary || { drug_ids: [], presentations: [] },
+              protocol_overrides: settings.protocol_overrides || {},
+            };
+          }),
         );
       });
   }, []);
@@ -84,6 +107,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, [activeProfile, profiles]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     if (!activeProfile) {
       localStorage.removeItem(HOSPITAL_PROFILE_DATA_KEY);
       window.dispatchEvent(new Event('anesia-hospital-profile-updated'));
@@ -94,17 +119,23 @@ export default function AppLayout({ children }: AppLayoutProps) {
     if (!profile) return;
 
     localStorage.setItem(HOSPITAL_PROFILE_DATA_KEY, JSON.stringify(profile));
+    setLang(profile.default_lang);
     window.dispatchEvent(new Event('anesia-hospital-profile-updated'));
-  }, [activeProfile, profiles]);
+  }, [activeProfile, profiles, setLang]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
-  const viewModeOptions = [
-    { value: 'normal' as const, label: t('mode_normal') },
-    { value: 'pro' as const, label: t('mode_pro') },
-  ];
+  const viewModeOptions = [{ value: 'normal' as const, label: t('mode_normal') }];
+  if (isPro) {
+    viewModeOptions.push({ value: 'pro' as const, label: t('mode_pro') });
+  }
   const activeViewMode =
     viewModeOptions.find((option) => option.value === viewMode) ?? viewModeOptions[0];
   const availableViewModes = viewModeOptions.filter((option) => option.value !== viewMode);
+  const hasViewModeSwitch = availableViewModes.length > 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -226,28 +257,32 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 type="button"
                 title={t('switch_mode')}
                 className="inline-flex h-8 min-w-[5.25rem] items-center justify-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
-                aria-haspopup="listbox"
+                aria-haspopup={hasViewModeSwitch ? 'listbox' : undefined}
               >
                 {viewMode === 'pro' && <Crown className="h-3 w-3" />}
                 <span>{activeViewMode.label}</span>
-                <ChevronDown className="h-3 w-3 text-primary-foreground/70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+                {hasViewModeSwitch && (
+                  <ChevronDown className="h-3 w-3 text-primary-foreground/70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+                )}
               </button>
 
-              <div className="absolute left-0 top-full z-50 hidden pt-1 group-hover:block group-focus-within:block">
-                <div className="min-w-full rounded-xl border border-border bg-card p-1 shadow-lg">
-                  {availableViewModes.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setViewMode(option.value)}
-                      className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
-                    >
-                      {option.value === 'pro' && <Crown className="h-3 w-3" />}
-                      <span>{option.label}</span>
-                    </button>
-                  ))}
+              {hasViewModeSwitch && (
+                <div className="absolute left-0 top-full z-50 hidden pt-1 group-hover:block group-focus-within:block">
+                  <div className="min-w-full rounded-xl border border-border bg-card p-1 shadow-lg">
+                    {availableViewModes.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setViewMode(option.value)}
+                        className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
+                      >
+                        {option.value === 'pro' && <Crown className="h-3 w-3" />}
+                        <span>{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             <LanguageSwitcher />
             {user ? (

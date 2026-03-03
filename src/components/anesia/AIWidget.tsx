@@ -175,6 +175,10 @@ function cloneMessages(messages: Message[]) {
   }));
 }
 
+function isRemoteThreadId(threadId: string | null | undefined) {
+  return !!threadId && !threadId.startsWith('thread-');
+}
+
 export default function AIWidget() {
   const { lang } = useLang();
   const { procedureContext } = useAIProcedureContext();
@@ -183,6 +187,7 @@ export default function AIWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AITab>('block');
   const [blockMessages, setBlockMessages] = useState<Message[]>([]);
+  const [blockThreadId, setBlockThreadId] = useState<string | null>(null);
   const [threadSearch, setThreadSearch] = useState('');
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [threads, setThreads] = useState<Thread[]>(() => readStoredThreads());
@@ -219,6 +224,7 @@ export default function AIWidget() {
 
   const handleClearBlock = useCallback(() => {
     setBlockMessages([]);
+    setBlockThreadId(null);
   }, []);
 
   const handleSaveBlockToHistory = useCallback(() => {
@@ -228,7 +234,7 @@ export default function AIWidget() {
 
     const now = new Date().toISOString();
     const newThread: Thread = {
-      id: createAIId('thread'),
+      id: blockThreadId || createAIId('thread'),
       title: buildThreadTitle(blockMessages, procedureContext?.procedureTitle),
       createdAt: now,
       updatedAt: now,
@@ -238,11 +244,14 @@ export default function AIWidget() {
       messages: cloneMessages(blockMessages),
     };
 
-    setThreads((currentThreads) => [newThread, ...currentThreads]);
+    setThreads((currentThreads) => {
+      const remainingThreads = currentThreads.filter((thread) => thread.id !== newThread.id);
+      return [newThread, ...remainingThreads];
+    });
     setSelectedThreadId(newThread.id);
     setActiveTab('history');
     toast.success('Conversa guardada no historico.');
-  }, [blockMessages, lang, procedureContext]);
+  }, [blockMessages, blockThreadId, lang, procedureContext]);
 
   const handleRenameThread = useCallback((threadId: string) => {
     const targetThread = threads.find((thread) => thread.id === threadId);
@@ -278,8 +287,14 @@ export default function AIWidget() {
     }
 
     setThreads((currentThreads) => currentThreads.filter((thread) => thread.id !== threadId));
+
+    if (blockThreadId === threadId) {
+      setBlockThreadId(null);
+      setBlockMessages([]);
+    }
+
     toast.success('Conversa apagada.');
-  }, []);
+  }, [blockThreadId]);
 
   const handleDuplicateThreadToBlock = useCallback((threadId: string) => {
     const targetThread = threads.find((thread) => thread.id === threadId);
@@ -289,6 +304,7 @@ export default function AIWidget() {
     }
 
     setBlockMessages(cloneMessages(targetThread.messages));
+    setBlockThreadId(isRemoteThreadId(targetThread.id) ? targetThread.id : null);
     setActiveTab('block');
     setIsOpen(true);
     toast.success('Conversa duplicada para Bloco.');
@@ -361,8 +377,10 @@ export default function AIWidget() {
             setMessages={setBlockMessages}
             onClear={handleClearBlock}
             onSaveToHistory={handleSaveBlockToHistory}
+            onThreadResolved={setBlockThreadId}
             canSaveToHistory={blockMessages.length > 0}
             procedureContextOverride={procedureContext}
+            threadId={blockThreadId}
             quickPrompts={QUICK_PROMPTS}
           />
         </TabsContent>
@@ -399,6 +417,24 @@ export default function AIWidget() {
                   procedureTitle: selectedThread.procedureTitle,
                 }}
                 setMessages={setSelectedThreadMessages}
+                onThreadResolved={(nextThreadId) => {
+                  if (nextThreadId === selectedThread.id) {
+                    return;
+                  }
+
+                  setThreads((currentThreads) =>
+                    currentThreads.map((thread) =>
+                      thread.id === selectedThread.id
+                        ? {
+                            ...thread,
+                            id: nextThreadId,
+                          }
+                        : thread,
+                    ),
+                  );
+                  setSelectedThreadId(nextThreadId);
+                }}
+                threadId={isRemoteThreadId(selectedThread.id) ? selectedThread.id : null}
               />
             </div>
           ) : (
@@ -417,7 +453,11 @@ export default function AIWidget() {
     </Drawer>
   ) : (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent side="right" className="flex h-full w-full flex-col p-0 sm:max-w-[34rem]">
+      <SheetContent
+        side="right"
+        className="flex h-full w-full flex-col p-0 sm:max-w-[34rem]"
+        onOpenAutoFocus={(event) => event.preventDefault()}
+      >
         {panelContent}
       </SheetContent>
     </Sheet>

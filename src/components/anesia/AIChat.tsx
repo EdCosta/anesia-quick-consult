@@ -21,6 +21,7 @@ import {
 } from '@/contexts/AIProcedureContext';
 import { useLang } from '@/contexts/LanguageContext';
 import { useAI } from '@/hooks/useAI';
+import { useHospitalProfile } from '@/hooks/useHospitalProfile';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -35,8 +36,10 @@ interface AIChatProps {
   mode: 'block' | 'history';
   onClear?: () => void;
   onSaveToHistory?: () => void;
+  onThreadResolved?: (threadId: string) => void;
   procedureContextOverride?: AIProcedureContextValue | null;
   setMessages: Dispatch<SetStateAction<Message[]>>;
+  threadId?: string | null;
   quickPrompts?: string[];
 }
 
@@ -47,21 +50,33 @@ export default function AIChat({
   mode,
   onClear,
   onSaveToHistory,
+  onThreadResolved,
   procedureContextOverride,
   setMessages,
+  threadId,
   quickPrompts = [],
 }: AIChatProps) {
   const { lang } = useLang();
   const { procedureContext } = useAIProcedureContext();
+  const hospitalProfile = useHospitalProfile();
   const effectiveProcedureContext = procedureContextOverride ?? procedureContext;
   const { ask, cancel, error, isLoading } = useAI();
   const [draft, setDraft] = useState('');
   const endRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const piiIssues = useMemo(() => detectPIIInText(draft), [draft]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [mode]);
 
   const handleSend = async () => {
     const question = draft.trim();
@@ -94,18 +109,28 @@ export default function AIChat({
     setDraft('');
 
     try {
-      const answer = await ask({
+      const result = await ask({
         question,
         procedureId: effectiveProcedureContext?.procedureId,
-        procedureTitle: effectiveProcedureContext?.procedureTitle,
+        threadId: threadId || undefined,
         language: lang,
+        constraints: hospitalProfile?.id
+          ? {
+              hospitalId: hospitalProfile.id,
+            }
+          : undefined,
       });
+
+      if (result.threadId) {
+        onThreadResolved?.(result.threadId);
+      }
 
       const assistantMessage: Message = {
         id: createAIId('msg'),
         role: 'assistant',
-        content: answer,
+        content: result.answer,
         createdAt: new Date().toISOString(),
+        ...(result.flags.length > 0 ? { flags: result.flags } : {}),
       };
 
       setMessages((currentMessages) => [...currentMessages, assistantMessage]);
@@ -235,12 +260,20 @@ export default function AIChat({
         </div>
       )}
 
-      <div className="space-y-3 rounded-2xl border border-border/70 bg-background p-3">
+      <div className="space-y-3 rounded-2xl border border-border/70 bg-background p-3" data-vaul-no-drag>
         <Textarea
+          ref={textareaRef}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Escreva a sua pergunta..."
           className="min-h-[110px] resize-none"
+          data-vaul-no-drag
+          onKeyDown={(event) => {
+            if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+              event.preventDefault();
+              void handleSend();
+            }
+          }}
         />
 
         {piiIssues.length > 0 && (

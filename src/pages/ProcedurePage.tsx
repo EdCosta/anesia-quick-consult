@@ -193,12 +193,8 @@ export default function ProcedurePage() {
     return () => {
       cancelled = true;
     };
-  }, [
-    resolvedProcedureId,
-    isProcedureInHospitalScope,
-    procedure,
-    attemptedProcedureId,
-  ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolvedProcedureId, isProcedureInHospitalScope, procedure]);
 
   const isTranslatedFallback = useCallback(
     <T,>(content: Partial<Record<typeof lang, T>> | undefined) =>

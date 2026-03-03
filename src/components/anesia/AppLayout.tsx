@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, LogIn, LogOut, Building2, Crown, UserPlus, ChevronDown } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
@@ -46,6 +46,7 @@ function readStoredHospitalProfileId() {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { t, setLang } = useLang();
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -128,14 +129,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
-  const viewModeOptions = [{ value: 'normal' as const, label: t('mode_normal') }];
-  if (isPro) {
-    viewModeOptions.push({ value: 'pro' as const, label: t('mode_pro') });
-  }
+  const viewModeOptions = [
+    { value: 'normal' as const, label: t('mode_normal') },
+    { value: 'pro' as const, label: t('mode_pro') },
+  ];
   const activeViewMode =
     viewModeOptions.find((option) => option.value === viewMode) ?? viewModeOptions[0];
   const availableViewModes = viewModeOptions.filter((option) => option.value !== viewMode);
-  const hasViewModeSwitch = availableViewModes.length > 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -257,32 +257,34 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 type="button"
                 title={t('switch_mode')}
                 className="inline-flex h-8 min-w-[5.25rem] items-center justify-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
-                aria-haspopup={hasViewModeSwitch ? 'listbox' : undefined}
+                aria-haspopup="listbox"
               >
                 {viewMode === 'pro' && <Crown className="h-3 w-3" />}
                 <span>{activeViewMode.label}</span>
-                {hasViewModeSwitch && (
-                  <ChevronDown className="h-3 w-3 text-primary-foreground/70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
-                )}
+                <ChevronDown className="h-3 w-3 text-primary-foreground/70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
               </button>
 
-              {hasViewModeSwitch && (
-                <div className="absolute left-0 top-full z-50 hidden pt-1 group-hover:block group-focus-within:block">
-                  <div className="min-w-full rounded-xl border border-border bg-card p-1 shadow-lg">
-                    {availableViewModes.map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setViewMode(option.value)}
-                        className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
-                      >
-                        {option.value === 'pro' && <Crown className="h-3 w-3" />}
-                        <span>{option.label}</span>
-                      </button>
-                    ))}
-                  </div>
+              <div className="absolute left-0 top-full z-50 hidden pt-1 group-hover:block group-focus-within:block">
+                <div className="min-w-full rounded-xl border border-border bg-card p-1 shadow-lg">
+                  {availableViewModes.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        if (option.value === 'pro' && !isPro) {
+                          navigate('/account');
+                          return;
+                        }
+                        setViewMode(option.value);
+                      }}
+                      className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
+                    >
+                      {option.value === 'pro' && <Crown className="h-3 w-3" />}
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
             </div>
             <LanguageSwitcher />
             {user ? (

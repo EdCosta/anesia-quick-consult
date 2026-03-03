@@ -187,7 +187,6 @@ export default function ProcedurePage() {
         setDirectProcedure(loaded);
       })
       .finally(() => {
-        if (cancelled) return;
         setDirectProcedureLoading(false);
       });
 
@@ -198,7 +197,6 @@ export default function ProcedurePage() {
     resolvedProcedureId,
     isProcedureInHospitalScope,
     procedure,
-    directProcedureLoading,
     attemptedProcedureId,
   ]);
 

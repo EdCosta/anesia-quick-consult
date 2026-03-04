@@ -21,7 +21,9 @@ export default function DrugDoseRow({ drug, indicationTag, weightKg, patientWeig
   const [dilutionOpen, setDilutionOpen] = useState(false);
 
   const drugName = resolveStr(drug.name);
-  const rule = drug.dose_rules.find((r) => r.indication_tag === indicationTag);
+  const rule =
+    drug.dose_rules.find((r) => r.indication_tag === indicationTag) || drug.dose_rules[0] || null;
+  const displayIndicationTag = indicationTag || rule?.indication_tag || '';
 
   const concentrationOptions = useMemo(() => {
     const options = [
@@ -114,9 +116,11 @@ export default function DrugDoseRow({ drug, indicationTag, weightKg, patientWeig
               <span className="font-heading text-sm font-semibold text-card-foreground">
                 {drugName}
               </span>
-              <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                {indicationTag.replace(/_/g, ' ')}
-              </span>
+              {displayIndicationTag && (
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                  {displayIndicationTag.replace(/_/g, ' ')}
+                </span>
+              )}
               <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                 {rule.route}
               </span>

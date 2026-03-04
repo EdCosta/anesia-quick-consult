@@ -1041,9 +1041,10 @@ function DrugGroupedList({
   const grouped = groupDrugs(drugs);
   const activeGroups = GROUP_ORDER.filter((g) => grouped[g].length > 0);
   const activeGroupsKey = activeGroups.join('|');
-  // Open all groups by default so all drugs are immediately visible
+  const buildInitialOpenGroups = () =>
+    Object.fromEntries(activeGroups.map((group, index) => [group, index === 0]));
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(activeGroups.map((group) => [group, true])),
+    buildInitialOpenGroups(),
   );
 
   useEffect(() => {
@@ -1051,7 +1052,7 @@ function DrugGroupedList({
       Object.fromEntries(
         activeGroups.map((group) => [
           group,
-          expandAllSignal > 0 ? true : (prev[group] ?? true),
+          expandAllSignal > 0 ? true : (prev[group] ?? group === activeGroups[0]),
         ]),
       ),
     );

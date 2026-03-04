@@ -37,13 +37,6 @@ export function useEntitlements(): EntitlementResult {
       } = await supabase.auth.getUser();
       if (!user) return 'free';
 
-      const { data: hasProAccess, error: proAccessError } = await supabase.rpc(
-        'has_pro_access' as any,
-      );
-      if (!proAccessError && hasProAccess === true) {
-        return 'pro';
-      }
-
       const { data: profileRow } = await supabase
         .from('user_profiles')
         .select('plan')

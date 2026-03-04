@@ -20,7 +20,7 @@ import {
 } from '@/data/repositories/specialtiesRepo';
 
 const INDEX_CACHE_KEY = 'anesia-data-index-v1';
-const FULL_CACHE_KEY = 'anesia-data-full-v1';
+const FULL_CACHE_KEY = 'anesia-data-full-v2';
 const INDEX_TTL = 15 * 60 * 1000;
 const FULL_TTL = 30 * 60 * 1000;
 
@@ -39,6 +39,15 @@ export interface FullDataSnapshot extends ProcedureIndexSnapshot {
   guidelines: Guideline[];
   protocoles: Protocole[];
   alrBlocks: ALRBlock[];
+}
+
+function hasUsableFullSnapshot(snapshot: FullDataSnapshot | null): snapshot is FullDataSnapshot {
+  if (!snapshot) return false;
+  if (snapshot.procedures.length === 0) return false;
+  if (snapshot.guidelines.length === 0) return false;
+  if (snapshot.protocoles.length === 0) return false;
+  if (snapshot.alrBlocks.length === 0) return false;
+  return true;
 }
 
 function readCache<T>(key: string, ttl: number): T | null {
@@ -99,12 +108,13 @@ export function readCachedProcedureIndex(): ProcedureIndexSnapshot | null {
   if (cachedIndex) return cachedIndex;
 
   const cachedFull = readCache<FullDataSnapshot>(FULL_CACHE_KEY, FULL_TTL);
-  if (!cachedFull) return null;
+  if (!hasUsableFullSnapshot(cachedFull)) return null;
   return toIndexSnapshot(cachedFull.procedures, cachedFull.specialtiesData);
 }
 
 export function readCachedFullData(): FullDataSnapshot | null {
-  return readCache<FullDataSnapshot>(FULL_CACHE_KEY, FULL_TTL);
+  const cachedFull = readCache<FullDataSnapshot>(FULL_CACHE_KEY, FULL_TTL);
+  return hasUsableFullSnapshot(cachedFull) ? cachedFull : null;
 }
 
 export async function loadProcedureIndexSnapshot(): Promise<ProcedureIndexSnapshot> {

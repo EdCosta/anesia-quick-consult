@@ -2,6 +2,11 @@ import { useState, useEffect, useRef, useCallback, useMemo, startTransition } fr
 import type { Procedure, Drug, Guideline, Protocole, ALRBlock } from '@/lib/types';
 import type { SpecialtyRecord } from '@/data/repositories/specialtiesRepo';
 import {
+  loadALRBlocksFromJson,
+  loadGuidelinesFromJson,
+  loadProtocolesFromJson,
+} from '@/data/repositories/loadFromJson';
+import {
   loadFullDataSnapshot,
   loadProcedureIndexSnapshot,
   projectProcedureIndex,
@@ -69,27 +74,66 @@ export function useDataLoader(): DataState {
     };
 
     const loadFull = async () => {
+      const loadLocalProContent = async () => {
+        const [guidelinesResult, protocolesResult, alrBlocksResult] = await Promise.allSettled([
+          loadGuidelinesFromJson(),
+          loadProtocolesFromJson(),
+          loadALRBlocksFromJson(),
+        ]);
+
+        if (cancelled) return null;
+
+        return {
+          guidelines: guidelinesResult.status === 'fulfilled' ? guidelinesResult.value : null,
+          protocoles: protocolesResult.status === 'fulfilled' ? protocolesResult.value : null,
+          alrBlocks: alrBlocksResult.status === 'fulfilled' ? alrBlocksResult.value : null,
+        };
+      };
+
       try {
         const snapshot = await loadFullDataSnapshot();
         if (cancelled) return;
+
+        let nextGuidelines = snapshot.guidelines;
+        let nextProtocoles = snapshot.protocoles;
+        let nextAlrBlocks = snapshot.alrBlocks;
+
+        if (
+          snapshot.guidelines.length === 0 ||
+          snapshot.protocoles.length === 0 ||
+          snapshot.alrBlocks.length === 0
+        ) {
+          const localContent = await loadLocalProContent();
+          if (cancelled || !localContent) return;
+          nextGuidelines = localContent.guidelines ?? nextGuidelines;
+          nextProtocoles = localContent.protocoles ?? nextProtocoles;
+          nextAlrBlocks = localContent.alrBlocks ?? nextAlrBlocks;
+        }
+
         startTransition(() => {
           setProcedureIndex(projectProcedureIndex(snapshot.procedures));
           setProcedures(snapshot.procedures);
           setDrugs(snapshot.drugs);
-          setGuidelines(snapshot.guidelines);
-          setProtocoles(snapshot.protocoles);
-          setAlrBlocks(snapshot.alrBlocks);
+          setGuidelines(nextGuidelines);
+          setProtocoles(nextProtocoles);
+          setAlrBlocks(nextAlrBlocks);
           setSpecialtiesData(snapshot.specialtiesData);
           setLoading(false);
           setIndexLoading(false);
         });
       } catch (err) {
         console.error('Failed to load full data:', err);
-        if (!cancelled) {
-          if (!cachedFull && !cachedIndex) setError('data_load_error');
+        const localContent = await loadLocalProContent().catch(() => null);
+        if (cancelled) return;
+
+        startTransition(() => {
+          if (localContent?.guidelines) setGuidelines(localContent.guidelines);
+          if (localContent?.protocoles) setProtocoles(localContent.protocoles);
+          if (localContent?.alrBlocks) setAlrBlocks(localContent.alrBlocks);
+          if (!cachedFull && !cachedIndex && !localContent) setError('data_load_error');
           setLoading(false);
           setIndexLoading(false);
-        }
+        });
       }
     };
 

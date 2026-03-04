@@ -66,17 +66,21 @@ export default function AIChat({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const piiIssues = useMemo(() => detectPIIInText(draft), [draft]);
 
+  const focusTextarea = () => {
+    textareaRef.current?.focus();
+  };
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages, isLoading]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      textareaRef.current?.focus();
+      focusTextarea();
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [mode]);
+  }, [mode, threadId]);
 
   const handleSend = async () => {
     const question = draft.trim();
@@ -121,10 +125,6 @@ export default function AIChat({
           : undefined,
       });
 
-      if (result.threadId) {
-        onThreadResolved?.(result.threadId);
-      }
-
       const assistantMessage: Message = {
         id: createAIId('msg'),
         role: 'assistant',
@@ -134,6 +134,10 @@ export default function AIChat({
       };
 
       setMessages((currentMessages) => [...currentMessages, assistantMessage]);
+
+      if (result.threadId) {
+        onThreadResolved?.(result.threadId);
+      }
     } catch (requestError) {
       if (requestError instanceof DOMException && requestError.name === 'AbortError') {
         return;
@@ -260,7 +264,11 @@ export default function AIChat({
         </div>
       )}
 
-      <div className="space-y-3 rounded-2xl border border-border/70 bg-background p-3" data-vaul-no-drag>
+      <div
+        className="space-y-3 rounded-2xl border border-border/70 bg-background p-3"
+        data-vaul-no-drag
+        onClick={focusTextarea}
+      >
         <Textarea
           ref={textareaRef}
           value={draft}
@@ -268,6 +276,8 @@ export default function AIChat({
           placeholder="Escreva a sua pergunta..."
           className="min-h-[110px] resize-none"
           data-vaul-no-drag
+          autoFocus
+          onClick={focusTextarea}
           onKeyDown={(event) => {
             if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
               event.preventDefault();

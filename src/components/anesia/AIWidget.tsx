@@ -1,4 +1,4 @@
-import { Bot, History, LayoutPanelLeft, MessageSquare } from 'lucide-react';
+import { Bot, History, LayoutPanelLeft, MessageSquare, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type SetStateAction } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -6,8 +6,6 @@ import { useAIProcedureContext } from '@/contexts/AIProcedureContext';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { Drawer, DrawerContent } from '@/components/ui/drawer';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AIChat from './AIChat';
 import AIThreadList from './AIThreadList';
@@ -447,21 +445,57 @@ export default function AIWidget() {
     </div>
   );
 
-  const overlayContent = isMobile ? (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className="max-h-[85vh]">{panelContent}</DrawerContent>
-    </Drawer>
-  ) : (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent
-        side="right"
-        className="flex h-full w-full flex-col p-0 sm:max-w-[34rem]"
-        onOpenAutoFocus={(event) => event.preventDefault()}
-      >
-        {panelContent}
-      </SheetContent>
-    </Sheet>
-  );
+  const overlayContent = isOpen ? (
+    <>
+      <div
+        className="fixed inset-0 z-50 bg-black/70"
+        onClick={() => setIsOpen(false)}
+        aria-hidden="true"
+      />
+      {isMobile ? (
+        <div className="fixed inset-x-0 bottom-0 z-[60] flex max-h-[85vh] flex-col rounded-t-[18px] border bg-background shadow-2xl">
+          <div className="mx-auto mt-3 h-1.5 w-16 rounded-full bg-muted" />
+          <div className="flex justify-end px-3 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setIsOpen(false)}
+              aria-label="Fechar painel IA"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div
+            className="min-h-0 flex-1 overflow-hidden"
+            onClick={(event) => event.stopPropagation()}
+          >
+            {panelContent}
+          </div>
+        </div>
+      ) : (
+        <div
+          className="fixed inset-y-0 right-0 z-[60] flex h-full w-full flex-col border-l bg-background shadow-2xl sm:max-w-[34rem]"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex justify-end px-3 pt-3">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setIsOpen(false)}
+              aria-label="Fechar painel IA"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col">{panelContent}</div>
+        </div>
+      )}
+    </>
+  ) : null;
 
   const shouldOffsetForQuickFab = location.pathname === '/';
   const fabPositionClass = shouldOffsetForQuickFab ? 'bottom-24 right-6' : 'bottom-4 right-4';

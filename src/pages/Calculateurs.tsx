@@ -69,30 +69,48 @@ export default function Calculateurs() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {visibleCalcs.map((calc) => {
           const Component = COMPONENTS[calc.id];
+          const isOpen = expanded === calc.id;
+          const isWideCalculator = calc.id === 'dose';
+          const shouldExpandWide = isOpen && isWideCalculator;
+
           return (
-            <div key={calc.id}>
+            <div
+              key={calc.id}
+              className={shouldExpandWide ? 'sm:col-span-2 lg:col-span-3' : undefined}
+            >
               <div
-                onClick={() => setExpanded(expanded === calc.id ? null : calc.id)}
-                className="rounded-xl border bg-card p-5 clinical-shadow transition-shadow hover:clinical-shadow-md cursor-pointer border-l-4 border-l-accent"
+                className={
+                  shouldExpandWide ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:items-start' : ''
+                }
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="rounded-lg bg-accent/10 p-2">
-                    <calc.icon className="h-5 w-5 text-accent" />
+                <div
+                  onClick={() => setExpanded(isOpen ? null : calc.id)}
+                  className="rounded-xl border bg-card p-5 clinical-shadow transition-shadow hover:clinical-shadow-md cursor-pointer border-l-4 border-l-accent"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="rounded-lg bg-accent/10 p-2">
+                      <calc.icon className="h-5 w-5 text-accent" />
+                    </div>
+                    <h3 className="font-semibold text-foreground flex-1">{t(calc.label)}</h3>
+                    <ChevronDown
+                      className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    />
                   </div>
-                  <h3 className="font-semibold text-foreground flex-1">{t(calc.label)}</h3>
-                  <ChevronDown
-                    className={`h-4 w-4 text-muted-foreground transition-transform ${expanded === calc.id ? 'rotate-180' : ''}`}
-                  />
+                  <Badge variant="default" className="text-xs">
+                    {t('available')}
+                  </Badge>
                 </div>
-                <Badge variant="default" className="text-xs">
-                  {t('available')}
-                </Badge>
+
+                {isOpen && Component && (
+                  <div
+                    className={`rounded-xl border bg-card p-5 clinical-shadow ${
+                      shouldExpandWide ? 'sm:col-span-1 lg:col-span-2' : 'mt-3'
+                    }`}
+                  >
+                    <Component />
+                  </div>
+                )}
               </div>
-              {expanded === calc.id && Component && (
-                <div className="mt-3 rounded-xl border bg-card p-5 clinical-shadow">
-                  <Component />
-                </div>
-              )}
             </div>
           );
         })}

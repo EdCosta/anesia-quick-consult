@@ -15,6 +15,20 @@ const CATEGORY_MAP: Record<string, string> = {
   ponv: 'ponv',
 };
 
+const CATEGORY_COLOR: Record<string, string> = {
+  safety: 'border-l-clinical-info',
+  emergency: 'border-l-clinical-danger',
+  preop: 'border-l-clinical-warning',
+  ponv: 'border-l-clinical-success',
+};
+
+const CATEGORY_DOT: Record<string, string> = {
+  safety: 'bg-clinical-info',
+  emergency: 'bg-clinical-danger',
+  preop: 'bg-clinical-warning',
+  ponv: 'bg-clinical-success',
+};
+
 export default function Protocoles() {
   const { t, lang, resolveStr, resolve } = useLang();
   const { protocoles, loading } = useData();
@@ -88,8 +102,11 @@ export default function Protocoles() {
           <button
             key={cat}
             onClick={() => setCategory(cat === category ? null : cat)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cat === category ? 'bg-accent text-accent-foreground border-accent' : 'bg-card text-muted-foreground border-border hover:border-accent/50'}`}
+            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${cat === category ? 'bg-accent text-accent-foreground border-accent' : 'bg-card text-muted-foreground border-border hover:border-accent/50'}`}
           >
+            <span
+              className={`h-1.5 w-1.5 rounded-full shrink-0 ${CATEGORY_DOT[cat] ?? 'bg-muted-foreground'}`}
+            />
             {CATEGORY_MAP[cat] ? t(CATEGORY_MAP[cat]) : cat}
           </button>
         ))}
@@ -105,10 +122,11 @@ export default function Protocoles() {
             {filtered.map((p) => {
               const isOpen = expanded === p.id;
               const steps = resolve<string[]>(p.steps) ?? [];
+              const borderColor = CATEGORY_COLOR[p.category] ?? 'border-l-muted';
               return (
                 <div
                   key={p.id}
-                  className={`rounded-xl border bg-card clinical-shadow overflow-hidden ${isOpen ? 'md:col-span-2' : ''}`}
+                  className={`rounded-xl border border-l-4 bg-card clinical-shadow overflow-hidden ${borderColor} ${isOpen ? 'md:col-span-2' : ''}`}
                 >
                   <button
                     onClick={() => setExpanded(isOpen ? null : p.id)}
@@ -118,10 +136,13 @@ export default function Protocoles() {
                       <h3 className="text-sm font-semibold text-card-foreground">
                         {resolveStr(p.titles)}
                       </h3>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        <Badge variant="secondary" className="text-[11px]">
+                      <div className="mt-1 flex flex-wrap gap-1.5">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground">
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${CATEGORY_DOT[p.category] ?? 'bg-muted-foreground'}`}
+                          />
                           {CATEGORY_MAP[p.category] ? t(CATEGORY_MAP[p.category]) : p.category}
-                        </Badge>
+                        </span>
                         {p.source && (
                           <Badge variant="outline" className="text-[11px]">
                             {p.source}

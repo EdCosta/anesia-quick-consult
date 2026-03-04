@@ -66,6 +66,15 @@ export function normalizeDrugs(drugs: Drug[]): Drug[] {
 }
 
 export function resolveDrugs(dbDrugs: Drug[], fallbackDrugs: Drug[]): Drug[] {
-  if (dbDrugs.length > 0) return normalizeDrugs(dbDrugs);
-  return normalizeDrugs(fallbackDrugs);
+  const byId = new Map<string, Drug>();
+
+  normalizeDrugs(fallbackDrugs).forEach((drug) => {
+    byId.set(drug.id, drug);
+  });
+
+  normalizeDrugs(dbDrugs).forEach((drug) => {
+    byId.set(drug.id, drug);
+  });
+
+  return Array.from(byId.values());
 }

@@ -6,6 +6,7 @@ import { loadFromSupabase } from '@/data/repositories/loadFromSupabase';
 import {
   loadALRBlocksFromJson,
   loadFromJson,
+  loadDrugsFromJson,
   loadGuidelinesFromJson,
   loadProceduresFromJson,
   loadProtocolesFromJson,
@@ -20,7 +21,7 @@ import {
 } from '@/data/repositories/specialtiesRepo';
 
 const INDEX_CACHE_KEY = 'anesia-data-index-v1';
-const FULL_CACHE_KEY = 'anesia-data-full-v2';
+const FULL_CACHE_KEY = 'anesia-data-full-v3';
 const INDEX_TTL = 15 * 60 * 1000;
 const FULL_TTL = 30 * 60 * 1000;
 
@@ -141,9 +142,10 @@ export async function loadProcedureIndexSnapshot(): Promise<ProcedureIndexSnapsh
 }
 
 export async function loadFullDataSnapshot(): Promise<FullDataSnapshot> {
-  const [loadedDbData, specialtyRows] = await Promise.all([
+  const [loadedDbData, specialtyRows, fallbackDrugs] = await Promise.all([
     loadFromSupabase(),
     loadSpecialtiesFromSupabase().catch(() => []),
+    loadDrugsFromJson().catch(() => []),
   ]);
   let dbData = loadedDbData;
 
@@ -174,7 +176,7 @@ export async function loadFullDataSnapshot(): Promise<FullDataSnapshot> {
   const mergedProcedures = await hydrateProcedures(dbData.procedures);
   const enriched = enrichMedicationPlan({
     procedures: mergedProcedures,
-    drugs: resolveDrugs(dbData.drugs, []),
+    drugs: resolveDrugs(dbData.drugs, fallbackDrugs),
   });
 
   const snapshot: FullDataSnapshot = {

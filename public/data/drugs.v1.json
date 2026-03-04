@@ -516,5 +516,230 @@
       "Hématurie macro d'origine haute (risque caillotage urétéral)"
     ],
     "renal_hepatic_notes": ["Réduire dose si IRC (élimination rénale)"]
+  },
+  {
+    "id": "amoxicillin_clavulanate",
+    "name": {
+      "fr": "Amoxicilline-acide clavulanique",
+      "pt": "Amoxicilina-clavulanato",
+      "en": "Amoxicillin-clavulanate"
+    },
+    "dose_rules": [
+      {
+        "indication_tag": "antibioprophylaxie",
+        "route": "IV",
+        "mg_per_kg": 25,
+        "max_mg": 2000,
+        "notes": [
+          "Co-amoxiclav IV : 1 g/200 mg à 2 g/200 mg à l'induction (dose exprimée en amoxicilline)",
+          "Redoser selon protocole local si chirurgie prolongée ou contamination importante",
+          "À réserver aux indications adaptées ; ce n'est pas l'antibioprophylaxie standard de routine pour la chirurgie propre"
+        ]
+      }
+    ],
+    "concentrations": [],
+    "contraindications_notes": [
+      "Allergie aux bêta-lactamines",
+      "Antécédent d'ictère cholestatique ou d'atteinte hépatique sous amoxicilline-clavulanate"
+    ],
+    "renal_hepatic_notes": [
+      "Adapter l'intervalle ou la dose en IRC",
+      "Prudence si insuffisance hépatique ou traitement prolongé"
+    ]
+  },
+  {
+    "id": "s_ketamine",
+    "name": { "fr": "S-kétamine", "pt": "S-cetamina", "en": "S-ketamine" },
+    "dose_rules": [
+      {
+        "indication_tag": "co-analgésie",
+        "route": "IV",
+        "mg_per_kg": 0.125,
+        "max_mg": 25,
+        "notes": [
+          "Bolus faible dose : 0.1-0.25 mg/kg IV",
+          "Perfusion relais : 0.05-0.25 mg/kg/h selon contexte",
+          "Enantiomère S plus puissant que la kétamine racémique : débuter à dose réduite"
+        ]
+      },
+      {
+        "indication_tag": "induction",
+        "route": "IV",
+        "mg_per_kg": 0.5,
+        "max_mg": 50,
+        "notes": [
+          "0.5-1 mg/kg IV titré si besoin d'épargne hémodynamique",
+          "Réduire en association avec propofol, benzodiazépine ou opioïde"
+        ]
+      }
+    ],
+    "concentrations": [
+      { "label": "5 mg/mL", "mg_per_ml": 5 },
+      { "label": "25 mg/mL", "mg_per_ml": 25 }
+    ],
+    "contraindications_notes": [
+      "HTA sévère non contrôlée",
+      "HTIC",
+      "Psychose active (CI relative)"
+    ],
+    "renal_hepatic_notes": ["Réduire et titrer prudemment si IHC sévère"]
+  },
+  {
+    "id": "diclofenac",
+    "name": { "fr": "Diclofénac", "pt": "Diclofenaco", "en": "Diclofenac" },
+    "dose_rules": [
+      {
+        "indication_tag": "analgésie",
+        "route": "IV / IM / PO",
+        "mg_per_kg": 1,
+        "max_mg": 75,
+        "notes": [
+          "Dose adulte usuelle : 75 mg IV dilué sur au moins 30 min, IM ou PO selon contexte",
+          "Dose quotidienne max : 150 mg",
+          "Éviter si IR, ulcère actif, haut risque hémorragique ou grossesse T3"
+        ]
+      }
+    ],
+    "concentrations": [{ "label": "25 mg/mL", "mg_per_ml": 25 }],
+    "contraindications_notes": [
+      "Insuffisance rénale sévère",
+      "Ulcère gastroduodénal actif",
+      "Allergie AINS/aspirine",
+      "Grossesse 3e trimestre"
+    ],
+    "renal_hepatic_notes": ["Éviter si DFG < 30 mL/min", "Prudence si insuffisance hépatique"]
+  },
+  {
+    "id": "midazolam",
+    "name": { "fr": "Midazolam", "pt": "Midazolam", "en": "Midazolam" },
+    "dose_rules": [
+      {
+        "indication_tag": "prémédication",
+        "route": "IV",
+        "mg_per_kg": 0.025,
+        "max_mg": 2,
+        "notes": [
+          "Prémédication IV : 0.02-0.04 mg/kg, titrée selon effet",
+          "Réduire de 25-50 % chez le sujet âgé ou fragile",
+          "Surveiller la dépression respiratoire, surtout si opioïde associé"
+        ]
+      }
+    ],
+    "concentrations": [
+      { "label": "1 mg/mL", "mg_per_ml": 1 },
+      { "label": "5 mg/mL", "mg_per_ml": 5 }
+    ],
+    "contraindications_notes": [
+      "Insuffisance respiratoire sévère",
+      "Allergie aux benzodiazépines",
+      "Myasthénie (prudence)"
+    ],
+    "renal_hepatic_notes": [
+      "IHC sévère : demi-vie prolongée, réduire la dose",
+      "IRC : accumulation possible des métabolites actifs"
+    ]
+  },
+  {
+    "id": "etomidate",
+    "name": { "fr": "Étomidate", "pt": "Etomidato", "en": "Etomidate" },
+    "dose_rules": [
+      {
+        "indication_tag": "induction",
+        "route": "IV",
+        "mg_per_kg": 0.3,
+        "max_mg": 20,
+        "notes": [
+          "Induction IV : 0.2-0.3 mg/kg, particulièrement utile si instabilité hémodynamique",
+          "Myoclonies fréquentes : envisager un prétraitement (opioïde ou benzodiazépine)",
+          "Éviter l'administration répétée ou prolongée (suppression surrénalienne)"
+        ]
+      }
+    ],
+    "concentrations": [{ "label": "2 mg/mL", "mg_per_ml": 2 }],
+    "contraindications_notes": [
+      "Insuffisance surrénalienne connue (CI relative)",
+      "Éviter en perfusion prolongée"
+    ],
+    "renal_hepatic_notes": ["Pas d'ajustement habituel en dose unique"]
+  },
+  {
+    "id": "nicardipine",
+    "name": { "fr": "Nicardipine", "pt": "Nicardipina", "en": "Nicardipine" },
+    "dose_rules": [
+      {
+        "indication_tag": "hypertension",
+        "route": "IVSE",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": [
+          "Débuter à 5 mg/h IVSE, puis augmenter par paliers de 2.5 mg/h toutes 5-15 min",
+          "Dose max habituelle : 15 mg/h",
+          "Une fois la PA contrôlée, réduire à environ 3 mg/h et relayer per os si nécessaire"
+        ],
+        "unit_override": "mg/h"
+      }
+    ],
+    "concentrations": [
+      { "label": "Prémélange 0.1 mg/mL", "mg_per_ml": 0.1 },
+      { "label": "Concentré 2.5 mg/mL", "mg_per_ml": 2.5 }
+    ],
+    "contraindications_notes": [
+      "Hypotension sévère",
+      "Sténose aortique critique (prudence)",
+      "Défaillance cardiaque aiguë décompensée (prudence)"
+    ],
+    "renal_hepatic_notes": ["Titrer progressivement en IHC ; pas d'ajustement rénal standard"]
+  },
+  {
+    "id": "esmolol",
+    "name": { "fr": "Esmolol", "pt": "Esmolol", "en": "Esmolol" },
+    "dose_rules": [
+      {
+        "indication_tag": "tachycardie",
+        "route": "IV bolus / IVSE",
+        "mg_per_kg": 0.5,
+        "max_mg": 35,
+        "notes": [
+          "Bolus de charge : 500 µg/kg IV sur 1 min",
+          "Puis perfusion 50-200 µg/kg/min titrée sur FC/PA",
+          "Intérêt peropératoire : tachycardie ou réponse sympathique à l'intubation"
+        ],
+        "unit_override": "mg (charge)"
+      }
+    ],
+    "concentrations": [{ "label": "10 mg/mL", "mg_per_ml": 10 }],
+    "contraindications_notes": [
+      "Bradycardie sévère",
+      "BAV 2e/3e degré",
+      "Décompensation cardiaque aiguë",
+      "Bronchospasme sévère"
+    ],
+    "renal_hepatic_notes": ["Pas d'ajustement habituel (métabolisme par estérases)"]
+  },
+  {
+    "id": "metoprolol",
+    "name": { "fr": "Métoprolol", "pt": "Metoprolol", "en": "Metoprolol" },
+    "dose_rules": [
+      {
+        "indication_tag": "tachycardie",
+        "route": "IV bolus",
+        "mg_per_kg": null,
+        "max_mg": null,
+        "notes": [
+          "2.5-5 mg IV lent sur 2 min, répétable toutes 5 min",
+          "Dose totale usuelle max : 15 mg",
+          "Poursuivre un bêtabloquant chronique ; éviter l'initiation le jour de la chirurgie sans indication forte"
+        ],
+        "unit_override": "mg bolus"
+      }
+    ],
+    "concentrations": [{ "label": "1 mg/mL", "mg_per_ml": 1 }],
+    "contraindications_notes": [
+      "Bradycardie sévère",
+      "BAV 2e/3e degré",
+      "Choc cardiogénique",
+      "Bronchospasme sévère"
+    ],
+    "renal_hepatic_notes": ["Réduire et titrer avec prudence en insuffisance hépatique"]
   }
 ]

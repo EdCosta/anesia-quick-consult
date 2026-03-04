@@ -8,8 +8,15 @@ import {
   validateArray,
 } from '@/data/schemas/jsonSchemas';
 
+function resolveAssetPath(path: string) {
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  return `${normalizedBase}${path.replace(/^\/+/, '')}`;
+}
+
 function fetchJson(path: string) {
-  return fetch(path).then((r) => {
+  const resolvedPath = resolveAssetPath(path);
+  return fetch(resolvedPath).then((r) => {
     if (!r.ok) throw new Error(`${path}: ${r.status}`);
     return r.json();
   });
@@ -25,19 +32,34 @@ export async function loadDrugsFromJson() {
   return validateArray<Drug>(drugsRaw, DrugSchema, 'drugs');
 }
 
+export async function loadGuidelinesFromJson() {
+  const guidelinesRaw = await fetchJson('/data/guidelines.v1.json');
+  return validateArray<Guideline>(guidelinesRaw, GuidelineSchema, 'guidelines');
+}
+
+export async function loadProtocolesFromJson() {
+  const protocolesRaw = await fetchJson('/data/protocoles.v1.json');
+  return validateArray<Protocole>(protocolesRaw, ProtocoleSchema, 'protocoles');
+}
+
+export async function loadALRBlocksFromJson() {
+  const alrRaw = await fetchJson('/data/alr.v1.json');
+  return validateArray<ALRBlock>(alrRaw, ALRBlockSchema, 'alrBlocks');
+}
+
 export async function loadFromJson() {
-  const [procedures, drugs, guidelinesRaw, protocolesRaw, alrRaw] = await Promise.all([
+  const [procedures, drugs, guidelines, protocoles, alrBlocks] = await Promise.all([
     loadProceduresFromJson(),
     loadDrugsFromJson(),
-    fetchJson('/data/guidelines.v1.json'),
-    fetchJson('/data/protocoles.v1.json'),
-    fetchJson('/data/alr.v1.json'),
+    loadGuidelinesFromJson(),
+    loadProtocolesFromJson(),
+    loadALRBlocksFromJson(),
   ]);
   return {
     procedures,
     drugs,
-    guidelines: validateArray<Guideline>(guidelinesRaw, GuidelineSchema, 'guidelines'),
-    protocoles: validateArray<Protocole>(protocolesRaw, ProtocoleSchema, 'protocoles'),
-    alrBlocks: validateArray<ALRBlock>(alrRaw, ALRBlockSchema, 'alrBlocks'),
+    guidelines,
+    protocoles,
+    alrBlocks,
   };
 }

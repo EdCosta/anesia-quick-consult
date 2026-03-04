@@ -3,7 +3,13 @@ import { normalizeProcedure } from '@/data/normalize/normalizeProcedure';
 import { enrichMedicationPlan } from '@/data/merge/enrichMedicationPlan';
 import { resolveDrugs } from '@/data/repositories/drugsRepo';
 import { loadFromSupabase } from '@/data/repositories/loadFromSupabase';
-import { loadFromJson, loadProceduresFromJson } from '@/data/repositories/loadFromJson';
+import {
+  loadALRBlocksFromJson,
+  loadFromJson,
+  loadGuidelinesFromJson,
+  loadProceduresFromJson,
+  loadProtocolesFromJson,
+} from '@/data/repositories/loadFromJson';
 import {
   hydrateProcedures,
   loadProcedureIndexFromSupabase,
@@ -134,6 +140,25 @@ export async function loadFullDataSnapshot(): Promise<FullDataSnapshot> {
   if (!dbData) {
     console.warn('[AnesIA] Falling back to local full JSON snapshot');
     dbData = await loadFromJson();
+  } else if (
+    dbData.guidelines.length === 0 ||
+    dbData.protocoles.length === 0 ||
+    dbData.alrBlocks.length === 0
+  ) {
+    const [guidelinesResult, protocolesResult, alrBlocksResult] = await Promise.allSettled([
+      dbData.guidelines.length === 0 ? loadGuidelinesFromJson() : Promise.resolve(dbData.guidelines),
+      dbData.protocoles.length === 0 ? loadProtocolesFromJson() : Promise.resolve(dbData.protocoles),
+      dbData.alrBlocks.length === 0 ? loadALRBlocksFromJson() : Promise.resolve(dbData.alrBlocks),
+    ]);
+
+    dbData = {
+      ...dbData,
+      guidelines:
+        guidelinesResult.status === 'fulfilled' ? guidelinesResult.value : dbData.guidelines,
+      protocoles:
+        protocolesResult.status === 'fulfilled' ? protocolesResult.value : dbData.protocoles,
+      alrBlocks: alrBlocksResult.status === 'fulfilled' ? alrBlocksResult.value : dbData.alrBlocks,
+    };
   }
 
   const mergedProcedures = await hydrateProcedures(dbData.procedures);

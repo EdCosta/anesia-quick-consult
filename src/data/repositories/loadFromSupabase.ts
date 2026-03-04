@@ -36,6 +36,18 @@ export async function loadFromSupabase(): Promise<{
 
     if (procedures.length === 0) return null;
 
+    if (guideRes.error) {
+      console.warn('[AnesIA] Failed to load guidelines from Supabase:', guideRes.error.message);
+    }
+
+    if (protoRes.error) {
+      console.warn('[AnesIA] Failed to load protocoles from Supabase:', protoRes.error.message);
+    }
+
+    if (alrRes.error) {
+      console.warn('[AnesIA] Failed to load ALR blocks from Supabase:', alrRes.error.message);
+    }
+
     return {
       procedures,
       drugs,

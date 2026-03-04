@@ -12,6 +12,8 @@ import {
   Globe,
   Eye,
   Save,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
@@ -108,7 +110,7 @@ async function loadProcedureOnDemand(id: string): Promise<Procedure | null> {
 export default function ProcedurePage() {
   const { id } = useParams<{ id: string }>();
   const { t, lang, resolve, resolveStr } = useLang();
-  const { getProcedure, getDrug, guidelines, specialtiesData, loading } = useData();
+  const { getProcedure, getDrug, drugs, guidelines, specialtiesData, loading } = useData();
   const [weightKg, setWeightKg] = useState<string>('');
   const [patientWeights, setPatientWeights] = useState<PatientWeights | null>(null);
   const [favorites, setFavorites] = useLocalStorage<string[]>('anesia-favorites', []);
@@ -641,6 +643,7 @@ export default function ProcedurePage() {
         t={t}
         resolveStr={resolveStr}
         getDrug={getDrug}
+        drugsLoading={loading && drugs.length === 0}
         handleCopyChecklist={handleCopyChecklist}
         checklistMode={checklistMode}
         checked={checked}
@@ -778,6 +781,7 @@ function ProcedureContent({
   t,
   resolveStr,
   getDrug,
+  drugsLoading,
   handleCopyChecklist,
   checklistMode,
   checked,
@@ -987,7 +991,13 @@ function ProcedureContent({
               </Button>
             )}
           </div>
-          {quick.drugs.length > 0 ? (
+          {drugsLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-14 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : quick.drugs.length > 0 ? (
             <>
               <Card className="clinical-shadow">
                 <CardContent className="p-3">
@@ -1031,8 +1041,9 @@ function DrugGroupedList({
   const grouped = groupDrugs(drugs);
   const activeGroups = GROUP_ORDER.filter((g) => grouped[g].length > 0);
   const activeGroupsKey = activeGroups.join('|');
+  // Open all groups by default so all drugs are immediately visible
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(activeGroups.map((group) => [group, group === 'induction'])),
+    Object.fromEntries(activeGroups.map((group) => [group, true])),
   );
 
   useEffect(() => {
@@ -1040,7 +1051,7 @@ function DrugGroupedList({
       Object.fromEntries(
         activeGroups.map((group) => [
           group,
-          expandAllSignal > 0 ? true : (prev[group] ?? group === 'induction'),
+          expandAllSignal > 0 ? true : (prev[group] ?? true),
         ]),
       ),
     );
@@ -1075,13 +1086,18 @@ function DrugGroupedList({
           open={!!openGroups[group]}
           onOpenChange={(isOpen) => setOpenGroups((prev) => ({ ...prev, [group]: isOpen }))}
         >
-          <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-1.5 px-1 text-sm font-semibold text-foreground hover:text-accent transition-colors">
+          <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-1.5 px-1 text-sm font-semibold text-foreground hover:text-accent transition-colors rounded hover:bg-muted/30">
+            {openGroups[group] ? (
+              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            )}
             <span>{t(GROUP_I18N_KEYS[group])}</span>
             <Badge variant="secondary" className="text-[10px]">
               {grouped[group].length}
             </Badge>
           </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2 pl-1">
+          <CollapsibleContent className="space-y-2 pl-5 pt-1">
             {grouped[group].map((drugRef: any, i: number) => {
               const drug = getDrug(drugRef.drug_id);
               if (!drug) return null;

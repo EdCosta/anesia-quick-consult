@@ -17,11 +17,12 @@ const LIMITS_PRO = {
 };
 
 export function useContentLimits() {
-  const { isProView } = useViewMode();
-  const limits = isProView ? LIMITS_PRO : LIMITS_NORMAL;
+  const { isProView, loading } = useViewMode();
+  const hasUnlockedContent = !loading && isProView;
+  const limits = hasUnlockedContent ? LIMITS_PRO : LIMITS_NORMAL;
 
   return {
     ...limits,
-    isLimited: !isProView,
+    isLimited: !hasUnlockedContent,
   };
 }

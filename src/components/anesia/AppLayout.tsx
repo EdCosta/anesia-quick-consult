@@ -58,7 +58,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [profiles, setProfiles] = useState<HospitalProfile[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(true);
   const [activeProfile, setActiveProfile] = useState<string | null>(() => readStoredHospitalProfileId());
-  const { viewMode, setViewMode, isPro } = useViewMode();
+  const { viewMode, setViewMode, isPro, loading } = useViewMode();
 
   useEffect(() => {
     setLoadingProfiles(true);
@@ -308,7 +308,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       key={option.value}
                       type="button"
                       onClick={() => {
-                        if (option.value === 'pro' && !isPro) {
+                        if (option.value === 'pro' && !isPro && !loading) {
                           navigate('/account');
                           return;
                         }

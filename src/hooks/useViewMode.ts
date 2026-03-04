@@ -14,22 +14,30 @@ export function useViewMode() {
   const { isPro, loading } = useEntitlements();
   const hospitalProfile = useHospitalProfile();
   const normalizedStoredViewMode = normalizeViewMode(storedViewMode);
-  const viewMode = isPro ? normalizedStoredViewMode : 'normal';
+  const viewMode = loading ? normalizedStoredViewMode : isPro ? normalizedStoredViewMode : 'normal';
   const isProView = viewMode === 'pro';
   const isHospitalView = !!hospitalProfile;
 
   const setViewMode = useCallback(
     (nextMode: ViewMode) => {
-      setStoredViewMode(nextMode === 'pro' && !isPro ? 'normal' : nextMode);
+      if (nextMode === 'pro' && !isPro && !loading) {
+        setStoredViewMode('normal');
+        return;
+      }
+
+      setStoredViewMode(nextMode);
     },
-    [isPro, setStoredViewMode],
+    [isPro, loading, setStoredViewMode],
   );
 
   useEffect(() => {
-    if (storedViewMode !== viewMode) {
-      setStoredViewMode(viewMode);
+    if (loading) return;
+
+    const nextStoredViewMode = isPro ? normalizedStoredViewMode : 'normal';
+    if (storedViewMode !== nextStoredViewMode) {
+      setStoredViewMode(nextStoredViewMode);
     }
-  }, [storedViewMode, viewMode, setStoredViewMode]);
+  }, [isPro, loading, normalizedStoredViewMode, setStoredViewMode, storedViewMode]);
 
   return { viewMode, setViewMode, isProView, isHospitalView, isPro, loading };
 }

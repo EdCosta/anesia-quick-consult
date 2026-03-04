@@ -41,7 +41,7 @@ const TABS: { key: TabKey; labelKey: string; bulletClass: string }[] = [
 export default function ALR() {
   const { t, lang, resolveStr, resolve } = useLang();
   const { alrBlocks, loading } = useData();
-  const { isProView } = useViewMode();
+  const { isProView, loading: loadingViewMode } = useViewMode();
   const [search, setSearch] = useState('');
   const [region, setRegion] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -73,6 +73,14 @@ export default function ALR() {
   const handleExpand = (id: string) => setExpanded(expanded === id ? null : id);
 
   if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-muted-foreground">{t('loading')}</p>
+      </div>
+    );
+  }
+
+  if (loadingViewMode) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-muted-foreground">{t('loading')}</p>

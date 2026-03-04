@@ -41,14 +41,41 @@ const DRUG_GROUP_MAP: Record<string, DrugGroup> = {
   amoxicilline: 'prophylaxis',
 };
 
-// Indication tags that override drug-based grouping
+// Indication tags that override drug-based grouping (lowercase, accents preserved as-is)
 const INDICATION_GROUP_MAP: Record<string, DrugGroup> = {
+  // Induction / NMB / reversal
   induction: 'induction',
+  intubation: 'induction',
+  isr: 'induction',
+  'sédation': 'induction',
+  prémédication: 'induction',
+  curarisation_profonde: 'induction',
+  reversal: 'induction',
+  reversal_urgence: 'induction',
+
+  // Maintenance / TIVA
   maintenance: 'maintenance',
+  entretien: 'maintenance',
+  tiva: 'maintenance',
+
+  // Analgesia (EN + FR avec et sans accents)
   analgesia: 'analgesia',
   analgesie: 'analgesia',
+  'analgésie': 'analgesia',
+  'analgésie_perop': 'analgesia',
+  'analgésie_postop': 'analgesia',
+  'analgésie_secours': 'analgesia',
+  'analgésie_it': 'analgesia',
+  'co-analgésie': 'analgesia',
+
+  // PONV / anti-oedème
   ponv: 'ponv',
   nvpo: 'ponv',
+  'ponv_anti-oedème': 'ponv',
+  'anti-oedème': 'ponv',
+  'anti-oedème_laryngé': 'ponv',
+
+  // Prophylaxis
   prophylaxis: 'prophylaxis',
   prophylaxie: 'prophylaxis',
   antibioprophylaxie: 'prophylaxis',

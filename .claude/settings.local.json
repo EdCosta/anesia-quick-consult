@@ -23,7 +23,8 @@
       "Bash(npx supabase --experimental db execute --sql \"select u.email, u.email_confirmed_at is not null as confirmed, r.role from auth.users u left join public.user_roles r on r.user_id = u.id order by u.created_at desc limit 5;\")",
       "Bash(npx supabase inspect db calls)",
       "Bash(npx supabase --help)",
-      "Bash(npx supabase snippets list)"
+      "Bash(npx supabase snippets list)",
+      "Bash(node -e \":*)"
     ]
   }
 }

@@ -30,7 +30,7 @@ import ProGate from '@/components/anesia/ProGate';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
-import { filterProceduresForHospitalMode } from '@/lib/hospitalProfile';
+import { filterProceduresForHospitalMode, isStPierreProcedure } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName, getSpecialtyTrackingKey } from '@/lib/specialties';
 
 export default function Index() {
@@ -269,6 +269,7 @@ export default function Index() {
             procedure={p}
             isFavorite={favorites.includes(p.id)}
             onToggleFavorite={toggleFavorite}
+            isStPierre={isStPierreProcedure(p.id, hospitalProfile, isHospitalView)}
           />
         </div>
       ))}
@@ -278,6 +279,7 @@ export default function Index() {
             procedure={p}
             isFavorite={false}
             onToggleFavorite={() => {}}
+            isStPierre={isStPierreProcedure(p.id, hospitalProfile, isHospitalView)}
             locked
             onLockedClick={() => setShowProGate(true)}
           />
@@ -443,7 +445,12 @@ export default function Index() {
               <div className="space-y-1.5">
                 {visibleFavs.map((p) => (
                   <div key={p.id} onClick={() => handleProcedureClick(p)}>
-                    <ProcedureCard procedure={p} isFavorite onToggleFavorite={toggleFavorite} />
+                    <ProcedureCard
+                      procedure={p}
+                      isFavorite
+                      onToggleFavorite={toggleFavorite}
+                      isStPierre={isStPierreProcedure(p.id, hospitalProfile, isHospitalView)}
+                    />
                   </div>
                 ))}
               </div>
@@ -476,6 +483,11 @@ export default function Index() {
                     <Badge variant="secondary" className="mt-1.5 text-[10px]">
                       {getSpecialtyDisplayName(p.specialty, specialtiesData, lang)}
                     </Badge>
+                    {isStPierreProcedure(p.id, hospitalProfile, isHospitalView) && (
+                      <Badge variant="outline" className="mt-1 text-[10px] border-primary text-primary">
+                        CHU St Pierre
+                      </Badge>
+                    )}
                   </Link>
                 ))}
               </div>

@@ -6,6 +6,86 @@ import type {
   SupportedLang,
 } from './types';
 
+const ST_PIERRE_PROFILE_ID = 'hopital_st_pierre_pgs_2025_2026';
+const ST_PIERRE_SCOPED_PROCEDURE_IDS = new Set([
+  'pontage_coronarien_cabg',
+  'remplacement_valvulaire_cardiaque',
+  'tavi_implantation_aortique',
+  'ablation_arythmie_rythmologie',
+  'fermeture_fop',
+  'ophtalmologie_ala',
+  'thoracotomie',
+  'vats_thoracoscopie',
+  'endarteriectomie_carotidienne',
+  'chirurgie_aaa_aortique',
+  'pontage_arteriel_peripherique',
+  'reconstruction_mammaire_senologie',
+  'chirurgie_plastique_paroi_abdominale',
+  'chirurgie_bariatrique',
+  'cholecystectomie_laparoscopique',
+  'colectomie_laparoscopique_racc',
+  'surrenalectomie_pheo',
+  'peridurale_analgesia_travail',
+  'cesarienne_rachianesthesie',
+  'cesarienne_ag',
+  'pre_eclampsie_hellp',
+  'hemorragie_post_partum',
+  'laparoscopie_gynecologique',
+  'prostatectomie_robot_assistee',
+  'appendicectomie_adulte',
+  'hernie_paroi_abdominale',
+  'fundoplicature_nissen',
+  'gastrectomie',
+  'resection_hepatique',
+  'proctologie_hemorroidectomie',
+  'hysteroscopie_operative',
+  'ivg_sedation',
+  'nephrectomie_laparoscopique',
+  'cystectomie_radicale',
+  'remifentanil_analgesia_travail',
+  'embolie_liquide_amniotique',
+  'adenoidectomie_att_paed',
+  'amygdalectomie_paed',
+  'chirurgie_oreille_paed',
+  'circoncision_paed',
+  'hypospade_paed',
+  'orchidopexie_paed',
+  'hernie_inguinale_paed',
+  'appendicectomie_paed',
+  'stenose_pylore_nourrisson',
+  'plaie_oeil_perforante_paed',
+  'strabisme_paed',
+  'nec_enterocolite_necrosante',
+  'canal_arteriel_permeable',
+  'sedation_imagerie_paed',
+  'chirurgie_oreille_adulte',
+  'chirurgie_endonasale_orl',
+  'laryngectomie_carcinologique',
+  'thyroidectomie_parathyroidectomie',
+  'extractions_dentaires_stomato',
+  'chirurgie_orthognathique',
+  'abces_dentaire_voies_aeriennes',
+  'arthroscopie_genou_menisectomie',
+  'reconstruction_lca',
+  'fracture_plateau_tibial',
+  'fracture_tibia_diaphysaire_clou',
+  'fracture_pilon_tibial',
+  'fracture_malleolaire',
+  'fixateur_externe_tibia',
+  'arthroplastie_pth_ptg',
+  'fracture_hanche_hemiarthroplastie',
+  'arthroplastie_epaule',
+  'fracture_femur_diaphysaire',
+  'arthrodese_lombaire',
+  'chirurgie_pied_cheville',
+  'amputation_membre',
+  'fracture_humerus_proximal',
+  'fracture_col_femoral_deplacee_arthroplastie',
+  'fracture_pertrochanterienne_clou_cephalomedullaire',
+  'prothese_totale_genou',
+  'fracture_radius_distal',
+]);
+
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
@@ -90,6 +170,34 @@ function dedupeHospitalScopedProcedures(
   return Array.from(grouped.values());
 }
 
+function normalizeTag(tag: string): string {
+  return tag
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function isHospitalScopedTag(tag: string): boolean {
+  const normalized = normalizeTag(tag);
+  return (
+    normalized.includes('hospital') ||
+    normalized.includes('hopital') ||
+    normalized.includes('filtro_hospitalar') ||
+    normalized.includes('hospital_filter') ||
+    normalized.includes('hospital_only') ||
+    normalized.includes('hospital-only')
+  );
+}
+
+function isHospitalScopedProcedure(procedure: Procedure): boolean {
+  return (procedure.tags || []).some((tag) => isHospitalScopedTag(tag));
+}
+
+function isStPierreScopedProcedure(procedure: Procedure): boolean {
+  return ST_PIERRE_SCOPED_PROCEDURE_IDS.has(procedure.id);
+}
+
 export function getHospitalProcedureIds(profile: HospitalProfile | null | undefined): Set<string> | null {
   const ids = getProtocolOverrides(profile)?.procedure_ids;
   if (!isStringArray(ids) || ids.length === 0) return null;
@@ -112,6 +220,22 @@ export function resolveHospitalProcedureId(
   if (!isHospitalView || !procedureId) return procedureId;
   const aliases = getHospitalProcedureAliases(profile);
   return aliases[procedureId] || procedureId;
+}
+
+export function isStPierreProfile(profile: HospitalProfile | null | undefined): boolean {
+  return profile?.id === ST_PIERRE_PROFILE_ID;
+}
+
+export function isStPierreProcedure(
+  procedureId: string,
+  profile: HospitalProfile | null | undefined,
+  isHospitalView: boolean,
+): boolean {
+  if (!procedureId || !isHospitalView || !isStPierreProfile(profile)) return false;
+  const scopedIds = getHospitalProcedureIds(profile);
+  if (!scopedIds) return true;
+  const resolvedId = resolveHospitalProcedureId(procedureId, profile, isHospitalView);
+  return scopedIds.has(procedureId) || scopedIds.has(resolvedId);
 }
 
 function parseHospitalProcedureContext(value: unknown): HospitalProcedureContext | null {
@@ -162,6 +286,11 @@ export function filterProceduresForHospitalMode(
         procedures.filter((procedure) => scopedIds.has(procedure.id)),
         aliases,
       )
-    : procedures;
+    : isHospitalView
+      ? procedures
+      : procedures.filter(
+          (procedure) =>
+            !isHospitalScopedProcedure(procedure) && !isStPierreScopedProcedure(procedure),
+        );
   return dedupeProcedures(source);
 }

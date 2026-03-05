@@ -13,6 +13,7 @@ interface ProcedureCardProps {
   onToggleFavorite: (id: string) => void;
   locked?: boolean;
   onLockedClick?: () => void;
+  isStPierre?: boolean;
 }
 
 export default function ProcedureCard({
@@ -21,6 +22,7 @@ export default function ProcedureCard({
   onToggleFavorite,
   locked,
   onLockedClick,
+  isStPierre = false,
 }: ProcedureCardProps) {
   const { resolveStr, lang } = useLang();
   const { specialtiesData } = useData();
@@ -37,6 +39,11 @@ export default function ProcedureCard({
               <Badge variant="secondary" className="text-[11px]">
                 {specialtyDisplayName}
               </Badge>
+              {isStPierre && (
+                <Badge variant="outline" className="text-[10px] border-primary text-primary">
+                  CHU St Pierre
+                </Badge>
+              )}
               <Badge
                 variant="outline"
                 className="text-[10px] gap-0.5 border-muted text-muted-foreground"
@@ -62,6 +69,11 @@ export default function ProcedureCard({
               <Badge variant="secondary" className="text-[11px]">
                 {specialtyDisplayName}
               </Badge>
+              {isStPierre && (
+                <Badge variant="outline" className="text-[10px] border-primary text-primary">
+                  CHU St Pierre
+                </Badge>
+              )}
               {procedure.is_pro && (
                 <Badge variant="outline" className="text-[10px] gap-0.5 border-accent text-accent">
                   <Crown className="h-2.5 w-2.5" />

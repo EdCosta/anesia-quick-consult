@@ -44,6 +44,7 @@ import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import {
   getHospitalProcedureContext,
   getHospitalProcedureIds,
+  isStPierreProcedure,
   resolveHospitalProcedureId,
 } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName } from '@/lib/specialties';
@@ -431,6 +432,7 @@ export default function ProcedurePage() {
   const hospitalContextTitle = resolveLocalizedHospitalTitle(hospitalProcedureContext?.title, lang);
   const hospitalContextSummary = resolveLocalizedHospitalSummary(hospitalProcedureContext?.summary, lang);
   const hospitalContextSourcePages = formatHospitalSourcePages(hospitalProcedureContext?.source_pages);
+  const showStPierreBadge = isStPierreProcedure(procedure.id, hospitalProfile, isHospitalView);
 
   const toggleFav = () => {
     if (!favoriteId) return;
@@ -458,6 +460,11 @@ export default function ProcedurePage() {
           <h1 className="mt-2 text-xl font-bold text-foreground leading-tight">{title}</h1>
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             <Badge variant="secondary">{specialtyDisplayName}</Badge>
+            {showStPierreBadge && (
+              <Badge variant="outline" className="text-[10px] border-primary text-primary">
+                CHU St Pierre
+              </Badge>
+            )}
             {procedure.is_pro && (
               <Badge variant="outline" className="gap-0.5 border-accent text-accent text-[10px]">
                 <Crown className="h-3 w-3" />

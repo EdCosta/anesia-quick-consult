@@ -49,8 +49,16 @@ function readStoredHospitalProfileId() {
   return localStorage.getItem(HOSPITAL_PROFILE_ID_KEY);
 }
 
+function getHospitalProfileDisplayName(name: string) {
+  const normalized = name.trim();
+  if (/(saint|st)[\s.-]*pierre/i.test(normalized)) {
+    return 'CHU St Pierre';
+  }
+  return normalized;
+}
+
 export default function AppLayout({ children }: AppLayoutProps) {
-  const { t, setLang } = useLang();
+  const { t, setLang, lang } = useLang();
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -60,6 +68,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [loadingProfiles, setLoadingProfiles] = useState(true);
   const [activeProfile, setActiveProfile] = useState<string | null>(() => readStoredHospitalProfileId());
   const { viewMode, setViewMode, setViewModeForPlan, isPro, loading } = useViewMode();
+
+  const clearHospitalMode = () => {
+    setActiveProfile(null);
+    localStorage.removeItem(HOSPITAL_PROFILE_ID_KEY);
+  };
+
+  const applyHospitalMode = (profile: HospitalProfile) => {
+    setViewMode('pro');
+    setActiveProfile(profile.id);
+    localStorage.setItem(HOSPITAL_PROFILE_ID_KEY, profile.id);
+    setLang(profile.default_lang);
+  };
 
   useEffect(() => {
     setLoadingProfiles(true);
@@ -109,7 +129,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
             return {
               id: p.id,
-              name: p.name,
+              name: getHospitalProfileDisplayName(p.name),
               country: p.country || settings.country || undefined,
               default_lang: defaultLang,
               formulary: p.formulary || settings.formulary || { drug_ids: [], presentations: [] },
@@ -147,10 +167,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     if (!activeProfile || profiles.length === 0) return;
     if (!profiles.some((profile) => profile.id === activeProfile)) {
-      setActiveProfile(null);
-      localStorage.removeItem(HOSPITAL_PROFILE_ID_KEY);
+      clearHospitalMode();
     }
   }, [activeProfile, profiles]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!isPro && activeProfile) {
+      clearHospitalMode();
+    }
+  }, [activeProfile, isPro, loading]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -174,13 +200,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
+  const hospitalModeLabel =
+    lang === 'fr' ? 'Hospitalier' : lang === 'pt' ? 'Hospitalar' : 'Hospital';
+  const selectedMode = isPro && activeProfile ? 'hospital' : viewMode;
   const viewModeOptions = [
     { value: 'normal' as const, label: t('mode_normal') },
     { value: 'pro' as const, label: t('mode_pro') },
+    { value: 'hospital' as const, label: hospitalModeLabel },
   ];
   const activeViewMode =
-    viewModeOptions.find((option) => option.value === viewMode) ?? viewModeOptions[0];
-  const availableViewModes = viewModeOptions.filter((option) => option.value !== viewMode);
+    viewModeOptions.find((option) => option.value === selectedMode) ?? viewModeOptions[0];
+  const availableViewModes = viewModeOptions.filter((option) => option.value !== selectedMode);
+  const isHospitalModeActive = selectedMode === 'hospital';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -227,10 +258,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           <div className="ml-auto flex items-center gap-2">
             {/* Hospital profile selector */}
-            <Popover>
+            {isPro && (
+              <Popover>
               <PopoverTrigger asChild>
                 <button
-                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+                  className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-semibold transition-colors ${
+                    isHospitalModeActive
+                      ? 'border-emerald-300/60 bg-emerald-500/20 text-emerald-50 hover:bg-emerald-500/30'
+                      : 'border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/15'
+                  }`}
                   title={t('hospital_profile')}
                 >
                   <Building2 className="h-4 w-4" />
@@ -260,9 +296,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       <button
                         key={p.id}
                         onClick={() => {
-                          setActiveProfile(p.id);
-                          localStorage.setItem(HOSPITAL_PROFILE_ID_KEY, p.id);
-                          setLang(p.default_lang);
+                          applyHospitalMode(p);
                         }}
                         className={`w-full text-left rounded px-2 py-1.5 text-xs transition-colors ${
                           activeProfile === p.id
@@ -279,8 +313,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     {activeProfile && (
                       <button
                         onClick={() => {
-                          setActiveProfile(null);
-                          localStorage.removeItem(HOSPITAL_PROFILE_ID_KEY);
+                          clearHospitalMode();
                         }}
                         className="mt-1 w-full rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
                       >
@@ -290,7 +323,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   </>
                 )}
               </PopoverContent>
-            </Popover>
+              </Popover>
+            )}
             {/* Plan badge - links to /account */}
             {user && isPro && (
               <Link to="/account">
@@ -302,15 +336,24 @@ export default function AppLayout({ children }: AppLayoutProps) {
             )}
             {/* Compact view mode selector */}
             <div className="group relative shrink-0">
-              <button
-                type="button"
-                title={t('switch_mode')}
-                className="inline-flex h-8 min-w-[5.25rem] items-center justify-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
-                aria-haspopup="listbox"
-              >
-                {viewMode === 'pro' && <Crown className="h-3 w-3" />}
+                <button
+                  type="button"
+                  title={t('switch_mode')}
+                  className={`inline-flex h-8 min-w-[5.25rem] items-center justify-center gap-1.5 rounded-full border px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 ${
+                    isHospitalModeActive
+                      ? 'border-emerald-300/60 bg-emerald-500/20 text-emerald-50 hover:bg-emerald-500/30 focus-visible:ring-emerald-200/40'
+                      : 'border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/15 focus-visible:ring-primary-foreground/30'
+                  }`}
+                  aria-haspopup="listbox"
+                >
+                {selectedMode === 'pro' && <Crown className="h-3 w-3" />}
+                {selectedMode === 'hospital' && <Building2 className="h-3 w-3" />}
                 <span>{activeViewMode.label}</span>
-                <ChevronDown className="h-3 w-3 text-primary-foreground/70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+                <ChevronDown
+                  className={`h-3 w-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180 ${
+                    isHospitalModeActive ? 'text-emerald-100/80' : 'text-primary-foreground/70'
+                  }`}
+                />
               </button>
 
               <div className="absolute left-0 top-full z-50 hidden pt-1 group-hover:block group-focus-within:block">
@@ -320,15 +363,31 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       key={option.value}
                       type="button"
                       onClick={() => {
-                        if (option.value === 'pro' && !isPro && !loading) {
+                        if ((option.value === 'pro' || option.value === 'hospital') && !isPro && !loading) {
                           navigate('/account');
                           return;
                         }
-                        setViewMode(option.value);
+
+                        if (option.value === 'normal') {
+                          clearHospitalMode();
+                          setViewMode('normal');
+                          return;
+                        }
+
+                        if (option.value === 'pro') {
+                          clearHospitalMode();
+                          setViewMode('pro');
+                          return;
+                        }
+
+                        const profile = profiles.find((item) => item.id === activeProfile) || profiles[0];
+                        if (!profile) return;
+                        applyHospitalMode(profile);
                       }}
                       className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
                     >
                       {option.value === 'pro' && <Crown className="h-3 w-3" />}
+                      {option.value === 'hospital' && <Building2 className="h-3 w-3" />}
                       <span>{option.label}</span>
                     </button>
                   ))}

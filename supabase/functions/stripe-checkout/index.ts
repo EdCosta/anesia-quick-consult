@@ -39,6 +39,18 @@ type FeeBreakdown = {
   totalAmount: number;
 };
 
+type BillingDataPayload = {
+  fullName?: string;
+  companyName?: string;
+  vatNumber?: string;
+  billingEmail?: string;
+  country?: string;
+  addressLine1?: string;
+  city?: string;
+  postalCode?: string;
+  purchaseOrder?: string;
+};
+
 type StripeSessionPayload = {
   id: string;
   url?: string;
@@ -142,6 +154,44 @@ function calculateFeeBreakdown(baseAmount: number, feeConfig: FeeConfig): FeeBre
     feeAmount,
     totalAmount: baseAmount + feeAmount,
   };
+}
+
+function normalizeBillingData(payload: BillingDataPayload | undefined): BillingDataPayload {
+  if (!payload || typeof payload !== 'object') return {};
+  const clean = (value: unknown) => (typeof value === 'string' ? value.trim().slice(0, 250) : '');
+  return {
+    fullName: clean(payload.fullName),
+    companyName: clean(payload.companyName),
+    vatNumber: clean(payload.vatNumber),
+    billingEmail: clean(payload.billingEmail),
+    country: clean(payload.country),
+    addressLine1: clean(payload.addressLine1),
+    city: clean(payload.city),
+    postalCode: clean(payload.postalCode),
+    purchaseOrder: clean(payload.purchaseOrder),
+  };
+}
+
+function validateBillingData(billingData: BillingDataPayload): void {
+  if (!billingData.fullName || !billingData.billingEmail || !billingData.country || !billingData.addressLine1) {
+    throw new HttpError(400, 'Missing required billing fields');
+  }
+}
+
+function formatBillingSummary(billingData: BillingDataPayload, extraNote: string | null): string {
+  const lines = [
+    `Billing name: ${billingData.fullName || '-'}`,
+    `Company: ${billingData.companyName || '-'}`,
+    `VAT: ${billingData.vatNumber || '-'}`,
+    `Billing email: ${billingData.billingEmail || '-'}`,
+    `Country: ${billingData.country || '-'}`,
+    `Address: ${billingData.addressLine1 || '-'}, ${billingData.postalCode || '-'} ${billingData.city || '-'}`,
+    `PO: ${billingData.purchaseOrder || '-'}`,
+  ];
+  if (extraNote) {
+    lines.push(`Note: ${extraNote}`);
+  }
+  return lines.join('\n').slice(0, 4000);
 }
 
 async function stripeApiRequest<T>(
@@ -424,6 +474,7 @@ serve(async (req) => {
       coverFees?: boolean;
       method?: 'stripe' | 'sepa_transfer' | 'invoice';
       notes?: string;
+      billingData?: BillingDataPayload;
     };
 
     const action = payload.action ?? 'get_pricing';
@@ -472,6 +523,11 @@ serve(async (req) => {
     const appOrigin = resolveAppOrigin(req, payload.origin);
 
     if (action === 'create_checkout_session') {
+      const billingData = normalizeBillingData(payload.billingData);
+      validateBillingData(billingData);
+      const freeNote = typeof payload.notes === 'string' ? payload.notes.trim().slice(0, 1500) : '';
+      const billingSummary = formatBillingSummary(billingData, freeNote || null);
+
       const basePrice = await stripeApiRequest<StripePricePayload>(
         stripeSecretKey,
         `/prices/${encodeURIComponent(stripePriceId)}`,
@@ -517,6 +573,11 @@ serve(async (req) => {
       body.set('client_reference_id', auth.user.id);
       body.set('metadata[supabase_user_id]', auth.user.id);
       body.set('metadata[cover_fees]', shouldCoverFees ? 'true' : 'false');
+      body.set('metadata[billing_name]', billingData.fullName || '');
+      body.set('metadata[billing_company]', billingData.companyName || '');
+      body.set('metadata[billing_vat]', billingData.vatNumber || '');
+      body.set('metadata[billing_country]', billingData.country || '');
+      body.set('metadata[billing_email]', billingData.billingEmail || '');
       body.set('subscription_data[metadata][supabase_user_id]', auth.user.id);
       body.set('subscription_data[metadata][cover_fees]', shouldCoverFees ? 'true' : 'false');
       body.set('success_url', `${appOrigin}/pro/success?session_id={CHECKOUT_SESSION_ID}`);
@@ -538,9 +599,12 @@ serve(async (req) => {
         amountCents: shouldCoverFees ? totalAmount : basePrice.unit_amount,
         currency: basePrice.currency,
         stripeCheckoutSessionId: session.id,
-        notes: shouldCoverFees
-          ? `Customer accepted processing fee (${feeConfig.percent}% + ${feeConfig.fixedCents} cents).`
-          : null,
+        notes:
+          billingSummary +
+          '\n' +
+          (shouldCoverFees
+            ? `Customer accepted processing fee (${feeConfig.percent}% + ${feeConfig.fixedCents} cents).`
+            : 'Customer did not cover processing fee.'),
       });
 
       return jsonResponse({ url: session.url });
@@ -552,7 +616,11 @@ serve(async (req) => {
         throw new HttpError(400, 'method must be sepa_transfer or invoice');
       }
 
-      const notes = typeof payload.notes === 'string' ? payload.notes.trim().slice(0, 1500) : null;
+      const billingData = normalizeBillingData(payload.billingData);
+      validateBillingData(billingData);
+      const freeNote =
+        typeof payload.notes === 'string' ? payload.notes.trim().slice(0, 1500) : null;
+      const notes = formatBillingSummary(billingData, freeNote);
       let amountCents: number | null = null;
       let currency = 'eur';
       if (stripeSecretKey && stripePriceId) {

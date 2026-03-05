@@ -42,25 +42,64 @@ type UpgradeRequestRow = {
   admin_comment?: string | null;
 };
 
+type BillingData = {
+  fullName: string;
+  companyName: string;
+  vatNumber: string;
+  billingEmail: string;
+  country: string;
+  addressLine1: string;
+  city: string;
+  postalCode: string;
+  purchaseOrder: string;
+};
+
 const PRO_FEATURES = [
   {
-    fr: 'Contenu Deep des procédures',
-    en: 'Deep procedure content',
-    pt: 'Conteúdo Deep dos procedimentos',
+    fr: 'Toutes les procedures Quick + Deep',
+    en: 'All Quick + Deep procedures',
+    pt: 'Todos os procedimentos Quick + Deep',
   },
   {
-    fr: 'Guidelines complètes et références',
-    en: 'Full guidelines and references',
-    pt: 'Guidelines completas e referências',
+    fr: 'Guidelines completes avec references',
+    en: 'Full guidelines with references',
+    pt: 'Guidelines completas com referencias',
   },
   {
-    fr: 'Protocoles, ALR et validations',
-    en: 'Protocols, ALR and validations',
-    pt: 'Protocolos, ALR e validações',
+    fr: 'Protocoles operatoires et blocs ALR',
+    en: 'Operative protocols and ALR blocks',
+    pt: 'Protocolos operatorios e blocos ALR',
+  },
+  {
+    fr: 'Mode Pro et filtres avances',
+    en: 'Pro mode and advanced filters',
+    pt: 'Modo Pro e filtros avancados',
+  },
+  {
+    fr: 'Mises a jour cliniques prioritaires',
+    en: 'Priority clinical updates',
+    pt: 'Atualizacoes clinicas prioritarias',
+  },
+  {
+    fr: 'Support prioritaire',
+    en: 'Priority support',
+    pt: 'Suporte prioritario',
   },
 ];
 
 type CheckoutMethod = 'stripe' | 'sepa_transfer' | 'invoice';
+
+const EMPTY_BILLING_DATA: BillingData = {
+  fullName: '',
+  companyName: '',
+  vatNumber: '',
+  billingEmail: '',
+  country: '',
+  addressLine1: '',
+  city: '',
+  postalCode: '',
+  purchaseOrder: '',
+};
 
 function formatPrice(
   lang: 'fr' | 'en' | 'pt',
@@ -119,6 +158,36 @@ function statusLabel(status: UpgradeRequestRow['status'], lang: 'fr' | 'en' | 'p
   return lang === 'fr' ? 'Refuse' : lang === 'pt' ? 'Recusado' : 'Rejected';
 }
 
+function normalizeBillingData(billingData: BillingData): BillingData {
+  return {
+    fullName: billingData.fullName.trim(),
+    companyName: billingData.companyName.trim(),
+    vatNumber: billingData.vatNumber.trim(),
+    billingEmail: billingData.billingEmail.trim(),
+    country: billingData.country.trim(),
+    addressLine1: billingData.addressLine1.trim(),
+    city: billingData.city.trim(),
+    postalCode: billingData.postalCode.trim(),
+    purchaseOrder: billingData.purchaseOrder.trim(),
+  };
+}
+
+function buildBillingSummary(billingData: BillingData, freeNote: string): string {
+  const parts = [
+    `Billing name: ${billingData.fullName || '-'}`,
+    `Company: ${billingData.companyName || '-'}`,
+    `VAT: ${billingData.vatNumber || '-'}`,
+    `Billing email: ${billingData.billingEmail || '-'}`,
+    `Country: ${billingData.country || '-'}`,
+    `Address: ${billingData.addressLine1 || '-'}, ${billingData.postalCode || '-'} ${billingData.city || '-'}`,
+    `PO: ${billingData.purchaseOrder || '-'}`,
+  ];
+  if (freeNote.trim()) {
+    parts.push(`Note: ${freeNote.trim()}`);
+  }
+  return parts.join('\n');
+}
+
 export default function ProCheckout() {
   const { t, lang } = useLang();
   const navigate = useNavigate();
@@ -132,6 +201,7 @@ export default function ProCheckout() {
   const [selectedMethod, setSelectedMethod] = useState<CheckoutMethod>('stripe');
   const [coverFees, setCoverFees] = useState(true);
   const [requestNote, setRequestNote] = useState('');
+  const [billingData, setBillingData] = useState<BillingData>(EMPTY_BILLING_DATA);
   const [submittingRequest, setSubmittingRequest] = useState(false);
   const [requests, setRequests] = useState<UpgradeRequestRow[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
@@ -139,6 +209,17 @@ export default function ProCheckout() {
   const sepaIban = import.meta.env.VITE_PRO_SEPA_IBAN || 'BE00 0000 0000 0000';
   const sepaBic = import.meta.env.VITE_PRO_SEPA_BIC || 'ABCDBEBB';
   const sepaName = import.meta.env.VITE_PRO_SEPA_BENEFICIARY || 'AnesIA';
+
+  function validateBillingData(data: BillingData): string | null {
+    if (!data.fullName || !data.billingEmail || !data.country || !data.addressLine1) {
+      return lang === 'fr'
+        ? 'Remplissez les champs de facturation obligatoires.'
+        : lang === 'pt'
+          ? 'Preencha os campos obrigatorios de faturacao.'
+          : 'Fill in required billing fields.';
+    }
+    return null;
+  }
 
   useEffect(() => {
     const {
@@ -243,6 +324,13 @@ export default function ProCheckout() {
       return;
     }
 
+    const normalizedBillingData = normalizeBillingData(billingData);
+    const billingValidationError = validateBillingData(normalizedBillingData);
+    if (billingValidationError) {
+      toast.error(billingValidationError);
+      return;
+    }
+
     setCheckoutLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke<StripeSessionResponse>('stripe-checkout', {
@@ -250,6 +338,8 @@ export default function ProCheckout() {
           action: 'create_checkout_session',
           origin: window.location.origin,
           coverFees,
+          notes: requestNote.trim(),
+          billingData: normalizedBillingData,
         },
       });
 
@@ -268,6 +358,13 @@ export default function ProCheckout() {
       return;
     }
 
+    const normalizedBillingData = normalizeBillingData(billingData);
+    const billingValidationError = validateBillingData(normalizedBillingData);
+    if (billingValidationError) {
+      toast.error(billingValidationError);
+      return;
+    }
+
     setSubmittingRequest(true);
     try {
       const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>(
@@ -276,7 +373,8 @@ export default function ProCheckout() {
           body: {
             action: 'create_upgrade_request',
             method,
-            notes: requestNote,
+            notes: buildBillingSummary(normalizedBillingData, requestNote),
+            billingData: normalizedBillingData,
           },
         },
       );
@@ -524,21 +622,147 @@ export default function ProCheckout() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">
-              {lang === 'fr' ? 'Note optionnelle' : lang === 'pt' ? 'Nota opcional' : 'Optional note'}
+              {lang === 'fr'
+                ? 'Donnees de facturation'
+                : lang === 'pt'
+                  ? 'Dados de faturacao'
+                  : 'Billing details'}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <Input
-              value={requestNote}
-              onChange={(event) => setRequestNote(event.target.value)}
-              placeholder={
-                lang === 'fr'
-                  ? 'Ex: N de TVA, reference interne, contact comptable...'
-                  : lang === 'pt'
-                    ? 'Ex: NIF, referencia interna, contacto da contabilidade...'
-                    : 'Ex: VAT, internal reference, accounting contact...'
-              }
-            />
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="billing-full-name">
+                  {lang === 'fr' ? 'Nom complet *' : lang === 'pt' ? 'Nome completo *' : 'Full name *'}
+                </Label>
+                <Input
+                  id="billing-full-name"
+                  value={billingData.fullName}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, fullName: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="billing-email">
+                  {lang === 'fr' ? 'Email facturation *' : lang === 'pt' ? 'Email faturacao *' : 'Billing email *'}
+                </Label>
+                <Input
+                  id="billing-email"
+                  type="email"
+                  value={billingData.billingEmail}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, billingEmail: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="billing-company">
+                  {lang === 'fr' ? 'Societe' : lang === 'pt' ? 'Empresa' : 'Company'}
+                </Label>
+                <Input
+                  id="billing-company"
+                  value={billingData.companyName}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, companyName: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="billing-vat">
+                  {lang === 'fr' ? 'TVA / VAT' : lang === 'pt' ? 'IVA / VAT' : 'VAT'}
+                </Label>
+                <Input
+                  id="billing-vat"
+                  value={billingData.vatNumber}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, vatNumber: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="billing-country">
+                  {lang === 'fr' ? 'Pays *' : lang === 'pt' ? 'Pais *' : 'Country *'}
+                </Label>
+                <Input
+                  id="billing-country"
+                  value={billingData.country}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, country: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="billing-address">
+                  {lang === 'fr' ? 'Adresse *' : lang === 'pt' ? 'Morada *' : 'Address *'}
+                </Label>
+                <Input
+                  id="billing-address"
+                  value={billingData.addressLine1}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, addressLine1: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="billing-postal">
+                  {lang === 'fr' ? 'Code postal' : lang === 'pt' ? 'Codigo postal' : 'Postal code'}
+                </Label>
+                <Input
+                  id="billing-postal"
+                  value={billingData.postalCode}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, postalCode: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="billing-city">
+                  {lang === 'fr' ? 'Ville' : lang === 'pt' ? 'Cidade' : 'City'}
+                </Label>
+                <Input
+                  id="billing-city"
+                  value={billingData.city}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, city: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="billing-po">
+                  {lang === 'fr'
+                    ? 'Reference facture / PO'
+                    : lang === 'pt'
+                      ? 'Referencia de fatura / PO'
+                      : 'Invoice reference / PO'}
+                </Label>
+                <Input
+                  id="billing-po"
+                  value={billingData.purchaseOrder}
+                  onChange={(event) =>
+                    setBillingData((prev) => ({ ...prev, purchaseOrder: event.target.value }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="billing-note">
+                {lang === 'fr' ? 'Note optionnelle' : lang === 'pt' ? 'Nota opcional' : 'Optional note'}
+              </Label>
+              <Input
+                id="billing-note"
+                value={requestNote}
+                onChange={(event) => setRequestNote(event.target.value)}
+                placeholder={
+                  lang === 'fr'
+                    ? 'Ex: contact comptable, contraintes internes...'
+                    : lang === 'pt'
+                      ? 'Ex: contacto da contabilidade, requisitos internos...'
+                      : 'Ex: accounting contact, internal constraints...'
+                }
+              />
+            </div>
           </CardContent>
         </Card>
       )}

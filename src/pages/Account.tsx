@@ -3,11 +3,12 @@ import { useLang } from '@/contexts/LanguageContext';
 import { useEntitlements } from '@/hooks/useEntitlements';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Crown, Check, Lock } from 'lucide-react';
+import { ArrowLeft, Crown, Check, Lock, Settings2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { resolveEdgeFunctionErrorMessage } from '@/lib/edgeFunctionError';
 import type { User } from '@supabase/supabase-js';
 
 const FREE_FEATURES = [
@@ -75,6 +76,8 @@ export default function Account() {
   const { isPro, loading } = useEntitlements();
   const [user, setUser] = useState<User | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const currentPlanLabel =
+    lang === 'fr' ? 'Plan actuel' : lang === 'pt' ? 'Plano atual' : 'Current plan';
 
   useEffect(() => {
     const {
@@ -103,11 +106,15 @@ export default function Account() {
         },
       );
       if (error || !data?.url) {
-        throw new Error(error?.message || data?.error || 'Could not open billing portal');
+        throw error ?? new Error(data?.error || 'Could not open billing portal');
       }
       window.location.assign(data.url);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to open billing portal');
+      const message = await resolveEdgeFunctionErrorMessage(
+        error,
+        'Failed to open billing portal',
+      );
+      toast.error(message);
       setPortalLoading(false);
     }
   }
@@ -120,6 +127,17 @@ export default function Account() {
       </Link>
 
       <h1 className="text-xl font-bold text-foreground">{t('account')}</h1>
+
+      <Button asChild variant="outline" className="w-full gap-2">
+        <Link to={user ? '/account/settings' : '/auth?mode=signin'}>
+          <Settings2 className="h-4 w-4" />
+          {lang === 'fr'
+            ? 'Parametres du compte'
+            : lang === 'pt'
+              ? 'Definicoes da conta'
+              : 'Account settings'}
+        </Link>
+      </Button>
 
       {/* Current Plan */}
       <Card className="clinical-shadow">
@@ -158,9 +176,16 @@ export default function Account() {
       {/* Feature Comparison */}
       <div className="grid gap-4">
         {/* Free */}
-        <Card>
+        <Card className={!isPro ? 'border-primary/60 bg-primary/5 clinical-shadow' : ''}>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">{t('plan_free')}</CardTitle>
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              {t('plan_free')}
+              {!isPro && (
+                <Badge variant="default" className="text-[10px]">
+                  {currentPlanLabel}
+                </Badge>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent className="pt-0 space-y-1.5">
             {FREE_FEATURES.map((f) => (
@@ -173,11 +198,16 @@ export default function Account() {
         </Card>
 
         {/* Pro */}
-        <Card className="border-accent/50">
+        <Card className={isPro ? 'border-accent bg-accent/5 clinical-shadow' : 'border-accent/50'}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
               <Crown className="h-4 w-4 text-accent" />
               {t('plan_pro')}
+              {isPro && (
+                <Badge variant="default" className="text-[10px]">
+                  {currentPlanLabel}
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0 space-y-1.5">

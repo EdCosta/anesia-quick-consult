@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { resolveEdgeFunctionErrorMessage } from '@/lib/edgeFunctionError';
 import type { User } from '@supabase/supabase-js';
 
 type SyncResponse = {
@@ -84,8 +85,18 @@ export default function ProSuccess() {
       if (cancelled) return;
 
       if (error || !data?.ok || data.plan !== 'pro') {
+        const errorMessage = error
+          ? await resolveEdgeFunctionErrorMessage(
+              error,
+              lang === 'fr'
+                ? 'Paiement reçu, mais activation Pro en attente. Réessayez dans quelques secondes.'
+                : lang === 'pt'
+                  ? 'Pagamento recebido, mas ativação Pro ainda pendente. Tente novamente em alguns segundos.'
+                  : 'Payment received, but Pro activation is still pending. Try again in a few seconds.',
+            )
+          : null;
         setSyncError(
-          error?.message ||
+          errorMessage ||
             (lang === 'fr'
               ? 'Paiement reçu, mais activation Pro en attente. Réessayez dans quelques secondes.'
               : lang === 'pt'

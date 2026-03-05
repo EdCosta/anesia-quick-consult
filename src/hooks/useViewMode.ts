@@ -16,7 +16,7 @@ export function useViewMode() {
   const normalizedStoredViewMode = normalizeViewMode(storedViewMode);
   const viewMode = loading ? normalizedStoredViewMode : isPro ? normalizedStoredViewMode : 'normal';
   const isProView = viewMode === 'pro';
-  const isHospitalView = !!hospitalProfile;
+  const isHospitalView = isProView && !!hospitalProfile;
 
   const setViewMode = useCallback(
     (nextMode: ViewMode) => {

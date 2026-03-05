@@ -23,6 +23,8 @@ const Protocoles = lazy(() => import('./pages/Protocoles'));
 const AntibioprophylaxieTable = lazy(() => import('./pages/AntibioprophylaxieTable'));
 const PreAnest = lazy(() => import('./pages/PreAnest'));
 const Account = lazy(() => import('./pages/Account'));
+const AccountSettings = lazy(() => import('./pages/AccountSettings'));
+const AccountPersonalization = lazy(() => import('./pages/AccountPersonalization'));
 const ProCheckout = lazy(() => import('./pages/ProCheckout'));
 const ProSuccess = lazy(() => import('./pages/ProSuccess'));
 const Auth = lazy(() => import('./pages/Auth'));
@@ -76,6 +78,11 @@ const App = () => {
                       <Route path="/preanest" element={<PreAnest />} />
                       <Route path="/p/:id" element={<ProcedurePage />} />
                       <Route path="/account" element={<Account />} />
+                      <Route path="/account/settings" element={<AccountSettings />} />
+                      <Route
+                        path="/account/settings/personalization"
+                        element={<AccountPersonalization />}
+                      />
                       <Route path="/pro/checkout" element={<ProCheckout />} />
                       <Route path="/pro/success" element={<ProSuccess />} />
                       <Route element={<AdminGuard />}>

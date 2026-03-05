@@ -61,4 +61,22 @@ describe('useViewMode', () => {
     expect(result.current.viewMode).toBe('normal');
     expect(setStoredViewMode).toHaveBeenCalledWith('normal');
   });
+
+  it('activates hospital view only when in pro mode with a hospital profile', () => {
+    const setStoredViewMode = vi.fn();
+
+    mockUseLocalStorage.mockReturnValue(['normal', setStoredViewMode]);
+    mockUseEntitlements.mockReturnValue({ plan: 'pro', isPro: true, loading: false });
+    mockUseHospitalProfile.mockReturnValue({ id: 'hospital-x' });
+
+    const { result, rerender } = renderHook(() => useViewMode());
+
+    expect(result.current.isHospitalView).toBe(false);
+
+    result.current.setViewMode('pro');
+    mockUseLocalStorage.mockReturnValue(['pro', setStoredViewMode]);
+    rerender();
+
+    expect(result.current.isHospitalView).toBe(true);
+  });
 });

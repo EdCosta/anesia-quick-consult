@@ -505,14 +505,27 @@ serve(async (req) => {
       });
     }
 
-    if (
-      action !== 'create_upgrade_request' &&
-      (!stripeSecretKey || !stripePriceId)
-    ) {
+    const needsStripeSecret =
+      action === 'create_checkout_session' ||
+      action === 'create_billing_portal_session' ||
+      action === 'sync_checkout_session';
+    const needsStripePriceId = action === 'create_checkout_session';
+
+    if (needsStripeSecret && !stripeSecretKey) {
       return jsonResponse(
         {
           error:
-            'Stripe is not configured. Set STRIPE_SECRET_KEY and STRIPE_PRICE_ID in Supabase Edge Function secrets.',
+            'Stripe is not configured. Set STRIPE_SECRET_KEY in Supabase Edge Function secrets.',
+          disabled: true,
+        },
+        503,
+      );
+    }
+    if (needsStripePriceId && !stripePriceId) {
+      return jsonResponse(
+        {
+          error:
+            'Stripe price is not configured. Set STRIPE_PRICE_ID in Supabase Edge Function secrets.',
           disabled: true,
         },
         503,
@@ -523,14 +536,16 @@ serve(async (req) => {
     const appOrigin = resolveAppOrigin(req, payload.origin);
 
     if (action === 'create_checkout_session') {
+      const configuredStripeSecretKey = stripeSecretKey as string;
+      const configuredStripePriceId = stripePriceId as string;
       const billingData = normalizeBillingData(payload.billingData);
       validateBillingData(billingData);
       const freeNote = typeof payload.notes === 'string' ? payload.notes.trim().slice(0, 1500) : '';
       const billingSummary = formatBillingSummary(billingData, freeNote || null);
 
       const basePrice = await stripeApiRequest<StripePricePayload>(
-        stripeSecretKey,
-        `/prices/${encodeURIComponent(stripePriceId)}`,
+        configuredStripeSecretKey,
+        `/prices/${encodeURIComponent(configuredStripePriceId)}`,
       );
 
       if (!basePrice.unit_amount || !basePrice.currency) {
@@ -542,13 +557,13 @@ serve(async (req) => {
       const { feeAmount, totalAmount } = calculateFeeBreakdown(basePrice.unit_amount, feeConfig);
       const stripeCustomerId = await getOrCreateStripeCustomer(
         auth.adminClient,
-        stripeSecretKey,
+        configuredStripeSecretKey,
         auth.user,
       );
       const body = new URLSearchParams();
       body.set('mode', 'subscription');
       body.set('customer', stripeCustomerId);
-      body.set('line_items[0][price]', stripePriceId);
+      body.set('line_items[0][price]', configuredStripePriceId);
       body.set('line_items[0][quantity]', '1');
       if (shouldCoverFees && feeAmount > 0 && basePrice.recurring?.interval) {
         body.set('line_items[1][price_data][currency]', basePrice.currency);
@@ -583,7 +598,7 @@ serve(async (req) => {
       body.set('success_url', `${appOrigin}/pro/success?session_id={CHECKOUT_SESSION_ID}`);
       body.set('cancel_url', `${appOrigin}/pro/checkout?canceled=1`);
 
-      const session = await stripeApiRequest<StripeSessionPayload>(stripeSecretKey, '/checkout/sessions', {
+      const session = await stripeApiRequest<StripeSessionPayload>(configuredStripeSecretKey, '/checkout/sessions', {
         method: 'POST',
         body: body.toString(),
       });
@@ -645,9 +660,10 @@ serve(async (req) => {
     }
 
     if (action === 'create_billing_portal_session') {
+      const configuredStripeSecretKey = stripeSecretKey as string;
       const stripeCustomerId = await getOrCreateStripeCustomer(
         auth.adminClient,
-        stripeSecretKey,
+        configuredStripeSecretKey,
         auth.user,
       );
       const returnUrl =
@@ -660,7 +676,7 @@ serve(async (req) => {
       body.set('return_url', returnUrl);
 
       const portalSession = await stripeApiRequest<{ url?: string }>(
-        stripeSecretKey,
+        configuredStripeSecretKey,
         '/billing_portal/sessions',
         {
           method: 'POST',
@@ -676,12 +692,13 @@ serve(async (req) => {
     }
 
     if (action === 'sync_checkout_session') {
+      const configuredStripeSecretKey = stripeSecretKey as string;
       if (!payload.sessionId || payload.sessionId.trim().length === 0) {
         throw new HttpError(400, 'sessionId is required');
       }
 
       const session = await stripeApiRequest<StripeSessionPayload>(
-        stripeSecretKey,
+        configuredStripeSecretKey,
         `/checkout/sessions/${encodeURIComponent(payload.sessionId)}?expand[]=subscription`,
       );
 
@@ -697,7 +714,7 @@ serve(async (req) => {
       let subscription: StripeSubscriptionPayload | null = null;
       if (typeof session.subscription === 'string') {
         subscription = await stripeApiRequest<StripeSubscriptionPayload>(
-          stripeSecretKey,
+          configuredStripeSecretKey,
           `/subscriptions/${encodeURIComponent(session.subscription)}`,
         );
       } else if (session.subscription && typeof session.subscription === 'object') {

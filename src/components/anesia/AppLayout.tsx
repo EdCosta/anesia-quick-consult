@@ -1,6 +1,17 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, Building2, Crown, UserPlus, ChevronDown, Loader2, KeyRound } from 'lucide-react';
+import {
+  Menu,
+  X,
+  LogOut,
+  Building2,
+  Crown,
+  UserPlus,
+  ChevronDown,
+  Loader2,
+  KeyRound,
+  Settings2,
+} from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -200,18 +211,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
-  const hospitalModeLabel =
-    lang === 'fr' ? 'Hospitalier' : lang === 'pt' ? 'Hospitalar' : 'Hospital';
-  const selectedMode = isPro && activeProfile ? 'hospital' : viewMode;
+  const isHospitalModeActive = isPro && viewMode === 'pro' && !!activeProfile;
+  const settingsLabel =
+    lang === 'fr' ? 'Parametres' : lang === 'pt' ? 'Definicoes' : 'Settings';
   const viewModeOptions = [
     { value: 'normal' as const, label: t('mode_normal') },
     { value: 'pro' as const, label: t('mode_pro') },
-    { value: 'hospital' as const, label: hospitalModeLabel },
   ];
   const activeViewMode =
-    viewModeOptions.find((option) => option.value === selectedMode) ?? viewModeOptions[0];
-  const availableViewModes = viewModeOptions.filter((option) => option.value !== selectedMode);
-  const isHospitalModeActive = selectedMode === 'hospital';
+    viewModeOptions.find((option) => option.value === viewMode) ?? viewModeOptions[0];
+  const availableViewModes = viewModeOptions.filter((option) => option.value !== viewMode);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -336,24 +345,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
             )}
             {/* Compact view mode selector */}
             <div className="group relative shrink-0">
-                <button
-                  type="button"
-                  title={t('switch_mode')}
-                  className={`inline-flex h-8 min-w-[5.25rem] items-center justify-center gap-1.5 rounded-full border px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 ${
-                    isHospitalModeActive
-                      ? 'border-emerald-300/60 bg-emerald-500/20 text-emerald-50 hover:bg-emerald-500/30 focus-visible:ring-emerald-200/40'
-                      : 'border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/15 focus-visible:ring-primary-foreground/30'
-                  }`}
-                  aria-haspopup="listbox"
-                >
-                {selectedMode === 'pro' && <Crown className="h-3 w-3" />}
-                {selectedMode === 'hospital' && <Building2 className="h-3 w-3" />}
+              <button
+                type="button"
+                title={t('switch_mode')}
+                className="inline-flex h-8 min-w-[5.25rem] items-center justify-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
+                aria-haspopup="listbox"
+              >
+                {viewMode === 'pro' && <Crown className="h-3 w-3" />}
                 <span>{activeViewMode.label}</span>
-                <ChevronDown
-                  className={`h-3 w-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180 ${
-                    isHospitalModeActive ? 'text-emerald-100/80' : 'text-primary-foreground/70'
-                  }`}
-                />
+                <ChevronDown className="h-3 w-3 text-primary-foreground/70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
               </button>
 
               <div className="absolute left-0 top-full z-50 hidden pt-1 group-hover:block group-focus-within:block">
@@ -363,31 +363,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       key={option.value}
                       type="button"
                       onClick={() => {
-                        if ((option.value === 'pro' || option.value === 'hospital') && !isPro && !loading) {
+                        if (option.value === 'pro' && !isPro && !loading) {
                           navigate('/account');
                           return;
                         }
 
                         if (option.value === 'normal') {
-                          clearHospitalMode();
                           setViewMode('normal');
                           return;
                         }
 
-                        if (option.value === 'pro') {
-                          clearHospitalMode();
-                          setViewMode('pro');
-                          return;
-                        }
-
-                        const profile = profiles.find((item) => item.id === activeProfile) || profiles[0];
-                        if (!profile) return;
-                        applyHospitalMode(profile);
+                        setViewMode('pro');
                       }}
                       className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
                     >
                       {option.value === 'pro' && <Crown className="h-3 w-3" />}
-                      {option.value === 'hospital' && <Building2 className="h-3 w-3" />}
                       <span>{option.label}</span>
                     </button>
                   ))}
@@ -396,19 +386,33 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </div>
             <LanguageSwitcher />
             {user ? (
-              <button
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                }}
-                className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/5 px-2.5 text-primary-foreground/75 transition-all duration-200 hover:w-32 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-32 focus-visible:text-primary-foreground"
-                aria-label={t('sign_out')}
-                title={t('sign_out')}
-              >
-                <LogOut className="h-4 w-4 shrink-0" />
-                <span className="pointer-events-none whitespace-nowrap text-xs font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
-                  {t('sign_out')}
-                </span>
-              </button>
+              <div className="group relative shrink-0">
+                <Link
+                  to="/account/settings"
+                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/5 px-2.5 text-primary-foreground/85 transition-all duration-200 hover:w-36 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-36 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
+                  aria-label={settingsLabel}
+                  title={settingsLabel}
+                >
+                  <Settings2 className="h-4 w-4 shrink-0" />
+                  <span className="pointer-events-none whitespace-nowrap text-xs font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                    {settingsLabel}
+                  </span>
+                </Link>
+                <div className="absolute right-0 top-full z-50 pt-1 opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto">
+                  <div className="min-w-36 rounded-xl border border-border bg-card p-1 shadow-lg">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                      }}
+                      className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>{t('sign_out')}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <>
                 <Link

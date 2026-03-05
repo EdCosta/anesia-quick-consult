@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { resolveEdgeFunctionErrorMessage } from '@/lib/edgeFunctionError';
 import type { User } from '@supabase/supabase-js';
 
 type PricingResponse = {
@@ -343,11 +344,12 @@ export default function ProCheckout() {
         },
       });
 
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       if (!data?.url) throw new Error(data?.error || 'Could not start checkout');
       window.location.assign(data.url);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Checkout failed');
+      const message = await resolveEdgeFunctionErrorMessage(error, 'Checkout failed');
+      toast.error(message);
       setCheckoutLoading(false);
     }
   }
@@ -380,7 +382,7 @@ export default function ProCheckout() {
       );
 
       if (error || !data?.ok) {
-        throw new Error(error?.message || data?.error || 'Could not create request');
+        throw error ?? new Error(data?.error || 'Could not create request');
       }
 
       toast.success(
@@ -399,7 +401,8 @@ export default function ProCheckout() {
         .limit(10);
       setRequests((Array.isArray(updatedRows) ? updatedRows : []) as UpgradeRequestRow[]);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Request failed');
+      const message = await resolveEdgeFunctionErrorMessage(error, 'Request failed');
+      toast.error(message);
     } finally {
       setSubmittingRequest(false);
     }
@@ -421,11 +424,12 @@ export default function ProCheckout() {
         },
       });
 
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       if (!data?.url) throw new Error(data?.error || 'Could not open subscription management');
       window.location.assign(data.url);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Portal failed');
+      const message = await resolveEdgeFunctionErrorMessage(error, 'Portal failed');
+      toast.error(message);
       setPortalLoading(false);
     }
   }

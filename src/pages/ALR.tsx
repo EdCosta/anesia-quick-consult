@@ -6,6 +6,7 @@ import { useData } from '@/contexts/DataContext';
 import { useViewMode } from '@/hooks/useViewMode';
 import type { ALRBlock } from '@/lib/types';
 import ProFeaturePage from '@/components/anesia/ProFeaturePage';
+import StructuredContentList from '@/components/anesia/StructuredContentList';
 
 const REGION_MAP: Record<string, string> = {
   upper_limb: 'upper_limb',
@@ -31,12 +32,19 @@ const REGION_DOT: Record<string, string> = {
 
 type TabKey = 'indications' | 'contraindications' | 'technique' | 'drugs';
 
-const TABS: { key: TabKey; labelKey: string; bulletClass: string }[] = [
-  { key: 'indications', labelKey: 'indications', bulletClass: 'text-accent' },
-  { key: 'contraindications', labelKey: 'contraindications_alr', bulletClass: 'text-clinical-danger' },
-  { key: 'technique', labelKey: 'technique', bulletClass: 'text-accent' },
-  { key: 'drugs', labelKey: 'drugs_alr', bulletClass: 'text-clinical-info' },
+const TABS: { key: TabKey; labelKey: string }[] = [
+  { key: 'indications', labelKey: 'indications' },
+  { key: 'contraindications', labelKey: 'contraindications_alr' },
+  { key: 'technique', labelKey: 'technique' },
+  { key: 'drugs', labelKey: 'drugs_alr' },
 ];
+
+const TAB_TONE: Record<TabKey, 'success' | 'danger' | 'warning' | 'info'> = {
+  indications: 'success',
+  contraindications: 'danger',
+  technique: 'warning',
+  drugs: 'info',
+};
 
 export default function ALR() {
   const { t, lang, resolveStr, resolve } = useLang();
@@ -205,7 +213,18 @@ export default function ALR() {
                                   : 'border-transparent text-muted-foreground hover:text-foreground'
                               }`}
                             >
-                              {t(labelKey)}
+                              <span className="inline-flex items-center gap-1.5">
+                                <span>{t(labelKey)}</span>
+                                <span
+                                  className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                                    isActive
+                                      ? 'bg-accent/10 text-accent'
+                                      : 'bg-muted text-muted-foreground'
+                                  }`}
+                                >
+                                  {items.length}
+                                </span>
+                              </span>
                             </button>
                           );
                         })}
@@ -213,7 +232,7 @@ export default function ALR() {
 
                       {/* Tab content */}
                       <div className="px-4 py-3">
-                        {TABS.map(({ key, bulletClass }) => {
+                        {TABS.map(({ key }) => {
                           if (currentTab !== key) return null;
                           const items = resolve<string[]>(
                             key === 'indications'
@@ -227,16 +246,7 @@ export default function ALR() {
                           if (items.length === 0) return (
                             <p key={key} className="text-xs text-muted-foreground italic">—</p>
                           );
-                          return (
-                            <ul key={key} className="space-y-1.5">
-                              {items.map((item, i) => (
-                                <li key={i} className="text-xs text-card-foreground flex gap-2">
-                                  <span className={`${bulletClass} mt-0.5 shrink-0`}>•</span>
-                                  <span>{item}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          );
+                          return <StructuredContentList key={key} items={items} tone={TAB_TONE[key]} />;
                         })}
                       </div>
                     </div>

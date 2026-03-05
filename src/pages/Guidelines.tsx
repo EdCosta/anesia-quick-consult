@@ -5,6 +5,7 @@ import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useViewMode } from '@/hooks/useViewMode';
 import type { Guideline } from '@/lib/types';
+import StructuredContentList from '@/components/anesia/StructuredContentList';
 import { Badge } from '@/components/ui/badge';
 import ProFeaturePage from '@/components/anesia/ProFeaturePage';
 
@@ -176,26 +177,27 @@ export default function Guidelines() {
                     )}
                   </button>
                   {isOpen && (
-                    <div className="px-4 pb-4 border-t pt-3 space-y-3">
-                      <ul className="space-y-1.5">
-                        {items.map((item, i) => (
-                          <li key={i} className="text-xs text-card-foreground flex gap-2">
-                            <span className="text-accent mt-0.5">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="space-y-3 border-t px-4 pb-4 pt-3">
+                      <StructuredContentList items={items} tone="accent" />
                       {g.references.length > 0 && (
-                        <div className="pt-2 border-t">
+                        <div className="border-t pt-3">
                           <p className="text-[11px] font-semibold text-muted-foreground mb-1">
                             {t('references_label')}
                           </p>
-                          {g.references.map((ref, i) => (
-                            <p key={i} className="text-[11px] text-muted-foreground">
-                              {ref.source}
-                              {ref.year && ` (${ref.year})`}
-                            </p>
-                          ))}
+                          <div className="space-y-0.5">
+                            {g.references.map((ref, i) => {
+                              const meta = [ref.year ? String(ref.year) : null, ref.note, ref.doi, ref.pmid]
+                                .filter(Boolean)
+                                .join(' • ');
+
+                              return (
+                                <p key={i} className="text-[11px] leading-4 text-muted-foreground">
+                                  <span className="font-medium text-card-foreground">{ref.source}</span>
+                                  {meta && <span>{` — ${meta}`}</span>}
+                                </p>
+                              );
+                            })}
+                          </div>
                         </div>
                       )}
                     </div>

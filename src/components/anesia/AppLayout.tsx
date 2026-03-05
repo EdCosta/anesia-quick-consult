@@ -267,7 +267,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           <div className="ml-auto flex items-center gap-2">
             {/* Hospital profile selector */}
-            {isPro && (
+            {isPro && viewMode === 'pro' && (
               <Popover>
               <PopoverTrigger asChild>
                 <button

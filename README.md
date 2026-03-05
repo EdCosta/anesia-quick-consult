@@ -112,6 +112,62 @@ supabase functions deploy admin-import-procedures
 supabase functions deploy admin-import-guidelines
 ```
 
+## Pro billing (Stripe)
+
+The Pro upgrade flow uses:
+
+- `stripe-checkout` (authenticated): pricing, checkout session, billing portal, and post-checkout sync
+- `stripe-webhook` (public webhook): subscription lifecycle sync (created/updated/canceled/payment failed)
+
+Required Edge Function secrets:
+
+- `STRIPE_SECRET_KEY`
+- `STRIPE_PRICE_ID`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_FEE_PERCENT` (optional; customer-paid fee percent for Stripe checkout)
+- `STRIPE_FEE_FIXED_CENTS` (optional; fixed cents added to Stripe checkout)
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_ANON_KEY`
+
+Optional:
+
+- `STRIPE_BILLING_PORTAL_RETURN_URL`
+- `APP_BASE_URL`
+- `VITE_PRO_SEPA_IBAN`
+- `VITE_PRO_SEPA_BIC`
+- `VITE_PRO_SEPA_BENEFICIARY`
+
+Deploy billing functions:
+
+```sh
+supabase functions deploy stripe-checkout
+supabase functions deploy stripe-webhook
+```
+
+Set the Stripe webhook endpoint to:
+
+`https://<YOUR-PROJECT-REF>.functions.supabase.co/stripe-webhook`
+
+Recommended Stripe webhook events:
+
+- `checkout.session.completed`
+- `customer.subscription.created`
+- `customer.subscription.updated`
+- `customer.subscription.deleted`
+- `invoice.payment_failed`
+
+## Pro payment options
+
+The `/pro/checkout` page supports three upgrade methods:
+
+- Stripe checkout (card/wallet) with optional customer-paid processing fee
+- SEPA transfer request (manual approval by admin)
+- Invoice request (manual approval by admin)
+
+Manual requests are stored in `public.pro_upgrade_requests` and can be processed in `/admin/billing`.
+When an admin sets request status to `approved` or `paid`, a DB trigger grants Pro access.
+
 ## Import procedures via UI
 
 1. Sign in with a Supabase user that has an `admin` row in `public.user_roles`.

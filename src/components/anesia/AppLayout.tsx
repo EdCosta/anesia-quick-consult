@@ -1,6 +1,6 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, LogOut, Building2, Crown, UserPlus, ChevronDown, Loader2 } from 'lucide-react';
+import { Menu, X, LogOut, Building2, Crown, UserPlus, ChevronDown, Loader2, KeyRound } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { useViewMode } from '@/hooks/useViewMode';
+import { resolveEntitlementPlanForUser } from '@/hooks/useEntitlements';
 import { Badge } from '@/components/ui/badge';
 import { isSupportedLang } from '@/i18n';
 import type { HospitalProfile } from '@/lib/types';
@@ -58,7 +59,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [profiles, setProfiles] = useState<HospitalProfile[]>([]);
   const [loadingProfiles, setLoadingProfiles] = useState(true);
   const [activeProfile, setActiveProfile] = useState<string | null>(() => readStoredHospitalProfileId());
-  const { viewMode, setViewMode, isPro, loading } = useViewMode();
+  const { viewMode, setViewMode, setViewModeForPlan, isPro, loading } = useViewMode();
 
   useEffect(() => {
     setLoadingProfiles(true);
@@ -123,14 +124,25 @@ export default function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+
+      if (event === 'SIGNED_IN' && session?.user?.id) {
+        void resolveEntitlementPlanForUser(session.user.id).then((plan) => {
+          setViewModeForPlan(plan);
+        });
+        return;
+      }
+
+      if (event === 'SIGNED_OUT') {
+        setViewModeForPlan('free');
+      }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [setViewModeForPlan]);
 
   useEffect(() => {
     if (!activeProfile || profiles.length === 0) return;
@@ -357,7 +369,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   aria-label={t('sign_in')}
                   title={t('sign_in')}
                 >
-                  <LogIn className="h-3.5 w-3.5 shrink-0" />
+                  <KeyRound className="h-3.5 w-3.5 shrink-0" />
                   <span className="pointer-events-none whitespace-nowrap text-xs font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
                     {t('sign_in')}
                   </span>

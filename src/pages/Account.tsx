@@ -1,10 +1,14 @@
+import { useEffect, useState } from 'react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useEntitlements } from '@/hooks/useEntitlements';
+import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Crown, Check, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import type { User } from '@supabase/supabase-js';
 
 const FREE_FEATURES = [
   {
@@ -62,7 +66,45 @@ const PRO_FEATURES = [
 
 export default function Account() {
   const { t, lang } = useLang();
-  const { plan, isPro, loading } = useEntitlements();
+  const { isPro, loading } = useEntitlements();
+  const [user, setUser] = useState<User | null>(null);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function openBillingPortal() {
+    if (!user) return;
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>(
+        'stripe-checkout',
+        {
+          body: {
+            action: 'create_billing_portal_session',
+            origin: window.location.origin,
+            returnUrl: `${window.location.origin}/account`,
+          },
+        },
+      );
+      if (error || !data?.url) {
+        throw new Error(error?.message || data?.error || 'Could not open billing portal');
+      }
+      window.location.assign(data.url);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to open billing portal');
+      setPortalLoading(false);
+    }
+  }
 
   return (
     <div className="container max-w-lg space-y-5 py-6">
@@ -152,11 +194,34 @@ export default function Account() {
         </Card>
       </div>
 
-      {/* Upgrade Button */}
-      {!isPro && (
-        <Button className="w-full gap-2" size="lg" disabled>
-          <Lock className="h-4 w-4" />
-          {t('coming_soon')}
+      {/* Upgrade / Manage */}
+      {!isPro ? (
+        <Button asChild className="w-full gap-2" size="lg">
+          <Link to={user ? '/pro/checkout' : '/auth?mode=signin'}>
+            <Lock className="h-4 w-4" />
+            {t('upgrade_pro')}
+          </Link>
+        </Button>
+      ) : (
+        <Button
+          className="w-full gap-2"
+          size="lg"
+          variant="outline"
+          onClick={() => void openBillingPortal()}
+          disabled={portalLoading}
+        >
+          <Crown className="h-4 w-4" />
+          {portalLoading
+            ? lang === 'fr'
+              ? 'Ouverture...'
+              : lang === 'pt'
+                ? 'A abrir...'
+                : 'Opening...'
+            : lang === 'fr'
+              ? 'Gérer mon abonnement'
+              : lang === 'pt'
+                ? 'Gerir subscrição'
+                : 'Manage subscription'}
         </Button>
       )}
     </div>

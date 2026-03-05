@@ -30,6 +30,13 @@ export function useViewMode() {
     [isPro, loading, setStoredViewMode],
   );
 
+  const setViewModeForPlan = useCallback(
+    (plan: 'free' | 'pro') => {
+      setStoredViewMode(plan === 'pro' ? 'pro' : 'normal');
+    },
+    [setStoredViewMode],
+  );
+
   useEffect(() => {
     if (loading) return;
 
@@ -39,5 +46,5 @@ export function useViewMode() {
     }
   }, [isPro, loading, normalizedStoredViewMode, setStoredViewMode, storedViewMode]);
 
-  return { viewMode, setViewMode, isProView, isHospitalView, isPro, loading };
+  return { viewMode, setViewMode, setViewModeForPlan, isProView, isHospitalView, isPro, loading };
 }

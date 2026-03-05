@@ -5,6 +5,7 @@ const adminLinks = [
   { to: '/admin/import/procedures', label: 'Procedures' },
   { to: '/admin/import/guidelines', label: 'Guidelines' },
   { to: '/admin/logs', label: 'Import logs' },
+  { to: '/admin/billing', label: 'Billing' },
 ];
 
 export default function AdminLayout() {

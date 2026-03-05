@@ -17,6 +17,47 @@ type EntitlementRow = {
   expires_at?: string | null;
 };
 
+export async function resolveEntitlementPlanForUser(
+  userId: string | null | undefined,
+): Promise<'free' | 'pro'> {
+  if (!userId) return 'free';
+
+  const { data: profileRow } = await supabase
+    .from('user_profiles')
+    .select('plan')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  const profilePlan = (profileRow as ProfilePlanRow | null)?.plan;
+  if (profilePlan === 'pro' || profilePlan === 'free') {
+    return profilePlan;
+  }
+
+  const { data: entitlementRow } = await supabase
+    .from('user_entitlements')
+    .select('plan_id, active, expires_at')
+    .eq('user_id', userId)
+    .eq('active', true)
+    .maybeSingle();
+
+  const typedEntitlementRow = entitlementRow as EntitlementRow | null;
+  const expiresAt = typedEntitlementRow?.expires_at;
+  const isExpired = !!expiresAt && new Date(expiresAt).getTime() <= Date.now();
+  if (typedEntitlementRow?.plan_id === 'pro' && !isExpired) {
+    return 'pro';
+  }
+
+  return 'free';
+}
+
+export async function resolveCurrentEntitlementPlan(): Promise<'free' | 'pro'> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return resolveEntitlementPlanForUser(user?.id);
+}
+
 export function useEntitlements(): EntitlementResult {
   const queryClient = useQueryClient();
 
@@ -31,39 +72,7 @@ export function useEntitlements(): EntitlementResult {
 
   const { data, isLoading } = useQuery({
     queryKey: ['entitlement'],
-    queryFn: async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return 'free';
-
-      const { data: profileRow } = await supabase
-        .from('user_profiles')
-        .select('plan')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      const profilePlan = (profileRow as ProfilePlanRow | null)?.plan;
-      if (profilePlan === 'pro' || profilePlan === 'free') {
-        return profilePlan;
-      }
-
-      const { data: entitlementRow } = await supabase
-        .from('user_entitlements')
-        .select('plan_id, active, expires_at')
-        .eq('user_id', user.id)
-        .eq('active', true)
-        .maybeSingle();
-
-      const typedEntitlementRow = entitlementRow as EntitlementRow | null;
-      const expiresAt = typedEntitlementRow?.expires_at;
-      const isExpired = !!expiresAt && new Date(expiresAt).getTime() <= Date.now();
-      if (typedEntitlementRow?.plan_id === 'pro' && !isExpired) {
-        return 'pro';
-      }
-
-      return 'free';
-    },
+    queryFn: resolveCurrentEntitlementPlan,
     staleTime: 5 * 60 * 1000,
   });
 

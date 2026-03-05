@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { BookOpen, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import Fuse from 'fuse.js';
+import { Link } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useViewMode } from '@/hooks/useViewMode';
@@ -80,6 +81,8 @@ export default function Guidelines() {
     return <ProFeaturePage title={t('guidelines')} description={t('guidelines_desc')} />;
   }
 
+  const antibioprophylaxieLabel = 'Antibioprophylaxie';
+
   return (
     <div className="container py-8 space-y-6">
       <div>
@@ -88,6 +91,12 @@ export default function Guidelines() {
           {t('guidelines')}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">{t('guidelines_desc')}</p>
+        <Link
+          to="/guidelines/antibioprophylaxie"
+          className="mt-2 inline-flex items-center rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent/15"
+        >
+          {antibioprophylaxieLabel}
+        </Link>
       </div>
 
       <div className="relative max-w-md">

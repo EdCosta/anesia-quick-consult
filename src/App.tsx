@@ -20,6 +20,7 @@ const Guidelines = lazy(() => import('./pages/Guidelines'));
 const ALR = lazy(() => import('./pages/ALR'));
 const Calculateurs = lazy(() => import('./pages/Calculateurs'));
 const Protocoles = lazy(() => import('./pages/Protocoles'));
+const AntibioprophylaxieTable = lazy(() => import('./pages/AntibioprophylaxieTable'));
 const PreAnest = lazy(() => import('./pages/PreAnest'));
 const Account = lazy(() => import('./pages/Account'));
 const Auth = lazy(() => import('./pages/Auth'));
@@ -65,6 +66,10 @@ const App = () => {
                       <Route path="/alr" element={<ALR />} />
                       <Route path="/calculateurs" element={<Calculateurs />} />
                       <Route path="/protocoles" element={<Protocoles />} />
+                      <Route
+                        path="/guidelines/antibioprophylaxie"
+                        element={<AntibioprophylaxieTable />}
+                      />
                       <Route path="/preanest" element={<PreAnest />} />
                       <Route path="/p/:id" element={<ProcedurePage />} />
                       <Route path="/account" element={<Account />} />

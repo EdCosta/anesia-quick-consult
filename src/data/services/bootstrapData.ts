@@ -24,6 +24,8 @@ const INDEX_CACHE_KEY = 'anesia-data-index-v1';
 const FULL_CACHE_KEY = 'anesia-data-full-v3';
 const INDEX_TTL = 15 * 60 * 1000;
 const FULL_TTL = 30 * 60 * 1000;
+const INDEX_LOAD_TIMEOUT_MS = 2500;
+const FULL_LOAD_TIMEOUT_MS = 4000;
 
 interface TimedCache<T> {
   ts: number;
@@ -68,6 +70,24 @@ function writeCache<T>(key: string, data: T): void {
     localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data }));
   } catch {
     // Ignore quota or serialization failures.
+  }
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeoutId: number | null = null;
+
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
   }
 }
 
@@ -121,8 +141,12 @@ export function readCachedFullData(): FullDataSnapshot | null {
 export async function loadProcedureIndexSnapshot(): Promise<ProcedureIndexSnapshot> {
   try {
     const [procedures, specialtiesData] = await Promise.all([
-      loadProcedureIndexFromSupabase(),
-      loadSpecialtiesFromSupabase().catch(() => []),
+      withTimeout(loadProcedureIndexFromSupabase(), INDEX_LOAD_TIMEOUT_MS, 'procedure index'),
+      withTimeout(
+        loadSpecialtiesFromSupabase().catch(() => []),
+        INDEX_LOAD_TIMEOUT_MS,
+        'specialties index',
+      ).catch(() => []),
     ]);
 
     if (procedures.length === 0) {
@@ -143,8 +167,12 @@ export async function loadProcedureIndexSnapshot(): Promise<ProcedureIndexSnapsh
 
 export async function loadFullDataSnapshot(): Promise<FullDataSnapshot> {
   const [loadedDbData, specialtyRows, fallbackDrugs] = await Promise.all([
-    loadFromSupabase(),
-    loadSpecialtiesFromSupabase().catch(() => []),
+    withTimeout(loadFromSupabase(), FULL_LOAD_TIMEOUT_MS, 'full data').catch(() => null),
+    withTimeout(
+      loadSpecialtiesFromSupabase().catch(() => []),
+      FULL_LOAD_TIMEOUT_MS,
+      'specialties full load',
+    ).catch(() => []),
     loadDrugsFromJson().catch(() => []),
   ]);
   let dbData = loadedDbData;

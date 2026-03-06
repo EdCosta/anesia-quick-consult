@@ -463,7 +463,10 @@ export default function ProcedurePage() {
     });
   };
 
-  if ((loading || directProcedureLoading) && !procedure) {
+  const shouldShowInitialSkeleton =
+    !procedure && (directProcedureLoading || (loading && attemptedProcedureId === null));
+
+  if (shouldShowInitialSkeleton) {
     return <ProcedurePageSkeleton />;
   }
 

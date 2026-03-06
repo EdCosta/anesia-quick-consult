@@ -167,16 +167,6 @@ export default function Index() {
     trackEvent('page_view_home', { lang });
   }, [lang]);
 
-  useEffect(() => {
-    const normalizedQuery = deferredSearchQuery.trim();
-    if (normalizedQuery.length < 2) return;
-    trackEvent('home_search', {
-      query: normalizedQuery.slice(0, 40),
-      results: filteredResults.length,
-      specialties: selectedSpecialties.length,
-    });
-  }, [deferredSearchQuery, filteredResults.length, selectedSpecialties.length]);
-
   const fuse = useMemo(() => {
     return new Fuse(visibleProcedureIndex, {
       keys: [
@@ -241,6 +231,16 @@ export default function Index() {
     favorites,
     specialtiesData,
   ]);
+
+  useEffect(() => {
+    const normalizedQuery = deferredSearchQuery.trim();
+    if (normalizedQuery.length < 2) return;
+    trackEvent('home_search', {
+      query: normalizedQuery.slice(0, 40),
+      results: filteredResults.length,
+      specialties: selectedSpecialties.length,
+    });
+  }, [deferredSearchQuery, filteredResults.length, selectedSpecialties.length]);
 
   const filterResetKey = `${deferredSearchQuery}::${selectedSpecialties.join('|')}::${showOnlyFavorites ? 1 : 0}::${favoritesFirst ? 1 : 0}::${visibleProcedureIndex.length}`;
 

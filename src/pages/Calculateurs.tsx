@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Calculator,
   Pill,
@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import ETTCalculator from '@/components/anesia/ETTCalculator';
 import DoseCalculator from '@/components/anesia/DoseCalculator';
 import StopBangScore from '@/components/anesia/scores/StopBangScore';
@@ -50,8 +50,21 @@ export default function Calculateurs() {
   const { t } = useLang();
   const { calculators: calcLimit, isLimited } = useContentLimits();
   const navigate = useNavigate();
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [expanded, setExpanded] = useState<string | null>(() => searchParams.get('open'));
   const [showProModal, setShowProModal] = useState(false);
+
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    if (expanded) next.set('open', expanded);
+    else next.delete('open');
+
+    const current = searchParams.toString();
+    const updated = next.toString();
+    if (current !== updated) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [expanded, searchParams, setSearchParams]);
 
   const visibleCalcs = isLimited ? CALCULATORS.slice(0, calcLimit) : CALCULATORS;
   const lockedCalcs = isLimited ? CALCULATORS.slice(calcLimit) : [];

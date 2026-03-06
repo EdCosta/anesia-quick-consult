@@ -34,6 +34,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { filterProceduresForHospitalMode, isStPierreProcedure } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName, getSpecialtyTrackingKey } from '@/lib/specialties';
 import { trackEvent } from '@/lib/analytics';
+import { prefetchProcedureById } from '@/data/services/procedurePrefetch';
 
 export default function Index() {
   const { t, lang, resolveStr } = useLang();
@@ -92,16 +93,14 @@ export default function Index() {
         title: lang === 'fr' ? 'Gerer les NVPO' : lang === 'pt' ? 'Gerir NVPO' : 'Manage PONV',
         description:
           lang === 'fr'
-            ? 'Acces rapide aux interventions et scores lies au risque de NVPO.'
+            ? 'Ouvre directement le protocole NVPO et la logique de prophylaxie.'
             : lang === 'pt'
-              ? 'Atalho para intervencoes e scores ligados ao risco de NVPO.'
-              : 'Fast access to interventions and scores linked to PONV risk.',
+              ? 'Abre diretamente o protocolo NVPO e a logica de profilaxia.'
+              : 'Open the PONV protocol and prophylaxis workflow directly.',
         icon: Activity,
         action: () => {
-          setSearchQuery(lang === 'fr' ? 'NVPO' : 'PONV');
-          setSelectedSpecialties([]);
-          setShowOnlyFavorites(false);
-          setFavoritesFirst(false);
+          trackEvent('guided_journey_open', { journey: 'ponv' });
+          navigate('/protocoles?category=ponv&open=ponv-protocol');
         },
       },
       {
@@ -110,12 +109,15 @@ export default function Index() {
           lang === 'fr' ? 'Voie aerienne' : lang === 'pt' ? 'Via aerea' : 'Airway workflow',
         description:
           lang === 'fr'
-            ? 'Passez des interventions aux red flags et calculateurs pediatriques.'
+            ? 'Ouvre l algorithme voie aerienne difficile plutot qu une page generique.'
             : lang === 'pt'
-              ? 'Passa das intervencoes aos red flags e calculadoras pediatricas.'
-              : 'Move from interventions to red flags and pediatric calculators.',
+              ? 'Abre o algoritmo de via aerea dificil em vez de uma pagina generica.'
+              : 'Open the difficult airway algorithm instead of a generic page.',
         icon: Stethoscope,
-        action: () => navigate('/calculateurs'),
+        action: () => {
+          trackEvent('guided_journey_open', { journey: 'airway' });
+          navigate('/protocoles?search=airway&open=difficult-airway-algorithm');
+        },
       },
       {
         key: 'preanest',
@@ -193,6 +195,7 @@ export default function Index() {
   };
 
   const handleProcedureClick = (proc: Procedure) => {
+    void prefetchProcedureById(proc.id);
     trackEvent('procedure_open_from_home', { procedureId: proc.id, specialty: proc.specialty });
     incrementSpecialty(getSpecialtyTrackingKey(proc.specialty, specialtiesData));
   };
@@ -350,7 +353,12 @@ export default function Index() {
   const renderProcedureGrid = (items: Procedure[], locked: Procedure[] = []) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
       {items.map((p) => (
-        <div key={p.id} onClick={() => handleProcedureClick(p)}>
+        <div
+          key={p.id}
+          onClick={() => handleProcedureClick(p)}
+          onMouseEnter={() => void prefetchProcedureById(p.id)}
+          onFocus={() => void prefetchProcedureById(p.id)}
+        >
           <ProcedureCard
             procedure={p}
             isFavorite={favorites.includes(p.id)}

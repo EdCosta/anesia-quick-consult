@@ -43,6 +43,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { dbRowToProcedure } from '@/data/normalize/normalizeProcedure';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import {
+  prefetchProcedureById,
+  readPrefetchedProcedure,
+} from '@/data/services/procedurePrefetch';
+import {
   getHospitalProcedureContext,
   getHospitalProcedureIds,
   isStPierreProcedure,
@@ -136,16 +140,13 @@ function getReferenceHref(reference: {
 }
 
 async function loadProcedureOnDemand(id: string): Promise<Procedure | null> {
-  try {
-    const { data } = await supabase
-      .from('procedures' as any)
-      .select('id,specialty,specialties,titles,synonyms,content,tags,is_pro,updated_at')
-      .eq('id', id)
-      .maybeSingle();
+  const prefetched = readPrefetchedProcedure(id);
+  if (prefetched) {
+    return prefetched;
+  }
 
-    if (data) {
-      return dbRowToProcedure(data);
-    }
+  try {
+    return await prefetchProcedureById(id);
   } catch (error) {
     console.warn('[AnesIA] Direct procedure fetch from Supabase failed', error);
   }
@@ -209,7 +210,7 @@ export default function ProcedurePage() {
   );
 
   useEffect(() => {
-    setDirectProcedure(null);
+    setDirectProcedure(readPrefetchedProcedure(resolvedProcedureId));
     setDirectProcedureLoading(false);
     setAttemptedProcedureId(null);
   }, [resolvedProcedureId]);

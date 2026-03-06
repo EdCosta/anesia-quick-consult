@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ClipboardCheck, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import Fuse from 'fuse.js';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useContentLimits } from '@/hooks/useContentLimits';
@@ -36,9 +36,10 @@ export default function Protocoles() {
   const { t, lang, resolveStr, resolve } = useLang();
   const { protocoles, loading } = useData();
   const { protocols: protocolLimit, isLimited } = useContentLimits();
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [category, setCategory] = useState<string | null>(() => searchParams.get('category'));
+  const [expanded, setExpanded] = useState<string | null>(() => searchParams.get('open'));
   usePageMeta({
     title: `${t('protocoles')} | AnesIA`,
     description:
@@ -69,6 +70,25 @@ export default function Protocoles() {
     if (category) results = results.filter((p) => p.category === category);
     return results;
   }, [search, category, fuse, protocoles]);
+
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+
+    if (search.trim()) next.set('search', search);
+    else next.delete('search');
+
+    if (category) next.set('category', category);
+    else next.delete('category');
+
+    if (expanded) next.set('open', expanded);
+    else next.delete('open');
+
+    const current = searchParams.toString();
+    const updated = next.toString();
+    if (current !== updated) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [search, category, expanded, searchParams, setSearchParams]);
 
   if (loading) {
     return (

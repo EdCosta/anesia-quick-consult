@@ -9,6 +9,16 @@ export async function loadProceduresFromSupabase(): Promise<Procedure[]> {
   return ((data as any[]) || []).map(dbRowToProcedure);
 }
 
+export async function loadProcedureByIdFromSupabase(id: string): Promise<Procedure | null> {
+  const { data } = await supabase
+    .from('procedures' as any)
+    .select('id,specialty,specialties,titles,synonyms,content,tags,is_pro,updated_at')
+    .eq('id', id)
+    .maybeSingle();
+
+  return data ? dbRowToProcedure(data) : null;
+}
+
 export async function loadProcedureIndexFromSupabase(): Promise<Procedure[]> {
   const { data } = await supabase
     .from('procedures' as any)

@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import { Target, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import Fuse from 'fuse.js';
+import { Link } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { useViewMode } from '@/hooks/useViewMode';
+import { useContentLimits } from '@/hooks/useContentLimits';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import type { ALRBlock } from '@/lib/types';
-import ProFeaturePage from '@/components/anesia/ProFeaturePage';
 import StructuredContentList from '@/components/anesia/StructuredContentList';
+import { trackEvent } from '@/lib/analytics';
 
 const REGION_MAP: Record<string, string> = {
   upper_limb: 'upper_limb',
@@ -49,11 +51,20 @@ const TAB_TONE: Record<TabKey, 'success' | 'danger' | 'warning' | 'info'> = {
 export default function ALR() {
   const { t, lang, resolveStr, resolve } = useLang();
   const { alrBlocks, loading } = useData();
-  const { isProView, loading: loadingViewMode } = useViewMode();
+  const { alr: alrLimit, isLimited } = useContentLimits();
   const [search, setSearch] = useState('');
   const [region, setRegion] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Record<string, TabKey>>({});
+  usePageMeta({
+    title: `${t('alr_full')} | AnesIA`,
+    description:
+      lang === 'fr'
+        ? 'Blocs ALR, indications, contre-indications et techniques.'
+        : lang === 'pt'
+          ? 'Bloqueios ALR, indicacoes, contraindicacoes e tecnicas.'
+          : 'Regional anesthesia blocks, indications, contraindications, and technique.',
+  });
 
   const fuse = useMemo(
     () =>
@@ -88,17 +99,8 @@ export default function ALR() {
     );
   }
 
-  if (loadingViewMode) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">{t('loading')}</p>
-      </div>
-    );
-  }
-
-  if (!isProView) {
-    return <ProFeaturePage title={t('alr_full')} description={t('pro_feature_desc')} />;
-  }
+  const visible = isLimited ? filtered.slice(0, alrLimit) : filtered;
+  const hiddenCount = isLimited ? Math.max(filtered.length - visible.length, 0) : 0;
 
   return (
     <div className="container py-6 space-y-4">
@@ -107,6 +109,26 @@ export default function ALR() {
         <Target className="h-5 w-5 text-accent shrink-0" />
         <h1 className="text-xl font-bold text-foreground">{t('alr_full')}</h1>
       </div>
+
+      {isLimited && (
+        <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 clinical-shadow">
+          <p className="text-sm font-semibold text-foreground">{t('pro_feature')}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {lang === 'fr'
+              ? 'Vous voyez un extrait ALR. Passez a Pro pour tous les blocs, techniques et details.'
+              : lang === 'pt'
+                ? 'Estas a ver uma amostra de ALR. Passa para Pro para ter todos os bloqueios, tecnicas e detalhes.'
+                : 'You are seeing an ALR preview. Upgrade to Pro for all blocks, techniques, and details.'}
+          </p>
+          <Link
+            to="/account"
+            onClick={() => trackEvent('alr_upgrade_click', { hiddenCount })}
+            className="mt-3 inline-flex rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            {t('upgrade_pro')}
+          </Link>
+        </div>
+      )}
 
       {/* Search + region filters on the same row (or stacked on mobile) */}
       <div className="flex flex-col sm:flex-row gap-2">
@@ -147,7 +169,7 @@ export default function ALR() {
           <p className="text-center text-sm text-muted-foreground py-8">{t('no_results')}</p>
         ) : (
           <>
-            {filtered.map((block) => {
+            {visible.map((block) => {
               const isOpen = expanded === block.id;
               const indications = resolve<string[]>(block.indications) ?? [];
               const borderColor = REGION_COLOR[block.region] ?? 'border-l-muted';
@@ -254,7 +276,18 @@ export default function ALR() {
                 </div>
               );
             })}
-
+            {hiddenCount > 0 && (
+              <div className="rounded-xl border border-dashed border-border bg-card/70 p-4 text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">
+                  {lang === 'fr'
+                    ? `${hiddenCount} bloc(s) supplementaire(s) en Pro`
+                    : lang === 'pt'
+                      ? `${hiddenCount} bloqueio(s) adicionais em Pro`
+                      : `${hiddenCount} more block(s) in Pro`}
+                </p>
+                <p className="mt-1">{t('upgrade_to_unlock')}</p>
+              </div>
+            )}
           </>
         )}
       </div>

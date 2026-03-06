@@ -28,6 +28,12 @@ const AccountPersonalization = lazy(() => import('./pages/AccountPersonalization
 const ProCheckout = lazy(() => import('./pages/ProCheckout'));
 const ProSuccess = lazy(() => import('./pages/ProSuccess'));
 const Auth = lazy(() => import('./pages/Auth'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
 const AdminGuard = lazy(() => import('./components/admin/AdminGuard'));
 const AdminLayout = lazy(() => import('./pages/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -78,6 +84,12 @@ const App = () => {
                       <Route path="/preanest" element={<PreAnest />} />
                       <Route path="/p/:id" element={<ProcedurePage />} />
                       <Route path="/account" element={<Account />} />
+                      <Route path="/pricing" element={<Pricing />} />
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/terms" element={<Terms />} />
                       <Route path="/account/settings" element={<AccountSettings />} />
                       <Route
                         path="/account/settings/personalization"

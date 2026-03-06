@@ -1,11 +1,11 @@
 import { useViewMode } from './useViewMode';
 
 const LIMITS_NORMAL = {
-  procedures: Infinity,
-  protocols: 0,
-  alr: 0,
-  calculators: Infinity,
-  guidelines: 0,
+  procedures: 16,
+  protocols: 2,
+  alr: 2,
+  calculators: 3,
+  guidelines: 3,
 };
 
 const LIMITS_PRO = {

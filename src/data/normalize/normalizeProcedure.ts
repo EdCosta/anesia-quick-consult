@@ -126,6 +126,7 @@ export function normalizeProcedure(input: Partial<Procedure>): Procedure {
     },
     tags: input.tags || [],
     is_pro: input.is_pro ?? false,
+    updated_at: input.updated_at,
   };
 }
 
@@ -141,6 +142,7 @@ export function dbRowToProcedure(row: any): Procedure {
     deep: row.content?.deep,
     tags: row.tags,
     is_pro: row.is_pro,
+    updated_at: row.updated_at,
   });
 }
 

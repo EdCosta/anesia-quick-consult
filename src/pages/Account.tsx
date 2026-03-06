@@ -78,6 +78,30 @@ export default function Account() {
   const [portalLoading, setPortalLoading] = useState(false);
   const currentPlanLabel =
     lang === 'fr' ? 'Plan actuel' : lang === 'pt' ? 'Plano atual' : 'Current plan';
+  const copy =
+    lang === 'fr'
+      ? {
+          settings: 'Parametres du compte',
+          fullAccess: 'Vous beneficiez de toutes les fonctionnalites Pro.',
+          upgradeHint: 'Passez a Pro pour debloquer toutes les fonctionnalites.',
+          opening: 'Ouverture...',
+          manage: 'Gerer mon abonnement',
+        }
+      : lang === 'pt'
+        ? {
+            settings: 'Definicoes da conta',
+            fullAccess: 'Tens acesso a todas as funcionalidades Pro.',
+            upgradeHint: 'Passa para Pro para desbloquear todas as funcionalidades.',
+            opening: 'A abrir...',
+            manage: 'Gerir subscricao',
+          }
+        : {
+            settings: 'Account settings',
+            fullAccess: 'You have access to all Pro features.',
+            upgradeHint: 'Upgrade to Pro to unlock all features.',
+            opening: 'Opening...',
+            manage: 'Manage subscription',
+          };
 
   useEffect(() => {
     const {
@@ -131,11 +155,7 @@ export default function Account() {
       <Button asChild variant="outline" className="w-full gap-2">
         <Link to={user ? '/account/settings' : '/auth?mode=signin'}>
           <Settings2 className="h-4 w-4" />
-          {lang === 'fr'
-            ? 'Parametres du compte'
-            : lang === 'pt'
-              ? 'Definicoes da conta'
-              : 'Account settings'}
+          {copy.settings}
         </Link>
       </Button>
 
@@ -154,21 +174,9 @@ export default function Account() {
           {loading ? (
             <p className="text-sm text-muted-foreground">{t('loading')}</p>
           ) : isPro ? (
-            <p className="text-sm text-muted-foreground">
-              {lang === 'fr'
-                ? 'Vous bénéficiez de toutes les fonctionnalités Pro.'
-                : lang === 'pt'
-                  ? 'Tem acesso a todas as funcionalidades Pro.'
-                  : 'You have access to all Pro features.'}
-            </p>
+            <p className="text-sm text-muted-foreground">{copy.fullAccess}</p>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              {lang === 'fr'
-                ? 'Passez à Pro pour débloquer toutes les fonctionnalités.'
-                : lang === 'pt'
-                  ? 'Atualize para Pro para desbloquear todas as funcionalidades.'
-                  : 'Upgrade to Pro to unlock all features.'}
-            </p>
+            <p className="text-sm text-muted-foreground">{copy.upgradeHint}</p>
           )}
         </CardContent>
       </Card>
@@ -248,16 +256,8 @@ export default function Account() {
         >
           <Crown className="h-4 w-4" />
           {portalLoading
-            ? lang === 'fr'
-              ? 'Ouverture...'
-              : lang === 'pt'
-                ? 'A abrir...'
-                : 'Opening...'
-            : lang === 'fr'
-              ? 'Gérer mon abonnement'
-              : lang === 'pt'
-                ? 'Gerir subscrição'
-                : 'Manage subscription'}
+            ? copy.opening
+            : copy.manage}
         </Button>
       )}
     </div>

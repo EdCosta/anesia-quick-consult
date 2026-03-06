@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, ReactNode, lazy, Suspense } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu,
@@ -11,6 +11,11 @@ import {
   Loader2,
   KeyRound,
   Settings2,
+  CircleHelp,
+  ShieldCheck,
+  FileText,
+  Info,
+  Mail,
 } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
@@ -24,7 +29,8 @@ import { resolveEntitlementPlanForUser } from '@/hooks/useEntitlements';
 import { Badge } from '@/components/ui/badge';
 import { isSupportedLang } from '@/i18n';
 import type { HospitalProfile } from '@/lib/types';
-import AIWidget from './AIWidget';
+
+const AIWidget = lazy(() => import('./AIWidget'));
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -218,6 +224,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { value: 'normal' as const, label: t('mode_normal') },
     { value: 'pro' as const, label: t('mode_pro') },
   ];
+  const footerLinks = [
+    { to: '/pricing', label: lang === 'fr' ? 'Tarifs' : lang === 'pt' ? 'Precos' : 'Pricing', icon: Crown },
+    { to: '/faq', label: 'FAQ', icon: CircleHelp },
+    { to: '/about', label: lang === 'fr' ? 'A propos' : lang === 'pt' ? 'Sobre' : 'About', icon: Info },
+    { to: '/contact', label: lang === 'fr' ? 'Contact' : lang === 'pt' ? 'Contacto' : 'Contact', icon: Mail },
+    { to: '/privacy', label: lang === 'fr' ? 'Confidentialite' : lang === 'pt' ? 'Privacidade' : 'Privacy', icon: ShieldCheck },
+    { to: '/terms', label: lang === 'fr' ? "Conditions" : lang === 'pt' ? 'Termos' : 'Terms', icon: FileText },
+  ];
   const activeViewMode =
     viewModeOptions.find((option) => option.value === viewMode) ?? viewModeOptions[0];
   const availableViewModes = viewModeOptions.filter((option) => option.value !== viewMode);
@@ -344,62 +358,68 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </Link>
             )}
             {/* Compact view mode selector */}
-            <div className="group relative shrink-0">
-              <button
-                type="button"
-                title={t('switch_mode')}
-                className="inline-flex h-8 min-w-[5.25rem] items-center justify-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
-                aria-haspopup="listbox"
-              >
-                {viewMode === 'pro' && <Crown className="h-3 w-3" />}
-                <span>{activeViewMode.label}</span>
-                <ChevronDown className="h-3 w-3 text-primary-foreground/70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
-              </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  title={t('switch_mode')}
+                  className="inline-flex h-8 min-w-[5.25rem] items-center justify-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
+                  aria-haspopup="listbox"
+                >
+                  {viewMode === 'pro' && <Crown className="h-3 w-3" />}
+                  <span>{activeViewMode.label}</span>
+                  <ChevronDown className="h-3 w-3 text-primary-foreground/70" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-40 p-1">
+                {availableViewModes.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      if (option.value === 'pro' && !isPro && !loading) {
+                        navigate('/account');
+                        return;
+                      }
 
-              <div className="absolute left-0 top-full z-50 hidden pt-1 group-hover:block group-focus-within:block">
-                <div className="min-w-full rounded-xl border border-border bg-card p-1 shadow-lg">
-                  {availableViewModes.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => {
-                        if (option.value === 'pro' && !isPro && !loading) {
-                          navigate('/account');
-                          return;
-                        }
+                      if (option.value === 'normal') {
+                        setViewMode('normal');
+                        return;
+                      }
 
-                        if (option.value === 'normal') {
-                          setViewMode('normal');
-                          return;
-                        }
-
-                        setViewMode('pro');
-                      }}
-                      className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
-                    >
-                      {option.value === 'pro' && <Crown className="h-3 w-3" />}
-                      <span>{option.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+                      setViewMode('pro');
+                    }}
+                    className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
+                  >
+                    {option.value === 'pro' && <Crown className="h-3 w-3" />}
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
             <LanguageSwitcher />
             {user ? (
-              <div className="group relative shrink-0">
-                <Link
-                  to="/account/settings"
-                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/5 px-2.5 text-primary-foreground/85 transition-all duration-200 hover:w-36 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-36 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
-                  aria-label={settingsLabel}
-                  title={settingsLabel}
-                >
-                  <Settings2 className="h-4 w-4 shrink-0" />
-                  <span className="pointer-events-none whitespace-nowrap text-xs font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
-                    {settingsLabel}
-                  </span>
-                </Link>
-                <div className="absolute right-0 top-full z-50 pt-1 opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto">
-                  <div className="min-w-36 rounded-xl border border-border bg-card p-1 shadow-lg">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex h-9 items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/5 px-3 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
+                    aria-label={settingsLabel}
+                    title={settingsLabel}
+                  >
+                    <Settings2 className="h-4 w-4 shrink-0" />
+                    <span>{settingsLabel}</span>
+                    <ChevronDown className="h-3 w-3 text-primary-foreground/70" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-44 p-1">
+                  <Link
+                    to="/account/settings"
+                    className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
+                  >
+                    <Settings2 className="h-3.5 w-3.5" />
+                    <span>{settingsLabel}</span>
+                  </Link>
                     <button
                       type="button"
                       onClick={async () => {
@@ -410,32 +430,27 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       <LogOut className="h-3.5 w-3.5" />
                       <span>{t('sign_out')}</span>
                     </button>
-                  </div>
-                </div>
-              </div>
+                </PopoverContent>
+              </Popover>
             ) : (
               <>
                 <Link
                   to="/auth?mode=signup"
-                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-2.5 text-primary-foreground transition-all duration-200 hover:w-36 hover:bg-primary-foreground/15 focus-visible:w-36"
+                  className="inline-flex h-9 items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
                   aria-label={t('sign_up')}
                   title={t('sign_up')}
                 >
                   <UserPlus className="h-3.5 w-3.5 shrink-0" />
-                  <span className="pointer-events-none whitespace-nowrap text-xs font-semibold opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
-                    {t('sign_up')}
-                  </span>
+                  <span>{t('sign_up')}</span>
                 </Link>
                 <Link
                   to="/auth?mode=signin"
-                  className="group inline-flex h-9 w-9 items-center gap-2 overflow-hidden rounded-full border border-primary-foreground/20 px-2.5 text-primary-foreground/85 transition-all duration-200 hover:w-32 hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:w-32"
+                  className="inline-flex h-9 items-center gap-2 rounded-full border border-primary-foreground/20 px-3 text-xs font-medium text-primary-foreground/85 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
                   aria-label={t('sign_in')}
                   title={t('sign_in')}
                 >
                   <KeyRound className="h-3.5 w-3.5 shrink-0" />
-                  <span className="pointer-events-none whitespace-nowrap text-xs font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
-                    {t('sign_in')}
-                  </span>
+                  <span>{t('sign_in')}</span>
                 </Link>
               </>
             )}
@@ -470,7 +485,41 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
       {/* Content */}
       <div className="flex-1">{children}</div>
-      <AIWidget />
+      <footer className="border-t border-border/80 bg-card/80">
+        <div className="container flex flex-col gap-4 py-6 text-sm sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-md space-y-1.5">
+            <p className="font-semibold text-foreground">
+              {lang === 'fr'
+                ? 'AnesIA centralise les outils et contenus de consultation anesthesique.'
+                : lang === 'pt'
+                  ? 'O AnesIA centraliza ferramentas e conteudo para consulta anestesica.'
+                  : 'AnesIA centralizes tools and content for anesthesia consultation.'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {lang === 'fr'
+                ? 'Concu pour aller vite au bloc, avec des parcours plus clairs entre contenu standard, Pro et mode hopital.'
+                : lang === 'pt'
+                  ? 'Pensado para acelerar o bloco, com percursos mais claros entre conteudo standard, Pro e modo hospital.'
+                  : 'Built for fast clinical access, with clearer paths between standard content, Pro access, and hospital mode.'}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-x-5 gap-y-2 text-xs sm:grid-cols-3">
+            {footerLinks.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <item.icon className="h-3.5 w-3.5" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </footer>
+      <Suspense fallback={null}>
+        <AIWidget />
+      </Suspense>
     </div>
   );
 }

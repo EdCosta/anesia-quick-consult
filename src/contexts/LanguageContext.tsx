@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
   type ReactNode,
@@ -70,6 +71,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     },
     [lang],
   );
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   return (
     <LanguageContext.Provider value={{ lang, setLang: handleSetLang, t, resolve, resolveStr }}>

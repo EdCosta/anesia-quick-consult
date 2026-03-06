@@ -14,15 +14,6 @@ import { buildThreadTitle, createAIId, type Message, type Thread } from './AIWid
 const AI_THREADS_STORAGE_KEY = 'ai_threads_v1';
 const AI_THREADS_STORAGE_VERSION = 1;
 const AI_THREADS_LEGACY_KEYS = ['ai_threads'];
-const QUICK_PROMPTS = [
-  'Plano pre/intra/pos',
-  'Checklist',
-  'Red flags',
-  'PONV',
-  'TEV',
-  'Via aerea',
-  'ALR',
-];
 
 type AIStoragePayload = {
   threads: Thread[];
@@ -189,6 +180,63 @@ export default function AIWidget() {
   const [threadSearch, setThreadSearch] = useState('');
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [threads, setThreads] = useState<Thread[]>(() => readStoredThreads());
+  const quickPrompts =
+    lang === 'fr'
+      ? ['Plan pre/intra/post', 'Checklist', 'Red flags', 'NVPO', 'TEV', 'Voie aerienne', 'ALR']
+      : lang === 'pt'
+        ? ['Plano pre/intra/pos', 'Checklist', 'Red flags', 'PONV', 'TEV', 'Via aerea', 'ALR']
+        : ['Pre/intra/post plan', 'Checklist', 'Red flags', 'PONV', 'VTE', 'Airway', 'RA'];
+  const copy =
+    lang === 'fr'
+      ? {
+          title: 'Assistant IA',
+          subtitle: 'Bloc temporaire et historique persistant.',
+          block: 'Bloc',
+          history: 'Historique',
+          blockEmpty: 'Utilisez le Bloc pour un chat temporaire. Vous pouvez fermer le widget et continuer ensuite.',
+          historyEmpty: 'Selectionnez ou creez une conversation enregistree pour continuer.',
+          saved: 'Conversation enregistree dans l historique.',
+          renamePrompt: 'Nouveau titre de la conversation',
+          deletePrompt: 'Supprimer cette conversation de l historique ?',
+          deleted: 'Conversation supprimee.',
+          duplicated: 'Conversation dupliquee vers le Bloc.',
+          continueLabel: 'Continuer conversation persistante.',
+          selectThread: 'Selectionnez une conversation dans l historique pour continuer.',
+          closeAria: 'Fermer panneau IA',
+        }
+      : lang === 'pt'
+        ? {
+            title: 'Assistente IA',
+            subtitle: 'Bloco temporario e historico persistente.',
+            block: 'Bloco',
+            history: 'Historico',
+            blockEmpty: 'Usa o Bloco para um chat temporario. Podes fechar o widget e continuar depois.',
+            historyEmpty: 'Seleciona ou cria uma conversa guardada para continuar.',
+            saved: 'Conversa guardada no historico.',
+            renamePrompt: 'Novo titulo da conversa',
+            deletePrompt: 'Apagar esta conversa do historico?',
+            deleted: 'Conversa apagada.',
+            duplicated: 'Conversa duplicada para Bloco.',
+            continueLabel: 'Continuar conversa persistente.',
+            selectThread: 'Seleciona uma conversa no historico para continuar.',
+            closeAria: 'Fechar painel IA',
+          }
+        : {
+            title: 'AI assistant',
+            subtitle: 'Temporary workspace and persistent history.',
+            block: 'Workspace',
+            history: 'History',
+            blockEmpty: 'Use the workspace for a temporary chat. You can close the widget and continue later.',
+            historyEmpty: 'Select or create a saved thread to continue.',
+            saved: 'Conversation saved to history.',
+            renamePrompt: 'New conversation title',
+            deletePrompt: 'Delete this conversation from history?',
+            deleted: 'Conversation deleted.',
+            duplicated: 'Conversation copied to workspace.',
+            continueLabel: 'Continue saved conversation.',
+            selectThread: 'Select a saved conversation from history to continue.',
+            closeAria: 'Close AI panel',
+          };
 
   useEffect(() => {
     persistThreads(threads);
@@ -248,8 +296,8 @@ export default function AIWidget() {
     });
     setSelectedThreadId(newThread.id);
     setActiveTab('history');
-    toast.success('Conversa guardada no historico.');
-  }, [blockMessages, blockThreadId, lang, procedureContext]);
+    toast.success(copy.saved);
+  }, [blockMessages, blockThreadId, copy.saved, lang, procedureContext]);
 
   const handleRenameThread = useCallback((threadId: string) => {
     const targetThread = threads.find((thread) => thread.id === threadId);
@@ -258,7 +306,7 @@ export default function AIWidget() {
       return;
     }
 
-    const nextTitle = window.prompt('Novo titulo da conversa', targetThread.title)?.trim();
+    const nextTitle = window.prompt(copy.renamePrompt, targetThread.title)?.trim();
 
     if (!nextTitle) {
       return;
@@ -275,10 +323,10 @@ export default function AIWidget() {
           : thread,
       ),
     );
-  }, [threads]);
+  }, [copy.renamePrompt, threads]);
 
   const handleDeleteThread = useCallback((threadId: string) => {
-    const confirmed = window.confirm('Apagar esta conversa do historico?');
+    const confirmed = window.confirm(copy.deletePrompt);
 
     if (!confirmed) {
       return;
@@ -291,8 +339,8 @@ export default function AIWidget() {
       setBlockMessages([]);
     }
 
-    toast.success('Conversa apagada.');
-  }, [blockThreadId]);
+    toast.success(copy.deleted);
+  }, [blockThreadId, copy.deletePrompt, copy.deleted]);
 
   const handleDuplicateThreadToBlock = useCallback((threadId: string) => {
     const targetThread = threads.find((thread) => thread.id === threadId);
@@ -305,8 +353,8 @@ export default function AIWidget() {
     setBlockThreadId(isRemoteThreadId(targetThread.id) ? targetThread.id : null);
     setActiveTab('block');
     setIsOpen(true);
-    toast.success('Conversa duplicada para Bloco.');
-  }, [threads]);
+    toast.success(copy.duplicated);
+  }, [copy.duplicated, threads]);
 
   const setSelectedThreadMessages = useCallback(
     (nextValue: SetStateAction<Message[]>) => {
@@ -341,10 +389,8 @@ export default function AIWidget() {
             <Bot className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-foreground">Assistente IA</h2>
-            <p className="text-sm text-muted-foreground">
-              Bloco temporario e historico persistente.
-            </p>
+            <h2 className="text-base font-semibold text-foreground">{copy.title}</h2>
+            <p className="text-sm text-muted-foreground">{copy.subtitle}</p>
           </div>
         </div>
       </div>
@@ -358,11 +404,11 @@ export default function AIWidget() {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="block" className="gap-1.5">
               <LayoutPanelLeft className="h-4 w-4" />
-              Bloco
+              {copy.block}
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-1.5">
               <History className="h-4 w-4" />
-              Historico
+              {copy.history}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -370,7 +416,7 @@ export default function AIWidget() {
         <TabsContent value="block" className="mt-0 flex min-h-0 flex-1 flex-col px-4 pb-4 pt-4">
           <AIChat
             mode="block"
-            emptyState="Use o Bloco para um chat temporario. Pode fechar o widget e continuar depois."
+            emptyState={copy.blockEmpty}
             messages={blockMessages}
             setMessages={setBlockMessages}
             onClear={handleClearBlock}
@@ -379,7 +425,7 @@ export default function AIWidget() {
             canSaveToHistory={blockMessages.length > 0}
             procedureContextOverride={procedureContext}
             threadId={blockThreadId}
-            quickPrompts={QUICK_PROMPTS}
+            quickPrompts={quickPrompts}
           />
         </TabsContent>
 
@@ -402,13 +448,11 @@ export default function AIWidget() {
             <div className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border/70 bg-muted/20 p-3">
               <div className="rounded-xl border border-border/70 bg-background px-3 py-2">
                 <p className="text-sm font-semibold text-foreground">{selectedThread.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  Continuar conversa persistente.
-                </p>
+                <p className="text-xs text-muted-foreground">{copy.continueLabel}</p>
               </div>
               <AIChat
                 mode="history"
-                emptyState="Selecione ou crie uma conversa guardada para continuar."
+                emptyState={copy.historyEmpty}
                 messages={selectedThread.messages}
                 procedureContextOverride={{
                   procedureId: selectedThread.procedureId,
@@ -437,7 +481,7 @@ export default function AIWidget() {
             </div>
           ) : (
             <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-border bg-background/80 px-4 py-6 text-center text-sm text-muted-foreground">
-              Selecione uma conversa no historico para continuar.
+              {copy.selectThread}
             </div>
           )}
         </TabsContent>
@@ -462,7 +506,7 @@ export default function AIWidget() {
               size="icon"
               className="h-8 w-8"
               onClick={() => setIsOpen(false)}
-              aria-label="Fechar painel IA"
+              aria-label={copy.closeAria}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -486,7 +530,7 @@ export default function AIWidget() {
               size="icon"
               className="h-8 w-8"
               onClick={() => setIsOpen(false)}
-              aria-label="Fechar painel IA"
+              aria-label={copy.closeAria}
             >
               <X className="h-4 w-4" />
             </Button>

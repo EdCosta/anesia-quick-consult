@@ -87,6 +87,7 @@ export default function ProcedureCard({
         <button
           onClick={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             onToggleFavorite(procedure.id);
           }}
           className="shrink-0 p-1.5 transition-colors"

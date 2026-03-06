@@ -47,6 +47,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      analytics_events: {
+        Row: {
+          created_at: string;
+          event_name: string;
+          id: string;
+          language: string | null;
+          meta: Json | null;
+          path: string;
+          session_id: string;
+          user_agent: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          event_name: string;
+          id?: string;
+          language?: string | null;
+          meta?: Json | null;
+          path: string;
+          session_id: string;
+          user_agent?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          event_name?: string;
+          id?: string;
+          language?: string | null;
+          meta?: Json | null;
+          path?: string;
+          session_id?: string;
+          user_agent?: string | null;
+        };
+        Relationships: [];
+      };
       drugs: {
         Row: {
           class: string | null;

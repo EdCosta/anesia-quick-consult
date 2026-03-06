@@ -4,11 +4,12 @@ import Fuse from 'fuse.js';
 import { Link } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { useViewMode } from '@/hooks/useViewMode';
+import { useContentLimits } from '@/hooks/useContentLimits';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import type { Guideline } from '@/lib/types';
 import StructuredContentList from '@/components/anesia/StructuredContentList';
 import { Badge } from '@/components/ui/badge';
-import ProFeaturePage from '@/components/anesia/ProFeaturePage';
+import { trackEvent } from '@/lib/analytics';
 
 const CATEGORY_MAP: Record<string, string> = {
   airway: 'airway_cat',
@@ -43,10 +44,19 @@ const CATEGORY_DOT: Record<string, string> = {
 export default function Guidelines() {
   const { t, lang, resolveStr, resolve } = useLang();
   const { guidelines, loading } = useData();
-  const { isProView } = useViewMode();
+  const { guidelines: guidelineLimit, isLimited } = useContentLimits();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  usePageMeta({
+    title: `${t('guidelines')} | AnesIA`,
+    description:
+      lang === 'fr'
+        ? 'Recommandations et bonnes pratiques en anesthesie.'
+        : lang === 'pt'
+          ? 'Recomendacoes e boas praticas em anestesia.'
+          : 'Anesthesia recommendations and best practices.',
+  });
 
   const fuse = useMemo(
     () =>
@@ -77,11 +87,9 @@ export default function Guidelines() {
     );
   }
 
-  if (!isProView) {
-    return <ProFeaturePage title={t('guidelines')} description={t('guidelines_desc')} />;
-  }
-
   const antibioprophylaxieLabel = 'Antibioprophylaxie';
+  const visible = isLimited ? filtered.slice(0, guidelineLimit) : filtered;
+  const hiddenCount = isLimited ? Math.max(filtered.length - visible.length, 0) : 0;
 
   return (
     <div className="container py-8 space-y-6">
@@ -131,14 +139,34 @@ export default function Guidelines() {
         ))}
       </div>
 
+      {isLimited && (
+        <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 clinical-shadow">
+          <p className="text-sm font-semibold text-foreground">{t('pro_feature')}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {lang === 'fr'
+              ? 'Vous voyez un extrait des guidelines. Passez a Pro pour toutes les references et la navigation complete.'
+              : lang === 'pt'
+                ? 'Estas a ver uma amostra das guidelines. Passa para Pro para ter todas as referencias e navegacao completa.'
+                : 'You are seeing a preview of the guidelines. Upgrade to Pro for full references and complete navigation.'}
+          </p>
+          <Link
+            to="/account"
+            onClick={() => trackEvent('guidelines_upgrade_click', { hiddenCount })}
+            className="mt-3 inline-flex rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            {t('upgrade_pro')}
+          </Link>
+        </div>
+      )}
+
       <div className="grid gap-3 md:grid-cols-2 items-start">
-        {filtered.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground py-8 md:col-span-2">
             {t('no_results')}
           </p>
         ) : (
           <>
-            {filtered.map((g) => {
+            {visible.map((g) => {
               const isOpen = expanded === g.id;
               const items = resolve<string[]>(g.items) ?? [];
               const borderColor = CATEGORY_COLOR[g.category] ?? 'border-l-muted';
@@ -214,6 +242,18 @@ export default function Guidelines() {
                 </div>
               );
             })}
+            {hiddenCount > 0 && (
+              <div className="rounded-xl border border-dashed border-border bg-card/70 p-4 text-sm text-muted-foreground md:col-span-2">
+                <p className="font-medium text-foreground">
+                  {lang === 'fr'
+                    ? `${hiddenCount} guideline(s) supplementaire(s) en Pro`
+                    : lang === 'pt'
+                      ? `${hiddenCount} guideline(s) adicionais em Pro`
+                      : `${hiddenCount} more guideline(s) in Pro`}
+                </p>
+                <p className="mt-1">{t('upgrade_to_unlock')}</p>
+              </div>
+            )}
           </>
         )}
       </div>

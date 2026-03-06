@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useLang } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { formatAIThreadDate, type Thread } from './AIWidget.types';
 
@@ -27,6 +28,32 @@ export default function AIThreadList({
   onSearchChange,
   onSelectThread,
 }: AIThreadListProps) {
+  const { lang } = useLang();
+  const copy =
+    lang === 'fr'
+      ? {
+          search: 'Rechercher par titre',
+          empty: 'Aucune conversation trouvee.',
+          rename: 'Renommer',
+          duplicate: 'Dupliquer vers le Bloc',
+          delete: 'Supprimer',
+        }
+      : lang === 'pt'
+        ? {
+            search: 'Pesquisar por titulo',
+            empty: 'Nenhuma conversa encontrada.',
+            rename: 'Renomear',
+            duplicate: 'Duplicar para Bloco',
+            delete: 'Apagar',
+          }
+        : {
+            search: 'Search by title',
+            empty: 'No conversations found.',
+            rename: 'Rename',
+            duplicate: 'Duplicate to workspace',
+            delete: 'Delete',
+          };
+
   return (
     <div className="space-y-3 rounded-2xl border border-border/70 bg-muted/20 p-3">
       <div className="relative">
@@ -34,7 +61,7 @@ export default function AIThreadList({
         <Input
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Pesquisar por titulo"
+          placeholder={copy.search}
           className="pl-9"
         />
       </div>
@@ -43,7 +70,7 @@ export default function AIThreadList({
         <div className="space-y-2">
           {threads.length === 0 && (
             <div className="rounded-xl border border-dashed border-border bg-background/80 px-3 py-4 text-sm text-muted-foreground">
-              Nenhuma conversa encontrada.
+              {copy.empty}
             </div>
           )}
 
@@ -88,7 +115,7 @@ export default function AIThreadList({
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => onRenameThread(thread.id)}
-                    aria-label="Renomear"
+                    aria-label={copy.rename}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -98,7 +125,7 @@ export default function AIThreadList({
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => onDuplicateThread(thread.id)}
-                    aria-label="Duplicar para Bloco"
+                    aria-label={copy.duplicate}
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -108,7 +135,7 @@ export default function AIThreadList({
                     size="icon"
                     className="h-8 w-8 text-destructive hover:text-destructive"
                     onClick={() => onDeleteThread(thread.id)}
-                    aria-label="Apagar"
+                    aria-label={copy.delete}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

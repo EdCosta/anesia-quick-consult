@@ -105,7 +105,7 @@ export default function PreAnest() {
 
   const handleGenerate = () => {
     setSaved(input);
-    setResult(generateRecommendations(input));
+    setResult(generateRecommendations(input, lang));
     setExpandedBlock('preop');
   };
 

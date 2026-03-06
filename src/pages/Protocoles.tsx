@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react';
 import { ClipboardCheck, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import Fuse from 'fuse.js';
+import { Link } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
-import { useViewMode } from '@/hooks/useViewMode';
+import { useContentLimits } from '@/hooks/useContentLimits';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import type { Protocole } from '@/lib/types';
 import StructuredContentList from '@/components/anesia/StructuredContentList';
 import { Badge } from '@/components/ui/badge';
-import ProFeaturePage from '@/components/anesia/ProFeaturePage';
+import { trackEvent } from '@/lib/analytics';
 
 const CATEGORY_MAP: Record<string, string> = {
   safety: 'safety',
@@ -33,10 +35,19 @@ const CATEGORY_DOT: Record<string, string> = {
 export default function Protocoles() {
   const { t, lang, resolveStr, resolve } = useLang();
   const { protocoles, loading } = useData();
-  const { isProView } = useViewMode();
+  const { protocols: protocolLimit, isLimited } = useContentLimits();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  usePageMeta({
+    title: `${t('protocoles')} | AnesIA`,
+    description:
+      lang === 'fr'
+        ? 'Checklists et protocoles standardises en anesthesie.'
+        : lang === 'pt'
+          ? 'Checklists e protocolos padronizados em anestesia.'
+          : 'Standardized anesthesia checklists and protocols.',
+  });
 
   const fuse = useMemo(
     () =>
@@ -67,9 +78,8 @@ export default function Protocoles() {
     );
   }
 
-  if (!isProView) {
-    return <ProFeaturePage title={t('protocoles')} description={t('protocoles_desc')} />;
-  }
+  const visible = isLimited ? filtered.slice(0, protocolLimit) : filtered;
+  const hiddenCount = isLimited ? Math.max(filtered.length - visible.length, 0) : 0;
 
   return (
     <div className="container py-8 space-y-6">
@@ -113,14 +123,34 @@ export default function Protocoles() {
         ))}
       </div>
 
+      {isLimited && (
+        <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 clinical-shadow">
+          <p className="text-sm font-semibold text-foreground">{t('pro_feature')}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {lang === 'fr'
+              ? 'Vous voyez un extrait des protocoles. Passez a Pro pour les checklists completes et le contenu structure.'
+              : lang === 'pt'
+                ? 'Estas a ver uma amostra dos protocolos. Passa para Pro para ter checklists completas e conteudo estruturado.'
+                : 'You are seeing a preview of the protocols. Upgrade to Pro for complete checklists and structured content.'}
+          </p>
+          <Link
+            to="/account"
+            onClick={() => trackEvent('protocols_upgrade_click', { hiddenCount })}
+            className="mt-3 inline-flex rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            {t('upgrade_pro')}
+          </Link>
+        </div>
+      )}
+
       <div className="grid gap-3 md:grid-cols-2 items-start">
-        {filtered.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground py-8 md:col-span-2">
             {t('no_results')}
           </p>
         ) : (
           <>
-            {filtered.map((p) => {
+            {visible.map((p) => {
               const isOpen = expanded === p.id;
               const steps = resolve<string[]>(p.steps) ?? [];
               const borderColor = CATEGORY_COLOR[p.category] ?? 'border-l-muted';
@@ -196,6 +226,18 @@ export default function Protocoles() {
                 </div>
               );
             })}
+            {hiddenCount > 0 && (
+              <div className="rounded-xl border border-dashed border-border bg-card/70 p-4 text-sm text-muted-foreground md:col-span-2">
+                <p className="font-medium text-foreground">
+                  {lang === 'fr'
+                    ? `${hiddenCount} protocole(s) supplementaire(s) en Pro`
+                    : lang === 'pt'
+                      ? `${hiddenCount} protocolo(s) adicionais em Pro`
+                      : `${hiddenCount} more protocol(s) in Pro`}
+                </p>
+                <p className="mt-1">{t('upgrade_to_unlock')}</p>
+              </div>
+            )}
           </>
         )}
       </div>

@@ -24,6 +24,7 @@ import { useSpecialtyUsage } from '@/hooks/useSpecialtyUsage';
 import { useContentLimits } from '@/hooks/useContentLimits';
 import { useHospitalProfile } from '@/hooks/useHospitalProfile';
 import { useViewMode } from '@/hooks/useViewMode';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import SpecialtyChips from '@/components/anesia/SpecialtyChips';
 import ProcedureCard from '@/components/anesia/ProcedureCard';
 import ProGate from '@/components/anesia/ProGate';
@@ -32,6 +33,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Skeleton } from '@/components/ui/skeleton';
 import { filterProceduresForHospitalMode, isStPierreProcedure } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName, getSpecialtyTrackingKey } from '@/lib/specialties';
+import { trackEvent } from '@/lib/analytics';
 
 export default function Index() {
   const { t, lang, resolveStr } = useLang();
@@ -53,6 +55,15 @@ export default function Index() {
   const [fabOpen, setFabOpen] = useState(false);
   const [showProGate, setShowProGate] = useState(false);
   const [proceduresExpanded, setProceduresExpanded] = useState(false);
+  usePageMeta({
+    title: 'AnesIA',
+    description:
+      lang === 'fr'
+        ? "Acces rapide aux interventions, guidelines et outils d'anesthesie."
+        : lang === 'pt'
+          ? 'Acesso rapido a intervencoes, guidelines e ferramentas de anestesia.'
+          : 'Fast access to anesthesia interventions, guidelines, and tools.',
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const heroSearchRef = useRef<HTMLDivElement>(null);
@@ -74,6 +85,65 @@ export default function Index() {
     if (lang === 'en') return ['appendectomy', 'TIVA', 'PONV'];
     return ['appendicectomie', 'TIVA', 'NVPO'];
   }, [lang]);
+  const guidedJourneys = useMemo(
+    () => [
+      {
+        key: 'search-ponv',
+        title: lang === 'fr' ? 'Gerer les NVPO' : lang === 'pt' ? 'Gerir NVPO' : 'Manage PONV',
+        description:
+          lang === 'fr'
+            ? 'Acces rapide aux interventions et scores lies au risque de NVPO.'
+            : lang === 'pt'
+              ? 'Atalho para intervencoes e scores ligados ao risco de NVPO.'
+              : 'Fast access to interventions and scores linked to PONV risk.',
+        icon: Activity,
+        action: () => {
+          setSearchQuery(lang === 'fr' ? 'NVPO' : 'PONV');
+          setSelectedSpecialties([]);
+          setShowOnlyFavorites(false);
+          setFavoritesFirst(false);
+        },
+      },
+      {
+        key: 'search-airway',
+        title:
+          lang === 'fr' ? 'Voie aerienne' : lang === 'pt' ? 'Via aerea' : 'Airway workflow',
+        description:
+          lang === 'fr'
+            ? 'Passez des interventions aux red flags et calculateurs pediatriques.'
+            : lang === 'pt'
+              ? 'Passa das intervencoes aos red flags e calculadoras pediatricas.'
+              : 'Move from interventions to red flags and pediatric calculators.',
+        icon: Stethoscope,
+        action: () => navigate('/calculateurs'),
+      },
+      {
+        key: 'preanest',
+        title: t('preanest'),
+        description:
+          lang === 'fr'
+            ? 'Demarrez la consultation pre-anesthesique avec un parcours structure.'
+            : lang === 'pt'
+              ? 'Comeca a consulta pre-anestesica com um percurso estruturado.'
+              : 'Start pre-anesthesia consult with a structured workflow.',
+        icon: Stethoscope,
+        action: () => navigate('/preanest'),
+      },
+      {
+        key: 'guidelines',
+        title: t('guidelines'),
+        description:
+          lang === 'fr'
+            ? 'Voir les recommandations recentes, categories et references.'
+            : lang === 'pt'
+              ? 'Ver recomendacoes recentes, categorias e referencias.'
+              : 'Open recent recommendations, categories, and references.',
+        icon: Calculator,
+        action: () => navigate('/guidelines'),
+      },
+    ],
+    [lang, navigate, t],
+  );
 
   const sortedSpecialties = useMemo(() => {
     const dbIds = specialtiesData.map((s) => s.id);
@@ -93,6 +163,20 @@ export default function Index() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    trackEvent('page_view_home', { lang });
+  }, [lang]);
+
+  useEffect(() => {
+    const normalizedQuery = deferredSearchQuery.trim();
+    if (normalizedQuery.length < 2) return;
+    trackEvent('home_search', {
+      query: normalizedQuery.slice(0, 40),
+      results: filteredResults.length,
+      specialties: selectedSpecialties.length,
+    });
+  }, [deferredSearchQuery, filteredResults.length, selectedSpecialties.length]);
+
   const fuse = useMemo(() => {
     return new Fuse(visibleProcedureIndex, {
       keys: [
@@ -109,6 +193,7 @@ export default function Index() {
   }, [visibleProcedureIndex, lang]);
 
   const toggleFavorite = (id: string) => {
+    trackEvent('favorite_toggle', { procedureId: id });
     setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
   };
 
@@ -118,6 +203,7 @@ export default function Index() {
   };
 
   const handleProcedureClick = (proc: Procedure) => {
+    trackEvent('procedure_open_from_home', { procedureId: proc.id, specialty: proc.specialty });
     incrementSpecialty(getSpecialtyTrackingKey(proc.specialty, specialtiesData));
   };
 
@@ -405,6 +491,47 @@ export default function Index() {
             />
           )}
         </div>
+
+        {!isSearching && (
+          <div className="w-full max-w-4xl pt-3">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                  {lang === 'fr'
+                    ? 'Commencer vite'
+                    : lang === 'pt'
+                      ? 'Comecar rapido'
+                      : 'Start quickly'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {lang === 'fr'
+                    ? 'Des parcours guides pour ne pas toujours partir d une recherche libre.'
+                    : lang === 'pt'
+                      ? 'Percursos guiados para nao depender sempre da pesquisa livre.'
+                      : 'Guided paths so the user does not always start from free search.'}
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {guidedJourneys.map((journey) => (
+                <button
+                  key={journey.key}
+                  type="button"
+                  onClick={journey.action}
+                  className="rounded-[1.25rem] border border-border bg-card/90 p-4 text-left clinical-shadow transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:bg-card"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                    <journey.icon className="h-4 w-4" />
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-foreground">{journey.title}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {journey.description}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {isSearching && (
           <div className="w-full max-w-lg mt-3">

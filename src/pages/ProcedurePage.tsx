@@ -24,6 +24,7 @@ import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useViewMode } from '@/hooks/useViewMode';
 import { useRecommendationTags } from '@/hooks/useRecommendationTags';
 import { useAIProcedureContext } from '@/contexts/AIProcedureContext';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import Section, { BulletList } from '@/components/anesia/Section';
 import IntubationGuide from '@/components/anesia/IntubationGuide';
 import DrugDoseRow from '@/components/anesia/DrugDoseRow';
@@ -48,6 +49,7 @@ import {
   resolveHospitalProcedureId,
 } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName } from '@/lib/specialties';
+import { trackEvent } from '@/lib/analytics';
 import type { PatientWeights } from '@/lib/weightScalars';
 import type {
   Guideline,
@@ -67,6 +69,27 @@ function normalizeMatchKey(value: string) {
 
 function getGuidelineYear(guideline: Guideline) {
   return Math.max(0, ...guideline.references.map((ref) => ref.year || 0));
+}
+
+function getLatestReferenceYear(procedure: Procedure | null) {
+  if (!procedure) return null;
+  const years = Object.values(procedure.deep).flatMap((content) =>
+    content.references.map((reference) => reference.year || 0),
+  );
+  const latest = Math.max(0, ...years);
+  return latest > 0 ? latest : null;
+}
+
+function estimateReadingMinutes(procedure: Procedure, quick: ProcedureQuick | null | undefined) {
+  const quickItems = quick
+    ? quick.preop.length + quick.intraop.length + quick.postop.length + quick.red_flags.length
+    : 0;
+  const deepWords = Object.values(procedure.deep)
+    .flatMap((content) => [...content.clinical, ...content.pitfalls])
+    .join(' ')
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.max(1, Math.round((quickItems * 18 + deepWords) / 180));
 }
 
 function resolveLocalizedHospitalTitle(
@@ -90,11 +113,33 @@ function formatHospitalSourcePages(pages: number[] | undefined): string | null {
   return `${pages.length === 1 ? 'p.' : 'pp.'} ${pages.join(', ')}`;
 }
 
+function formatProcedureUpdatedAt(value: string | undefined, lang: SupportedLang) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString(lang, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+function getReferenceHref(reference: {
+  url?: string;
+  doi?: string;
+  pmid?: string;
+}) {
+  if (reference.url) return reference.url;
+  if (reference.doi) return `https://doi.org/${reference.doi}`;
+  if (reference.pmid) return `https://pubmed.ncbi.nlm.nih.gov/${reference.pmid}/`;
+  return null;
+}
+
 async function loadProcedureOnDemand(id: string): Promise<Procedure | null> {
   try {
     const { data } = await supabase
       .from('procedures' as any)
-      .select('id,specialty,specialties,titles,synonyms,content,tags,is_pro')
+      .select('id,specialty,specialties,titles,synonyms,content,tags,is_pro,updated_at')
       .eq('id', id)
       .maybeSingle();
 
@@ -251,6 +296,21 @@ export default function ProcedurePage() {
   const isPersisted =
     quickTranslation.isPersisted && (isDeepFallbackLang ? deepTranslation.isPersisted : true);
   const reviewStatus = quickTranslation.reviewStatus ?? deepTranslation.reviewStatus;
+  const procedureTitle = procedure ? resolveStr(procedure.titles) : t('procedure_not_found');
+  const specialtyDisplayName = procedure
+    ? getSpecialtyDisplayName(procedure.specialty, specialtiesData, lang)
+    : '';
+  const procedureMetaDescription = procedure
+    ? lang === 'fr'
+      ? `${procedureTitle} - ${specialtyDisplayName}. Checklist rapide, points critiques et doses associees.`
+      : lang === 'pt'
+        ? `${procedureTitle} - ${specialtyDisplayName}. Checklist rapida, pontos criticos e doses associadas.`
+        : `${procedureTitle} - ${specialtyDisplayName}. Quick checklist, key risks, and associated dosing.`
+    : t('procedure_not_found_hint');
+  usePageMeta({
+    title: `${procedureTitle} | AnesIA`,
+    description: procedureMetaDescription,
+  });
 
   const recommendations = useMemo(() => {
     if (!procedure || !guidelines.length) return [];
@@ -335,6 +395,16 @@ export default function ProcedurePage() {
     setProcedureContext,
   ]);
 
+  useEffect(() => {
+    if (!procedure) return;
+    trackEvent('procedure_page_view', {
+      procedureId: procedure.id,
+      specialty: procedure.specialty,
+      lang,
+      hospitalView: isHospitalView,
+    });
+  }, [procedure, lang, isHospitalView]);
+
   const handleCopyChecklist = () => {
     if (!procedure) return;
     const quick = applyHospitalFormulary(resolve(procedure.quick));
@@ -353,6 +423,7 @@ export default function ProcedurePage() {
     addSection(t('postop'), quick.postop);
     if (quick.red_flags.length > 0) addSection(t('red_flags'), quick.red_flags);
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      trackEvent('procedure_checklist_copied', { procedureId: procedure.id });
       toast.success(t('copied'));
     });
   };
@@ -387,6 +458,7 @@ export default function ProcedurePage() {
     }
 
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      trackEvent('procedure_summary_copied', { procedureId: procedure.id });
       toast.success(t('summary_copied'));
     });
   };
@@ -409,7 +481,7 @@ export default function ProcedurePage() {
     );
   }
 
-  const title = resolveStr(procedure.titles);
+  const title = procedureTitle;
 
   // Use translated content if available, otherwise resolve normally
   let quick = resolve(procedure.quick);
@@ -424,8 +496,16 @@ export default function ProcedurePage() {
   }
 
   quick = applyHospitalFormulary(quick);
-
-  const specialtyDisplayName = getSpecialtyDisplayName(procedure.specialty, specialtiesData, lang);
+  const latestReferenceYear = getLatestReferenceYear(procedure);
+  const estimatedReadingMinutes = estimateReadingMinutes(procedure, quick);
+  const updatedAtLabel = formatProcedureUpdatedAt(procedure.updated_at, lang);
+  const referenceCount = Object.values(procedure.deep).reduce(
+    (sum, content) => sum + content.references.length,
+    0,
+  );
+  const quickChecklistCount = quick
+    ? quick.preop.length + quick.intraop.length + quick.postop.length
+    : 0;
   const hospitalProcedureContext = isHospitalView
     ? getHospitalProcedureContext(hospitalProfile, requestedProcedureId, procedure.id)
     : null;
@@ -436,6 +516,7 @@ export default function ProcedurePage() {
 
   const toggleFav = () => {
     if (!favoriteId) return;
+    trackEvent('procedure_favorite_toggle', { procedureId: favoriteId, nextState: !isFav });
     setFavorites((prev) =>
       prev.includes(favoriteId) ? prev.filter((f) => f !== favoriteId) : [...prev, favoriteId],
     );
@@ -513,6 +594,54 @@ export default function ProcedurePage() {
             />
           </button>
         </div>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="clinical-shadow">
+          <CardContent className="p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === 'fr' ? 'Lecture' : lang === 'pt' ? 'Leitura' : 'Reading'}
+            </p>
+            <p className="mt-1 text-lg font-bold text-foreground">
+              {estimatedReadingMinutes} min
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="clinical-shadow">
+          <CardContent className="p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === 'fr' ? 'Checklist' : lang === 'pt' ? 'Checklist' : 'Checklist'}
+            </p>
+            <p className="mt-1 text-lg font-bold text-foreground">{quickChecklistCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="clinical-shadow">
+          <CardContent className="p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === 'fr' ? 'References' : lang === 'pt' ? 'Referencias' : 'References'}
+            </p>
+            <p className="mt-1 text-lg font-bold text-foreground">{referenceCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="clinical-shadow">
+          <CardContent className="p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === 'fr' ? 'Mise a jour' : lang === 'pt' ? 'Atualizacao' : 'Updated'}
+            </p>
+            <p className="mt-1 text-lg font-bold text-foreground">
+              {updatedAtLabel ?? '—'}
+            </p>
+            {latestReferenceYear && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {lang === 'fr'
+                  ? `Source recente ${latestReferenceYear}`
+                  : lang === 'pt'
+                    ? `Fonte mais recente ${latestReferenceYear}`
+                    : `Latest source ${latestReferenceYear}`}
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Translation / FR-only banner */}
@@ -919,17 +1048,38 @@ function ProcedureContent({
                         <CardContent className="p-4">
                           <Section title={t('references_title')} variant="info">
                             <ul className="space-y-2">
-                              {deep.references.map((ref: any, i: number) => (
-                                <li key={i} className="text-xs text-card-foreground">
-                                  <span className="font-semibold">{ref.source}</span>
-                                  {ref.year && (
-                                    <span className="text-muted-foreground"> ({ref.year})</span>
-                                  )}
-                                  {ref.note && (
-                                    <span className="text-muted-foreground"> — {ref.note}</span>
-                                  )}
-                                </li>
-                              ))}
+                              {deep.references.map((ref: any, i: number) => {
+                                const href = getReferenceHref(ref);
+
+                                return (
+                                  <li key={i} className="text-xs text-card-foreground">
+                                    {href ? (
+                                      <a
+                                        href={href}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="font-semibold text-accent hover:underline"
+                                        onClick={() =>
+                                          trackEvent('procedure_reference_open', {
+                                            procedureId: procedure.id,
+                                            referenceIndex: i,
+                                          })
+                                        }
+                                      >
+                                        {ref.source}
+                                      </a>
+                                    ) : (
+                                      <span className="font-semibold">{ref.source}</span>
+                                    )}
+                                    {ref.year && (
+                                      <span className="text-muted-foreground"> ({ref.year})</span>
+                                    )}
+                                    {ref.note && (
+                                      <span className="text-muted-foreground"> - {ref.note}</span>
+                                    )}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </Section>
                         </CardContent>

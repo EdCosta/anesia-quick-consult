@@ -65,6 +65,51 @@ export default function AIChat({
   const endRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const piiIssues = useMemo(() => detectPIIInText(draft), [draft]);
+  const copy =
+    lang === 'fr'
+      ? {
+          confirmPII:
+            'Une donnee potentiellement identifiable a ete detectee. Voulez-vous vraiment envoyer ?',
+          requestFailed: "Impossible d'obtenir une reponse IA pour le moment.",
+          piiBanner: "Ne pas introduire de donnees identifiables (nom, numero de dossier, etc.).",
+          procedureBadge: 'Intervention',
+          generating: 'Generation de la reponse...',
+          placeholder: 'Ecrivez votre question...',
+          piiDetected: 'PII potentielle detectee',
+          clear: 'Effacer',
+          saveToHistory: "Enregistrer dans l'historique",
+          stop: 'Arreter',
+          send: 'Envoyer',
+        }
+      : lang === 'pt'
+        ? {
+            confirmPII:
+              'Foi detetado um dado potencialmente identificavel. Queres mesmo enviar?',
+            requestFailed: 'Nao foi possivel obter resposta da IA de momento.',
+            piiBanner: 'Nao introduzir dados identificaveis (nome, numero de processo, etc.)',
+            procedureBadge: 'Intervencao',
+            generating: 'A gerar resposta...',
+            placeholder: 'Escreve a tua pergunta...',
+            piiDetected: 'Possivel PII detetada',
+            clear: 'Limpar',
+            saveToHistory: 'Guardar no historico',
+            stop: 'Parar',
+            send: 'Enviar',
+          }
+        : {
+            confirmPII:
+              'Potentially identifying data was detected. Do you want to send this anyway?',
+            requestFailed: 'The AI response is unavailable right now.',
+            piiBanner: 'Do not include identifiable data (name, record number, etc.).',
+            procedureBadge: 'Intervention',
+            generating: 'Generating response...',
+            placeholder: 'Write your question...',
+            piiDetected: 'Possible PII detected',
+            clear: 'Clear',
+            saveToHistory: 'Save to history',
+            stop: 'Stop',
+            send: 'Send',
+          };
 
   const focusTextarea = () => {
     textareaRef.current?.focus();
@@ -92,9 +137,7 @@ export default function AIChat({
     const issues = detectPIIInText(question);
 
     if (issues.length > 0) {
-      const shouldContinue = window.confirm(
-        'Foi detetado possivel dado identificavel. Confirma que pretende enviar mesmo assim?',
-      );
+      const shouldContinue = window.confirm(copy.confirmPII);
 
       if (!shouldContinue) {
         return;
@@ -143,7 +186,7 @@ export default function AIChat({
         return;
       }
 
-      const failureMessage = 'Nao foi possivel obter resposta da IA de momento.';
+      const failureMessage = copy.requestFailed;
 
       toast.error(
         requestError instanceof Error && requestError.message
@@ -167,12 +210,12 @@ export default function AIChat({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="rounded-xl border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-        Nao introduzir dados identificaveis (nome, n processo, etc.)
+        {copy.piiBanner}
       </div>
 
       {effectiveProcedureContext?.procedureId && (
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border/70 bg-background px-3 py-2">
-          <Badge variant="secondary">Procedure</Badge>
+          <Badge variant="secondary">{copy.procedureBadge}</Badge>
           <span className="text-xs font-medium text-foreground">
             {effectiveProcedureContext.procedureId}
           </span>
@@ -248,7 +291,7 @@ export default function AIChat({
           {isLoading && (
             <div className="flex justify-start">
               <div className="rounded-2xl bg-muted px-3 py-2 text-sm text-muted-foreground">
-                A gerar resposta...
+                {copy.generating}
               </div>
             </div>
           )}
@@ -273,7 +316,7 @@ export default function AIChat({
           ref={textareaRef}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="Escreva a sua pergunta..."
+          placeholder={copy.placeholder}
           className="min-h-[110px] resize-none"
           data-vaul-no-drag
           autoFocus
@@ -289,7 +332,9 @@ export default function AIChat({
         {piiIssues.length > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900">
             <AlertTriangle className="h-4 w-4" />
-            <span>Possivel PII detetada: {piiIssues.join(', ')}.</span>
+            <span>
+              {copy.piiDetected}: {piiIssues.join(', ')}.
+            </span>
           </div>
         )}
 
@@ -304,7 +349,7 @@ export default function AIChat({
                 disabled={messages.length === 0 && !draft}
               >
                 <Trash2 className="h-4 w-4" />
-                Limpar
+                {copy.clear}
               </Button>
             )}
             {mode === 'block' && onSaveToHistory && (
@@ -316,7 +361,7 @@ export default function AIChat({
                 disabled={!canSaveToHistory}
               >
                 <Save className="h-4 w-4" />
-                Guardar no historico
+                {copy.saveToHistory}
               </Button>
             )}
           </div>
@@ -325,12 +370,12 @@ export default function AIChat({
             {isLoading && (
               <Button type="button" variant="outline" size="sm" onClick={cancel}>
                 <Square className="h-3.5 w-3.5" />
-                Parar
+                {copy.stop}
               </Button>
             )}
             <Button type="button" size="sm" onClick={handleSend} disabled={!draft.trim() || isLoading}>
               <SendHorizonal className="h-4 w-4" />
-              Enviar
+              {copy.send}
             </Button>
           </div>
         </div>

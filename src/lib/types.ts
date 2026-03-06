@@ -40,6 +40,7 @@ export interface Procedure {
   deep: Localized<ProcedureDeep>;
   tags: string[];
   is_pro?: boolean;
+  updated_at?: string;
 }
 
 export interface DoseRule {

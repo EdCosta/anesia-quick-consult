@@ -5,14 +5,14 @@ import { dbRowToProcedure, normalizeProcedure } from '@/data/normalize/normalize
 export async function loadProceduresFromSupabase(): Promise<Procedure[]> {
   const { data } = await supabase
     .from('procedures' as any)
-    .select('id,specialty,specialties,titles,synonyms,content,tags,is_pro');
+    .select('id,specialty,specialties,titles,synonyms,content,tags,is_pro,updated_at');
   return ((data as any[]) || []).map(dbRowToProcedure);
 }
 
 export async function loadProcedureIndexFromSupabase(): Promise<Procedure[]> {
   const { data } = await supabase
     .from('procedures' as any)
-    .select('id,specialty,specialties,titles,synonyms,tags,is_pro')
+    .select('id,specialty,specialties,titles,synonyms,tags,is_pro,updated_at')
     .order('specialty')
     .order('id');
 
@@ -25,6 +25,7 @@ export async function loadProcedureIndexFromSupabase(): Promise<Procedure[]> {
       synonyms: row.synonyms,
       tags: row.tags,
       is_pro: row.is_pro,
+      updated_at: row.updated_at,
     }),
   );
 }

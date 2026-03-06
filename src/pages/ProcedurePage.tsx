@@ -466,20 +466,45 @@ export default function ProcedurePage() {
   const shouldShowInitialSkeleton =
     !procedure && (directProcedureLoading || (loading && attemptedProcedureId === null));
 
+  const handleRetryProcedureLoad = () => {
+    setDirectProcedure(null);
+    setDirectProcedureLoading(false);
+    setAttemptedProcedureId(null);
+  };
+
   if (shouldShowInitialSkeleton) {
     return <ProcedurePageSkeleton />;
   }
 
   if (!procedure) {
+    const loadingHint =
+      loading || directProcedureLoading
+        ? lang === 'fr'
+          ? 'Les donnees live sont encore en cours de chargement. Vous pouvez relancer cette intervention.'
+          : lang === 'pt'
+            ? 'Os dados live ainda estao a carregar. Podes tentar recarregar esta intervencao.'
+            : 'Live data is still loading. You can retry this procedure.'
+        : lang === 'fr'
+          ? "Cette intervention n'a pas pu etre chargee depuis la source active."
+          : lang === 'pt'
+            ? 'Nao foi possivel carregar esta intervencao a partir da fonte ativa.'
+            : 'This procedure could not be loaded from the active source.';
+
     return (
       <div className="container max-w-2xl py-8">
         <div className="rounded-2xl border border-dashed border-border bg-card/70 px-6 py-8 text-center clinical-shadow">
           <p className="text-base font-semibold text-foreground">{t('procedure_not_found')}</p>
           <p className="mt-2 text-sm text-muted-foreground">{t('procedure_not_found_hint')}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{loadingHint}</p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <Button variant="outline" onClick={handleRetryProcedureLoad}>
+              {lang === 'fr' ? 'Reessayer' : lang === 'pt' ? 'Tentar novamente' : 'Retry'}
+            </Button>
+            <Button asChild>
+              <Link to="/">{t('back')}</Link>
+            </Button>
+          </div>
         </div>
-        <Link to="/" className="mt-4 inline-block text-accent hover:underline">
-          {t('back')}
-        </Link>
       </div>
     );
   }

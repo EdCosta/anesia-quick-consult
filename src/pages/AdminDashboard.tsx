@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Crown, Activity, RefreshCw } from 'lucide-react';
+import { Search, Crown, Activity, RefreshCw, Download } from 'lucide-react';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const cards = [
   {
@@ -34,6 +36,8 @@ type AnalyticsRow = {
   session_id: string;
   created_at: string;
 };
+
+type EventFilter = 'all' | 'searches' | 'procedure_views' | 'upgrade_clicks' | 'public_pages';
 
 const PERIOD_OPTIONS = [
   { value: 7, label: '7 days' },
@@ -67,8 +71,32 @@ function formatCompactNumber(value: number) {
   );
 }
 
+function matchesEventFilter(row: AnalyticsRow, filter: EventFilter) {
+  if (filter === 'all') return true;
+  if (filter === 'searches') return row.event_name === 'home_search';
+  if (filter === 'procedure_views') return row.event_name === 'procedure_page_view';
+  if (filter === 'upgrade_clicks') {
+    return (
+      row.event_name === 'guidelines_upgrade_click' ||
+      row.event_name === 'protocols_upgrade_click' ||
+      row.event_name === 'alr_upgrade_click'
+    );
+  }
+  return row.event_name === 'public_page_view' || row.event_name === 'page_view_home';
+}
+
+function formatMetaForCsv(meta: Json | null) {
+  try {
+    return JSON.stringify(meta || {});
+  } catch {
+    return '{}';
+  }
+}
+
 export default function AdminDashboard() {
   const [periodDays, setPeriodDays] = useState(30);
+  const [eventFilter, setEventFilter] = useState<EventFilter>('all');
+  const [queryFilter, setQueryFilter] = useState('');
 
   const analyticsQuery = useQuery({
     queryKey: ['admin-analytics-events', periodDays],
@@ -89,8 +117,36 @@ export default function AdminDashboard() {
     },
   });
 
+  const filteredRows = useMemo(() => {
+    const normalizedQuery = queryFilter.trim().toLowerCase();
+
+    return (analyticsQuery.data || []).filter((row) => {
+      if (!matchesEventFilter(row, eventFilter)) {
+        return false;
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      const haystack = [
+        row.event_name,
+        row.path,
+        row.language || '',
+        row.session_id,
+        readMetaString(row.meta, 'query') || '',
+        readMetaString(row.meta, 'procedureId') || '',
+        formatMetaForCsv(row.meta),
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return haystack.includes(normalizedQuery);
+    });
+  }, [analyticsQuery.data, eventFilter, queryFilter]);
+
   const overview = useMemo(() => {
-    const rows = analyticsQuery.data || [];
+    const rows = filteredRows;
     const since24h = Date.now() - 24 * 60 * 60 * 1000;
     const topPaths = new Map<string, number>();
     const topSearches = new Map<string, { count: number; results: number }>();
@@ -167,7 +223,39 @@ export default function AdminDashboard() {
       topLanguages,
       recentEvents: rows.slice(0, 10),
     };
-  }, [analyticsQuery.data]);
+  }, [filteredRows]);
+
+  const handleExportCsv = () => {
+    if (filteredRows.length === 0) {
+      toast.error('No analytics rows to export');
+      return;
+    }
+
+    const header = ['created_at', 'event_name', 'path', 'language', 'session_id', 'meta'];
+    const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const rows = filteredRows.map((row) =>
+      [
+        row.created_at,
+        row.event_name,
+        row.path,
+        row.language || '',
+        row.session_id,
+        formatMetaForCsv(row.meta),
+      ]
+        .map((value) => escapeCsv(String(value)))
+        .join(','),
+    );
+
+    const csv = [header.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `analytics-${eventFilter}-${periodDays}d.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Analytics CSV exported');
+  };
 
   return (
     <section className="space-y-6">
@@ -195,7 +283,7 @@ export default function AdminDashboard() {
               Search demand, Pro intent, and most-used pages from the live event stream.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <select
               className="rounded-md border border-border bg-background px-3 py-2 text-sm"
               value={periodDays}
@@ -207,6 +295,23 @@ export default function AdminDashboard() {
                 </option>
               ))}
             </select>
+            <select
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+              value={eventFilter}
+              onChange={(event) => setEventFilter(event.target.value as EventFilter)}
+            >
+              <option value="all">All events</option>
+              <option value="searches">Searches</option>
+              <option value="procedure_views">Procedure views</option>
+              <option value="upgrade_clicks">Upgrade clicks</option>
+              <option value="public_pages">Public pages</option>
+            </select>
+            <Input
+              value={queryFilter}
+              onChange={(event) => setQueryFilter(event.target.value)}
+              placeholder="Filter by path, event, query, procedure..."
+              className="w-full min-w-[260px] md:w-[320px]"
+            />
             <Button
               variant="outline"
               size="sm"
@@ -217,6 +322,10 @@ export default function AdminDashboard() {
                 className={`mr-2 h-4 w-4 ${analyticsQuery.isFetching ? 'animate-spin' : ''}`}
               />
               Refresh
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportCsv}>
+              <Download className="mr-2 h-4 w-4" />
+              Export CSV
             </Button>
           </div>
         </CardHeader>
@@ -285,6 +394,10 @@ export default function AdminDashboard() {
                     )}
                   </div>
                 </div>
+              </div>
+
+              <div className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
+                Showing {filteredRows.length} events for the current filters.
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">

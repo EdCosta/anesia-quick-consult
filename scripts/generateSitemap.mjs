@@ -10,6 +10,7 @@ const robotsPath = path.join(publicDir, 'robots.txt');
 const siteUrl = (process.env.SITE_URL || process.env.VITE_SITE_URL || 'https://www.anesia.app')
   .trim()
   .replace(/\/+$/, '');
+const publicTopics = ['nvpo', 'voie-aerienne', 'alr', 'antibioprophylaxie'];
 
 function normalizeText(value) {
   return String(value || '')
@@ -62,6 +63,7 @@ function toUrlEntry(loc, options = {}) {
 const staticRoutes = [
   { loc: '/', changefreq: 'daily', priority: 1.0 },
   { loc: '/specialties', changefreq: 'weekly', priority: 0.8 },
+  { loc: '/topics', changefreq: 'weekly', priority: 0.8 },
   { loc: '/pricing', changefreq: 'weekly', priority: 0.9 },
   { loc: '/faq', changefreq: 'monthly', priority: 0.6 },
   { loc: '/about', changefreq: 'monthly', priority: 0.5 },
@@ -89,11 +91,19 @@ const specialtyEntries = specialties.map((specialty) =>
   }),
 );
 
+const topicEntries = publicTopics.map((slug) =>
+  toUrlEntry(`/topics/${slug}`, {
+    changefreq: 'weekly',
+    priority: 0.7,
+  }),
+);
+
 const staticEntries = staticRoutes.map((route) => toUrlEntry(route.loc, route));
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ...staticEntries,
+  ...topicEntries,
   ...specialtyEntries,
   ...procedureEntries,
   '</urlset>',

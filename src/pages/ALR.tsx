@@ -9,6 +9,7 @@ import { usePageMeta } from '@/hooks/usePageMeta';
 import type { ALRBlock } from '@/lib/types';
 import StructuredContentList from '@/components/anesia/StructuredContentList';
 import { trackEvent } from '@/lib/analytics';
+import { buildPathWithSource } from '@/lib/checkoutAttribution';
 
 const REGION_MAP: Record<string, string> = {
   upper_limb: 'upper_limb',
@@ -126,7 +127,7 @@ export default function ALR() {
                 : 'You are seeing an ALR preview. Upgrade to Pro for all blocks, techniques, and details.'}
           </p>
           <Link
-            to="/account"
+            to={buildPathWithSource('/account', 'alr')}
             onClick={() => {
               trackEvent('alr_upgrade_click', { hiddenCount });
               trackEvent('pro_upgrade_click', { surface: 'alr', hiddenCount });

@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { CalendarRange, Filter, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type AnalyticsRow = {
   id: string;
@@ -59,10 +60,19 @@ function sortByPreview<T extends { preview: number; click: number; success: numb
 }
 
 export default function AdminConversion() {
-  const [periodDays, setPeriodDays] = useState(30);
-  const [selectedSurface, setSelectedSurface] = useState(ALL_FILTER);
-  const [selectedSource, setSelectedSource] = useState(ALL_FILTER);
-  const [selectedCampaign, setSelectedCampaign] = useState(ALL_FILTER);
+  const [periodDays, setPeriodDays] = useLocalStorage<number>('admin-conversion-period-days', 30);
+  const [selectedSurface, setSelectedSurface] = useLocalStorage<string>(
+    'admin-conversion-surface',
+    ALL_FILTER,
+  );
+  const [selectedSource, setSelectedSource] = useLocalStorage<string>(
+    'admin-conversion-source',
+    ALL_FILTER,
+  );
+  const [selectedCampaign, setSelectedCampaign] = useLocalStorage<string>(
+    'admin-conversion-campaign',
+    ALL_FILTER,
+  );
 
   const analyticsQuery = useQuery({
     queryKey: ['admin-pro-conversion', periodDays],
@@ -107,6 +117,28 @@ export default function AdminConversion() {
       return true;
     });
   }, [analyticsQuery.data, selectedCampaign, selectedSource, selectedSurface]);
+
+  useEffect(() => {
+    if (selectedSurface !== ALL_FILTER && !filterOptions.surfaces.includes(selectedSurface)) {
+      setSelectedSurface(ALL_FILTER);
+    }
+    if (selectedSource !== ALL_FILTER && !filterOptions.sources.includes(selectedSource)) {
+      setSelectedSource(ALL_FILTER);
+    }
+    if (selectedCampaign !== ALL_FILTER && !filterOptions.campaigns.includes(selectedCampaign)) {
+      setSelectedCampaign(ALL_FILTER);
+    }
+  }, [
+    filterOptions.campaigns,
+    filterOptions.sources,
+    filterOptions.surfaces,
+    selectedCampaign,
+    selectedSource,
+    selectedSurface,
+    setSelectedCampaign,
+    setSelectedSource,
+    setSelectedSurface,
+  ]);
 
   const funnel = useMemo(() => {
     const rows = filteredRows;

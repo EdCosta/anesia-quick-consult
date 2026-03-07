@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useEntitlements } from '@/hooks/useEntitlements';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Crown, Check, Lock, Settings2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -76,8 +76,10 @@ const PRO_FEATURES = [
 export default function Account() {
   const { t, lang } = useLang();
   const { isPro, loading } = useEntitlements();
+  const [searchParams] = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const upgradeSource = searchParams.get('source') || 'account';
   const currentPlanLabel =
     lang === 'fr' ? 'Plan actuel' : lang === 'pt' ? 'Plano atual' : 'Current plan';
   const copy =
@@ -244,7 +246,7 @@ export default function Account() {
       {!isPro ? (
         <Button asChild className="w-full gap-2" size="lg">
           <Link
-            to={user ? buildCheckoutPath('account') : '/auth?mode=signin'}
+            to={user ? buildCheckoutPath(upgradeSource, { surface: 'account' }) : '/auth?mode=signin'}
             onClick={() => trackEvent('pro_upgrade_click', { surface: 'account' })}
           >
             <Lock className="h-4 w-4" />

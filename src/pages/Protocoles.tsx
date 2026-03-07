@@ -10,6 +10,7 @@ import type { Protocole } from '@/lib/types';
 import StructuredContentList from '@/components/anesia/StructuredContentList';
 import { Badge } from '@/components/ui/badge';
 import { trackEvent } from '@/lib/analytics';
+import { buildPathWithSource } from '@/lib/checkoutAttribution';
 
 const CATEGORY_MAP: Record<string, string> = {
   safety: 'safety',
@@ -159,7 +160,7 @@ export default function Protocoles() {
                 : 'You are seeing a preview of the protocols. Upgrade to Pro for complete checklists and structured content.'}
           </p>
           <Link
-            to="/account"
+            to={buildPathWithSource('/account', 'protocols')}
             onClick={() => {
               trackEvent('protocols_upgrade_click', { hiddenCount });
               trackEvent('pro_upgrade_click', { surface: 'protocols', hiddenCount });

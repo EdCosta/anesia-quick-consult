@@ -3,6 +3,7 @@ import { Check, Crown } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import PublicPage from '@/components/anesia/PublicPage';
 import { trackEvent } from '@/lib/analytics';
+import { buildPathWithSource } from '@/lib/checkoutAttribution';
 
 export default function Pricing() {
   const { lang } = useLang();
@@ -108,7 +109,7 @@ export default function Pricing() {
           body: (
             <p>
               <Link
-                to="/account"
+                to={buildPathWithSource('/account', 'pricing')}
                 onClick={() => trackEvent('pro_upgrade_click', { surface: 'pricing' })}
                 className="font-semibold text-accent hover:underline"
               >

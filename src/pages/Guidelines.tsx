@@ -10,6 +10,7 @@ import type { Guideline } from '@/lib/types';
 import StructuredContentList from '@/components/anesia/StructuredContentList';
 import { Badge } from '@/components/ui/badge';
 import { trackEvent } from '@/lib/analytics';
+import { buildPathWithSource } from '@/lib/checkoutAttribution';
 
 const CATEGORY_MAP: Record<string, string> = {
   airway: 'airway_cat',
@@ -155,7 +156,7 @@ export default function Guidelines() {
                 : 'You are seeing a preview of the guidelines. Upgrade to Pro for full references and complete navigation.'}
           </p>
           <Link
-            to="/account"
+            to={buildPathWithSource('/account', 'guidelines')}
             onClick={() => {
               trackEvent('guidelines_upgrade_click', { hiddenCount });
               trackEvent('pro_upgrade_click', { surface: 'guidelines', hiddenCount });

@@ -8,6 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BulletList } from '@/components/anesia/Section';
+import {
+  buildPublicALRPath,
+  buildPublicGuidelinePath,
+  buildPublicProtocolPath,
+} from '@/lib/contentSeo';
+import {
+  getRelatedALRBlocks,
+  getRelatedGuidelines,
+  getRelatedProtocols,
+} from '@/lib/procedureRelations';
 import { buildPublicSpecialtyPath, getSpecialtyDisplayName } from '@/lib/specialties';
 import { buildPublicProcedurePath } from '@/lib/procedureSeo';
 import { trackEvent } from '@/lib/analytics';
@@ -19,7 +29,7 @@ function estimateReadingMinutesFromQuick(itemCount: number) {
 export default function PublicProcedurePage() {
   const { id = '' } = useParams<{ id: string }>();
   const { lang, resolve, resolveStr } = useLang();
-  const { getProcedure, procedureIndex, specialtiesData, loading } = useData();
+  const { getProcedure, procedureIndex, guidelines, protocoles, alrBlocks, specialtiesData, loading } = useData();
   const procedure = getProcedure(id);
   const title = procedure ? resolveStr(procedure.titles) : 'Procedure';
   const quick = procedure ? resolve(procedure.quick) : null;
@@ -95,6 +105,21 @@ export default function PublicProcedurePage() {
       )
       .slice(0, 4);
   }, [procedure, procedureIndex]);
+
+  const relatedGuidelines = useMemo(() => {
+    if (!procedure) return [];
+    return getRelatedGuidelines(procedure, title, guidelines, lang, resolveStr);
+  }, [guidelines, lang, procedure, resolveStr, title]);
+
+  const relatedProtocols = useMemo(() => {
+    if (!procedure) return [];
+    return getRelatedProtocols(procedure, title, protocoles, resolveStr);
+  }, [procedure, protocoles, resolveStr, title]);
+
+  const relatedAlrBlocks = useMemo(() => {
+    if (!procedure) return [];
+    return getRelatedALRBlocks(procedure, title, alrBlocks, lang, resolveStr, resolve);
+  }, [alrBlocks, lang, procedure, resolve, resolveStr, title]);
 
   if (loading && !procedure) {
     return (
@@ -310,6 +335,70 @@ export default function PublicProcedurePage() {
                 );
               })}
             </div>
+          </section>
+        )}
+
+        {(relatedGuidelines.length > 0 || relatedProtocols.length > 0 || relatedAlrBlocks.length > 0) && (
+          <section className="grid gap-4 lg:grid-cols-3">
+            {relatedGuidelines.length > 0 && (
+              <section className="rounded-[1.5rem] border border-border/70 bg-card/80 p-5 clinical-shadow sm:p-6">
+                <h2 className="text-lg font-semibold text-foreground">
+                  {lang === 'fr' ? 'Guidelines liees' : lang === 'pt' ? 'Guidelines relacionadas' : 'Related guidelines'}
+                </h2>
+                <div className="mt-4 space-y-3">
+                  {relatedGuidelines.slice(0, 3).map((guideline) => (
+                    <Link
+                      key={guideline.id}
+                      to={buildPublicGuidelinePath(guideline.id, resolveStr(guideline.titles))}
+                      className="block rounded-2xl border border-border/70 bg-background/80 p-4 transition-colors hover:border-accent/40"
+                    >
+                      <p className="text-sm font-semibold text-foreground">{resolveStr(guideline.titles)}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">{guideline.category}</p>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {relatedProtocols.length > 0 && (
+              <section className="rounded-[1.5rem] border border-border/70 bg-card/80 p-5 clinical-shadow sm:p-6">
+                <h2 className="text-lg font-semibold text-foreground">
+                  {lang === 'fr' ? 'Protocoles lies' : lang === 'pt' ? 'Protocolos relacionados' : 'Related protocols'}
+                </h2>
+                <div className="mt-4 space-y-3">
+                  {relatedProtocols.slice(0, 3).map((protocol) => (
+                    <Link
+                      key={protocol.id}
+                      to={buildPublicProtocolPath(protocol.id, resolveStr(protocol.titles))}
+                      className="block rounded-2xl border border-border/70 bg-background/80 p-4 transition-colors hover:border-accent/40"
+                    >
+                      <p className="text-sm font-semibold text-foreground">{resolveStr(protocol.titles)}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">{protocol.category}</p>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {relatedAlrBlocks.length > 0 && (
+              <section className="rounded-[1.5rem] border border-border/70 bg-card/80 p-5 clinical-shadow sm:p-6">
+                <h2 className="text-lg font-semibold text-foreground">
+                  {lang === 'fr' ? 'ALR liee' : lang === 'pt' ? 'ALR relacionada' : 'Related regional blocks'}
+                </h2>
+                <div className="mt-4 space-y-3">
+                  {relatedAlrBlocks.slice(0, 3).map((block) => (
+                    <Link
+                      key={block.id}
+                      to={buildPublicALRPath(block.id, resolveStr(block.titles))}
+                      className="block rounded-2xl border border-border/70 bg-background/80 p-4 transition-colors hover:border-accent/40"
+                    >
+                      <p className="text-sm font-semibold text-foreground">{resolveStr(block.titles)}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">{block.region}</p>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
           </section>
         )}
       </div>

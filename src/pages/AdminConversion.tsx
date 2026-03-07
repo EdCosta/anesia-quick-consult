@@ -97,6 +97,14 @@ export default function AdminConversion() {
       string,
       { preview: Set<string>; click: Set<string>; checkout: Set<string>; success: Set<string> }
     >();
+    const bySource = new Map<
+      string,
+      { preview: Set<string>; click: Set<string>; checkout: Set<string>; success: Set<string> }
+    >();
+    const byCampaign = new Map<
+      string,
+      { preview: Set<string>; click: Set<string>; checkout: Set<string>; success: Set<string> }
+    >();
 
     for (const row of rows) {
       const stage = getStage(row);
@@ -105,6 +113,8 @@ export default function AdminConversion() {
       const surface = getMetaString(row.meta, 'surface') || row.path || 'unknown';
       const language = row.language || 'unknown';
       const day = row.created_at.slice(0, 10);
+      const source = getMetaString(row.meta, 'source') || 'unknown';
+      const campaign = getMetaString(row.meta, 'campaign') || 'none';
 
       stageSessions[stage].add(row.session_id);
 
@@ -137,6 +147,26 @@ export default function AdminConversion() {
         };
       dayBucket[stage].add(row.session_id);
       byDay.set(day, dayBucket);
+
+      const sourceBucket =
+        bySource.get(source) || {
+          preview: new Set<string>(),
+          click: new Set<string>(),
+          checkout: new Set<string>(),
+          success: new Set<string>(),
+        };
+      sourceBucket[stage].add(row.session_id);
+      bySource.set(source, sourceBucket);
+
+      const campaignBucket =
+        byCampaign.get(campaign) || {
+          preview: new Set<string>(),
+          click: new Set<string>(),
+          checkout: new Set<string>(),
+          success: new Set<string>(),
+        };
+      campaignBucket[stage].add(row.session_id);
+      byCampaign.set(campaign, campaignBucket);
     }
 
     return {
@@ -171,6 +201,24 @@ export default function AdminConversion() {
           success: bucket.success.size,
         }))
         .sort((left, right) => left.day.localeCompare(right.day)),
+      sources: sortByPreview(
+        Array.from(bySource.entries()).map(([source, bucket]) => ({
+          source,
+          preview: bucket.preview.size,
+          click: bucket.click.size,
+          checkout: bucket.checkout.size,
+          success: bucket.success.size,
+        })),
+      ),
+      campaigns: sortByPreview(
+        Array.from(byCampaign.entries()).map(([campaign, bucket]) => ({
+          campaign,
+          preview: bucket.preview.size,
+          click: bucket.click.size,
+          checkout: bucket.checkout.size,
+          success: bucket.success.size,
+        })),
+      ),
     };
   }, [analyticsQuery.data]);
 
@@ -336,6 +384,56 @@ export default function AdminConversion() {
           ))}
         </CardContent>
       </Card>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card className="clinical-shadow">
+          <CardHeader>
+            <CardTitle className="text-base">Conversion by source</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {!analyticsQuery.isLoading && funnel.sources.length === 0 && (
+              <p className="text-sm text-muted-foreground">No source breakdown yet.</p>
+            )}
+            {funnel.sources.map((row) => (
+              <div key={row.source} className="rounded-lg border border-border p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-foreground">{row.source}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {row.success} success / {row.preview} preview
+                  </p>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  CTR {asPercent(row.click, row.preview)} | Checkout {asPercent(row.checkout, row.click)} | Success {asPercent(row.success, row.checkout)}
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="clinical-shadow">
+          <CardHeader>
+            <CardTitle className="text-base">Conversion by campaign</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {!analyticsQuery.isLoading && funnel.campaigns.length === 0 && (
+              <p className="text-sm text-muted-foreground">No campaign breakdown yet.</p>
+            )}
+            {funnel.campaigns.map((row) => (
+              <div key={row.campaign} className="rounded-lg border border-border p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-foreground">{row.campaign}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {row.success} success / {row.preview} preview
+                  </p>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  CTR {asPercent(row.click, row.preview)} | Checkout {asPercent(row.checkout, row.click)} | Success {asPercent(row.success, row.checkout)}
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

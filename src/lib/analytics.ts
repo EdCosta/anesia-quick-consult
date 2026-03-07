@@ -13,6 +13,7 @@ type AnalyticsEventPayload = {
 
 const ANALYTICS_QUEUE_STORAGE_KEY = 'anesia-analytics-queue';
 const ANALYTICS_SESSION_STORAGE_KEY = 'anesia-analytics-session';
+const ANALYTICS_ATTRIBUTION_STORAGE_KEY = 'anesia-analytics-attribution';
 const MAX_QUEUE_SIZE = 100;
 const ANALYTICS_ENABLED = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
 
@@ -55,6 +56,60 @@ function getSessionId() {
       : `session-${Date.now()}`;
   window.localStorage.setItem(ANALYTICS_SESSION_STORAGE_KEY, nextSessionId);
   return nextSessionId;
+}
+
+function readStoredAttribution() {
+  if (!isBrowser()) return null;
+
+  try {
+    const raw = window.localStorage.getItem(ANALYTICS_ATTRIBUTION_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, AnalyticsMetaValue>) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredAttribution(value: Record<string, AnalyticsMetaValue>) {
+  if (!isBrowser()) return;
+
+  try {
+    window.localStorage.setItem(ANALYTICS_ATTRIBUTION_STORAGE_KEY, JSON.stringify(value));
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
+function extractAttribution() {
+  if (!isBrowser()) return {};
+
+  const url = new URL(window.location.href);
+  const params = url.searchParams;
+  const stored = readStoredAttribution() || {};
+  const nextAttribution: Record<string, AnalyticsMetaValue> = {
+    source:
+      params.get('utm_source') ||
+      params.get('source') ||
+      (stored.source as string | null) ||
+      (document.referrer ? 'referral' : 'direct'),
+    medium:
+      params.get('utm_medium') || params.get('medium') || (stored.medium as string | null) || null,
+    campaign:
+      params.get('utm_campaign') ||
+      params.get('campaign') ||
+      (stored.campaign as string | null) ||
+      null,
+    term: params.get('utm_term') || (stored.term as string | null) || null,
+    content:
+      params.get('utm_content') || params.get('content') || (stored.content as string | null) || null,
+    landing_path: (stored.landing_path as string | null) || window.location.pathname,
+    referrer: (stored.referrer as string | null) || document.referrer || null,
+    referrer_host:
+      (stored.referrer_host as string | null) ||
+      (document.referrer ? new URL(document.referrer).hostname : null),
+  };
+
+  writeStoredAttribution(nextAttribution);
+  return nextAttribution;
 }
 
 async function flushQueue() {
@@ -123,7 +178,10 @@ export function trackEvent(name: string, meta?: Record<string, AnalyticsMetaValu
     ts: new Date().toISOString(),
     path: window.location.pathname,
     language: document.documentElement.lang || null,
-    meta,
+    meta: {
+      ...extractAttribution(),
+      ...(meta || {}),
+    },
   };
 
   const nextQueue = [...readQueue(), event].slice(-MAX_QUEUE_SIZE);

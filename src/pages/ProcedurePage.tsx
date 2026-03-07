@@ -52,6 +52,11 @@ import {
   buildPublicProtocolPath,
 } from '@/lib/contentSeo';
 import {
+  getRelatedALRBlocks,
+  getRelatedGuidelines,
+  getRelatedProtocols,
+} from '@/lib/procedureRelations';
+import {
   getHospitalProcedureContext,
   getHospitalProcedureIds,
   isStPierreProcedure,
@@ -69,43 +74,6 @@ import type {
   ProcedureQuick,
   SupportedLang,
 } from '@/lib/types';
-
-function normalizeMatchKey(value: string) {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-}
-
-function tokenizeSearchText(value: string) {
-  return normalizeMatchKey(value)
-    .split(/[^a-z0-9]+/)
-    .filter((token) => token.length > 2);
-}
-
-function collectProcedureTokens(procedure: Procedure, title: string) {
-  return new Set(
-    [
-      ...tokenizeSearchText(title),
-      ...tokenizeSearchText(procedure.specialty || ''),
-      ...(procedure.specialties || []).flatMap((specialty) => tokenizeSearchText(specialty)),
-      ...(procedure.tags || []).flatMap((tag) => tokenizeSearchText(tag)),
-      ...Object.values(procedure.synonyms || {}).flatMap((items) =>
-        (items || []).flatMap((item) => tokenizeSearchText(item)),
-      ),
-    ],
-  );
-}
-
-function countTokenOverlap(tokens: Set<string>, values: string[]) {
-  const candidateTokens = new Set(values.flatMap((value) => tokenizeSearchText(value)));
-  let matches = 0;
-  for (const token of candidateTokens) {
-    if (tokens.has(token)) matches += 1;
-  }
-  return matches;
-}
 
 function getGuidelineYear(guideline: Guideline) {
   return Math.max(0, ...guideline.references.map((ref) => ref.year || 0));
@@ -351,99 +319,24 @@ export default function ProcedurePage() {
 
   const recommendations = useMemo(() => {
     if (!procedure || !guidelines.length) return [];
-    const legacyProcTags = (procedure.tags || []).map(normalizeMatchKey);
-    const procTags = new Set(
-      procedureTagIds && procedureTagIds.size > 0 ? Array.from(procedureTagIds) : legacyProcTags,
+    return getRelatedGuidelines(
+      procedure,
+      procedureTitle,
+      guidelines,
+      lang,
+      resolveStr,
+      procedureTagIds,
+      guidelineTagIds,
     );
-    const procSpecialties = new Set(
-      [procedure.specialty, ...(procedure.specialties || [])]
-        .filter(Boolean)
-        .map(normalizeMatchKey),
-    );
-
-    const scored = guidelines.map((g) => {
-      const normalizedGuidelineTags = guidelineTagIds.get(g.id) || [];
-      const guidelineTagsForMatch =
-        normalizedGuidelineTags.length > 0
-          ? normalizedGuidelineTags
-          : (g.tags || []).map(normalizeMatchKey);
-      const matchingTags = guidelineTagsForMatch.filter((tag) =>
-        procTags.has(normalizeMatchKey(tag)),
-      ).length;
-      const specialtyMatches = (g.specialties || []).filter((spec) =>
-        procSpecialties.has(normalizeMatchKey(spec)),
-      ).length;
-      let score = matchingTags * 10 + specialtyMatches * 3;
-      if (
-        score === 0 &&
-        guidelineTagsForMatch.length === 0 &&
-        (g.specialties || []).length === 0 &&
-        ['airway', 'safety', 'pain', 'ponv', 'temperature'].includes(g.category)
-      ) {
-        score = 1;
-      }
-      return {
-        guideline: g,
-        score,
-        matchingTags,
-        specialtyMatches,
-        strength: g.recommendation_strength || 0,
-        year: getGuidelineYear(g),
-      };
-    });
-    return scored
-      .filter((s) => s.score > 0)
-      .sort(
-        (a, b) =>
-          b.matchingTags - a.matchingTags ||
-          b.specialtyMatches - a.specialtyMatches ||
-          b.strength - a.strength ||
-          b.year - a.year ||
-          b.score - a.score,
-      )
-      .slice(0, 5)
-      .map((s) => s.guideline);
-  }, [procedure, guidelines, procedureTagIds, guidelineTagIds]);
+  }, [procedure, guidelines, lang, procedureTagIds, guidelineTagIds, procedureTitle, resolveStr]);
   const relatedProtocols = useMemo(() => {
     if (!procedure || !protocoles.length) return [];
-    const procedureTokens = collectProcedureTokens(procedure, procedureTitle);
-
-    return protocoles
-      .map((protocol) => {
-        const matchingTokens = countTokenOverlap(procedureTokens, [
-          resolveStr(protocol.titles),
-          protocol.category,
-          ...(protocol.tags || []),
-        ]);
-        const categoryBoost = procedureTokens.has(normalizeMatchKey(protocol.category)) ? 2 : 0;
-        const score = matchingTokens * 5 + categoryBoost;
-        return { protocol, score, matchingTokens };
-      })
-      .filter((item) => item.score > 0)
-      .sort((left, right) => right.score - left.score || right.matchingTokens - left.matchingTokens)
-      .slice(0, 4)
-      .map((item) => item.protocol);
+    return getRelatedProtocols(procedure, procedureTitle, protocoles, resolveStr);
   }, [procedure, procedureTitle, protocoles, resolveStr]);
 
   const relatedAlrBlocks = useMemo(() => {
     if (!procedure || !alrBlocks.length) return [];
-    const procedureTokens = collectProcedureTokens(procedure, procedureTitle);
-
-    return alrBlocks
-      .map((block) => {
-        const matchingTokens = countTokenOverlap(procedureTokens, [
-          resolveStr(block.titles),
-          block.region,
-          ...(block.tags || []),
-          ...(resolve<string[]>(block.indications) ?? []).slice(0, 3),
-        ]);
-        const score = matchingTokens * 4;
-        return { block, score, matchingTokens };
-      })
-      .filter((item) => item.score > 0)
-      .sort((left, right) => right.score - left.score || right.matchingTokens - left.matchingTokens)
-      .slice(0, 4)
-      .map((item) => item.block);
+    return getRelatedALRBlocks(procedure, procedureTitle, alrBlocks, lang, resolveStr, resolve);
   }, [alrBlocks, procedure, procedureTitle, resolve, resolveStr]);
 
   const weight = parseFloat(weightKg) || null;

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { trackEvent } from '@/lib/analytics';
 import { resolveEdgeFunctionErrorMessage } from '@/lib/edgeFunctionError';
 import type { User } from '@supabase/supabase-js';
 
@@ -241,7 +242,10 @@ export default function Account() {
       {/* Upgrade / Manage */}
       {!isPro ? (
         <Button asChild className="w-full gap-2" size="lg">
-          <Link to={user ? '/pro/checkout' : '/auth?mode=signin'}>
+          <Link
+            to={user ? '/pro/checkout' : '/auth?mode=signin'}
+            onClick={() => trackEvent('pro_upgrade_click', { surface: 'account' })}
+          >
             <Lock className="h-4 w-4" />
             {t('upgrade_pro')}
           </Link>

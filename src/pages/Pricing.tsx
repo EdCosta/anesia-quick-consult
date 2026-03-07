@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Check, Crown } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import PublicPage from '@/components/anesia/PublicPage';
+import { trackEvent } from '@/lib/analytics';
 
 export default function Pricing() {
   const { lang } = useLang();
@@ -106,7 +107,11 @@ export default function Pricing() {
           title: lang === 'fr' ? 'Acces' : lang === 'pt' ? 'Acesso' : 'Access',
           body: (
             <p>
-              <Link to="/account" className="font-semibold text-accent hover:underline">
+              <Link
+                to="/account"
+                onClick={() => trackEvent('pro_upgrade_click', { surface: 'pricing' })}
+                className="font-semibold text-accent hover:underline"
+              >
                 {copy.cta}
               </Link>
             </p>

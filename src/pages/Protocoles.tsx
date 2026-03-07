@@ -101,6 +101,11 @@ export default function Protocoles() {
   const visible = isLimited ? filtered.slice(0, protocolLimit) : filtered;
   const hiddenCount = isLimited ? Math.max(filtered.length - visible.length, 0) : 0;
 
+  useEffect(() => {
+    if (!isLimited || hiddenCount <= 0) return;
+    trackEvent('pro_preview_view', { surface: 'protocols', hiddenCount });
+  }, [hiddenCount, isLimited]);
+
   return (
     <div className="container py-8 space-y-6">
       <div>
@@ -155,7 +160,10 @@ export default function Protocoles() {
           </p>
           <Link
             to="/account"
-            onClick={() => trackEvent('protocols_upgrade_click', { hiddenCount })}
+            onClick={() => {
+              trackEvent('protocols_upgrade_click', { hiddenCount });
+              trackEvent('pro_upgrade_click', { surface: 'protocols', hiddenCount });
+            }}
             className="mt-3 inline-flex rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             {t('upgrade_pro')}

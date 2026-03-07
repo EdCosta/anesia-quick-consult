@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { resolveEdgeFunctionErrorMessage } from '@/lib/edgeFunctionError';
 import type { User } from '@supabase/supabase-js';
+import { trackEvent } from '@/lib/analytics';
 
 type PricingResponse = {
   enabled: boolean;
@@ -235,6 +236,14 @@ export default function ProCheckout() {
   }, []);
 
   useEffect(() => {
+    if (loading || isPro) return;
+    trackEvent('pro_checkout_view', {
+      source: searchParams.get('source') || 'direct',
+      canceled: searchParams.get('canceled') === '1',
+    });
+  }, [isPro, loading, searchParams]);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function loadPricing() {
@@ -334,6 +343,10 @@ export default function ProCheckout() {
 
     setCheckoutLoading(true);
     try {
+      trackEvent('pro_checkout_start', {
+        method: 'stripe',
+        coverFees,
+      });
       const { data, error } = await supabase.functions.invoke<StripeSessionResponse>('stripe-checkout', {
         body: {
           action: 'create_checkout_session',
@@ -369,6 +382,7 @@ export default function ProCheckout() {
 
     setSubmittingRequest(true);
     try {
+      trackEvent('pro_checkout_start', { method });
       const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>(
         'stripe-checkout',
         {

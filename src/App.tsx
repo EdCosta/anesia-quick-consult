@@ -37,6 +37,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const AdminGuard = lazy(() => import('./components/admin/AdminGuard'));
 const AdminLayout = lazy(() => import('./pages/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminConversion = lazy(() => import('./pages/AdminConversion'));
 const AdminContent = lazy(() => import('./pages/AdminContent'));
 const AdminImportProcedures = lazy(() => import('./pages/AdminImportProcedures'));
 const AdminImportGuidelines = lazy(() => import('./pages/AdminImportGuidelines'));
@@ -44,6 +45,7 @@ const AdminLogs = lazy(() => import('./pages/AdminLogs'));
 const AdminQuality = lazy(() => import('./pages/AdminQuality'));
 const AdminBilling = lazy(() => import('./pages/AdminBilling'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const PublicProcedurePage = lazy(() => import('./pages/PublicProcedurePage'));
 
 const queryClient = new QueryClient();
 
@@ -83,6 +85,8 @@ const App = () => {
                       />
                       <Route path="/preanest" element={<PreAnest />} />
                       <Route path="/p/:id" element={<ProcedurePage />} />
+                      <Route path="/procedures/:id" element={<PublicProcedurePage />} />
+                      <Route path="/procedures/:id/:slug" element={<PublicProcedurePage />} />
                       <Route path="/account" element={<Account />} />
                       <Route path="/pricing" element={<Pricing />} />
                       <Route path="/faq" element={<FAQ />} />
@@ -102,6 +106,7 @@ const App = () => {
                         <Route path="/admin/quality" element={<AdminQuality />} />
                         <Route path="/admin" element={<AdminLayout />}>
                           <Route index element={<AdminDashboard />} />
+                          <Route path="conversion" element={<AdminConversion />} />
                           <Route
                             path="import/procedures"
                             element={<AdminImportProcedures />}

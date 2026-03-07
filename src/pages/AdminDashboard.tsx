@@ -25,6 +25,11 @@ const cards = [
     description: 'Review previous imports, counts, and stored validation errors.',
     to: '/admin/logs',
   },
+  {
+    title: 'Pro conversion',
+    description: 'Track the Pro funnel from preview to checkout success.',
+    to: '/admin/conversion',
+  },
 ];
 
 type AnalyticsRow = {

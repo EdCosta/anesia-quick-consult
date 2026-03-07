@@ -2,6 +2,7 @@ import { Crown, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useViewMode } from '@/hooks/useViewMode';
+import { trackEvent } from '@/lib/analytics';
 
 interface ProFeaturePageProps {
   title: string;
@@ -37,6 +38,7 @@ export default function ProFeaturePage({ title, description }: ProFeaturePagePro
               setViewMode('pro');
               return;
             }
+            trackEvent('pro_upgrade_click', { surface: 'pro_feature_page' });
             navigate('/pro/checkout');
           }}
           className="mt-6 inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BookOpen, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { Link } from 'react-router-dom';
@@ -91,6 +91,11 @@ export default function Guidelines() {
   const visible = isLimited ? filtered.slice(0, guidelineLimit) : filtered;
   const hiddenCount = isLimited ? Math.max(filtered.length - visible.length, 0) : 0;
 
+  useEffect(() => {
+    if (!isLimited || hiddenCount <= 0) return;
+    trackEvent('pro_preview_view', { surface: 'guidelines', hiddenCount });
+  }, [hiddenCount, isLimited]);
+
   return (
     <div className="container py-8 space-y-6">
       <div>
@@ -151,7 +156,10 @@ export default function Guidelines() {
           </p>
           <Link
             to="/account"
-            onClick={() => trackEvent('guidelines_upgrade_click', { hiddenCount })}
+            onClick={() => {
+              trackEvent('guidelines_upgrade_click', { hiddenCount });
+              trackEvent('pro_upgrade_click', { surface: 'guidelines', hiddenCount });
+            }}
             className="mt-3 inline-flex rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             {t('upgrade_pro')}

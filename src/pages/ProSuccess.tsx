@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { resolveEdgeFunctionErrorMessage } from '@/lib/edgeFunctionError';
 import type { User } from '@supabase/supabase-js';
+import { trackEvent } from '@/lib/analytics';
 
 type SyncResponse = {
   ok: boolean;
@@ -108,6 +109,11 @@ export default function ProSuccess() {
       }
 
       await queryClient.invalidateQueries({ queryKey: ['entitlement'] });
+      trackEvent('pro_checkout_success', {
+        sessionId,
+        plan: data.plan,
+        subscriptionStatus: data.subscriptionStatus,
+      });
       toast.success(
         lang === 'fr'
           ? 'Mode Pro activé'

@@ -72,3 +72,8 @@ export async function prefetchProcedureById(id: string): Promise<Procedure | nul
   pendingCache.set(id, next);
   return next;
 }
+
+export async function prefetchProceduresById(ids: string[]): Promise<void> {
+  const uniqueIds = Array.from(new Set(ids.filter(Boolean))).slice(0, 6);
+  await Promise.allSettled(uniqueIds.map((id) => prefetchProcedureById(id)));
+}

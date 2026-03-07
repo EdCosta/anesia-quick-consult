@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { trackEvent } from '@/lib/analytics';
 
 interface ProGateProps {
   children: ReactNode;
@@ -69,6 +70,7 @@ export default function ProGate({ children, fallback }: ProGateProps) {
           <button
             onClick={() => {
               setShowModal(false);
+              trackEvent('pro_upgrade_click', { surface: 'pro_gate' });
               navigate('/pro/checkout');
             }}
             className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"

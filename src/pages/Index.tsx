@@ -34,7 +34,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { filterProceduresForHospitalMode, isStPierreProcedure } from '@/lib/hospitalProfile';
 import { getSpecialtyDisplayName, getSpecialtyTrackingKey } from '@/lib/specialties';
 import { trackEvent } from '@/lib/analytics';
-import { prefetchProcedureById } from '@/data/services/procedurePrefetch';
+import {
+  prefetchProcedureById,
+  prefetchProceduresById,
+} from '@/data/services/procedurePrefetch';
 
 export default function Index() {
   const { t, lang, resolveStr } = useLang();
@@ -312,6 +315,38 @@ export default function Index() {
   const visibleResults = isLimited ? progressiveResults.slice(0, procLimit) : progressiveResults;
   const lockedResults = isLimited ? progressiveResults.slice(procLimit) : [];
 
+  const prefetchCandidateIds = useMemo(() => {
+    const ids = [
+      ...visibleResults.slice(0, 4).map((procedure) => procedure.id),
+      ...favProcedures.slice(0, 2).map((procedure) => procedure.id),
+      ...recentProcedures.slice(0, 2).map((procedure) => procedure.id),
+    ];
+    return Array.from(new Set(ids)).slice(0, 6);
+  }, [favProcedures, recentProcedures, visibleResults]);
+
+  useEffect(() => {
+    if (prefetchCandidateIds.length === 0) return;
+
+    const scope = window as Window & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (typeof scope.requestIdleCallback === 'function') {
+      const handle = scope.requestIdleCallback(() => {
+        void prefetchProceduresById(prefetchCandidateIds);
+      }, { timeout: 1200 });
+
+      return () => scope.cancelIdleCallback?.(handle);
+    }
+
+    const handle = window.setTimeout(() => {
+      void prefetchProceduresById(prefetchCandidateIds);
+    }, 180);
+
+    return () => window.clearTimeout(handle);
+  }, [prefetchCandidateIds]);
+
   // Collapsed "all procedures" view
   const INITIAL_PROC_COUNT = 8;
   const totalProcs = visibleResults.length + lockedResults.length;
@@ -358,6 +393,7 @@ export default function Index() {
           onClick={() => handleProcedureClick(p)}
           onMouseEnter={() => void prefetchProcedureById(p.id)}
           onFocus={() => void prefetchProcedureById(p.id)}
+          onTouchStart={() => void prefetchProcedureById(p.id)}
         >
           <ProcedureCard
             procedure={p}

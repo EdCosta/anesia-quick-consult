@@ -40,12 +40,12 @@ import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { dbRowToProcedure } from '@/data/normalize/normalizeProcedure';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import {
   prefetchProcedureById,
   readPrefetchedProcedure,
 } from '@/data/services/procedurePrefetch';
+import { buildPublicProcedurePath } from '@/lib/procedureSeo';
 import {
   getHospitalProcedureContext,
   getHospitalProcedureIds,
@@ -599,6 +599,13 @@ export default function ProcedurePage() {
           </div>
         </div>
         <div className="flex items-center gap-1">
+          <Link
+            to={buildPublicProcedurePath(procedure.id, title)}
+            className="mt-1 p-1.5 text-muted-foreground hover:text-accent transition-colors"
+            title={lang === 'fr' ? 'Page publique' : lang === 'pt' ? 'Pagina publica' : 'Public page'}
+          >
+            <Globe className="h-5 w-5" />
+          </Link>
           {quick && (
             <>
               <button

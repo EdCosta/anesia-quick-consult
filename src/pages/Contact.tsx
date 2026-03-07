@@ -1,5 +1,6 @@
 import PublicPage from '@/components/anesia/PublicPage';
 import { useLang } from '@/contexts/LanguageContext';
+import { LEGAL_CONFIG } from '@/config/legal';
 
 export default function Contact() {
   const { lang } = useLang();
@@ -10,15 +11,15 @@ export default function Contact() {
           title: 'Contact',
           description: 'Page de contact simple pour support, retours produit et demandes hopital.',
           sections: [
-            {
-              title: 'Support produit',
-              body: 'Pour un acces, une question de contenu ou un bug, creez un canal support dedie ou reliez cette page a votre email de support.',
-            },
-            {
-              title: 'Demandes hopital',
-              body: 'Le mode hopital merite un onboarding specifique: formulary, protocoles locaux, acces et validation de contenu.',
-            },
-          ],
+              {
+                title: 'Support produit',
+                body: `Pour un acces, une question de contenu ou un bug, contactez ${LEGAL_CONFIG.supportEmail}.`,
+              },
+              {
+                title: 'Demandes hopital',
+                body: `Le mode hopital merite un onboarding specifique: formulary, protocoles locaux, acces et validation de contenu. Contact dedié: ${LEGAL_CONFIG.hospitalSalesEmail}.`,
+              },
+            ],
         }
       : lang === 'pt'
         ? {
@@ -27,11 +28,11 @@ export default function Contact() {
             sections: [
               {
                 title: 'Suporte de produto',
-                body: 'Para acesso, duvidas de conteudo ou bugs, liga esta pagina a um email ou canal de suporte dedicado.',
+                body: `Para acesso, duvidas de conteudo ou bugs, usa ${LEGAL_CONFIG.supportEmail}.`,
               },
               {
                 title: 'Pedidos hospitalares',
-                body: 'O modo hospital deve ter onboarding proprio: formulario, protocolos locais, acessos e validacao de conteudo.',
+                body: `O modo hospital deve ter onboarding proprio: formulario, protocolos locais, acessos e validacao de conteudo. Contacto dedicado: ${LEGAL_CONFIG.hospitalSalesEmail}.`,
               },
             ],
           }
@@ -41,11 +42,11 @@ export default function Contact() {
             sections: [
               {
                 title: 'Product support',
-                body: 'Connect this page to a dedicated support email or channel for access issues, bugs, or content questions.',
+                body: `For access issues, bugs, or content questions, contact ${LEGAL_CONFIG.supportEmail}.`,
               },
               {
                 title: 'Hospital requests',
-                body: 'Hospital mode deserves dedicated onboarding for formulary, protocol overrides, access, and content validation.',
+                body: `Hospital mode deserves dedicated onboarding for formulary, protocol overrides, access, and content validation. Dedicated contact: ${LEGAL_CONFIG.hospitalSalesEmail}.`,
               },
             ],
           };

@@ -1,5 +1,6 @@
 import PublicPage from '@/components/anesia/PublicPage';
 import { useLang } from '@/contexts/LanguageContext';
+import { LEGAL_CONFIG, isPlaceholderValue } from '@/config/legal';
 
 const LAST_UPDATED = {
   fr: '7 mars 2026',
@@ -9,6 +10,10 @@ const LAST_UPDATED = {
 
 export default function Terms() {
   const { lang } = useLang();
+  const legalWarning =
+    isPlaceholderValue(LEGAL_CONFIG.entityName) ||
+    isPlaceholderValue(LEGAL_CONFIG.supportEmail) ||
+    isPlaceholderValue(LEGAL_CONFIG.jurisdictionCity);
 
   if (lang === 'fr') {
     return (
@@ -26,9 +31,10 @@ export default function Terms() {
                   professionnels de sante en anesthesie.
                 </p>
                 <p>
-                  Editeur : <span className="font-medium text-foreground">[entite a completer]</span>
+                  Editeur : <span className="font-medium text-foreground">{LEGAL_CONFIG.entityName}</span>
                 </p>
-                <p>Hebergement : Supabase (UE) et infrastructure web a completer.</p>
+                <p>Hebergement : {LEGAL_CONFIG.hostingSummary}.</p>
+                {legalWarning && <p className="text-xs italic">Finaliser les mentions legales avant lancement public.</p>}
               </div>
             ),
           },
@@ -98,10 +104,10 @@ export default function Terms() {
                 </p>
                 <p>
                   Ces conditions sont regies par le droit francais. Juridiction competente :
-                  [ville a completer], France.
+                  {LEGAL_CONFIG.jurisdictionCity}, France.
                 </p>
                 <p>
-                  Contact : <span className="text-accent">[email a completer]</span>
+                  Contact : <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
                 </p>
               </div>
             ),
@@ -127,8 +133,9 @@ export default function Terms() {
                   profissionais de saude em anestesia.
                 </p>
                 <p>
-                  Entidade responsavel: <span className="font-medium text-foreground">[a completar]</span>
+                  Entidade responsavel: <span className="font-medium text-foreground">{LEGAL_CONFIG.entityName}</span>
                 </p>
+                {legalWarning && <p className="text-xs italic">Finaliza os dados legais antes do lancamento publico.</p>}
               </div>
             ),
           },
@@ -189,11 +196,10 @@ export default function Terms() {
                   O servico e fornecido tal como esta, sem garantia de disponibilidade continua.
                 </p>
                 <p>
-                  Estes termos regem-se pela lei francesa. Tribunal competente: [cidade a
-                  completar], Franca.
+                  Estes termos regem-se pela lei francesa. Tribunal competente: {LEGAL_CONFIG.jurisdictionCity}, Franca.
                 </p>
                 <p>
-                  Contacto: <span className="text-accent">[email a completar]</span>
+                  Contacto: <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
                 </p>
               </div>
             ),
@@ -218,8 +224,9 @@ export default function Terms() {
                 professionals.
               </p>
               <p>
-                Operating entity: <span className="font-medium text-foreground">[to complete]</span>
+                Operating entity: <span className="font-medium text-foreground">{LEGAL_CONFIG.entityName}</span>
               </p>
+              {legalWarning && <p className="text-xs italic">Complete legal placeholders before public launch.</p>}
             </div>
           ),
         },
@@ -281,11 +288,10 @@ export default function Terms() {
                 or absence of residual error.
               </p>
               <p>
-                These terms are governed by French law. Competent court: [city to complete],
-                France.
+                These terms are governed by French law. Competent court: {LEGAL_CONFIG.jurisdictionCity}, France.
               </p>
               <p>
-                Contact: <span className="text-accent">[email to complete]</span>
+                Contact: <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
               </p>
             </div>
           ),

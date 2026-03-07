@@ -1,5 +1,6 @@
 import PublicPage from '@/components/anesia/PublicPage';
 import { useLang } from '@/contexts/LanguageContext';
+import { LEGAL_CONFIG } from '@/config/legal';
 
 export default function About() {
   const { lang } = useLang();
@@ -19,6 +20,10 @@ export default function About() {
               title: 'Positionnement',
               body: 'Le produit se place entre la fiche memoire, la base de connaissances clinique et le cockpit operatoire personnalise.',
             },
+            {
+              title: 'Contact',
+              body: `Support: ${LEGAL_CONFIG.supportEmail}. Demandes hopital: ${LEGAL_CONFIG.hospitalSalesEmail}.`,
+            },
           ],
         }
       : lang === 'pt'
@@ -35,6 +40,10 @@ export default function About() {
                 title: 'Posicionamento',
                 body: 'O produto fica entre ficha rapida, base de conhecimento clinica e cockpit operatorio personalizado.',
               },
+              {
+                title: 'Contacto',
+                body: `Suporte: ${LEGAL_CONFIG.supportEmail}. Pedidos hospitalares: ${LEGAL_CONFIG.hospitalSalesEmail}.`,
+              },
             ],
           }
         : {
@@ -49,6 +58,10 @@ export default function About() {
               {
                 title: 'Positioning',
                 body: 'The product sits between a quick-reference sheet, a clinical knowledge base, and a personalized OR cockpit.',
+              },
+              {
+                title: 'Contact',
+                body: `Support: ${LEGAL_CONFIG.supportEmail}. Hospital requests: ${LEGAL_CONFIG.hospitalSalesEmail}.`,
               },
             ],
           };

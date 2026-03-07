@@ -1,3 +1,5 @@
+import { getLegalReadiness } from '@/config/legal';
+
 type ReadinessItem = {
   id: string;
   label: string;
@@ -17,6 +19,8 @@ export function getRuntimeReadiness(): ReadinessItem[] {
   const sepaIban = import.meta.env.VITE_PRO_SEPA_IBAN;
   const sepaBic = import.meta.env.VITE_PRO_SEPA_BIC;
   const sepaBeneficiary = import.meta.env.VITE_PRO_SEPA_BENEFICIARY;
+
+  const legalReady = getLegalReadiness().every((entry) => entry.ready);
 
   return [
     {
@@ -56,6 +60,14 @@ export function getRuntimeReadiness(): ReadinessItem[] {
         hasValue(sepaIban) && hasValue(sepaBic) && hasValue(sepaBeneficiary)
           ? 'SEPA fallback configured'
           : 'Missing one or more SEPA billing env vars',
+    },
+    {
+      id: 'legal-details',
+      label: 'Legal identity details',
+      status: legalReady ? 'ready' : 'warning',
+      detail: legalReady
+        ? 'Legal entity/contact details configured'
+        : 'Complete legal placeholders in production env vars',
     },
   ];
 }

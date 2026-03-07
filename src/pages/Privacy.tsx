@@ -1,5 +1,6 @@
 import PublicPage from '@/components/anesia/PublicPage';
 import { useLang } from '@/contexts/LanguageContext';
+import { LEGAL_CONFIG, isPlaceholderValue } from '@/config/legal';
 
 const LAST_UPDATED = {
   fr: '7 mars 2026',
@@ -9,6 +10,7 @@ const LAST_UPDATED = {
 
 export default function Privacy() {
   const { lang } = useLang();
+  const legalWarning = isPlaceholderValue(LEGAL_CONFIG.entityName) || isPlaceholderValue(LEGAL_CONFIG.supportEmail);
 
   if (lang === 'fr') {
     return (
@@ -22,15 +24,15 @@ export default function Privacy() {
             body: (
               <div className="space-y-2">
                 <p>Le responsable du traitement des donnees collectees via AnesIA est :</p>
-                <p className="font-medium text-foreground">[Nom / raison sociale a completer]</p>
-                <p>[Adresse postale a completer]</p>
+                <p className="font-medium text-foreground">{LEGAL_CONFIG.entityName}</p>
+                <p>{LEGAL_CONFIG.postalAddress}</p>
                 <p>
-                  Contact : <span className="text-accent">[email a completer]</span>
+                  Contact : <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
                 </p>
-                <p className="text-xs italic">
+                {legalWarning && <p className="text-xs italic">
                   Cette section doit etre finalisee avec vos mentions legales exactes avant mise en
                   production publique.
-                </p>
+                </p>}
               </div>
             ),
           },
@@ -119,7 +121,7 @@ export default function Privacy() {
                 </p>
                 <p>
                   Pour exercer ces droits :{' '}
-                  <span className="text-accent">[email a completer]</span>
+                  <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
                 </p>
                 <p>
                   En cas de litige non resolu, vous pouvez saisir la CNIL.
@@ -157,15 +159,15 @@ export default function Privacy() {
             title: '1. Responsavel pelo tratamento',
             body: (
               <div className="space-y-2">
-                <p className="font-medium text-foreground">[Nome / entidade a completar]</p>
-                <p>[Morada a completar]</p>
+                <p className="font-medium text-foreground">{LEGAL_CONFIG.entityName}</p>
+                <p>{LEGAL_CONFIG.postalAddress}</p>
                 <p>
-                  Contacto: <span className="text-accent">[email a completar]</span>
+                  Contacto: <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
                 </p>
-                <p className="text-xs italic">
+                {legalWarning && <p className="text-xs italic">
                   Esta pagina precisa ainda dos teus dados legais finais antes de publicacao
                   definitiva.
-                </p>
+                </p>}
               </div>
             ),
           },
@@ -231,7 +233,7 @@ export default function Privacy() {
                 </p>
                 <p>
                   Pedido de exercicio de direitos:{' '}
-                  <span className="text-accent">[email a completar]</span>
+                  <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
                 </p>
               </div>
             ),
@@ -263,11 +265,12 @@ export default function Privacy() {
           title: '1. Data controller',
           body: (
             <div className="space-y-2">
-              <p className="font-medium text-foreground">[Company / legal entity to complete]</p>
-              <p>[Postal address to complete]</p>
+              <p className="font-medium text-foreground">{LEGAL_CONFIG.entityName}</p>
+              <p>{LEGAL_CONFIG.postalAddress}</p>
               <p>
-                Contact: <span className="text-accent">[email to complete]</span>
+                Contact: <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
               </p>
+              {legalWarning && <p className="text-xs italic">Complete legal placeholders before public launch.</p>}
             </div>
           ),
         },
@@ -332,7 +335,7 @@ export default function Privacy() {
                 processing of your personal data.
               </p>
               <p>
-                Rights requests: <span className="text-accent">[email to complete]</span>
+                Rights requests: <span className="text-accent">{LEGAL_CONFIG.supportEmail}</span>
               </p>
             </div>
           ),

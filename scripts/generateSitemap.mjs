@@ -61,6 +61,7 @@ function toUrlEntry(loc, options = {}) {
 
 const staticRoutes = [
   { loc: '/', changefreq: 'daily', priority: 1.0 },
+  { loc: '/specialties', changefreq: 'weekly', priority: 0.8 },
   { loc: '/pricing', changefreq: 'weekly', priority: 0.9 },
   { loc: '/faq', changefreq: 'monthly', priority: 0.6 },
   { loc: '/about', changefreq: 'monthly', priority: 0.5 },

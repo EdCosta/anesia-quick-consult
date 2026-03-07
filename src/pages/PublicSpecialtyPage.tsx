@@ -184,6 +184,15 @@ export default function PublicSpecialtyPage() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
+            <Button asChild variant="ghost">
+              <Link to="/specialties">
+                {lang === 'fr'
+                  ? 'Toutes les specialites'
+                  : lang === 'pt'
+                    ? 'Todas as especialidades'
+                    : 'All specialties'}
+              </Link>
+            </Button>
             <Button asChild variant="outline">
               <Link
                 to="/pricing"

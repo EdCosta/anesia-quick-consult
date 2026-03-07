@@ -2,24 +2,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-type BillingRequestRow = {
-  id: string;
-  user_id: string;
+type BillingRequestRow = Tables<'pro_upgrade_requests'> & {
   method: 'stripe' | 'sepa_transfer' | 'invoice';
   status: 'pending' | 'approved' | 'paid' | 'rejected' | 'canceled';
-  contact_email: string | null;
-  notes: string | null;
-  amount_cents: number | null;
-  currency: string;
-  created_at: string;
-  admin_comment: string | null;
-  approved_expires_at: string | null;
-  external_payment_reference: string | null;
 };
 
 const STATUSES: BillingRequestRow['status'][] = [
@@ -49,7 +40,7 @@ export default function AdminBilling() {
   async function loadRequests() {
     setFetching(true);
     const { data, error } = await supabase
-      .from('pro_upgrade_requests' as any)
+      .from('pro_upgrade_requests')
       .select(
         'id,user_id,method,status,contact_email,notes,amount_cents,currency,created_at,admin_comment,approved_expires_at,external_payment_reference',
       )
@@ -91,6 +82,18 @@ export default function AdminBilling() {
     return requests.filter((row) => row.status === filterStatus);
   }, [filterStatus, requests]);
 
+  const billingOverview = useMemo(() => {
+    const pending = requests.filter((row) => row.status === 'pending').length;
+    const approved = requests.filter((row) => row.status === 'approved').length;
+    const paid = requests.filter((row) => row.status === 'paid').length;
+    const stalePending = requests.filter((row) => {
+      if (row.status !== 'pending') return false;
+      return Date.now() - new Date(row.created_at).getTime() > 2 * 24 * 60 * 60 * 1000;
+    }).length;
+
+    return { pending, approved, paid, stalePending };
+  }, [requests]);
+
   async function saveRow(id: string) {
     const draft = drafts[id];
     if (!draft) return;
@@ -105,7 +108,7 @@ export default function AdminBilling() {
     };
 
     const { error } = await supabase
-      .from('pro_upgrade_requests' as any)
+      .from('pro_upgrade_requests')
       .update(payload)
       .eq('id', id);
 
@@ -160,6 +163,33 @@ export default function AdminBilling() {
             Refresh
           </Button>
         </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Pending</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{billingOverview.pending}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Approved</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{billingOverview.approved}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Paid</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{billingOverview.paid}</p>
+          </CardContent>
+        </Card>
+        <Card className={billingOverview.stalePending > 0 ? 'border-amber-300 bg-amber-50/60' : ''}>
+          <CardContent className="p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Stale pending</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{billingOverview.stalePending}</p>
+          </CardContent>
+        </Card>
       </div>
 
       {fetching ? (

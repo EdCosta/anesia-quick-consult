@@ -412,6 +412,105 @@ export type Database = {
         };
         Relationships: [];
       };
+      procedure_translations: {
+        Row: {
+          created_at: string;
+          generated_at: string;
+          id: string;
+          lang: string;
+          procedure_id: string;
+          review_status: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          section: string;
+          translated_content: Json;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          generated_at?: string;
+          id?: string;
+          lang: string;
+          procedure_id: string;
+          review_status?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          section?: string;
+          translated_content: Json;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          generated_at?: string;
+          id?: string;
+          lang?: string;
+          procedure_id?: string;
+          review_status?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          section?: string;
+          translated_content?: Json;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      pro_upgrade_requests: {
+        Row: {
+          admin_comment: string | null;
+          amount_cents: number | null;
+          approved_expires_at: string | null;
+          contact_email: string | null;
+          created_at: string;
+          currency: string;
+          external_payment_reference: string | null;
+          id: string;
+          method: string;
+          notes: string | null;
+          requested_plan: string;
+          status: string;
+          stripe_checkout_session_id: string | null;
+          stripe_subscription_id: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          admin_comment?: string | null;
+          amount_cents?: number | null;
+          approved_expires_at?: string | null;
+          contact_email?: string | null;
+          created_at?: string;
+          currency?: string;
+          external_payment_reference?: string | null;
+          id?: string;
+          method: string;
+          notes?: string | null;
+          requested_plan?: string;
+          status?: string;
+          stripe_checkout_session_id?: string | null;
+          stripe_subscription_id?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          admin_comment?: string | null;
+          amount_cents?: number | null;
+          approved_expires_at?: string | null;
+          contact_email?: string | null;
+          created_at?: string;
+          currency?: string;
+          external_payment_reference?: string | null;
+          id?: string;
+          method?: string;
+          notes?: string | null;
+          requested_plan?: string;
+          status?: string;
+          stripe_checkout_session_id?: string | null;
+          stripe_subscription_id?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       protocoles: {
         Row: {
           category: string;

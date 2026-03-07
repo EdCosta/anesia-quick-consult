@@ -41,6 +41,7 @@ import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import type { TablesInsert } from '@/integrations/supabase/types';
 import { groupDrugs, GROUP_ORDER, GROUP_I18N_KEYS } from '@/lib/drugGroups';
 import {
   prefetchProcedureById,
@@ -68,11 +69,13 @@ import { trackEvent } from '@/lib/analytics';
 import type { PatientWeights } from '@/lib/weightScalars';
 import type {
   ALRBlock,
+  Drug,
   EvidenceGrade,
   Guideline,
   HospitalProcedureContext,
   Protocole,
   Procedure,
+  ProcedureDeep,
   ProcedureQuick,
   SupportedLang,
 } from '@/lib/types';
@@ -191,6 +194,41 @@ function getReferenceHref(reference: {
   return null;
 }
 
+type ProcedureTranslationInsert = TablesInsert<'procedure_translations'>;
+
+type ProcedureContentProps = {
+  quick: ProcedureQuick | null | undefined;
+  deep: ProcedureDeep | null | undefined;
+  weight: number | null;
+  weightKg: string;
+  setWeightKg: (value: string) => void;
+  patientWeights: PatientWeights | null;
+  setPatientWeights: (value: PatientWeights | null) => void;
+  procedure: Procedure;
+  recommendations: Guideline[];
+  relatedProtocols: Protocole[];
+  relatedAlrBlocks: ALRBlock[];
+  lang: SupportedLang;
+  t: (key: string) => string;
+  resolveStr: (value: { fr?: string; en?: string; pt?: string }) => string;
+  resolve: <T>(value: { fr?: T; en?: T; pt?: T } | undefined) => T | undefined;
+  getDrug: (id: string) => Drug | undefined;
+  drugsLoading: boolean;
+  handleCopyChecklist: () => void;
+  checklistMode: boolean;
+  checked: Record<string, boolean>;
+  setChecked: (value: Record<string, boolean>) => void;
+};
+
+type DrugGroupedListProps = {
+  drugs: ProcedureQuick['drugs'];
+  getDrug: (id: string) => Drug | undefined;
+  weight: number | null;
+  patientWeights: PatientWeights | null;
+  t: (key: string) => string;
+  expandAllSignal: number;
+};
+
 async function loadProcedureOnDemand(id: string): Promise<Procedure | null> {
   const prefetched = readPrefetchedProcedure(id);
   if (prefetched) {
@@ -306,8 +344,8 @@ export default function ProcedurePage() {
   );
 
   // Auto-translation
-  const contentFr = procedure ? (procedure.quick as any)?.fr : null;
-  const contentDeepFr = procedure ? (procedure.deep as any)?.fr : null;
+  const contentFr = procedure?.quick?.fr || null;
+  const contentDeepFr = procedure?.deep?.fr || null;
   const isQuickFallbackLang = !!procedure && isTranslatedFallback(procedure.quick);
   const isDeepFallbackLang = !!procedure && isTranslatedFallback(procedure.deep);
   const quickTranslation = useAutoTranslation(
@@ -332,7 +370,7 @@ export default function ProcedurePage() {
         return [favoriteId, ...filtered].slice(0, 10);
       });
     }
-  }, [favoriteId, procedure]);
+  }, [favoriteId, procedure, setRecents]);
 
   // Reset checklist when procedure changes
   useEffect(() => {
@@ -385,7 +423,7 @@ export default function ProcedurePage() {
   const relatedAlrBlocks = useMemo(() => {
     if (!procedure || !alrBlocks.length) return [];
     return getRelatedALRBlocks(procedure, procedureTitle, alrBlocks, lang, resolveStr, resolve);
-  }, [alrBlocks, procedure, procedureTitle, resolve, resolveStr]);
+  }, [alrBlocks, procedure, procedureTitle, lang, resolve, resolveStr]);
 
   const weight = parseFloat(weightKg) || null;
 
@@ -1047,8 +1085,7 @@ export default function ProcedurePage() {
             try {
               const { data: userData } = await supabase.auth.getUser();
               const timestamp = new Date().toISOString();
-              const { error } = await supabase.from('procedure_translations' as any).upsert(
-                translationsToSave.map((entry) => ({
+              const payload: ProcedureTranslationInsert[] = translationsToSave.map((entry) => ({
                   procedure_id: procedure.id,
                   lang,
                   section: entry.section,
@@ -1057,14 +1094,16 @@ export default function ProcedurePage() {
                   review_status: 'approved',
                   reviewed_at: timestamp,
                   reviewed_by: userData.user?.id ?? null,
-                })) as any,
+                }));
+              const { error } = await supabase.from('procedure_translations').upsert(
+                payload,
                 { onConflict: 'procedure_id,lang,section' },
               );
               if (error) throw error;
               setTranslationSaved(true);
               toast.success(t('translation_saved'));
-            } catch (e: any) {
-              toast.error(e.message || 'Save failed');
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : 'Save failed');
             } finally {
               setSavingTranslation(false);
             }
@@ -1264,7 +1303,7 @@ function ProcedureContent({
   checklistMode,
   checked,
   setChecked,
-}: any) {
+}: ProcedureContentProps) {
   const [expandAllDrugsSignal, setExpandAllDrugsSignal] = useState(0);
 
   return (
@@ -1390,7 +1429,7 @@ function ProcedureContent({
                         <CardContent className="p-4">
                           <Section title={t('references_title')} variant="info">
                             <ul className="space-y-2">
-                              {deep.references.map((ref: any, i: number) => {
+                              {deep.references.map((ref, i: number) => {
                                 const href = getReferenceHref(ref);
 
                                 return (
@@ -1617,10 +1656,12 @@ function DrugGroupedList({
   patientWeights,
   t,
   expandAllSignal,
-}: any) {
-  const grouped = groupDrugs(drugs);
-  const activeGroups = GROUP_ORDER.filter((g) => grouped[g].length > 0);
-  const activeGroupsKey = activeGroups.join('|');
+}: DrugGroupedListProps) {
+  const grouped = useMemo(() => groupDrugs(drugs), [drugs]);
+  const activeGroups = useMemo(
+    () => GROUP_ORDER.filter((group) => grouped[group].length > 0),
+    [grouped],
+  );
   const buildInitialOpenGroups = () =>
     Object.fromEntries(activeGroups.map((group, index) => [group, index === 0]));
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
@@ -1636,13 +1677,13 @@ function DrugGroupedList({
         ]),
       ),
     );
-  }, [activeGroupsKey, expandAllSignal]);
+  }, [activeGroups, expandAllSignal]);
 
   if (activeGroups.length <= 1) {
     // No grouping needed if all in one group
     return (
       <div className="space-y-2">
-        {drugs.map((drugRef: any, i: number) => {
+        {drugs.map((drugRef, i: number) => {
           const drug = getDrug(drugRef.drug_id);
           if (!drug) return null;
           return (
@@ -1679,7 +1720,7 @@ function DrugGroupedList({
             </Badge>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-2 pl-5 pt-1">
-            {grouped[group].map((drugRef: any, i: number) => {
+            {grouped[group].map((drugRef, i: number) => {
               const drug = getDrug(drugRef.drug_id);
               if (!drug) return null;
               return (

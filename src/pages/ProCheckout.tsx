@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { resolveEdgeFunctionErrorMessage } from '@/lib/edgeFunctionError';
 import type { User } from '@supabase/supabase-js';
+import type { Tables } from '@/integrations/supabase/types';
 import { trackEvent } from '@/lib/analytics';
 
 type PricingResponse = {
@@ -36,12 +37,12 @@ type StripeSessionResponse = {
   error?: string;
 };
 
-type UpgradeRequestRow = {
-  id: string;
+type UpgradeRequestRow = Pick<
+  Tables<'pro_upgrade_requests'>,
+  'id' | 'method' | 'status' | 'created_at' | 'admin_comment'
+> & {
   method: 'stripe' | 'sepa_transfer' | 'invoice';
   status: 'pending' | 'approved' | 'paid' | 'rejected' | 'canceled';
-  created_at: string;
-  admin_comment?: string | null;
 };
 
 type BillingData = {
@@ -280,7 +281,7 @@ export default function ProCheckout() {
     async function loadRequests() {
       setLoadingRequests(true);
       const { data, error } = await supabase
-        .from('pro_upgrade_requests' as any)
+        .from('pro_upgrade_requests')
         .select('id,method,status,created_at,admin_comment')
         .order('created_at', { ascending: false })
         .limit(10);
@@ -414,7 +415,7 @@ export default function ProCheckout() {
       setRequestNote('');
 
       const { data: updatedRows } = await supabase
-        .from('pro_upgrade_requests' as any)
+        .from('pro_upgrade_requests')
         .select('id,method,status,created_at,admin_comment')
         .order('created_at', { ascending: false })
         .limit(10);

@@ -6,29 +6,23 @@ import { useData } from '@/contexts/DataContext';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { buildPublicSpecialtyPath, getSpecialtyDisplayName } from '@/lib/specialties';
+import {
+  buildPublicSpecialtyPath,
+  getSpecialtyContentCounts,
+  getSpecialtyDisplayName,
+} from '@/lib/specialties';
 
 export default function PublicSpecialtiesIndexPage() {
   const { lang } = useLang();
   const { procedureIndex, specialtiesData, indexLoading } = useData();
 
   const specialties = useMemo(() => {
-    const counts = new Map<string, number>();
-
-    for (const procedure of procedureIndex) {
-      const key = procedure.specialty;
-      if (!key) continue;
-      counts.set(key, (counts.get(key) || 0) + 1);
-    }
-
-    return [...counts.entries()]
-      .sort((left, right) => right[1] - left[1])
-      .map(([specialty, count]) => ({
-        specialty,
-        count,
-        label: getSpecialtyDisplayName(specialty, specialtiesData, lang),
-        path: buildPublicSpecialtyPath(specialty, specialtiesData),
-      }));
+    return getSpecialtyContentCounts(procedureIndex, specialtiesData).map(({ specialty, count }) => ({
+      specialty,
+      count,
+      label: getSpecialtyDisplayName(specialty, specialtiesData, lang),
+      path: buildPublicSpecialtyPath(specialty, specialtiesData),
+    }));
   }, [lang, procedureIndex, specialtiesData]);
 
   const description =

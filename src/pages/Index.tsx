@@ -32,7 +32,11 @@ import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { filterProceduresForHospitalMode, isStPierreProcedure } from '@/lib/hospitalProfile';
-import { getSpecialtyDisplayName, getSpecialtyTrackingKey } from '@/lib/specialties';
+import {
+  getSpecialtyContentCounts,
+  getSpecialtyDisplayName,
+  getSpecialtyTrackingKey,
+} from '@/lib/specialties';
 import { trackEvent } from '@/lib/analytics';
 import {
   prefetchProcedureById,
@@ -151,11 +155,19 @@ export default function Index() {
   );
 
   const sortedSpecialties = useMemo(() => {
-    const dbIds = specialtiesData.map((s) => s.id);
-    if (dbIds.length > 0) return getSortedSpecialties(dbIds);
-    const set = new Set(visibleProcedureIndex.map((p) => p.specialty));
-    return getSortedSpecialties(Array.from(set));
+    const contentSpecialties = getSpecialtyContentCounts(
+      visibleProcedureIndex,
+      specialtiesData,
+    ).map((item) => item.specialty);
+
+    return getSortedSpecialties(contentSpecialties);
   }, [specialtiesData, visibleProcedureIndex, getSortedSpecialties]);
+
+  useEffect(() => {
+    setSelectedSpecialties((current) =>
+      current.filter((specialty) => sortedSpecialties.includes(specialty)),
+    );
+  }, [sortedSpecialties]);
 
   useEffect(() => {
     const el = heroSearchRef.current;

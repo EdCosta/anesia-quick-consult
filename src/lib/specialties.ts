@@ -76,6 +76,28 @@ export interface SpecialtySlugMatch {
   aliases: string[];
 }
 
+export interface SpecialtyContentCount {
+  specialty: string;
+  count: number;
+}
+
+export function getSpecialtyContentCounts<T extends { specialty?: string }>(
+  items: T[],
+  specialties: SpecialtyLike[],
+): SpecialtyContentCount[] {
+  const counts = new Map<string, number>();
+
+  for (const item of items) {
+    if (!item.specialty) continue;
+    const key = getSpecialtyTrackingKey(item.specialty, specialties) || item.specialty;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([specialty, count]) => ({ specialty, count }))
+    .sort((left, right) => right.count - left.count || left.specialty.localeCompare(right.specialty));
+}
+
 export function findSpecialtyBySlug(
   slug: string,
   specialties: SpecialtyLike[],

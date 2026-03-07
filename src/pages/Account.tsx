@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { trackEvent } from '@/lib/analytics';
 import { resolveEdgeFunctionErrorMessage } from '@/lib/edgeFunctionError';
+import { buildCheckoutPath } from '@/lib/checkoutAttribution';
 import type { User } from '@supabase/supabase-js';
 
 const FREE_FEATURES = [
@@ -243,7 +244,7 @@ export default function Account() {
       {!isPro ? (
         <Button asChild className="w-full gap-2" size="lg">
           <Link
-            to={user ? '/pro/checkout' : '/auth?mode=signin'}
+            to={user ? buildCheckoutPath('account') : '/auth?mode=signin'}
             onClick={() => trackEvent('pro_upgrade_click', { surface: 'account' })}
           >
             <Lock className="h-4 w-4" />

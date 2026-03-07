@@ -17,6 +17,7 @@ type AnalyticsRow = {
 };
 
 type StageKey = 'preview' | 'click' | 'checkout' | 'success';
+const ALL_FILTER = '__all__';
 
 function getMetaString(meta: Json | null, key: string) {
   if (!meta || typeof meta !== 'object' || Array.isArray(meta)) return null;
@@ -59,6 +60,9 @@ function sortByPreview<T extends { preview: number; click: number; success: numb
 
 export default function AdminConversion() {
   const [periodDays, setPeriodDays] = useState(30);
+  const [selectedSurface, setSelectedSurface] = useState(ALL_FILTER);
+  const [selectedSource, setSelectedSource] = useState(ALL_FILTER);
+  const [selectedCampaign, setSelectedCampaign] = useState(ALL_FILTER);
 
   const analyticsQuery = useQuery({
     queryKey: ['admin-pro-conversion', periodDays],
@@ -77,8 +81,35 @@ export default function AdminConversion() {
     },
   });
 
-  const funnel = useMemo(() => {
+  const filterOptions = useMemo(() => {
     const rows = analyticsQuery.data || [];
+    const getValues = (project: (row: AnalyticsRow) => string) =>
+      Array.from(new Set(rows.map(project))).sort((left, right) => left.localeCompare(right));
+
+    return {
+      surfaces: getValues((row) => getMetaString(row.meta, 'surface') || row.path || 'unknown'),
+      sources: getValues((row) => getMetaString(row.meta, 'source') || 'unknown'),
+      campaigns: getValues((row) => getMetaString(row.meta, 'campaign') || 'none'),
+    };
+  }, [analyticsQuery.data]);
+
+  const filteredRows = useMemo(() => {
+    const rows = analyticsQuery.data || [];
+
+    return rows.filter((row) => {
+      const surface = getMetaString(row.meta, 'surface') || row.path || 'unknown';
+      const source = getMetaString(row.meta, 'source') || 'unknown';
+      const campaign = getMetaString(row.meta, 'campaign') || 'none';
+
+      if (selectedSurface !== ALL_FILTER && surface !== selectedSurface) return false;
+      if (selectedSource !== ALL_FILTER && source !== selectedSource) return false;
+      if (selectedCampaign !== ALL_FILTER && campaign !== selectedCampaign) return false;
+      return true;
+    });
+  }, [analyticsQuery.data, selectedCampaign, selectedSource, selectedSurface]);
+
+  const funnel = useMemo(() => {
+    const rows = filteredRows;
     const stageSessions = {
       preview: new Set<string>(),
       click: new Set<string>(),
@@ -220,7 +251,12 @@ export default function AdminConversion() {
         })),
       ),
     };
-  }, [analyticsQuery.data]);
+  }, [filteredRows]);
+
+  const hasActiveFilters =
+    selectedSurface !== ALL_FILTER ||
+    selectedSource !== ALL_FILTER ||
+    selectedCampaign !== ALL_FILTER;
 
   return (
     <div className="space-y-6">
@@ -250,6 +286,64 @@ export default function AdminConversion() {
           </Button>
         </div>
       </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <select
+          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+          value={selectedSurface}
+          onChange={(event) => setSelectedSurface(event.target.value)}
+        >
+          <option value={ALL_FILTER}>All surfaces</option>
+          {filterOptions.surfaces.map((surface) => (
+            <option key={surface} value={surface}>
+              {surface}
+            </option>
+          ))}
+        </select>
+        <select
+          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+          value={selectedSource}
+          onChange={(event) => setSelectedSource(event.target.value)}
+        >
+          <option value={ALL_FILTER}>All sources</option>
+          {filterOptions.sources.map((source) => (
+            <option key={source} value={source}>
+              {source}
+            </option>
+          ))}
+        </select>
+        <select
+          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+          value={selectedCampaign}
+          onChange={(event) => setSelectedCampaign(event.target.value)}
+        >
+          <option value={ALL_FILTER}>All campaigns</option>
+          {filterOptions.campaigns.map((campaign) => (
+            <option key={campaign} value={campaign}>
+              {campaign}
+            </option>
+          ))}
+        </select>
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSelectedSurface(ALL_FILTER);
+              setSelectedSource(ALL_FILTER);
+              setSelectedCampaign(ALL_FILTER);
+            }}
+          >
+            Clear filters
+          </Button>
+        )}
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        {hasActiveFilters
+          ? `Filtered view: ${filteredRows.length} matching events in the last ${periodDays} days.`
+          : `Showing all conversion events from the last ${periodDays} days.`}
+      </p>
 
       <div className="grid gap-4 md:grid-cols-4">
         {([

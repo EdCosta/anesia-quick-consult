@@ -21,6 +21,7 @@ import {
 import { buildPublicSpecialtyPath, getSpecialtyDisplayName } from '@/lib/specialties';
 import { buildPublicProcedurePath } from '@/lib/procedureSeo';
 import { trackEvent } from '@/lib/analytics';
+import { buildCheckoutPath } from '@/lib/checkoutAttribution';
 
 function estimateReadingMinutesFromQuick(itemCount: number) {
   return Math.max(1, Math.round(itemCount / 5));
@@ -229,7 +230,7 @@ export default function PublicProcedurePage() {
             </Button>
             <Button asChild variant="outline">
               <Link
-                to="/pro/checkout"
+                to={buildCheckoutPath('public_procedure', { procedure_id: procedure.id })}
                 onClick={() =>
                   trackEvent('public_procedure_cta_click', {
                     procedureId: procedure.id,

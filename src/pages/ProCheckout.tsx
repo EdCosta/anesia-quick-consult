@@ -327,6 +327,11 @@ export default function ProCheckout() {
 
     return `${baseLabel} -> ${totalLabel}`;
   }, [coverFees, feePreviewCents, lang, pricing]);
+  const manualBillingReady = Boolean(
+    import.meta.env.VITE_PRO_SEPA_IBAN &&
+      import.meta.env.VITE_PRO_SEPA_BIC &&
+      import.meta.env.VITE_PRO_SEPA_BENEFICIARY,
+  );
 
   async function createCheckoutSession() {
     if (!user) {
@@ -489,6 +494,30 @@ export default function ProCheckout() {
               : lang === 'pt'
                 ? 'Pagamento cancelado. Pode voltar a iniciar o checkout.'
                 : 'Payment canceled. You can restart checkout.'}
+          </CardContent>
+        </Card>
+      )}
+
+      {!pricingLoading && !pricing?.enabled && (
+        <Card className="border-amber-300 bg-amber-50/60">
+          <CardContent className="p-4 text-sm text-amber-800">
+            {lang === 'fr'
+              ? 'Le checkout Stripe est indisponible pour le moment. Utilisez le virement SEPA ou la facture si les coordonnees de paiement sont configurees.'
+              : lang === 'pt'
+                ? 'O checkout Stripe esta indisponivel de momento. Usa transferencia SEPA ou faturacao manual se os dados de pagamento estiverem configurados.'
+                : 'Stripe checkout is currently unavailable. Use SEPA transfer or manual invoicing if payment details are configured.'}
+          </CardContent>
+        </Card>
+      )}
+
+      {!manualBillingReady && (
+        <Card className="border-amber-300 bg-amber-50/60">
+          <CardContent className="p-4 text-sm text-amber-800">
+            {lang === 'fr'
+              ? 'Le fallback SEPA manuel n est pas completement configure dans les variables de production.'
+              : lang === 'pt'
+                ? 'O fallback manual SEPA nao esta totalmente configurado nas variaveis de producao.'
+                : 'The manual SEPA fallback is not fully configured in production environment variables.'}
           </CardContent>
         </Card>
       )}

@@ -165,6 +165,24 @@ function ensureFlushListeners() {
 
   window.addEventListener('pagehide', scheduleFlush);
   document.addEventListener('visibilitychange', handleVisibilityChange);
+  window.addEventListener('error', (event) => {
+    trackEvent('runtime_error', {
+      message: event.message?.slice(0, 160) || 'Unknown runtime error',
+      source: event.filename?.slice(0, 120) || null,
+      line: typeof event.lineno === 'number' ? event.lineno : null,
+    });
+  });
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason =
+      typeof event.reason === 'string'
+        ? event.reason
+        : event.reason instanceof Error
+          ? event.reason.message
+          : 'Unhandled promise rejection';
+    trackEvent('runtime_unhandled_rejection', {
+      message: reason.slice(0, 160),
+    });
+  });
   listenersRegistered = true;
 }
 

@@ -13,6 +13,7 @@ import {
   getSearchActionRecommendations,
   getSearchRedirectSuggestions,
 } from '@/lib/searchIntelligence';
+import { getRuntimeReadiness } from '@/lib/runtimeReadiness';
 
 const cards = [
   {
@@ -180,6 +181,7 @@ export default function AdminDashboard() {
       return (data || []) as AnalyticsRow[];
     },
   });
+  const runtimeReadiness = useMemo(() => getRuntimeReadiness(), []);
 
   const filteredRows = useMemo(() => {
     const normalizedQuery = queryFilter.trim().toLowerCase();
@@ -699,6 +701,29 @@ export default function AdminDashboard() {
                       </div>
                     ))
                   )}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border p-4">
+                <h3 className="text-sm font-semibold text-foreground">Launch readiness</h3>
+                <div className="mt-3 space-y-2">
+                  {runtimeReadiness.map((item) => (
+                    <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground">{item.label}</p>
+                        <p className="text-xs text-muted-foreground">{item.detail}</p>
+                      </div>
+                      <span
+                        className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                          item.status === 'ready'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-amber-100 text-amber-700'
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 

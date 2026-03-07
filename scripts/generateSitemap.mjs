@@ -6,6 +6,7 @@ const publicDir = path.join(rootDir, 'public');
 const proceduresPath = path.join(publicDir, 'data', 'procedures.v3.json');
 const guidelinesPath = path.join(publicDir, 'data', 'guidelines.v1.json');
 const protocolsPath = path.join(publicDir, 'data', 'protocoles.v1.json');
+const alrPath = path.join(publicDir, 'data', 'alr.v1.json');
 const sitemapPath = path.join(publicDir, 'sitemap.xml');
 const robotsPath = path.join(publicDir, 'robots.txt');
 
@@ -62,6 +63,13 @@ function buildProtocolPath(protocol) {
   return slug ? `/protocols/${protocol.id}/${slug}` : `/protocols/${protocol.id}`;
 }
 
+function buildAlrPath(block) {
+  const titles = block?.titles || {};
+  const title = titles.fr || titles.en || titles.pt || block.id;
+  const slug = normalizeText(title);
+  return slug ? `/regional-blocks/${block.id}/${slug}` : `/regional-blocks/${block.id}`;
+}
+
 function toUrlEntry(loc, options = {}) {
   const url = `${siteUrl}${loc}`;
   const lines = ['  <url>', `    <loc>${xmlEscape(url)}</loc>`];
@@ -91,6 +99,7 @@ const staticRoutes = [
 const procedures = JSON.parse(fs.readFileSync(proceduresPath, 'utf8'));
 const guidelines = JSON.parse(fs.readFileSync(guidelinesPath, 'utf8'));
 const protocols = JSON.parse(fs.readFileSync(protocolsPath, 'utf8'));
+const alrBlocks = JSON.parse(fs.readFileSync(alrPath, 'utf8'));
 const specialties = [...new Set(ensureArray(procedures).map((procedure) => procedure.specialty).filter(Boolean))]
   .sort((left, right) => String(left).localeCompare(String(right)));
 
@@ -123,6 +132,13 @@ const protocolEntries = ensureArray(protocols).map((protocol) =>
   }),
 );
 
+const alrEntries = ensureArray(alrBlocks).map((block) =>
+  toUrlEntry(buildAlrPath(block), {
+    changefreq: 'weekly',
+    priority: 0.7,
+  }),
+);
+
 const topicEntries = publicTopics.map((slug) =>
   toUrlEntry(`/topics/${slug}`, {
     changefreq: 'weekly',
@@ -139,6 +155,7 @@ const sitemap = [
   ...specialtyEntries,
   ...guidelineEntries,
   ...protocolEntries,
+  ...alrEntries,
   ...procedureEntries,
   '</urlset>',
   '',
@@ -156,5 +173,13 @@ fs.writeFileSync(sitemapPath, sitemap, 'utf8');
 fs.writeFileSync(robotsPath, robots, 'utf8');
 
 console.log(
-  `Generated sitemap with ${staticEntries.length + specialtyEntries.length + procedureEntries.length} URLs for ${siteUrl}`,
+  `Generated sitemap with ${
+    staticEntries.length +
+    topicEntries.length +
+    specialtyEntries.length +
+    guidelineEntries.length +
+    protocolEntries.length +
+    alrEntries.length +
+    procedureEntries.length
+  } URLs for ${siteUrl}`,
 );

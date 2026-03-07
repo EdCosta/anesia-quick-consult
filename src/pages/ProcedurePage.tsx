@@ -47,6 +47,11 @@ import {
 } from '@/data/services/procedurePrefetch';
 import { buildPublicProcedurePath } from '@/lib/procedureSeo';
 import {
+  buildPublicALRPath,
+  buildPublicGuidelinePath,
+  buildPublicProtocolPath,
+} from '@/lib/contentSeo';
+import {
   getHospitalProcedureContext,
   getHospitalProcedureIds,
   isStPierreProcedure,
@@ -56,8 +61,10 @@ import { getSpecialtyDisplayName } from '@/lib/specialties';
 import { trackEvent } from '@/lib/analytics';
 import type { PatientWeights } from '@/lib/weightScalars';
 import type {
+  ALRBlock,
   Guideline,
   HospitalProcedureContext,
+  Protocole,
   Procedure,
   ProcedureQuick,
   SupportedLang,
@@ -69,6 +76,35 @@ function normalizeMatchKey(value: string) {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim();
+}
+
+function tokenizeSearchText(value: string) {
+  return normalizeMatchKey(value)
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length > 2);
+}
+
+function collectProcedureTokens(procedure: Procedure, title: string) {
+  return new Set(
+    [
+      ...tokenizeSearchText(title),
+      ...tokenizeSearchText(procedure.specialty || ''),
+      ...(procedure.specialties || []).flatMap((specialty) => tokenizeSearchText(specialty)),
+      ...(procedure.tags || []).flatMap((tag) => tokenizeSearchText(tag)),
+      ...Object.values(procedure.synonyms || {}).flatMap((items) =>
+        (items || []).flatMap((item) => tokenizeSearchText(item)),
+      ),
+    ],
+  );
+}
+
+function countTokenOverlap(tokens: Set<string>, values: string[]) {
+  const candidateTokens = new Set(values.flatMap((value) => tokenizeSearchText(value)));
+  let matches = 0;
+  for (const token of candidateTokens) {
+    if (tokens.has(token)) matches += 1;
+  }
+  return matches;
 }
 
 function getGuidelineYear(guideline: Guideline) {
@@ -157,7 +193,7 @@ async function loadProcedureOnDemand(id: string): Promise<Procedure | null> {
 export default function ProcedurePage() {
   const { id } = useParams<{ id: string }>();
   const { t, lang, resolve, resolveStr } = useLang();
-  const { getProcedure, getDrug, drugs, guidelines, specialtiesData, loading } = useData();
+  const { getProcedure, getDrug, drugs, guidelines, protocoles, alrBlocks, specialtiesData, loading } = useData();
   const [weightKg, setWeightKg] = useState<string>('');
   const [patientWeights, setPatientWeights] = useState<PatientWeights | null>(null);
   const [favorites, setFavorites] = useLocalStorage<string[]>('anesia-favorites', []);
@@ -368,6 +404,47 @@ export default function ProcedurePage() {
       .slice(0, 5)
       .map((s) => s.guideline);
   }, [procedure, guidelines, procedureTagIds, guidelineTagIds]);
+  const relatedProtocols = useMemo(() => {
+    if (!procedure || !protocoles.length) return [];
+    const procedureTokens = collectProcedureTokens(procedure, procedureTitle);
+
+    return protocoles
+      .map((protocol) => {
+        const matchingTokens = countTokenOverlap(procedureTokens, [
+          resolveStr(protocol.titles),
+          protocol.category,
+          ...(protocol.tags || []),
+        ]);
+        const categoryBoost = procedureTokens.has(normalizeMatchKey(protocol.category)) ? 2 : 0;
+        const score = matchingTokens * 5 + categoryBoost;
+        return { protocol, score, matchingTokens };
+      })
+      .filter((item) => item.score > 0)
+      .sort((left, right) => right.score - left.score || right.matchingTokens - left.matchingTokens)
+      .slice(0, 4)
+      .map((item) => item.protocol);
+  }, [procedure, procedureTitle, protocoles, resolveStr]);
+
+  const relatedAlrBlocks = useMemo(() => {
+    if (!procedure || !alrBlocks.length) return [];
+    const procedureTokens = collectProcedureTokens(procedure, procedureTitle);
+
+    return alrBlocks
+      .map((block) => {
+        const matchingTokens = countTokenOverlap(procedureTokens, [
+          resolveStr(block.titles),
+          block.region,
+          ...(block.tags || []),
+          ...(resolve<string[]>(block.indications) ?? []).slice(0, 3),
+        ]);
+        const score = matchingTokens * 4;
+        return { block, score, matchingTokens };
+      })
+      .filter((item) => item.score > 0)
+      .sort((left, right) => right.score - left.score || right.matchingTokens - left.matchingTokens)
+      .slice(0, 4)
+      .map((item) => item.block);
+  }, [alrBlocks, procedure, procedureTitle, resolve, resolveStr]);
 
   const weight = parseFloat(weightKg) || null;
 
@@ -812,8 +889,12 @@ export default function ProcedurePage() {
         setPatientWeights={setPatientWeights}
         procedure={procedure}
         recommendations={recommendations}
+        relatedProtocols={relatedProtocols}
+        relatedAlrBlocks={relatedAlrBlocks}
+        lang={lang}
         t={t}
         resolveStr={resolveStr}
+        resolve={resolve}
         getDrug={getDrug}
         drugsLoading={loading && drugs.length === 0}
         handleCopyChecklist={handleCopyChecklist}
@@ -950,8 +1031,12 @@ function ProcedureContent({
   setPatientWeights,
   procedure,
   recommendations,
+  relatedProtocols,
+  relatedAlrBlocks,
+  lang,
   t,
   resolveStr,
+  resolve,
   getDrug,
   drugsLoading,
   handleCopyChecklist,
@@ -1124,43 +1209,124 @@ function ProcedureContent({
                   </>
                 )}
 
-                {recommendations.length > 0 && (
-                  <Card className="clinical-shadow border-l-4 border-l-clinical-info">
-                    <CardContent className="p-4">
-                      <h3 className="mb-3 text-sm font-bold text-clinical-info flex items-center gap-1.5">
-                        <BookOpen className="h-4 w-4" />
-                        {t('recommendations')}
-                      </h3>
-                      <div className="space-y-2">
-                        {recommendations.map((g: any) => (
-                          <Link
-                            key={g.id}
-                            to="/guidelines"
-                            className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors"
-                          >
-                            <p className="text-xs font-semibold text-card-foreground">
-                              {resolveStr(g.titles)}
-                            </p>
-                            <div className="mt-1 flex flex-wrap gap-1">
-                              <Badge variant="secondary" className="text-[10px]">
-                                {g.category}
-                              </Badge>
-                              {g.organization && (
-                                <Badge variant="outline" className="text-[10px]">
-                                  {g.organization}
-                                </Badge>
-                              )}
-                              {!!g.recommendation_strength && (
-                                <Badge variant="outline" className="text-[10px]">
-                                  S{g.recommendation_strength}
-                                </Badge>
-                              )}
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                {(recommendations.length > 0 ||
+                  relatedProtocols.length > 0 ||
+                  relatedAlrBlocks.length > 0) && (
+                  <div className="grid gap-3 lg:grid-cols-3">
+                    {recommendations.length > 0 && (
+                      <Card className="clinical-shadow border-l-4 border-l-clinical-info">
+                        <CardContent className="p-4">
+                          <h3 className="mb-3 text-sm font-bold text-clinical-info flex items-center gap-1.5">
+                            <BookOpen className="h-4 w-4" />
+                            {t('recommendations')}
+                          </h3>
+                          <div className="space-y-2">
+                            {recommendations.map((g: Guideline) => (
+                              <Link
+                                key={g.id}
+                                to={buildPublicGuidelinePath(g.id, resolveStr(g.titles))}
+                                className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors"
+                              >
+                                <p className="text-xs font-semibold text-card-foreground">
+                                  {resolveStr(g.titles)}
+                                </p>
+                                <div className="mt-1 flex flex-wrap gap-1">
+                                  <Badge variant="secondary" className="text-[10px]">
+                                    {g.category}
+                                  </Badge>
+                                  {g.organization && (
+                                    <Badge variant="outline" className="text-[10px]">
+                                      {g.organization}
+                                    </Badge>
+                                  )}
+                                  {!!g.recommendation_strength && (
+                                    <Badge variant="outline" className="text-[10px]">
+                                      S{g.recommendation_strength}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {relatedProtocols.length > 0 && (
+                      <Card className="clinical-shadow border-l-4 border-l-primary">
+                        <CardContent className="p-4">
+                          <h3 className="mb-3 text-sm font-bold text-primary flex items-center gap-1.5">
+                            <FileText className="h-4 w-4" />
+                            {lang === 'fr'
+                              ? 'Protocoles lies'
+                              : lang === 'pt'
+                                ? 'Protocolos relacionados'
+                                : 'Related protocols'}
+                          </h3>
+                          <div className="space-y-2">
+                            {relatedProtocols.map((protocol: Protocole) => (
+                              <Link
+                                key={protocol.id}
+                                to={buildPublicProtocolPath(protocol.id, resolveStr(protocol.titles))}
+                                className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors"
+                              >
+                                <p className="text-xs font-semibold text-card-foreground">
+                                  {resolveStr(protocol.titles)}
+                                </p>
+                                <div className="mt-1 flex flex-wrap gap-1">
+                                  <Badge variant="secondary" className="text-[10px]">
+                                    {protocol.category}
+                                  </Badge>
+                                  {protocol.version && (
+                                    <Badge variant="outline" className="text-[10px]">
+                                      v{protocol.version}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {relatedAlrBlocks.length > 0 && (
+                      <Card className="clinical-shadow border-l-4 border-l-accent">
+                        <CardContent className="p-4">
+                          <h3 className="mb-3 text-sm font-bold text-accent flex items-center gap-1.5">
+                            <Globe className="h-4 w-4" />
+                            {lang === 'fr'
+                              ? 'ALR liee'
+                              : lang === 'pt'
+                                ? 'ALR relacionada'
+                                : 'Related regional blocks'}
+                          </h3>
+                          <div className="space-y-2">
+                            {relatedAlrBlocks.map((block: ALRBlock) => (
+                              <Link
+                                key={block.id}
+                                to={buildPublicALRPath(block.id, resolveStr(block.titles))}
+                                className="block rounded-lg border p-3 hover:bg-muted/30 transition-colors"
+                              >
+                                <p className="text-xs font-semibold text-card-foreground">
+                                  {resolveStr(block.titles)}
+                                </p>
+                                <div className="mt-1 flex flex-wrap gap-1">
+                                  <Badge variant="secondary" className="text-[10px]">
+                                    {block.region}
+                                  </Badge>
+                                  <Badge variant="outline" className="text-[10px]">
+                                    {(resolve<string[]>(block.indications) ?? []).length}{' '}
+                                    {lang === 'fr' ? 'indications' : lang === 'pt' ? 'indicacoes' : 'indications'}
+                                  </Badge>
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
                 )}
               </>
             </ProGate>

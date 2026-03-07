@@ -17,3 +17,8 @@ export function buildPublicProtocolPath(id: string, title: string) {
   const slug = slugifyText(title);
   return slug ? `/protocols/${id}/${slug}` : `/protocols/${id}`;
 }
+
+export function buildPublicALRPath(id: string, title: string) {
+  const slug = slugifyText(title);
+  return slug ? `/regional-blocks/${id}/${slug}` : `/regional-blocks/${id}`;
+}

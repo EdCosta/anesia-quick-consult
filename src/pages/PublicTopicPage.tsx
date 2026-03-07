@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { trackEvent } from '@/lib/analytics';
 import { PUBLIC_TOPICS, getPublicTopic } from '@/lib/publicTopics';
-import { buildPublicGuidelinePath, buildPublicProtocolPath } from '@/lib/contentSeo';
+import { buildPublicALRPath, buildPublicGuidelinePath, buildPublicProtocolPath } from '@/lib/contentSeo';
 import { buildPublicProcedurePath } from '@/lib/procedureSeo';
 
 function normalize(value: string) {
@@ -257,7 +257,7 @@ export default function PublicTopicPage() {
                   {relatedAlr.slice(0, 4).map((block) => (
                     <Link
                       key={block.id}
-                      to="/alr"
+                      to={buildPublicALRPath(block.id, resolveStr(block.titles))}
                       className="block rounded-xl border border-border/70 bg-background/80 p-3 transition-colors hover:border-accent/40"
                     >
                       <p className="text-sm font-semibold text-foreground">{resolveStr(block.titles)}</p>

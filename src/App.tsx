@@ -52,6 +52,7 @@ const PublicTopicsIndexPage = lazy(() => import('./pages/PublicTopicsIndexPage')
 const PublicTopicPage = lazy(() => import('./pages/PublicTopicPage'));
 const PublicGuidelinePage = lazy(() => import('./pages/PublicGuidelinePage'));
 const PublicProtocolPage = lazy(() => import('./pages/PublicProtocolPage'));
+const PublicALRPage = lazy(() => import('./pages/PublicALRPage'));
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,8 @@ const App = () => {
                       <Route path="/recommendations/:id/:slug" element={<PublicGuidelinePage />} />
                       <Route path="/protocols/:id" element={<PublicProtocolPage />} />
                       <Route path="/protocols/:id/:slug" element={<PublicProtocolPage />} />
+                      <Route path="/regional-blocks/:id" element={<PublicALRPage />} />
+                      <Route path="/regional-blocks/:id/:slug" element={<PublicALRPage />} />
                       <Route path="/procedures/:id" element={<PublicProcedurePage />} />
                       <Route path="/procedures/:id/:slug" element={<PublicProcedurePage />} />
                       <Route path="/specialties/:slug" element={<PublicSpecialtyPage />} />

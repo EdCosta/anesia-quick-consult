@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Stethoscope, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import Fuse from 'fuse.js';
+import { useSearchParams } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -55,6 +56,19 @@ const DEFAULT_INPUT: PreAnestInput = {
   context: 'inpatient',
 };
 
+const PREANEST_PRESETS: Record<string, Partial<PreAnestInput>> = {
+  fragile: {
+    age: 82,
+    asa: 3,
+    weight: 62,
+    height: 164,
+    comorbidities: ['cardiopathy', 'renal'],
+    mallampati: 2,
+    anticoagulation: 'aspirin',
+    context: 'inpatient',
+  },
+};
+
 export default function PreAnest() {
   const { t, lang, resolveStr } = useLang();
   const { procedures, specialtiesData } = useData();
@@ -63,6 +77,7 @@ export default function PreAnest() {
   const [saved, setSaved] = useLocalStorage<PreAnestInput>('anesia-preanest-last', DEFAULT_INPUT);
   const [input, setInput] = useState<PreAnestInput>(saved);
   const [result, setResult] = useState<PreAnestOutput | null>(null);
+  const [searchParams] = useSearchParams();
   const [procSearch, setProcSearch] = useState('');
   const [showProcList, setShowProcList] = useState(false);
   const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
@@ -110,6 +125,23 @@ export default function PreAnest() {
   };
 
   const selectedProc = visibleProcedures.find((p) => p.id === input.procedureId);
+
+  useEffect(() => {
+    const preset = searchParams.get('preset');
+    if (!preset || !PREANEST_PRESETS[preset]) return;
+
+    const nextInput = {
+      ...DEFAULT_INPUT,
+      ...PREANEST_PRESETS[preset],
+    };
+
+    setInput(nextInput);
+    setSaved(nextInput);
+    setResult(generateRecommendations(nextInput, lang));
+    setExpandedBlock('preop');
+    setProcSearch('');
+    setShowProcList(false);
+  }, [lang, searchParams, setSaved]);
 
   const blocks = result
     ? [

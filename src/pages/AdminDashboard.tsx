@@ -158,6 +158,9 @@ export default function AdminDashboard() {
     const topProcedures = new Map<string, number>();
     const upgradeClicks = new Map<string, number>();
     const languageCounts = new Map<string, number>();
+    const sessionDays = new Map<string, Set<string>>();
+    const sessionEventCounts = new Map<string, number>();
+    const sessionFlags = new Map<string, { searched: boolean; viewedProcedure: boolean }>();
 
     let eventsLast24h = 0;
     let searchCount = 0;
@@ -169,6 +172,12 @@ export default function AdminDashboard() {
       if (!Number.isNaN(createdAt) && createdAt >= since24h) {
         eventsLast24h += 1;
       }
+
+      const day = row.created_at.slice(0, 10);
+      const sessionDaySet = sessionDays.get(row.session_id) || new Set<string>();
+      sessionDaySet.add(day);
+      sessionDays.set(row.session_id, sessionDaySet);
+      sessionEventCounts.set(row.session_id, (sessionEventCounts.get(row.session_id) || 0) + 1);
 
       topPaths.set(row.path, (topPaths.get(row.path) || 0) + 1);
       if (row.language) {
@@ -186,6 +195,12 @@ export default function AdminDashboard() {
             results: Math.max(current.results, results),
           });
         }
+        const currentFlags = sessionFlags.get(row.session_id) || {
+          searched: false,
+          viewedProcedure: false,
+        };
+        currentFlags.searched = true;
+        sessionFlags.set(row.session_id, currentFlags);
       }
 
       if (row.event_name === 'procedure_page_view') {
@@ -194,6 +209,12 @@ export default function AdminDashboard() {
         if (procedureId) {
           topProcedures.set(procedureId, (topProcedures.get(procedureId) || 0) + 1);
         }
+        const currentFlags = sessionFlags.get(row.session_id) || {
+          searched: false,
+          viewedProcedure: false,
+        };
+        currentFlags.viewedProcedure = true;
+        sessionFlags.set(row.session_id, currentFlags);
       }
 
       if (
@@ -209,11 +230,23 @@ export default function AdminDashboard() {
     const topLanguages = Array.from(languageCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3);
+    const uniqueSessions = sessionDays.size;
+    const returningSessions = Array.from(sessionDays.values()).filter((days) => days.size > 1).length;
+    const activeDays = new Set(rows.map((row) => row.created_at.slice(0, 10))).size;
+    const avgEventsPerSession =
+      uniqueSessions > 0 ? Math.round((rows.length / uniqueSessions) * 10) / 10 : 0;
+    const searchToProcedureSessions = Array.from(sessionFlags.values()).filter(
+      (flags) => flags.searched && flags.viewedProcedure,
+    ).length;
 
     return {
       totalEvents: rows.length,
       eventsLast24h,
-      uniqueSessions: new Set(rows.map((row) => row.session_id)).size,
+      uniqueSessions,
+      returningSessions,
+      activeDays,
+      avgEventsPerSession,
+      searchToProcedureSessions,
       searchCount,
       procedureViews,
       upgradeCount,
@@ -398,6 +431,51 @@ export default function AdminDashboard() {
                       ))
                     )}
                   </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Active days
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.activeDays}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Distinct days with usage</p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Returning visitors
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.returningSessions}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {overview.uniqueSessions > 0
+                      ? `${Math.round((overview.returningSessions / overview.uniqueSessions) * 100)}% return rate`
+                      : 'No session data yet'}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Avg events / visitor
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.avgEventsPerSession}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Depth of repeat usage</p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Search to procedure
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.searchToProcedureSessions}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Sessions that searched and opened a procedure
+                  </p>
                 </div>
               </div>
 

@@ -237,6 +237,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { to: '/privacy', label: lang === 'fr' ? 'Confidentialite' : lang === 'pt' ? 'Privacidade' : 'Privacy', icon: ShieldCheck },
     { to: '/terms', label: lang === 'fr' ? "Conditions" : lang === 'pt' ? 'Termos' : 'Terms', icon: FileText },
   ];
+  const secondaryNavItems = footerLinks.slice(0, 3);
+  const mobileUtilityLinks = user
+    ? [
+        { to: buildPathWithSource('/account', 'mobile_menu'), label: t('account'), icon: Crown },
+        { to: '/account/settings', label: settingsLabel, icon: Settings2 },
+      ]
+    : [
+        { to: '/pricing', label: lang === 'fr' ? 'Tarifs' : lang === 'pt' ? 'Precos' : 'Pricing', icon: Crown },
+        { to: '/auth?mode=signup', label: t('sign_up'), icon: UserPlus },
+        { to: '/auth?mode=signin', label: t('sign_in'), icon: KeyRound },
+      ];
   const activeViewMode =
     viewModeOptions.find((option) => option.value === viewMode) ?? viewModeOptions[0];
   const availableViewModes = viewModeOptions.filter((option) => option.value !== viewMode);
@@ -281,28 +292,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {t(item.key)}
                 </Link>
               ))}
-              <Link
-                to="/topics"
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                  location.pathname.startsWith('/topics')
-                    ? 'bg-primary-foreground/15 text-primary-foreground'
-                    : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground'
-                }`}
-              >
-                <Sparkles className="h-4 w-4" />
-                <span>{lang === 'fr' ? 'Themes' : lang === 'pt' ? 'Temas' : 'Topics'}</span>
-              </Link>
-              <Link
-                to="/specialties"
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                  location.pathname.startsWith('/specialties')
-                    ? 'bg-primary-foreground/15 text-primary-foreground'
-                    : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground'
-                }`}
-              >
-                <Layers3 className="h-4 w-4" />
-                <span>{lang === 'fr' ? 'Specialites' : lang === 'pt' ? 'Especialidades' : 'Specialties'}</span>
-              </Link>
+              {secondaryNavItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    location.pathname.startsWith(item.to)
+                      ? 'bg-primary-foreground/15 text-primary-foreground'
+                      : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground'
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
             </nav>
           )}
 
@@ -310,69 +313,69 @@ export default function AppLayout({ children }: AppLayoutProps) {
             {/* Hospital profile selector */}
             {isPro && viewMode === 'pro' && (
               <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-semibold transition-colors ${
-                    isHospitalModeActive
-                      ? 'border-emerald-300/60 bg-emerald-500/20 text-emerald-50 hover:bg-emerald-500/30'
-                      : 'border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/15'
-                  }`}
-                  title={t('hospital_profile')}
-                >
-                  <Building2 className="h-4 w-4" />
-                  <span>{t('hospital_profile')}</span>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-2">
-                <p className="mb-2 text-xs font-semibold text-foreground">
-                  {t('select_profile')}
-                </p>
-                {loadingProfiles ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  </div>
-                ) : profiles.length === 0 ? (
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground">
-                      No hospital profiles loaded yet.
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      Apply the St Pierre hospital profile migration in Supabase to make it selectable.
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    {profiles.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => {
-                          applyHospitalMode(p);
-                        }}
-                        className={`w-full text-left rounded px-2 py-1.5 text-xs transition-colors ${
-                          activeProfile === p.id
-                            ? 'bg-primary/10 text-primary font-medium'
-                            : 'hover:bg-muted text-foreground'
-                        }`}
-                      >
-                        <span className="block">{p.name}</span>
-                        <span className="block text-[10px] text-muted-foreground">
-                          {[p.country, p.default_lang.toUpperCase()].filter(Boolean).join(' · ')}
-                        </span>
-                      </button>
-                    ))}
-                    {activeProfile && (
-                      <button
-                        onClick={() => {
-                          clearHospitalMode();
-                        }}
-                        className="mt-1 w-full rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
-                      >
-                        {t('clear')}
-                      </button>
-                    )}
-                  </>
-                )}
-              </PopoverContent>
+                <PopoverTrigger asChild>
+                  <button
+                    className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-semibold transition-colors ${
+                      isHospitalModeActive
+                        ? 'border-emerald-300/60 bg-emerald-500/20 text-emerald-50 hover:bg-emerald-500/30'
+                        : 'border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/15'
+                    }`}
+                    title={t('hospital_profile')}
+                  >
+                    <Building2 className="h-4 w-4" />
+                    <span>{t('hospital_profile')}</span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-2">
+                  <p className="mb-2 text-xs font-semibold text-foreground">
+                    {t('select_profile')}
+                  </p>
+                  {loadingProfiles ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : profiles.length === 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        No hospital profiles loaded yet.
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        Apply the St Pierre hospital profile migration in Supabase to make it selectable.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {profiles.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            applyHospitalMode(p);
+                          }}
+                          className={`w-full rounded px-2 py-1.5 text-left text-xs transition-colors ${
+                            activeProfile === p.id
+                              ? 'bg-primary/10 text-primary font-medium'
+                              : 'hover:bg-muted text-foreground'
+                          }`}
+                        >
+                          <span className="block">{p.name}</span>
+                          <span className="block text-[10px] text-muted-foreground">
+                            {[p.country, p.default_lang.toUpperCase()].filter(Boolean).join(' · ')}
+                          </span>
+                        </button>
+                      ))}
+                      {activeProfile && (
+                        <button
+                          onClick={() => {
+                            clearHospitalMode();
+                          }}
+                          className="mt-1 w-full rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+                        >
+                          {t('clear')}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </PopoverContent>
               </Popover>
             )}
             {/* Plan badge - links to /account */}
@@ -487,46 +490,68 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
       {/* Mobile fullscreen menu */}
       {isMobile && menuOpen && (
-        <div className="fixed inset-0 z-40 bg-background/95 backdrop-blur flex flex-col items-center justify-center gap-6 animate-fade-in">
+        <div className="fixed inset-0 z-40 overflow-y-auto bg-background/95 backdrop-blur animate-fade-in">
           <button
             onClick={() => setMenuOpen(false)}
             className="absolute top-4 right-4 p-2 text-foreground"
           >
             <X className="h-6 w-6" />
           </button>
-          {HEADER_ITEMS.map((item) => (
-            <Link
-              key={item.key}
-              to={item.to}
-              onClick={() => setMenuOpen(false)}
-              className={`flex items-center gap-3 text-xl font-semibold transition-colors ${
-                isActive(item.to) ? 'text-accent' : 'text-foreground hover:text-accent'
-              }`}
-            >
-              <item.icon className="h-6 w-6" />
-              {t(item.key)}
-            </Link>
-          ))}
-          <Link
-            to="/topics"
-            onClick={() => setMenuOpen(false)}
-            className={`flex items-center gap-3 text-xl font-semibold transition-colors ${
-              location.pathname.startsWith('/topics') ? 'text-accent' : 'text-foreground hover:text-accent'
-            }`}
-          >
-            <Sparkles className="h-6 w-6" />
-            {lang === 'fr' ? 'Themes' : lang === 'pt' ? 'Temas' : 'Topics'}
-          </Link>
-          <Link
-            to="/specialties"
-            onClick={() => setMenuOpen(false)}
-            className={`flex items-center gap-3 text-xl font-semibold transition-colors ${
-              location.pathname.startsWith('/specialties') ? 'text-accent' : 'text-foreground hover:text-accent'
-            }`}
-          >
-            <Layers3 className="h-6 w-6" />
-            {lang === 'fr' ? 'Specialites' : lang === 'pt' ? 'Especialidades' : 'Specialties'}
-          </Link>
+          <div className="container flex min-h-screen flex-col justify-center gap-8 py-20">
+            <div className="space-y-4">
+              {HEADER_ITEMS.map((item) => (
+                <Link
+                  key={item.key}
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  className={`flex items-center gap-3 text-xl font-semibold transition-colors ${
+                    isActive(item.to) ? 'text-accent' : 'text-foreground hover:text-accent'
+                  }`}
+                >
+                  <item.icon className="h-6 w-6" />
+                  {t(item.key)}
+                </Link>
+              ))}
+            </div>
+
+            <div className="space-y-3 border-t border-border/70 pt-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Explore
+              </p>
+              {secondaryNavItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  className={`flex items-center gap-3 text-lg font-semibold transition-colors ${
+                    location.pathname.startsWith(item.to)
+                      ? 'text-accent'
+                      : 'text-foreground hover:text-accent'
+                  }`}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="space-y-3 border-t border-border/70 pt-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {user ? settingsLabel : 'Access'}
+              </p>
+              {mobileUtilityLinks.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 text-lg font-semibold text-foreground transition-colors hover:text-accent"
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowRight, Clock3, ExternalLink, ShieldAlert } from 'lucide-react';
+import ShareButton from '@/components/anesia/ShareButton';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { usePageMeta } from '@/hooks/usePageMeta';
@@ -205,6 +206,7 @@ export default function PublicProcedurePage() {
             </div>
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
+            <ShareButton title={title} />
             <Button asChild>
               <Link
                 to={`/p/${procedure.id}`}

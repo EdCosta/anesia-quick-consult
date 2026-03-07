@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Target, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import ShareButton from '@/components/anesia/ShareButton';
+import { buildPublicALRPath } from '@/lib/contentSeo';
 import Fuse from 'fuse.js';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useContentLimits } from '@/hooks/useContentLimits';
@@ -53,9 +55,10 @@ export default function ALR() {
   const { t, lang, resolveStr, resolve } = useLang();
   const { alrBlocks, loading } = useData();
   const { alr: alrLimit, isLimited } = useContentLimits();
-  const [search, setSearch] = useState('');
-  const [region, setRegion] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [region, setRegion] = useState<string | null>(() => searchParams.get('region'));
+  const [expanded, setExpanded] = useState<string | null>(() => searchParams.get('open'));
   const [activeTab, setActiveTab] = useState<Record<string, TabKey>>({});
   usePageMeta({
     title: `${t('alr_full')} | AnesIA`,
@@ -91,6 +94,25 @@ export default function ALR() {
   const getTabForBlock = (id: string): TabKey => activeTab[id] ?? 'indications';
 
   const handleExpand = (id: string) => setExpanded(expanded === id ? null : id);
+
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+
+    if (search.trim()) next.set('search', search);
+    else next.delete('search');
+
+    if (region) next.set('region', region);
+    else next.delete('region');
+
+    if (expanded) next.set('open', expanded);
+    else next.delete('open');
+
+    const current = searchParams.toString();
+    const updated = next.toString();
+    if (current !== updated) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [expanded, region, search, searchParams, setSearchParams]);
 
   if (loading) {
     return (
@@ -279,6 +301,13 @@ export default function ALR() {
                           );
                           return <StructuredContentList key={key} items={items} tone={TAB_TONE[key]} />;
                         })}
+                      </div>
+                      <div className="border-t px-4 py-2 flex justify-end">
+                        <ShareButton
+                          url={buildPublicALRPath(block.id, resolveStr(block.titles))}
+                          title={resolveStr(block.titles)}
+                          variant="icon"
+                        />
                       </div>
                     </div>
                   )}

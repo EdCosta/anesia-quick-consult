@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowRight, ExternalLink, Target } from 'lucide-react';
+import ShareButton from '@/components/anesia/ShareButton';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { usePageMeta } from '@/hooks/usePageMeta';
@@ -106,6 +107,7 @@ export default function PublicALRPage() {
                 <ExternalLink className="ml-2 h-4 w-4" />
               </Link>
             </Button>
+            <ShareButton title={title} />
           </div>
         </section>
 

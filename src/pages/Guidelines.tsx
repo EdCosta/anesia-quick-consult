@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BookOpen, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import ShareButton from '@/components/anesia/ShareButton';
+import { buildPublicGuidelinePath } from '@/lib/contentSeo';
 import Fuse from 'fuse.js';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import { useContentLimits } from '@/hooks/useContentLimits';
@@ -46,9 +48,10 @@ export default function Guidelines() {
   const { t, lang, resolveStr, resolve } = useLang();
   const { guidelines, loading } = useData();
   const { guidelines: guidelineLimit, isLimited } = useContentLimits();
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [category, setCategory] = useState<string | null>(() => searchParams.get('category'));
+  const [expanded, setExpanded] = useState<string | null>(() => searchParams.get('open'));
   usePageMeta({
     title: `${t('guidelines')} | AnesIA`,
     description:
@@ -79,6 +82,25 @@ export default function Guidelines() {
     if (category) results = results.filter((g) => g.category === category);
     return results;
   }, [search, category, fuse, guidelines]);
+
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+
+    if (search.trim()) next.set('search', search);
+    else next.delete('search');
+
+    if (category) next.set('category', category);
+    else next.delete('category');
+
+    if (expanded) next.set('open', expanded);
+    else next.delete('open');
+
+    const current = searchParams.toString();
+    const updated = next.toString();
+    if (current !== updated) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [category, expanded, search, searchParams, setSearchParams]);
 
   if (loading) {
     return (
@@ -246,6 +268,13 @@ export default function Guidelines() {
                           </div>
                         </div>
                       )}
+                      <div className="border-t pt-3 flex justify-end">
+                        <ShareButton
+                          url={buildPublicGuidelinePath(g.id, resolveStr(g.titles))}
+                          title={resolveStr(g.titles)}
+                          variant="icon"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

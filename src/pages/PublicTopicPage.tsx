@@ -11,6 +11,7 @@ import { trackEvent } from '@/lib/analytics';
 import { PUBLIC_TOPICS, getPublicTopic } from '@/lib/publicTopics';
 import { buildPublicALRPath, buildPublicGuidelinePath, buildPublicProtocolPath } from '@/lib/contentSeo';
 import { buildPublicProcedurePath } from '@/lib/procedureSeo';
+import { buildPublicSpecialtyPath, getSpecialtyDisplayName } from '@/lib/specialties';
 
 function normalize(value: string) {
   return value
@@ -22,7 +23,7 @@ function normalize(value: string) {
 export default function PublicTopicPage() {
   const { slug = '' } = useParams<{ slug: string }>();
   const { lang, resolve, resolveStr } = useLang();
-  const { procedureIndex, guidelines, protocoles, alrBlocks, loading } = useData();
+  const { procedureIndex, guidelines, protocoles, alrBlocks, specialtiesData, loading } = useData();
   const topic = getPublicTopic(slug);
 
   const tokenSet = useMemo(() => new Set((topic?.tokens || []).map((token) => normalize(token))), [topic]);
@@ -73,6 +74,48 @@ export default function PublicTopicPage() {
       return entries.some((entry) => [...tokenSet].some((token) => entry.includes(token)));
     });
   }, [alrBlocks, resolveStr, tokenSet, topic]);
+
+  const relatedSpecialties = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    for (const procedure of procedures) {
+      if (!procedure.specialty) continue;
+      counts.set(procedure.specialty, (counts.get(procedure.specialty) || 0) + 1);
+    }
+
+    return Array.from(counts.entries())
+      .sort((left, right) => right[1] - left[1])
+      .slice(0, 4)
+      .map(([specialty, count]) => ({
+        specialty,
+        count,
+        label: getSpecialtyDisplayName(specialty, specialtiesData, lang),
+        path: buildPublicSpecialtyPath(specialty, specialtiesData),
+      }));
+  }, [lang, procedures, specialtiesData]);
+
+  const relatedTopics = useMemo(() => {
+    if (!topic) return [];
+
+    const currentTokens = new Set((topic.tokens || []).map((token) => normalize(token)));
+
+    return PUBLIC_TOPICS.filter((candidate) => candidate.slug !== topic.slug)
+      .map((candidate) => {
+        const overlap = candidate.tokens.filter((token) => currentTokens.has(normalize(token))).length;
+        const tokenMatches = [...tokenSet].filter((token) =>
+          candidate.tokens.some((candidateToken) => normalize(candidateToken).includes(token)),
+        ).length;
+
+        return {
+          topic: candidate,
+          score: overlap * 3 + tokenMatches,
+        };
+      })
+      .filter((item) => item.score > 0)
+      .sort((left, right) => right.score - left.score)
+      .slice(0, 3)
+      .map((item) => item.topic);
+  }, [tokenSet, topic]);
 
   usePageMeta({
     title: topic ? `${topic.label[lang]} | AnesIA` : 'Topic | AnesIA',
@@ -196,6 +239,79 @@ export default function PublicTopicPage() {
                 );
               })}
             </div>
+          </section>
+        )}
+
+        {(relatedSpecialties.length > 0 || relatedTopics.length > 0) && (
+          <section className="grid gap-4 lg:grid-cols-2">
+            {relatedSpecialties.length > 0 && (
+              <Card className="rounded-[1.5rem] border-border/70 bg-card/80 clinical-shadow">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-2">
+                    <Stethoscope className="h-4 w-4 text-accent" />
+                    <h2 className="text-base font-semibold text-foreground">
+                      {lang === 'fr'
+                        ? 'Specialites a explorer'
+                        : lang === 'pt'
+                          ? 'Especialidades para explorar'
+                          : 'Specialties to explore'}
+                    </h2>
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {relatedSpecialties.map((specialty) => (
+                      <Link
+                        key={specialty.path}
+                        to={specialty.path}
+                        className="rounded-xl border border-border/70 bg-background/80 p-3 transition-colors hover:border-accent/40"
+                      >
+                        <p className="text-sm font-semibold text-foreground">{specialty.label}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {specialty.count}{' '}
+                          {lang === 'fr'
+                            ? 'procedures associees'
+                            : lang === 'pt'
+                              ? 'procedimentos associados'
+                              : 'related procedures'}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {relatedTopics.length > 0 && (
+              <Card className="rounded-[1.5rem] border-border/70 bg-card/80 clinical-shadow">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-accent" />
+                    <h2 className="text-base font-semibold text-foreground">
+                      {lang === 'fr'
+                        ? 'Themes proches'
+                        : lang === 'pt'
+                          ? 'Temas proximos'
+                          : 'Related topics'}
+                    </h2>
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    {relatedTopics.map((candidate) => (
+                      <Link
+                        key={candidate.slug}
+                        to={`/topics/${candidate.slug}`}
+                        className="block rounded-xl border border-border/70 bg-background/80 p-3 transition-colors hover:border-accent/40"
+                      >
+                        <p className="text-sm font-semibold text-foreground">
+                          {candidate.label[lang]}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {candidate.summary[lang]}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </section>
         )}
 

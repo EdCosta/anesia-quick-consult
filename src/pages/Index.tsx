@@ -150,6 +150,72 @@ export default function Index() {
         icon: Calculator,
         action: () => navigate('/guidelines'),
       },
+      {
+        key: 'urgent-protocols',
+        title: lang === 'fr' ? 'Urgence' : lang === 'pt' ? 'Urgencia' : 'Emergency',
+        description:
+          lang === 'fr'
+            ? 'Ouvre les protocoles d urgence plutot qu une recherche large.'
+            : lang === 'pt'
+              ? 'Abre os protocolos de urgencia em vez de uma pesquisa larga.'
+              : 'Open emergency protocols instead of a broad search.',
+        icon: Activity,
+        action: () => {
+          trackEvent('guided_journey_open', { journey: 'emergency' });
+          navigate('/protocoles?category=emergency');
+        },
+      },
+      {
+        key: 'rapid-alr',
+        title: lang === 'fr' ? 'ALR rapide' : lang === 'pt' ? 'ALR rapida' : 'Rapid regional',
+        description:
+          lang === 'fr'
+            ? 'Envoie directement vers l ALR membre inferieur avec le PENG deja ouvert.'
+            : lang === 'pt'
+              ? 'Envia diretamente para ALR de membro inferior com o PENG ja aberto.'
+              : 'Jump straight to lower-limb regional anesthesia with PENG open.',
+        icon: Stethoscope,
+        action: () => {
+          trackEvent('guided_journey_open', { journey: 'rapid_alr' });
+          navigate('/alr?region=lower_limb&open=peng-block');
+        },
+      },
+      {
+        key: 'fragile-patient',
+        title:
+          lang === 'fr' ? 'Patient fragile' : lang === 'pt' ? 'Doente fragil' : 'Fragile patient',
+        description:
+          lang === 'fr'
+            ? 'Lance la consultation pre-anesthesique avec un preset patient fragile.'
+            : lang === 'pt'
+              ? 'Lanca a consulta pre-anestesica com preset de doente fragil.'
+              : 'Launch pre-anesthesia consult with a fragile-patient preset.',
+        icon: Stethoscope,
+        action: () => {
+          trackEvent('guided_journey_open', { journey: 'fragile_patient' });
+          navigate('/preanest?preset=fragile');
+        },
+      },
+      {
+        key: 'antibiotic-prophylaxis',
+        title:
+          lang === 'fr'
+            ? 'Antibioprophylaxie'
+            : lang === 'pt'
+              ? 'Antibioprofilaxia'
+              : 'Antibiotic prophylaxis',
+        description:
+          lang === 'fr'
+            ? 'Ouvre directement la recommandation d antibioprophylaxie.'
+            : lang === 'pt'
+              ? 'Abre diretamente a recomendacao de antibioprofilaxia.'
+              : 'Open the antibiotic prophylaxis recommendation directly.',
+        icon: Calculator,
+        action: () => {
+          trackEvent('guided_journey_open', { journey: 'antibiotic_prophylaxis' });
+          navigate('/guidelines?search=antibioprophylaxie&open=antibioprophylaxie');
+        },
+      },
     ],
     [lang, navigate, t],
   );

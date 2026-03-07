@@ -11,6 +11,7 @@ import {
   FileText,
   Globe,
   Eye,
+  Printer,
   Save,
   ChevronDown,
   ChevronRight,
@@ -86,6 +87,14 @@ function getLatestReferenceYear(procedure: Procedure | null) {
   );
   const latest = Math.max(0, ...years);
   return latest > 0 ? latest : null;
+}
+
+function getPrimaryReferenceSource(procedure: Procedure | null) {
+  if (!procedure) return null;
+
+  const references = Object.values(procedure.deep).flatMap((content) => content.references);
+  const sorted = [...references].sort((left, right) => (right.year || 0) - (left.year || 0));
+  return sorted[0]?.source || null;
 }
 
 function estimateReadingMinutes(procedure: Procedure, quick: ProcedureQuick | null | undefined) {
@@ -502,6 +511,7 @@ export default function ProcedurePage() {
     (sum, content) => sum + content.references.length,
     0,
   );
+  const primaryReferenceSource = getPrimaryReferenceSource(procedure);
   const quickChecklistCount = quick
     ? quick.preop.length + quick.intraop.length + quick.postop.length
     : 0;
@@ -519,6 +529,11 @@ export default function ProcedurePage() {
     setFavorites((prev) =>
       prev.includes(favoriteId) ? prev.filter((f) => f !== favoriteId) : [...prev, favoriteId],
     );
+  };
+
+  const handlePrintProcedure = () => {
+    trackEvent('procedure_print', { procedureId: procedure.id });
+    window.print();
   };
 
   // Checklist progress
@@ -592,6 +607,13 @@ export default function ProcedurePage() {
               >
                 <FileText className="h-5 w-5" />
               </button>
+              <button
+                onClick={handlePrintProcedure}
+                className="mt-1 p-1.5 text-muted-foreground hover:text-accent transition-colors"
+                title={lang === 'fr' ? 'Imprimer / PDF' : lang === 'pt' ? 'Imprimir / PDF' : 'Print / PDF'}
+              >
+                <Printer className="h-5 w-5" />
+              </button>
             </>
           )}
           <button onClick={toggleFav} className="mt-1 p-1.5">
@@ -602,7 +624,7 @@ export default function ProcedurePage() {
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
         <Card className="clinical-shadow">
           <CardContent className="p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -627,6 +649,16 @@ export default function ProcedurePage() {
               {lang === 'fr' ? 'References' : lang === 'pt' ? 'Referencias' : 'References'}
             </p>
             <p className="mt-1 text-lg font-bold text-foreground">{referenceCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="clinical-shadow">
+          <CardContent className="p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === 'fr' ? 'Source cle' : lang === 'pt' ? 'Fonte chave' : 'Primary source'}
+            </p>
+            <p className="mt-1 line-clamp-2 text-sm font-bold text-foreground">
+              {primaryReferenceSource || '—'}
+            </p>
           </CardContent>
         </Card>
         <Card className="clinical-shadow">

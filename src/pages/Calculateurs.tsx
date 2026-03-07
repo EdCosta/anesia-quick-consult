@@ -27,6 +27,7 @@ import StopBangScore from '@/components/anesia/scores/StopBangScore';
 import RCRIScore from '@/components/anesia/scores/RCRIScore';
 import ApfelScore from '@/components/anesia/scores/ApfelScore';
 import CapriniScore from '@/components/anesia/scores/CapriniScore';
+import { buildPathWithSource } from '@/lib/checkoutAttribution';
 
 const CALCULATORS = [
   { id: 'dose', icon: Pill, label: 'dose_calc_title', available: true },
@@ -161,7 +162,7 @@ export default function Calculateurs() {
           <button
             onClick={() => {
               setShowProModal(false);
-              navigate('/account');
+              navigate(buildPathWithSource('/account', 'calculators'));
             }}
             className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >

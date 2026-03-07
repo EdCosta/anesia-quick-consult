@@ -31,6 +31,7 @@ import { resolveEntitlementPlanForUser } from '@/hooks/useEntitlements';
 import { Badge } from '@/components/ui/badge';
 import { isSupportedLang } from '@/i18n';
 import type { HospitalProfile } from '@/lib/types';
+import { buildPathWithSource } from '@/lib/checkoutAttribution';
 
 const AIWidget = lazy(() => import('./AIWidget'));
 
@@ -376,7 +377,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             )}
             {/* Plan badge - links to /account */}
             {user && isPro && (
-              <Link to="/account">
+              <Link to={buildPathWithSource('/account', 'header_plan_badge')}>
                 <Badge variant="default" className="text-[10px] gap-0.5 cursor-pointer hover:opacity-80">
                   <Crown className="h-2.5 w-2.5" />
                   {t('plan_pro')}
@@ -404,7 +405,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     type="button"
                     onClick={() => {
                       if (option.value === 'pro' && !isPro && !loading) {
-                        navigate('/account');
+                        navigate(buildPathWithSource('/account', 'header_view_mode'));
                         return;
                       }
 

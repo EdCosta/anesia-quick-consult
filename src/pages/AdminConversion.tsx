@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CalendarRange, Filter, RefreshCw } from 'lucide-react';
+import { CalendarRange, Download, Filter, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +19,21 @@ type AnalyticsRow = {
 
 type StageKey = 'preview' | 'click' | 'checkout' | 'success';
 const ALL_FILTER = '__all__';
+const INTERNAL_SOURCES = new Set([
+  'account',
+  'pricing',
+  'guidelines',
+  'protocols',
+  'alr',
+  'pro_gate',
+  'pro_feature_page',
+  'public_procedure',
+  'public_specialty',
+  'public_topic',
+  'header_plan_badge',
+  'header_view_mode',
+  'calculators',
+]);
 
 function getMetaString(meta: Json | null, key: string) {
   if (!meta || typeof meta !== 'object' || Array.isArray(meta)) return null;
@@ -59,6 +74,73 @@ function sortByPreview<T extends { preview: number; click: number; success: numb
   return [...rows].sort((left, right) => right.preview - left.preview || right.click - left.click);
 }
 
+function getTrafficSegment(row: AnalyticsRow) {
+  const source = getMetaString(row.meta, 'source') || 'unknown';
+  const medium = getMetaString(row.meta, 'medium');
+  const campaign = getMetaString(row.meta, 'campaign');
+  const referrerHost = getMetaString(row.meta, 'referrer_host');
+  const currentHost = typeof window !== 'undefined' ? window.location.hostname : null;
+
+  if (INTERNAL_SOURCES.has(source)) return 'internal_navigation';
+  if (referrerHost && currentHost && referrerHost === currentHost) return 'internal_navigation';
+  if (source === 'direct' && !referrerHost && !campaign && !medium) return 'direct';
+  return 'external_acquisition';
+}
+
+function exportRowsAsCsv(rows: AnalyticsRow[]) {
+  if (typeof window === 'undefined') return;
+
+  const header = [
+    'created_at',
+    'event_name',
+    'stage',
+    'traffic_segment',
+    'session_id',
+    'path',
+    'language',
+    'surface',
+    'source',
+    'medium',
+    'campaign',
+    'landing_path',
+    'referrer_host',
+  ];
+
+  const csvRows = rows.map((row) => {
+    const values = [
+      row.created_at,
+      row.event_name,
+      getStage(row) || '',
+      getTrafficSegment(row),
+      row.session_id,
+      row.path,
+      row.language || '',
+      getMetaString(row.meta, 'surface') || '',
+      getMetaString(row.meta, 'source') || '',
+      getMetaString(row.meta, 'medium') || '',
+      getMetaString(row.meta, 'campaign') || '',
+      getMetaString(row.meta, 'landing_path') || '',
+      getMetaString(row.meta, 'referrer_host') || '',
+    ];
+
+    return values
+      .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+      .join(',');
+  });
+
+  const blob = new Blob([[header.join(','), ...csvRows].join('\n')], {
+    type: 'text/csv;charset=utf-8',
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `anesia-pro-conversion-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export default function AdminConversion() {
   const [periodDays, setPeriodDays] = useLocalStorage<number>('admin-conversion-period-days', 30);
   const [selectedSurface, setSelectedSurface] = useLocalStorage<string>(
@@ -71,6 +153,10 @@ export default function AdminConversion() {
   );
   const [selectedCampaign, setSelectedCampaign] = useLocalStorage<string>(
     'admin-conversion-campaign',
+    ALL_FILTER,
+  );
+  const [selectedSegment, setSelectedSegment] = useLocalStorage<string>(
+    'admin-conversion-segment',
     ALL_FILTER,
   );
 
@@ -100,6 +186,7 @@ export default function AdminConversion() {
       surfaces: getValues((row) => getMetaString(row.meta, 'surface') || row.path || 'unknown'),
       sources: getValues((row) => getMetaString(row.meta, 'source') || 'unknown'),
       campaigns: getValues((row) => getMetaString(row.meta, 'campaign') || 'none'),
+      segments: getValues((row) => getTrafficSegment(row)),
     };
   }, [analyticsQuery.data]);
 
@@ -110,13 +197,15 @@ export default function AdminConversion() {
       const surface = getMetaString(row.meta, 'surface') || row.path || 'unknown';
       const source = getMetaString(row.meta, 'source') || 'unknown';
       const campaign = getMetaString(row.meta, 'campaign') || 'none';
+      const segment = getTrafficSegment(row);
 
       if (selectedSurface !== ALL_FILTER && surface !== selectedSurface) return false;
       if (selectedSource !== ALL_FILTER && source !== selectedSource) return false;
       if (selectedCampaign !== ALL_FILTER && campaign !== selectedCampaign) return false;
+      if (selectedSegment !== ALL_FILTER && segment !== selectedSegment) return false;
       return true;
     });
-  }, [analyticsQuery.data, selectedCampaign, selectedSource, selectedSurface]);
+  }, [analyticsQuery.data, selectedCampaign, selectedSegment, selectedSource, selectedSurface]);
 
   useEffect(() => {
     if (selectedSurface !== ALL_FILTER && !filterOptions.surfaces.includes(selectedSurface)) {
@@ -128,14 +217,20 @@ export default function AdminConversion() {
     if (selectedCampaign !== ALL_FILTER && !filterOptions.campaigns.includes(selectedCampaign)) {
       setSelectedCampaign(ALL_FILTER);
     }
+    if (selectedSegment !== ALL_FILTER && !filterOptions.segments.includes(selectedSegment)) {
+      setSelectedSegment(ALL_FILTER);
+    }
   }, [
     filterOptions.campaigns,
+    filterOptions.segments,
     filterOptions.sources,
     filterOptions.surfaces,
     selectedCampaign,
+    selectedSegment,
     selectedSource,
     selectedSurface,
     setSelectedCampaign,
+    setSelectedSegment,
     setSelectedSource,
     setSelectedSurface,
   ]);
@@ -168,6 +263,10 @@ export default function AdminConversion() {
       string,
       { preview: Set<string>; click: Set<string>; checkout: Set<string>; success: Set<string> }
     >();
+    const bySegment = new Map<
+      string,
+      { preview: Set<string>; click: Set<string>; checkout: Set<string>; success: Set<string> }
+    >();
 
     for (const row of rows) {
       const stage = getStage(row);
@@ -178,6 +277,7 @@ export default function AdminConversion() {
       const day = row.created_at.slice(0, 10);
       const source = getMetaString(row.meta, 'source') || 'unknown';
       const campaign = getMetaString(row.meta, 'campaign') || 'none';
+      const segment = getTrafficSegment(row);
 
       stageSessions[stage].add(row.session_id);
 
@@ -230,6 +330,16 @@ export default function AdminConversion() {
         };
       campaignBucket[stage].add(row.session_id);
       byCampaign.set(campaign, campaignBucket);
+
+      const segmentBucket =
+        bySegment.get(segment) || {
+          preview: new Set<string>(),
+          click: new Set<string>(),
+          checkout: new Set<string>(),
+          success: new Set<string>(),
+        };
+      segmentBucket[stage].add(row.session_id);
+      bySegment.set(segment, segmentBucket);
     }
 
     return {
@@ -282,13 +392,23 @@ export default function AdminConversion() {
           success: bucket.success.size,
         })),
       ),
+      segments: sortByPreview(
+        Array.from(bySegment.entries()).map(([segment, bucket]) => ({
+          segment,
+          preview: bucket.preview.size,
+          click: bucket.click.size,
+          checkout: bucket.checkout.size,
+          success: bucket.success.size,
+        })),
+      ),
     };
   }, [filteredRows]);
 
   const hasActiveFilters =
     selectedSurface !== ALL_FILTER ||
     selectedSource !== ALL_FILTER ||
-    selectedCampaign !== ALL_FILTER;
+    selectedCampaign !== ALL_FILTER ||
+    selectedSegment !== ALL_FILTER;
 
   return (
     <div className="space-y-6">
@@ -315,6 +435,15 @@ export default function AdminConversion() {
           <Button variant="outline" size="sm" onClick={() => void analyticsQuery.refetch()}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportRowsAsCsv(filteredRows)}
+            disabled={filteredRows.length === 0}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
           </Button>
         </div>
       </div>
@@ -356,6 +485,18 @@ export default function AdminConversion() {
             </option>
           ))}
         </select>
+        <select
+          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+          value={selectedSegment}
+          onChange={(event) => setSelectedSegment(event.target.value)}
+        >
+          <option value={ALL_FILTER}>All traffic</option>
+          {filterOptions.segments.map((segment) => (
+            <option key={segment} value={segment}>
+              {segment}
+            </option>
+          ))}
+        </select>
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -364,6 +505,7 @@ export default function AdminConversion() {
               setSelectedSurface(ALL_FILTER);
               setSelectedSource(ALL_FILTER);
               setSelectedCampaign(ALL_FILTER);
+              setSelectedSegment(ALL_FILTER);
             }}
           >
             Clear filters
@@ -466,6 +608,30 @@ export default function AdminConversion() {
               <div key={row.language} className="rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-foreground">{row.language}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {row.success} success / {row.preview} preview
+                  </p>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  CTR {asPercent(row.click, row.preview)} | Checkout {asPercent(row.checkout, row.click)} | Success {asPercent(row.success, row.checkout)}
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="clinical-shadow">
+          <CardHeader>
+            <CardTitle className="text-base">Conversion by traffic segment</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {!analyticsQuery.isLoading && funnel.segments.length === 0 && (
+              <p className="text-sm text-muted-foreground">No traffic segment breakdown yet.</p>
+            )}
+            {funnel.segments.map((row) => (
+              <div key={row.segment} className="rounded-lg border border-border p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-foreground">{row.segment}</p>
                   <p className="text-sm text-muted-foreground">
                     {row.success} success / {row.preview} preview
                   </p>

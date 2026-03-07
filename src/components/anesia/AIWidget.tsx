@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAIProcedureContext } from '@/contexts/AIProcedureContext';
 import { useLang } from '@/contexts/LanguageContext';
+import { useHospitalProfile } from '@/hooks/useHospitalProfile';
 import { useAIThreads } from '@/hooks/useAIThreads';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ type AIStoragePayload = {
 };
 
 type AITab = 'block' | 'history';
+type PromptTemplate = { label: string; prompt: string };
 
 function readThreadStorageValue() {
   if (typeof window === 'undefined') {
@@ -128,9 +130,115 @@ function mergeThreadsWithRemote(currentThreads: Thread[], remoteThreads: Thread[
   return sortAIThreads([...mergedRemoteThreads, ...localOnlyThreads]);
 }
 
+function buildPromptTemplates(
+  lang: 'fr' | 'pt' | 'en',
+  procedureTitle?: string,
+  hasHospitalProfile?: boolean,
+): PromptTemplate[] {
+  const subject =
+    procedureTitle ||
+    (lang === 'fr'
+      ? 'cette intervention'
+      : lang === 'pt'
+        ? 'esta intervencao'
+        : 'this intervention');
+
+  if (lang === 'fr') {
+    return [
+      {
+        label: 'Plan bloc',
+        prompt: `Donne un plan pre/intra/post pour ${subject}. Structure la reponse avec informations manquantes, red flags, checklist et sources.`,
+      },
+      {
+        label: 'Patient fragile',
+        prompt: `Analyse ${subject} chez un patient fragile/polycomorbide. Liste ce qu il faut verifier avant bloc, les risques, et les adaptations per/intra/post.`,
+      },
+      {
+        label: 'Voie aerienne',
+        prompt: `Pour ${subject}, fais une revue rapide du risque voie aerienne: signaux d alerte, ce qu il faut confirmer, plan A/B/C et points d escalation.`,
+      },
+      {
+        label: 'NVPO',
+        prompt: `Pour ${subject}, propose une strategie NVPO: facteurs de risque, prophylaxie, rescue post-op et checklist courte.`,
+      },
+      {
+        label: 'Check reveil',
+        prompt: `Pour ${subject}, prepare une checklist de reveil et post-op immediate: analgesie, NVPO, surveillance et red flags.`,
+      },
+      {
+        label: hasHospitalProfile ? 'Delta hopital' : 'Verification',
+        prompt: hasHospitalProfile
+          ? `Pour ${subject}, compare le contenu standard au contexte hopital actif. Mets en avant ce qui change vraiment, ce qu il faut verifier, et ce qui manque.`
+          : `Pour ${subject}, verifie la coherence clinique de la conduite proposee, ce qu il manque pour conclure, et les sources disponibles.`,
+      },
+    ];
+  }
+
+  if (lang === 'pt') {
+    return [
+      {
+        label: 'Plano bloco',
+        prompt: `Da-me um plano pre/intra/pos para ${subject}. Estrutura com informacao em falta, red flags, checklist e fontes.`,
+      },
+      {
+        label: 'Doente fragil',
+        prompt: `Analisa ${subject} num doente fragil/policomorbido. Lista o que verificar antes do bloco, riscos e adaptacoes pre/intra/pos.`,
+      },
+      {
+        label: 'Via aerea',
+        prompt: `Para ${subject}, faz uma revisao rapida do risco de via aerea: sinais de alerta, o que falta confirmar, plano A/B/C e criterios de escalacao.`,
+      },
+      {
+        label: 'PONV',
+        prompt: `Para ${subject}, propoe uma estrategia PONV: fatores de risco, profilaxia, rescue post-op e checklist curta.`,
+      },
+      {
+        label: 'Check recobro',
+        prompt: `Para ${subject}, prepara uma checklist de recobro e pos-operatorio imediato: analgesia, PONV, vigilancia e red flags.`,
+      },
+      {
+        label: hasHospitalProfile ? 'Delta hospital' : 'Verificacao',
+        prompt: hasHospitalProfile
+          ? `Para ${subject}, compara o conteudo standard com o contexto hospitalar ativo. Destaca o que muda mesmo, o que deve ser confirmado e o que falta.`
+          : `Para ${subject}, verifica a coerencia clinica da conduta proposta, o que falta para concluir e as fontes disponiveis.`,
+      },
+    ];
+  }
+
+  return [
+    {
+      label: 'OR plan',
+      prompt: `Give me a pre/intra/post plan for ${subject}. Structure it with missing information, red flags, checklist, and sources.`,
+    },
+    {
+      label: 'Fragile patient',
+      prompt: `Assess ${subject} in a frail/high-comorbidity patient. List what must be checked before the OR, key risks, and pre/intra/post adaptations.`,
+    },
+    {
+      label: 'Airway',
+      prompt: `For ${subject}, do a rapid airway-risk review: warning signs, what still needs confirmation, plan A/B/C, and escalation points.`,
+    },
+    {
+      label: 'PONV',
+      prompt: `For ${subject}, propose a PONV strategy: risk factors, prophylaxis, postop rescue, and a short checklist.`,
+    },
+    {
+      label: 'PACU check',
+      prompt: `For ${subject}, prepare a PACU and immediate postop checklist: analgesia, PONV, monitoring, and red flags.`,
+    },
+    {
+      label: hasHospitalProfile ? 'Hospital delta' : 'Verify',
+      prompt: hasHospitalProfile
+        ? `For ${subject}, compare the standard content with the active hospital context. Highlight what materially changes, what needs confirmation, and what is missing.`
+        : `For ${subject}, verify the proposed clinical approach, what information is still missing, and what sources are available.`,
+    },
+  ];
+}
+
 export default function AIWidget() {
   const { lang } = useLang();
   const { procedureContext } = useAIProcedureContext();
+  const hospitalProfile = useHospitalProfile();
   const location = useLocation();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -149,12 +257,15 @@ export default function AIWidget() {
     createRemoteThreadFromMessages,
     refetch: refetchRemoteThreads,
   } = useAIThreads();
-  const quickPrompts =
-    lang === 'fr'
-      ? ['Plan pre/intra/post', 'Checklist', 'Red flags', 'NVPO', 'TEV', 'Voie aerienne', 'ALR']
-      : lang === 'pt'
-        ? ['Plano pre/intra/pos', 'Checklist', 'Red flags', 'PONV', 'TEV', 'Via aerea', 'ALR']
-        : ['Pre/intra/post plan', 'Checklist', 'Red flags', 'PONV', 'VTE', 'Airway', 'RA'];
+  const quickPrompts = useMemo(
+    () =>
+      buildPromptTemplates(
+        lang,
+        procedureContext?.procedureTitle,
+        !!hospitalProfile?.id,
+      ),
+    [hospitalProfile?.id, lang, procedureContext?.procedureTitle],
+  );
   const copy =
     lang === 'fr'
       ? {

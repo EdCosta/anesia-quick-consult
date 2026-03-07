@@ -185,6 +185,8 @@ export default function AdminDashboard() {
     const since24h = Date.now() - 24 * 60 * 60 * 1000;
     const topPaths = new Map<string, number>();
     const topSearches = new Map<string, { count: number; results: number }>();
+    const topZeroResultSearches = new Map<string, number>();
+    const topLowResultSearches = new Map<string, { count: number; bestResults: number }>();
     const topProcedures = new Map<string, number>();
     const upgradeClicks = new Map<string, number>();
     const languageCounts = new Map<string, number>();
@@ -195,6 +197,7 @@ export default function AdminDashboard() {
 
     let eventsLast24h = 0;
     let searchCount = 0;
+    let zeroResultSearchCount = 0;
     let procedureViews = 0;
     let upgradeCount = 0;
 
@@ -239,6 +242,19 @@ export default function AdminDashboard() {
             count: current.count + 1,
             results: Math.max(current.results, results),
           });
+          if (results === 0) {
+            zeroResultSearchCount += 1;
+            topZeroResultSearches.set(query, (topZeroResultSearches.get(query) || 0) + 1);
+          } else if (results <= 2) {
+            const currentLowResult = topLowResultSearches.get(query) || {
+              count: 0,
+              bestResults: results,
+            };
+            topLowResultSearches.set(query, {
+              count: currentLowResult.count + 1,
+              bestResults: Math.max(currentLowResult.bestResults, results),
+            });
+          }
         }
         currentFlags.searched = true;
       }
@@ -401,10 +417,17 @@ export default function AdminDashboard() {
       avgWeek2Retention,
       cohortRows,
       searchCount,
+      zeroResultSearchCount,
       procedureViews,
       upgradeCount,
       topPaths: Array.from(topPaths.entries()).sort((a, b) => b[1] - a[1]).slice(0, 6),
       topSearches: Array.from(topSearches.entries())
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 6),
+      topZeroResultSearches: Array.from(topZeroResultSearches.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6),
+      topLowResultSearches: Array.from(topLowResultSearches.entries())
         .sort((a, b) => b[1].count - a[1].count)
         .slice(0, 6),
       topProcedures: Array.from(topProcedures.entries())
@@ -531,7 +554,7 @@ export default function AdminDashboard() {
           )}
           {!analyticsQuery.isLoading && !analyticsQuery.error && (
             <>
-              <div className="grid gap-3 md:grid-cols-4">
+              <div className="grid gap-3 md:grid-cols-5">
                 <div className="rounded-lg border border-border p-4">
                   <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
                     <Activity className="h-4 w-4" />
@@ -554,6 +577,19 @@ export default function AdminDashboard() {
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {formatCompactNumber(overview.uniqueSessions)} unique sessions
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Search gaps
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {formatCompactNumber(overview.zeroResultSearchCount)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {overview.searchCount > 0
+                      ? `${Math.round((overview.zeroResultSearchCount / overview.searchCount) * 100)}% zero-result rate`
+                      : 'No search data yet'}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-4">
@@ -796,6 +832,47 @@ export default function AdminDashboard() {
                             <p className="truncate text-foreground">{query}</p>
                             <p className="text-xs text-muted-foreground">
                               max results: {stats.results}
+                            </p>
+                          </div>
+                          <span className="text-muted-foreground">{stats.count}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border p-4">
+                  <h3 className="text-sm font-semibold text-foreground">Zero-result searches</h3>
+                  <div className="mt-3 space-y-2">
+                    {overview.topZeroResultSearches.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        No zero-result searches in the current window.
+                      </p>
+                    ) : (
+                      overview.topZeroResultSearches.map(([query, count]) => (
+                        <div key={query} className="flex items-center justify-between gap-3 text-sm">
+                          <span className="truncate text-foreground">{query}</span>
+                          <span className="text-muted-foreground">{count}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border p-4">
+                  <h3 className="text-sm font-semibold text-foreground">Low-result searches</h3>
+                  <div className="mt-3 space-y-2">
+                    {overview.topLowResultSearches.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        No low-result search patterns yet.
+                      </p>
+                    ) : (
+                      overview.topLowResultSearches.map(([query, stats]) => (
+                        <div key={query} className="flex items-center justify-between gap-3 text-sm">
+                          <div className="min-w-0">
+                            <p className="truncate text-foreground">{query}</p>
+                            <p className="text-xs text-muted-foreground">
+                              best results: {stats.bestResults}
                             </p>
                           </div>
                           <span className="text-muted-foreground">{stats.count}</span>

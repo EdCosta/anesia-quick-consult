@@ -41,7 +41,7 @@ interface AIChatProps {
   procedureContextOverride?: AIProcedureContextValue | null;
   setMessages: Dispatch<SetStateAction<Message[]>>;
   threadId?: string | null;
-  quickPrompts?: string[];
+  quickPrompts?: Array<{ label: string; prompt: string }>;
 }
 
 export default function AIChat({
@@ -399,14 +399,14 @@ export default function AIChat({
         <div className="flex flex-wrap gap-2">
           {quickPrompts.map((prompt) => (
             <Button
-              key={prompt}
+              key={prompt.label}
               type="button"
               variant="outline"
               size="sm"
               className="h-8 rounded-full px-3 text-xs"
-              onClick={() => setDraft(prompt)}
+              onClick={() => setDraft(prompt.prompt)}
             >
-              {prompt}
+              {prompt.label}
             </Button>
           ))}
         </div>

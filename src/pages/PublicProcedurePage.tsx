@@ -23,9 +23,17 @@ import { buildPublicSpecialtyPath, getSpecialtyDisplayName } from '@/lib/special
 import { buildPublicProcedurePath } from '@/lib/procedureSeo';
 import { trackEvent } from '@/lib/analytics';
 import { buildCheckoutPath } from '@/lib/checkoutAttribution';
+import type { EvidenceGrade } from '@/lib/types';
 
 function estimateReadingMinutesFromQuick(itemCount: number) {
   return Math.max(1, Math.round(itemCount / 5));
+}
+
+function getBestEvidenceGrade(values: Array<EvidenceGrade | undefined>) {
+  if (values.includes('A')) return 'A';
+  if (values.includes('B')) return 'B';
+  if (values.includes('C')) return 'C';
+  return null;
 }
 
 export default function PublicProcedurePage() {
@@ -122,6 +130,15 @@ export default function PublicProcedurePage() {
     if (!procedure) return [];
     return getRelatedALRBlocks(procedure, title, alrBlocks, lang, resolveStr, resolve);
   }, [alrBlocks, lang, procedure, resolve, resolveStr, title]);
+  const strongestEvidenceGrade = useMemo(
+    () =>
+      getBestEvidenceGrade([
+        ...relatedGuidelines.map((item) => item.evidence_grade),
+        ...relatedProtocols.map((item) => item.evidence_grade),
+      ]),
+    [relatedGuidelines, relatedProtocols],
+  );
+  const linkedSourceCount = relatedGuidelines.length + relatedProtocols.length;
 
   if (loading && !procedure) {
     return (
@@ -180,7 +197,7 @@ export default function PublicProcedurePage() {
           <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base">
             {description}
           </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 {lang === 'fr' ? 'Checklist' : lang === 'pt' ? 'Checklist' : 'Checklist'}
@@ -198,12 +215,46 @@ export default function PublicProcedurePage() {
             </div>
             <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                {lang === 'fr' ? 'Evidence' : lang === 'pt' ? 'Evidencia' : 'Evidence'}
+              </p>
+              <p className="mt-1 text-sm font-semibold text-foreground">
+                {strongestEvidenceGrade ? `E${strongestEvidenceGrade}` : '—'}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {linkedSourceCount > 0
+                  ? lang === 'fr'
+                    ? `${linkedSourceCount} source(s) reliee(s)`
+                    : lang === 'pt'
+                      ? `${linkedSourceCount} fonte(s) relacionadas`
+                      : `${linkedSourceCount} linked source(s)`
+                  : lang === 'fr'
+                    ? 'Aucune source structuree'
+                    : lang === 'pt'
+                      ? 'Sem fonte estruturada'
+                      : 'No structured source'}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 {lang === 'fr' ? 'Mise a jour' : lang === 'pt' ? 'Atualizacao' : 'Updated'}
               </p>
               <p className="mt-1 text-sm font-semibold text-foreground">
                 {procedure.updated_at ? new Date(procedure.updated_at).toLocaleDateString(lang) : '—'}
               </p>
             </div>
+          </div>
+          <div className="mt-4 rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm text-muted-foreground">
+            {linkedSourceCount > 0
+              ? lang === 'fr'
+                ? 'Cette page publique est reliee a des guidelines et protocoles pertinents. Utilisez-les pour verifier le contexte avant de passer a la version app.'
+                : lang === 'pt'
+                  ? 'Esta pagina publica esta ligada a guidelines e protocolos relevantes. Usa-os para verificar o contexto antes de passar para a versao app.'
+                  : 'This public page is linked to relevant guidelines and protocols. Use them to verify context before moving into the app version.'
+              : lang === 'fr'
+                ? 'Cette page reste un apercu public. Utilisez la version app pour un contexte plus complet.'
+                : lang === 'pt'
+                  ? 'Esta pagina continua a ser um preview publico. Usa a versao app para contexto mais completo.'
+                  : 'This page remains a public preview. Use the app version for fuller context.'}
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             <ShareButton title={title} />

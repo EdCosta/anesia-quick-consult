@@ -68,6 +68,7 @@ import { trackEvent } from '@/lib/analytics';
 import type { PatientWeights } from '@/lib/weightScalars';
 import type {
   ALRBlock,
+  EvidenceGrade,
   Guideline,
   HospitalProcedureContext,
   Protocole,
@@ -95,6 +96,44 @@ function getPrimaryReferenceSource(procedure: Procedure | null) {
   const references = Object.values(procedure.deep).flatMap((content) => content.references);
   const sorted = [...references].sort((left, right) => (right.year || 0) - (left.year || 0));
   return sorted[0]?.source || null;
+}
+
+function getBestEvidenceGrade(values: Array<EvidenceGrade | undefined>): EvidenceGrade | null {
+  if (values.includes('A')) return 'A';
+  if (values.includes('B')) return 'B';
+  if (values.includes('C')) return 'C';
+  return null;
+}
+
+function getEvidenceBadgeClass(grade: EvidenceGrade | null) {
+  if (grade === 'A') {
+    return 'border-emerald-300/70 bg-emerald-50 text-emerald-700';
+  }
+  if (grade === 'B') {
+    return 'border-amber-300/70 bg-amber-50 text-amber-700';
+  }
+  if (grade === 'C') {
+    return 'border-rose-300/70 bg-rose-50 text-rose-700';
+  }
+  return 'border-border bg-background text-muted-foreground';
+}
+
+function getLatestClinicalReviewDate(
+  procedure: Procedure,
+  recommendations: Guideline[],
+  relatedProtocols: Protocole[],
+) {
+  const values = [
+    procedure.updated_at,
+    ...recommendations.flatMap((item) => [item.review_at, item.published_at]),
+    ...relatedProtocols.flatMap((item) => [item.review_at, item.published_at]),
+  ]
+    .filter((value): value is string => typeof value === 'string' && value.length > 0)
+    .map((value) => new Date(value))
+    .filter((date) => !Number.isNaN(date.getTime()))
+    .sort((left, right) => right.getTime() - left.getTime());
+
+  return values[0] || null;
 }
 
 function estimateReadingMinutes(procedure: Procedure, quick: ProcedureQuick | null | undefined) {
@@ -503,6 +542,7 @@ export default function ProcedurePage() {
     deep = deepTranslation.translatedContent;
   }
 
+  const standardQuick = quick;
   quick = applyHospitalFormulary(quick);
   const latestReferenceYear = getLatestReferenceYear(procedure);
   const estimatedReadingMinutes = estimateReadingMinutes(procedure, quick);
@@ -522,6 +562,47 @@ export default function ProcedurePage() {
   const hospitalContextSummary = resolveLocalizedHospitalSummary(hospitalProcedureContext?.summary, lang);
   const hospitalContextSourcePages = formatHospitalSourcePages(hospitalProcedureContext?.source_pages);
   const showStPierreBadge = isStPierreProcedure(procedure.id, hospitalProfile, isHospitalView);
+  const strongestEvidenceGrade = getBestEvidenceGrade([
+    ...recommendations.map((item) => item.evidence_grade),
+    ...relatedProtocols.map((item) => item.evidence_grade),
+  ]);
+  const latestClinicalReviewDate = getLatestClinicalReviewDate(
+    procedure,
+    recommendations,
+    relatedProtocols,
+  );
+  const latestClinicalReviewLabel = latestClinicalReviewDate
+    ? latestClinicalReviewDate.toLocaleDateString(lang, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : null;
+  const hiddenHospitalDrugRefs =
+    isHospitalView && standardQuick && quick
+      ? standardQuick.drugs.filter(
+          (drugRef) =>
+            !quick.drugs.some(
+              (activeDrugRef) =>
+                activeDrugRef.drug_id === drugRef.drug_id &&
+                activeDrugRef.indication_tag === drugRef.indication_tag,
+            ),
+        )
+      : [];
+  const hiddenHospitalDrugNames = hiddenHospitalDrugRefs
+    .map((drugRef) => getDrug(drugRef.drug_id))
+    .filter((drug): drug is NonNullable<typeof drug> => !!drug)
+    .map((drug) => resolveStr(drug.name))
+    .filter((value, index, current) => current.indexOf(value) === index)
+    .slice(0, 4);
+  const linkedHospitalProcedures = (hospitalProcedureContext?.linked_procedure_ids || [])
+    .map((procedureId) => getProcedure(procedureId))
+    .filter((item): item is Procedure => !!item);
+  const hospitalDeltaCount =
+    hospitalContextSummary.length +
+    hiddenHospitalDrugRefs.length +
+    (hospitalProcedureContext?.linked_procedure_ids?.length || 0);
+  const trustSourceCount = recommendations.length + relatedProtocols.length;
 
   const toggleFav = () => {
     if (!favoriteId) return;
@@ -654,20 +735,41 @@ export default function ProcedurePage() {
         <Card className="clinical-shadow">
           <CardContent className="p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              {lang === 'fr' ? 'Source cle' : lang === 'pt' ? 'Fonte chave' : 'Primary source'}
+              {lang === 'fr' ? 'Evidence' : lang === 'pt' ? 'Evidencia' : 'Evidence'}
             </p>
-            <p className="mt-1 line-clamp-2 text-sm font-bold text-foreground">
-              {primaryReferenceSource || '—'}
+            <div className="mt-2">
+              <Badge variant="outline" className={getEvidenceBadgeClass(strongestEvidenceGrade)}>
+                {strongestEvidenceGrade
+                  ? `E${strongestEvidenceGrade}`
+                  : lang === 'fr'
+                    ? 'Aucune'
+                    : lang === 'pt'
+                      ? 'Sem grade'
+                      : 'No grade'}
+              </Badge>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {trustSourceCount > 0
+                ? lang === 'fr'
+                  ? `${trustSourceCount} source(s) reliee(s)`
+                  : lang === 'pt'
+                    ? `${trustSourceCount} fonte(s) relacionadas`
+                    : `${trustSourceCount} linked source(s)`
+                : lang === 'fr'
+                  ? 'Pas encore de source structuree'
+                  : lang === 'pt'
+                    ? 'Sem fonte estruturada ainda'
+                    : 'No structured source yet'}
             </p>
           </CardContent>
         </Card>
         <Card className="clinical-shadow">
           <CardContent className="p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              {lang === 'fr' ? 'Mise a jour' : lang === 'pt' ? 'Atualizacao' : 'Updated'}
+              {lang === 'fr' ? 'Clinical review' : lang === 'pt' ? 'Revisao clinica' : 'Clinical review'}
             </p>
             <p className="mt-1 text-lg font-bold text-foreground">
-              {updatedAtLabel ?? '—'}
+              {latestClinicalReviewLabel ?? updatedAtLabel ?? '—'}
             </p>
             {latestReferenceYear && (
               <p className="mt-1 text-xs text-muted-foreground">
@@ -681,6 +783,78 @@ export default function ProcedurePage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="clinical-shadow">
+        <CardContent className="grid gap-4 p-4 md:grid-cols-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === 'fr' ? 'Primary source' : lang === 'pt' ? 'Fonte chave' : 'Primary source'}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
+              {primaryReferenceSource || '—'}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {updatedAtLabel
+                ? lang === 'fr'
+                  ? `Intervention mise a jour ${updatedAtLabel}`
+                  : lang === 'pt'
+                    ? `Intervencao atualizada em ${updatedAtLabel}`
+                    : `Intervention updated ${updatedAtLabel}`
+                : lang === 'fr'
+                  ? 'Pas de date de mise a jour structuree'
+                  : lang === 'pt'
+                    ? 'Sem data estruturada de atualizacao'
+                    : 'No structured update date yet'}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === 'fr' ? 'Trust layer' : lang === 'pt' ? 'Camada de confianca' : 'Trust layer'}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
+              {lang === 'fr'
+                ? `${recommendations.length} guidelines, ${relatedProtocols.length} protocoles`
+                : lang === 'pt'
+                  ? `${recommendations.length} guidelines, ${relatedProtocols.length} protocolos`
+                  : `${recommendations.length} guidelines, ${relatedProtocols.length} protocols`}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {lang === 'fr'
+                ? 'Relies a cette intervention pour le contexte et la verification.'
+                : lang === 'pt'
+                  ? 'Ligados a esta intervencao para contexto e verificacao.'
+                  : 'Linked to this intervention for context and verification.'}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === 'fr' ? 'Hospital delta' : lang === 'pt' ? 'Delta hospitalar' : 'Hospital delta'}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
+              {isHospitalView
+                ? lang === 'fr'
+                  ? `${hospitalDeltaCount} adaptation(s) locale(s)`
+                  : lang === 'pt'
+                    ? `${hospitalDeltaCount} adaptacao(oes) local(is)`
+                    : `${hospitalDeltaCount} local adaptation(s)`
+                : lang === 'fr'
+                  ? 'Standard content'
+                  : lang === 'pt'
+                    ? 'Conteudo standard'
+                    : 'Standard content'}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {isHospitalView && hiddenHospitalDrugNames.length > 0
+                ? hiddenHospitalDrugNames.join(', ')
+                : lang === 'fr'
+                  ? 'Aucune difference locale marquee sur le formulary.'
+                  : lang === 'pt'
+                    ? 'Sem diferenca local marcada no formulary.'
+                    : 'No marked local formulary delta.'}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Translation / FR-only banner */}
       {hasFallbackContent && !isAutoTranslated && !isTranslating && (
@@ -717,6 +891,128 @@ export default function ProcedurePage() {
             <div className="mt-3">
               <BulletList items={hospitalContextSummary} />
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {isHospitalView && (hospitalContextSummary.length > 0 || hiddenHospitalDrugRefs.length > 0) && (
+        <Card className="clinical-shadow">
+          <CardContent className="space-y-4 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold text-foreground">
+                  {lang === 'fr'
+                    ? 'Standard vs mode hopital'
+                    : lang === 'pt'
+                      ? 'Standard vs modo hospital'
+                      : 'Standard vs hospital mode'}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {lang === 'fr'
+                    ? 'Ce qui change vraiment quand le mode hopital est actif.'
+                    : lang === 'pt'
+                      ? 'O que muda realmente quando o modo hospital esta ativo.'
+                      : 'What materially changes when hospital mode is active.'}
+                </p>
+              </div>
+              <Badge variant="outline">{hospitalDeltaCount}</Badge>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border border-border/70 bg-background/70 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {lang === 'fr' ? 'Standard baseline' : lang === 'pt' ? 'Baseline standard' : 'Standard baseline'}
+                </p>
+                <ul className="mt-2 space-y-1 text-sm text-foreground">
+                  <li>
+                    {lang === 'fr'
+                      ? `${standardQuick?.drugs.length || 0} medicament(s) lies a l intervention`
+                      : lang === 'pt'
+                        ? `${standardQuick?.drugs.length || 0} farmaco(s) ligados a intervencao`
+                        : `${standardQuick?.drugs.length || 0} intervention-linked drugs`}
+                  </li>
+                  <li>
+                    {lang === 'fr'
+                      ? `${standardQuick?.preop.length || 0} items pre-op`
+                      : lang === 'pt'
+                        ? `${standardQuick?.preop.length || 0} itens pre-op`
+                        : `${standardQuick?.preop.length || 0} pre-op items`}
+                  </li>
+                  <li>
+                    {lang === 'fr'
+                      ? `${standardQuick?.intraop.length || 0} items per-op`
+                      : lang === 'pt'
+                        ? `${standardQuick?.intraop.length || 0} itens intra-op`
+                        : `${standardQuick?.intraop.length || 0} intra-op items`}
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                  {lang === 'fr' ? 'Local delta' : lang === 'pt' ? 'Delta local' : 'Local delta'}
+                </p>
+                <ul className="mt-2 space-y-1 text-sm text-foreground">
+                  <li>
+                    {lang === 'fr'
+                      ? `${hospitalContextSummary.length} adaptation(s) contextuelle(s)`
+                      : lang === 'pt'
+                        ? `${hospitalContextSummary.length} adaptacao(oes) contextuais`
+                        : `${hospitalContextSummary.length} contextual adaptation(s)`}
+                  </li>
+                  <li>
+                    {lang === 'fr'
+                      ? `${hiddenHospitalDrugRefs.length} medicament(s) filtres par le formulary`
+                      : lang === 'pt'
+                        ? `${hiddenHospitalDrugRefs.length} farmaco(s) filtrados pelo formulary`
+                        : `${hiddenHospitalDrugRefs.length} drug(s) filtered by formulary`}
+                  </li>
+                  <li>
+                    {lang === 'fr'
+                      ? `${linkedHospitalProcedures.length} intervention(s) associee(s)`
+                      : lang === 'pt'
+                        ? `${linkedHospitalProcedures.length} intervencao(oes) associada(s)`
+                        : `${linkedHospitalProcedures.length} linked intervention(s)`}
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {hiddenHospitalDrugNames.length > 0 && (
+              <div className="rounded-xl border border-amber-300/50 bg-amber-50/70 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                  {lang === 'fr'
+                    ? 'Filtered by local formulary'
+                    : lang === 'pt'
+                      ? 'Filtrado pelo formulary local'
+                      : 'Filtered by local formulary'}
+                </p>
+                <p className="mt-2 text-sm text-foreground">{hiddenHospitalDrugNames.join(', ')}</p>
+              </div>
+            )}
+
+            {linkedHospitalProcedures.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {lang === 'fr'
+                    ? 'Linked local interventions'
+                    : lang === 'pt'
+                      ? 'Intervencoes locais associadas'
+                      : 'Linked local interventions'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {linkedHospitalProcedures.slice(0, 4).map((linkedProcedure) => (
+                    <Link
+                      key={linkedProcedure.id}
+                      to={`/p/${linkedProcedure.id}`}
+                      className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                    >
+                      {resolveStr(linkedProcedure.titles)}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

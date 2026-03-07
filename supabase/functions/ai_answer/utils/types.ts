@@ -13,6 +13,7 @@ export type AIAnswerRequest = {
   language: SupportedLanguage;
   procedureId?: string;
   threadId?: string;
+  responseMode?: 'checklist' | 'plan' | 'quick' | 'risk';
   patient?: JsonObject;
   constraints?: JsonObject;
 };
@@ -67,6 +68,7 @@ export type HospitalProtocolContext = {
 export type PromptContext = {
   question: string;
   language: SupportedLanguage;
+  responseMode?: 'checklist' | 'plan' | 'quick' | 'risk';
   history: ConversationMessage[];
   procedure?: ProcedureContext | null;
   guidelines?: GuidelineContext[];

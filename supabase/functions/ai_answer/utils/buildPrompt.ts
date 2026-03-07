@@ -95,6 +95,14 @@ function buildAvailableSources(context: PromptContext, procedureTitle: string): 
 }
 
 export function buildPrompt(context: PromptContext): ConversationMessage[] {
+  const modeInstruction =
+    context.responseMode === 'checklist'
+      ? 'Prioritize a concise operational checklist and missing-information block.'
+      : context.responseMode === 'risk'
+        ? 'Prioritize risk review, red flags, escalation points, and what must be confirmed.'
+        : context.responseMode === 'quick'
+          ? 'Keep the answer compact and high signal. Avoid long prose.'
+          : 'Prioritize a structured pre/intra/post plan with practical sequencing.';
   const systemPrompt = [
     'You are a cautious clinical anesthesia assistant.',
     'You provide educational decision support, not a diagnosis.',
@@ -107,6 +115,7 @@ export function buildPrompt(context: PromptContext): ConversationMessage[] {
     'Never include personally identifiable information.',
     'If availableSources contains one or more items, structured.citations must include at least one supporting citation from that list.',
     'If availableSources is empty or insufficient, state that information is missing or not grounded in the current context.',
+    modeInstruction,
   ].join(' ');
 
   const procedureTitle = context.procedure
@@ -118,6 +127,7 @@ export function buildPrompt(context: PromptContext): ConversationMessage[] {
     'Clinical context (structured JSON):',
     '{',
     `  "language": ${JSON.stringify(context.language)},`,
+    `  "responseMode": ${JSON.stringify(context.responseMode || 'plan')},`,
     `  "question": ${JSON.stringify(context.question)},`,
     `  "procedure": ${safeJsonStringify(
       context.procedure

@@ -39,6 +39,7 @@ import {
   getSpecialtyDisplayName,
   getSpecialtyTrackingKey,
 } from '@/lib/specialties';
+import { getSearchExpansionTerms, resolveSearchIntent } from '@/lib/searchIntelligence';
 import { trackEvent } from '@/lib/analytics';
 import {
   prefetchProcedureById,
@@ -405,8 +406,21 @@ export default function Index() {
 
   const searchResults = useMemo(() => {
     if (!deferredSearchQuery.trim()) return null;
-    return fuse.search(deferredSearchQuery).map((r) => r.item);
+    const terms = [deferredSearchQuery, ...getSearchExpansionTerms(deferredSearchQuery)];
+    const results = new Map<string, Procedure>();
+
+    terms.forEach((term) => {
+      fuse.search(term).forEach((result) => {
+        results.set(result.item.id, result.item);
+      });
+    });
+
+    return Array.from(results.values());
   }, [deferredSearchQuery, fuse]);
+  const searchIntent = useMemo(
+    () => resolveSearchIntent(deferredSearchQuery),
+    [deferredSearchQuery],
+  );
 
   const filteredResults = useMemo(() => {
     let source = searchResults ?? visibleProcedureIndex;
@@ -495,6 +509,12 @@ export default function Index() {
     if (e.key === 'Enter' && filteredResults.length > 0) {
       handleProcedureClick(filteredResults[0]);
       navigate(`/p/${filteredResults[0].id}`);
+      return;
+    }
+
+    if (e.key === 'Enter' && searchIntent) {
+      trackEvent('search_intent_redirect', { query: deferredSearchQuery.trim(), intent: searchIntent.id });
+      navigate(searchIntent.route);
     }
   };
 
@@ -659,8 +679,22 @@ export default function Index() {
           >
             {term}
           </button>
-        ))}
+          ))}
       </div>
+      {searchIntent && (
+        <button
+          onClick={() => {
+            trackEvent('search_intent_redirect', {
+              query: deferredSearchQuery.trim(),
+              intent: searchIntent.id,
+            });
+            navigate(searchIntent.route);
+          }}
+          className="mt-4 inline-flex items-center rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:border-accent/50 hover:bg-accent/10"
+        >
+          {searchIntent.title[lang]}
+        </button>
+      )}
       {hasActiveFilters && (
         <button
           onClick={clearAll}
@@ -846,6 +880,31 @@ export default function Index() {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+            {searchIntent && filteredResults.length === 0 && (
+              <div className="mb-3 rounded-2xl border border-accent/20 bg-accent/5 p-3 text-left clinical-shadow">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+                  {lang === 'fr'
+                    ? 'Best match'
+                    : lang === 'pt'
+                      ? 'Melhor match'
+                      : 'Best match'}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{searchIntent.description[lang]}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    trackEvent('search_intent_redirect', {
+                      query: deferredSearchQuery.trim(),
+                      intent: searchIntent.id,
+                    });
+                    navigate(searchIntent.route);
+                  }}
+                  className="mt-3 inline-flex items-center rounded-full border border-accent/30 bg-background px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:border-accent/50"
+                >
+                  {searchIntent.title[lang]}
+                </button>
               </div>
             )}
             <h2 className="text-sm font-semibold text-muted-foreground mb-2">{t('results')}</h2>

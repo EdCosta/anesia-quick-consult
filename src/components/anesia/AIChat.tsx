@@ -30,6 +30,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { createAIId, detectPIIInText, type Message } from './AIWidget.types';
 
+type QuickPrompt = { label: string; prompt: string };
+type AIResponseMode = 'checklist' | 'plan' | 'quick' | 'risk';
+
 interface AIChatProps {
   canSaveToHistory?: boolean;
   emptyState: string;
@@ -41,7 +44,7 @@ interface AIChatProps {
   procedureContextOverride?: AIProcedureContextValue | null;
   setMessages: Dispatch<SetStateAction<Message[]>>;
   threadId?: string | null;
-  quickPrompts?: Array<{ label: string; prompt: string }>;
+  quickPrompts?: QuickPrompt[];
 }
 
 export default function AIChat({
@@ -63,6 +66,7 @@ export default function AIChat({
   const effectiveProcedureContext = procedureContextOverride ?? procedureContext;
   const { ask, cancel, error, isLoading } = useAI();
   const [draft, setDraft] = useState('');
+  const [responseMode, setResponseMode] = useState<AIResponseMode>('plan');
   const endRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const piiIssues = useMemo(() => detectPIIInText(draft), [draft]);
@@ -87,6 +91,7 @@ export default function AIChat({
           citations: 'Sources',
           groundingMissing: 'Aucune source explicite n a ete reliee a cette reponse.',
           followUps: 'Questions suivantes',
+          modeLabel: 'Mode',
           clear: 'Effacer',
           saveToHistory: "Enregistrer dans l'historique",
           stop: 'Arreter',
@@ -112,6 +117,7 @@ export default function AIChat({
             citations: 'Fontes',
             groundingMissing: 'Nenhuma fonte explicita foi ligada a esta resposta.',
             followUps: 'Perguntas seguintes',
+            modeLabel: 'Modo',
             clear: 'Limpar',
             saveToHistory: 'Guardar no historico',
             stop: 'Parar',
@@ -136,11 +142,36 @@ export default function AIChat({
             citations: 'Grounding',
             groundingMissing: 'No explicit source was attached to this answer.',
             followUps: 'Follow-up prompts',
+            modeLabel: 'Mode',
             clear: 'Clear',
             saveToHistory: 'Save to history',
             stop: 'Stop',
             send: 'Send',
           };
+  const responseModes = useMemo(
+    () =>
+      lang === 'fr'
+        ? [
+            { value: 'plan' as const, label: 'Plan' },
+            { value: 'quick' as const, label: 'Rapide' },
+            { value: 'risk' as const, label: 'Risque' },
+            { value: 'checklist' as const, label: 'Checklist' },
+          ]
+        : lang === 'pt'
+          ? [
+              { value: 'plan' as const, label: 'Plano' },
+              { value: 'quick' as const, label: 'Rapido' },
+              { value: 'risk' as const, label: 'Risco' },
+              { value: 'checklist' as const, label: 'Checklist' },
+            ]
+          : [
+              { value: 'plan' as const, label: 'Plan' },
+              { value: 'quick' as const, label: 'Quick' },
+              { value: 'risk' as const, label: 'Risk' },
+              { value: 'checklist' as const, label: 'Checklist' },
+            ],
+    [lang],
+  );
 
   const renderStructuredMessage = (message: Message) => {
     if (!message.structured) {
@@ -325,6 +356,7 @@ export default function AIChat({
         procedureId: effectiveProcedureContext?.procedureId,
         threadId: threadId || undefined,
         language: lang,
+        responseMode,
         constraints: hospitalProfile?.id
           ? {
               hospitalId: hospitalProfile.id,
@@ -411,6 +443,24 @@ export default function AIChat({
           ))}
         </div>
       )}
+
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border/70 bg-background px-3 py-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {copy.modeLabel}
+        </span>
+        {responseModes.map((modeOption) => (
+          <Button
+            key={modeOption.value}
+            type="button"
+            variant={responseMode === modeOption.value ? 'default' : 'outline'}
+            size="sm"
+            className="h-7 rounded-full px-2.5 text-[11px]"
+            onClick={() => setResponseMode(modeOption.value)}
+          >
+            {modeOption.label}
+          </Button>
+        ))}
+      </div>
 
       <ScrollArea className="min-h-[14rem] flex-1 rounded-2xl border border-border/70 bg-background p-3">
         <div className="space-y-3">

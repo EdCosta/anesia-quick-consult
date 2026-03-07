@@ -11,6 +11,7 @@ interface AIRequestPayload {
   procedureId?: string;
   threadId?: string;
   language: SupportedLang;
+  responseMode?: 'checklist' | 'plan' | 'quick' | 'risk';
   patient?: Record<string, unknown>;
   constraints?: Record<string, unknown>;
 }

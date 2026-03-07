@@ -824,6 +824,13 @@ serve(async (req) => {
       typeof requestBody.procedureId === 'string' ? requestBody.procedureId.trim() : undefined;
     const threadId =
       typeof requestBody.threadId === 'string' ? requestBody.threadId.trim() : undefined;
+    const responseMode =
+      requestBody.responseMode === 'quick' ||
+      requestBody.responseMode === 'plan' ||
+      requestBody.responseMode === 'risk' ||
+      requestBody.responseMode === 'checklist'
+        ? requestBody.responseMode
+        : 'plan';
     const patient = toJsonObject(requestBody.patient, 'patient');
     const constraints = toJsonObject(requestBody.constraints, 'constraints');
 
@@ -897,6 +904,7 @@ serve(async (req) => {
     const promptMessages = buildPrompt({
       question,
       language,
+      responseMode,
       history,
       procedure,
       guidelines,

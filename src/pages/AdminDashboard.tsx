@@ -8,7 +8,10 @@ import type { Json } from '@/integrations/supabase/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getSearchActionRecommendations } from '@/lib/searchIntelligence';
+import {
+  getSearchActionRecommendations,
+  getSearchRedirectSuggestions,
+} from '@/lib/searchIntelligence';
 
 const cards = [
   {
@@ -549,6 +552,37 @@ export default function AdminDashboard() {
     toast.success('Analytics CSV exported');
   };
 
+  const handleExportSearchActions = () => {
+    const suggestions = getSearchRedirectSuggestions([
+      ...overview.topZeroResultSearches.map(([query]) => query),
+      ...overview.topLowResultSearches.map(([query]) => query),
+    ]);
+
+    if (suggestions.length === 0) {
+      toast.error('No search action suggestions to export');
+      return;
+    }
+
+    const payload = suggestions.map((suggestion) => ({
+      query: suggestion.query,
+      kind: suggestion.kind,
+      intent: suggestion.intent.id,
+      route: suggestion.route,
+      title: suggestion.intent.title.en,
+    }));
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `search-actions-${periodDays}d.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Search action suggestions exported');
+  };
+
   return (
     <section className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
@@ -618,6 +652,10 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" onClick={handleExportCsv}>
               <Download className="mr-2 h-4 w-4" />
               Export CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportSearchActions}>
+              <Download className="mr-2 h-4 w-4" />
+              Export search actions
             </Button>
           </div>
         </CardHeader>

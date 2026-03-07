@@ -33,6 +33,15 @@ import { createAIId, detectPIIInText, type Message } from './AIWidget.types';
 
 type QuickPrompt = { label: string; prompt: string };
 type AIResponseMode = 'checklist' | 'plan' | 'quick' | 'risk';
+type SavedPromptTemplate = {
+  id: string;
+  label: string;
+  prompt: string;
+  language: 'fr' | 'pt' | 'en';
+  createdAt: string;
+};
+
+const AI_TEMPLATE_STORAGE_KEY = 'anesia-ai-saved-templates-v1';
 
 interface AIChatProps {
   canSaveToHistory?: boolean;
@@ -71,6 +80,10 @@ export default function AIChat({
     'anesia-ai-response-mode',
     'plan',
   );
+  const [savedTemplates, setSavedTemplates] = useLocalStorage<SavedPromptTemplate[]>(
+    AI_TEMPLATE_STORAGE_KEY,
+    [],
+  );
   const endRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const piiIssues = useMemo(() => detectPIIInText(draft), [draft]);
@@ -96,6 +109,13 @@ export default function AIChat({
           groundingMissing: 'Aucune source explicite n a ete reliee a cette reponse.',
           followUps: 'Questions suivantes',
           modeLabel: 'Mode',
+          templatesLabel: 'Templates sauvegardes',
+          templateSave: 'Sauver comme template',
+          templateDelete: 'Supprimer template',
+          templatePrompt: 'Nom du template',
+          templateSaved: 'Template sauvegarde.',
+          templateDeleted: 'Template supprime.',
+          templateEmpty: 'Ecrivez un prompt avant de le sauvegarder.',
           clear: 'Effacer',
           saveToHistory: "Enregistrer dans l'historique",
           stop: 'Arreter',
@@ -122,6 +142,13 @@ export default function AIChat({
             groundingMissing: 'Nenhuma fonte explicita foi ligada a esta resposta.',
             followUps: 'Perguntas seguintes',
             modeLabel: 'Modo',
+            templatesLabel: 'Templates guardados',
+            templateSave: 'Guardar como template',
+            templateDelete: 'Apagar template',
+            templatePrompt: 'Nome do template',
+            templateSaved: 'Template guardado.',
+            templateDeleted: 'Template apagado.',
+            templateEmpty: 'Escreve um prompt antes de o guardar.',
             clear: 'Limpar',
             saveToHistory: 'Guardar no historico',
             stop: 'Parar',
@@ -147,6 +174,13 @@ export default function AIChat({
             groundingMissing: 'No explicit source was attached to this answer.',
             followUps: 'Follow-up prompts',
             modeLabel: 'Mode',
+            templatesLabel: 'Saved templates',
+            templateSave: 'Save as template',
+            templateDelete: 'Delete template',
+            templatePrompt: 'Template name',
+            templateSaved: 'Template saved.',
+            templateDeleted: 'Template deleted.',
+            templateEmpty: 'Write a prompt before saving it.',
             clear: 'Clear',
             saveToHistory: 'Save to history',
             stop: 'Stop',
@@ -176,6 +210,45 @@ export default function AIChat({
             ],
     [lang],
   );
+  const languageTemplates = useMemo(
+    () =>
+      savedTemplates
+        .filter((template) => template.language === lang)
+        .sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
+    [lang, savedTemplates],
+  );
+
+  const handleSaveTemplate = () => {
+    const prompt = draft.trim();
+
+    if (!prompt) {
+      toast.error(copy.templateEmpty);
+      return;
+    }
+
+    const label =
+      window.prompt(copy.templatePrompt, prompt.slice(0, 36))?.trim() || prompt.slice(0, 36);
+
+    if (!label) {
+      return;
+    }
+
+    const nextTemplate: SavedPromptTemplate = {
+      id: createAIId('tpl'),
+      label,
+      prompt,
+      language: lang,
+      createdAt: new Date().toISOString(),
+    };
+
+    setSavedTemplates((current) => [nextTemplate, ...current].slice(0, 18));
+    toast.success(copy.templateSaved);
+  };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    setSavedTemplates((current) => current.filter((template) => template.id !== templateId));
+    toast.success(copy.templateDeleted);
+  };
 
   const renderStructuredMessage = (message: Message) => {
     if (!message.structured) {
@@ -448,6 +521,42 @@ export default function AIChat({
         </div>
       )}
 
+      {mode === 'block' && languageTemplates.length > 0 && (
+        <div className="rounded-xl border border-border/70 bg-background px-3 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {copy.templatesLabel}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {languageTemplates.slice(0, 6).map((template) => (
+              <div
+                key={template.id}
+                className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/30 pr-1"
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 rounded-full px-3 text-xs"
+                  onClick={() => setDraft(template.prompt)}
+                >
+                  {template.label}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-full"
+                  onClick={() => handleDeleteTemplate(template.id)}
+                  aria-label={copy.templateDelete}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border/70 bg-background px-3 py-2">
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           {copy.modeLabel}
@@ -546,6 +655,7 @@ export default function AIChat({
           onChange={(event) => setDraft(event.target.value)}
           placeholder={copy.placeholder}
           className="min-h-[110px] resize-none"
+          data-testid="ai-chat-textarea"
           data-vaul-no-drag
           autoFocus
           onFocus={(event) => event.stopPropagation()}
@@ -581,6 +691,18 @@ export default function AIChat({
               >
                 <Trash2 className="h-4 w-4" />
                 {copy.clear}
+              </Button>
+            )}
+            {mode === 'block' && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSaveTemplate}
+                disabled={!draft.trim()}
+              >
+                <Save className="h-4 w-4" />
+                {copy.templateSave}
               </Button>
             )}
             {mode === 'block' && onSaveToHistory && (

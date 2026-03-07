@@ -618,6 +618,7 @@ export default function Index() {
         onChange={(e) => setSearchQuery(e.target.value)}
         onKeyDown={handleSearchKeyDown}
         placeholder={t('search_placeholder')}
+        data-testid="home-search-input"
         className="h-12 w-full rounded-xl border border-border bg-card pl-12 pr-10 text-base text-foreground placeholder:text-muted-foreground clinical-shadow focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all"
       />
       {searchQuery && (

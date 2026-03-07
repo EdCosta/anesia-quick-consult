@@ -538,7 +538,7 @@ export default function AIWidget() {
   );
 
   const panelContent = (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col" data-testid="ai-widget-panel">
       <div className="border-b border-border/70 px-4 py-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -723,6 +723,7 @@ export default function AIWidget() {
           type="button"
           onClick={() => setIsOpen(true)}
           className="h-14 rounded-full px-5 shadow-lg"
+          data-testid="ai-widget-trigger"
         >
           <MessageSquare className="h-5 w-5" />
           IA

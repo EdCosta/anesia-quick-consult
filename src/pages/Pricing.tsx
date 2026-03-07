@@ -112,6 +112,7 @@ export default function Pricing() {
                 to={buildPathWithSource('/account', 'pricing')}
                 onClick={() => trackEvent('pro_upgrade_click', { surface: 'pricing' })}
                 className="font-semibold text-accent hover:underline"
+                data-testid="pricing-account-cta"
               >
                 {copy.cta}
               </Link>

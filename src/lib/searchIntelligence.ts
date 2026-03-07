@@ -157,3 +157,36 @@ export function getSearchActionRecommendations(
     (left, right) => right.matchedQueries.length - left.matchedQueries.length,
   );
 }
+
+export type SearchRedirectSuggestion = {
+  query: string;
+  intent: SearchIntent;
+  route: string;
+  kind: 'redirect' | 'synonym';
+};
+
+export function getSearchRedirectSuggestions(queries: string[]): SearchRedirectSuggestion[] {
+  const normalizedSeen = new Set<string>();
+  const suggestions: SearchRedirectSuggestion[] = [];
+
+  for (const query of queries) {
+    const intent = resolveSearchIntent(query);
+    if (!intent) continue;
+
+    const normalizedQuery = normalize(query);
+    const isKnownSynonym = intent.synonyms.some((synonym) => normalize(synonym) === normalizedQuery);
+    const dedupeKey = `${intent.id}:${normalizedQuery}`;
+
+    if (normalizedSeen.has(dedupeKey)) continue;
+    normalizedSeen.add(dedupeKey);
+
+    suggestions.push({
+      query,
+      intent,
+      route: intent.route,
+      kind: isKnownSynonym ? 'redirect' : 'synonym',
+    });
+  }
+
+  return suggestions;
+}

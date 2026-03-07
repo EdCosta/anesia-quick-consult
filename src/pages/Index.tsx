@@ -156,7 +156,12 @@ export default function Index() {
       },
       {
         key: 'urgent-protocols',
-        title: lang === 'fr' ? 'Urgence' : lang === 'pt' ? 'Urgencia' : 'Emergency',
+        title:
+          lang === 'fr'
+            ? 'Protocoles d urgence'
+            : lang === 'pt'
+              ? 'Protocolos de urgencia'
+              : 'Emergency protocols',
         description:
           lang === 'fr'
             ? 'Ouvre les protocoles d urgence plutot qu une recherche large.'
@@ -275,7 +280,7 @@ export default function Index() {
     [lang, navigate, t],
   );
   const primaryJourneyKeys = useMemo(
-    () => ['search-ponv', 'search-airway', 'preanest', 'guidelines'],
+    () => ['urgent-protocols', 'search-airway', 'preanest', 'guidelines'],
     [],
   );
   const primaryJourneys = useMemo(

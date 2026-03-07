@@ -128,6 +128,17 @@ function formatMetaForCsv(meta: Json | null) {
   }
 }
 
+type AnalyticsAlert = {
+  id: string;
+  severity: 'high' | 'medium';
+  title: string;
+  detail: string;
+};
+
+function overviewPublicSignalsNeeded(publicToAppSessions: number, totalEvents: number) {
+  return publicToAppSessions > 0 || totalEvents >= 20;
+}
+
 export default function AdminDashboard() {
   const [periodDays, setPeriodDays] = useState(30);
   const [eventFilter, setEventFilter] = useState<EventFilter>('all');
@@ -397,6 +408,49 @@ export default function AdminDashboard() {
               matureWeek2Cohorts.length,
           )
         : 0;
+    const zeroResultRate =
+      searchCount > 0 ? Math.round((zeroResultSearchCount / searchCount) * 100) : 0;
+    const searchToProcedureRate =
+      uniqueSessions > 0 ? Math.round((searchToProcedureSessions / uniqueSessions) * 100) : 0;
+    const publicToAppRate =
+      uniqueSessions > 0 ? Math.round((publicToAppSessions / uniqueSessions) * 100) : 0;
+    const alerts: AnalyticsAlert[] = [];
+
+    if (searchCount >= 10 && zeroResultRate >= 20) {
+      alerts.push({
+        id: 'search-gaps',
+        severity: 'high',
+        title: 'Search gaps are too high',
+        detail: `${zeroResultRate}% of searches returned zero results in the current window.`,
+      });
+    }
+
+    if (searchCount >= 10 && searchToProcedureRate < 25) {
+      alerts.push({
+        id: 'search-conversion',
+        severity: 'medium',
+        title: 'Search is not leading to procedures enough',
+        detail: `Only ${searchToProcedureRate}% of sessions reached a procedure after searching.`,
+      });
+    }
+
+    if (overviewPublicSignalsNeeded(publicToAppSessions, rows.length) && publicToAppRate < 10) {
+      alerts.push({
+        id: 'public-to-app',
+        severity: 'medium',
+        title: 'Public content is not sending enough users into the app',
+        detail: `Only ${publicToAppRate}% of sessions moved from public content into product usage.`,
+      });
+    }
+
+    if (matureWeek1Cohorts.length >= 2 && avgWeek1Retention < 20) {
+      alerts.push({
+        id: 'retention-week1',
+        severity: 'medium',
+        title: 'Week +1 retention is weak',
+        detail: `Average week +1 retention is ${avgWeek1Retention}% across mature cohorts.`,
+      });
+    }
 
     return {
       totalEvents: rows.length,
@@ -415,6 +469,10 @@ export default function AdminDashboard() {
       weeklyRepeatRate,
       avgWeek1Retention,
       avgWeek2Retention,
+      zeroResultRate,
+      searchToProcedureRate,
+      publicToAppRate,
+      alerts,
       cohortRows,
       searchCount,
       zeroResultSearchCount,
@@ -554,6 +612,31 @@ export default function AdminDashboard() {
           )}
           {!analyticsQuery.isLoading && !analyticsQuery.error && (
             <>
+              <div className="rounded-lg border border-border p-4">
+                <h3 className="text-sm font-semibold text-foreground">Action alerts</h3>
+                <div className="mt-3 space-y-2">
+                  {overview.alerts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No urgent product signals in the current window.
+                    </p>
+                  ) : (
+                    overview.alerts.map((alert) => (
+                      <div
+                        key={alert.id}
+                        className={`rounded-lg border p-3 text-sm ${
+                          alert.severity === 'high'
+                            ? 'border-rose-300/60 bg-rose-50/70'
+                            : 'border-amber-300/60 bg-amber-50/70'
+                        }`}
+                      >
+                        <p className="font-semibold text-foreground">{alert.title}</p>
+                        <p className="mt-1 text-muted-foreground">{alert.detail}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
               <div className="grid gap-3 md:grid-cols-5">
                 <div className="rounded-lg border border-border p-4">
                   <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">

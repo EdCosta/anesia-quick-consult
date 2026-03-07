@@ -243,7 +243,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { value: 'en' as const, label: 'EN' },
     { value: 'pt' as const, label: 'PT' },
   ];
-  const primaryDesktopNavKeys = ['home', 'preanest', 'guidelines', 'protocoles'];
+  const primaryDesktopNavKeys = ['home', 'guidelines', 'protocoles', 'alr'];
   const primaryDesktopNavItems = HEADER_ITEMS.filter((item) => primaryDesktopNavKeys.includes(item.key));
   const exploreItems = [
     ...HEADER_ITEMS.filter((item) => !primaryDesktopNavKeys.includes(item.key)).map((item) => ({

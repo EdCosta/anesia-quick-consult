@@ -23,6 +23,7 @@ import {
 import { useLang } from '@/contexts/LanguageContext';
 import { useAI } from '@/hooks/useAI';
 import { useHospitalProfile } from '@/hooks/useHospitalProfile';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -66,7 +67,10 @@ export default function AIChat({
   const effectiveProcedureContext = procedureContextOverride ?? procedureContext;
   const { ask, cancel, error, isLoading } = useAI();
   const [draft, setDraft] = useState('');
-  const [responseMode, setResponseMode] = useState<AIResponseMode>('plan');
+  const [responseMode, setResponseMode] = useLocalStorage<AIResponseMode>(
+    'anesia-ai-response-mode',
+    'plan',
+  );
   const endRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const piiIssues = useMemo(() => detectPIIInText(draft), [draft]);

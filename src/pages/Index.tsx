@@ -39,7 +39,11 @@ import {
   getSpecialtyDisplayName,
   getSpecialtyTrackingKey,
 } from '@/lib/specialties';
-import { getSearchExpansionTerms, resolveSearchIntent } from '@/lib/searchIntelligence';
+import {
+  getAllSearchIntents,
+  getSearchExpansionTerms,
+  resolveSearchIntent,
+} from '@/lib/searchIntelligence';
 import { trackEvent } from '@/lib/analytics';
 import {
   prefetchProcedureById,
@@ -426,6 +430,22 @@ export default function Index() {
     () => resolveSearchIntent(deferredSearchQuery),
     [deferredSearchQuery],
   );
+  const searchExpansionTerms = useMemo(
+    () => getSearchExpansionTerms(deferredSearchQuery),
+    [deferredSearchQuery],
+  );
+  const alternateSearchIntents = useMemo(() => {
+    if (!deferredSearchQuery.trim()) return [];
+
+    return getAllSearchIntents()
+      .filter((intent) => intent.id !== searchIntent?.id)
+      .filter((intent) =>
+        intent.synonyms.some((synonym) =>
+          deferredSearchQuery.toLowerCase().includes(synonym.toLowerCase().slice(0, 4)),
+        ),
+      )
+      .slice(0, 2);
+  }, [deferredSearchQuery, searchIntent?.id]);
 
   const filteredResults = useMemo(() => {
     let source = searchResults ?? visibleProcedureIndex;
@@ -504,6 +524,11 @@ export default function Index() {
   };
 
   const applySuggestedSearch = (term: string) => {
+    trackEvent('search_assist_apply', {
+      query: deferredSearchQuery.trim().slice(0, 40) || null,
+      target: term,
+      source: 'suggested_search',
+    });
     setSearchQuery(term);
     setSelectedSpecialties([]);
     setShowOnlyFavorites(false);
@@ -887,6 +912,96 @@ export default function Index() {
                 </div>
               </div>
             )}
+            {deferredSearchQuery.trim().length >= 2 &&
+              (searchIntent || searchExpansionTerms.length > 0 || alternateSearchIntents.length > 0) && (
+                <div className="mb-3 rounded-2xl border border-border bg-card/80 p-3 text-left clinical-shadow">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+                    {lang === 'fr'
+                      ? 'Search assist'
+                      : lang === 'pt'
+                        ? 'Ajuda de pesquisa'
+                        : 'Search assist'}
+                  </p>
+                  {searchIntent && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span className="text-xs text-muted-foreground">{searchIntent.description[lang]}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          trackEvent('search_intent_redirect', {
+                            query: deferredSearchQuery.trim(),
+                            intent: searchIntent.id,
+                          });
+                          navigate(searchIntent.route);
+                        }}
+                        className="inline-flex items-center rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:border-accent/50 hover:bg-accent/10"
+                      >
+                        {searchIntent.title[lang]}
+                      </button>
+                    </div>
+                  )}
+                  {searchExpansionTerms.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                        {lang === 'fr'
+                          ? 'Synonyms detected'
+                          : lang === 'pt'
+                            ? 'Sinonimos detetados'
+                            : 'Detected synonyms'}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {searchExpansionTerms.slice(0, 4).map((term) => (
+                          <button
+                            key={term}
+                            type="button"
+                            onClick={() => {
+                              trackEvent('search_assist_apply', {
+                                query: deferredSearchQuery.trim().slice(0, 40),
+                                target: term,
+                                source: 'synonym',
+                              });
+                              setSearchQuery(term);
+                            }}
+                            className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-accent/50 hover:text-accent"
+                          >
+                            {term}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {alternateSearchIntents.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                        {lang === 'fr'
+                          ? 'Nearby paths'
+                          : lang === 'pt'
+                            ? 'Percursos proximos'
+                            : 'Nearby paths'}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {alternateSearchIntents.map((intent) => (
+                          <button
+                            key={intent.id}
+                            type="button"
+                            onClick={() => {
+                              trackEvent('search_intent_redirect', {
+                                query: deferredSearchQuery.trim().slice(0, 40),
+                                intent: intent.id,
+                                source: 'nearby_path',
+                              });
+                              navigate(intent.route);
+                            }}
+                            className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-accent/50 hover:text-accent"
+                          >
+                            {intent.title[lang]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             {searchIntent && filteredResults.length === 0 && (
               <div className="mb-3 rounded-2xl border border-accent/20 bg-accent/5 p-3 text-left clinical-shadow">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">

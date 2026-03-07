@@ -8,6 +8,7 @@ import type { Json } from '@/integrations/supabase/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { getSearchActionRecommendations } from '@/lib/searchIntelligence';
 
 const cards = [
   {
@@ -137,6 +138,19 @@ type AnalyticsAlert = {
 
 function overviewPublicSignalsNeeded(publicToAppSessions: number, totalEvents: number) {
   return publicToAppSessions > 0 || totalEvents >= 20;
+}
+
+function buildRecommendationLabel(intentId: string) {
+  if (intentId === 'airway') return 'Promote the difficult-airway path more clearly.';
+  if (intentId === 'alr') return 'Expose a faster entry into the ALR catalogue.';
+  if (intentId === 'ponv') return 'Add stronger NVPO/PONV shortcuts and redirects.';
+  if (intentId === 'fragile') return 'Surface the fragile-patient preset more aggressively.';
+  if (intentId === 'rcri') return 'Link cardiac-risk intent directly into calculators.';
+  if (intentId === 'antibiotic-prophylaxis') {
+    return 'Strengthen antibioprophylaxis entry points and synonyms.';
+  }
+
+  return 'Add a clearer route and synonym coverage for this intent.';
 }
 
 export default function AdminDashboard() {
@@ -452,6 +466,11 @@ export default function AdminDashboard() {
       });
     }
 
+    const searchRecommendations = getSearchActionRecommendations([
+      ...Array.from(topZeroResultSearches.keys()),
+      ...Array.from(topLowResultSearches.keys()),
+    ]).slice(0, 4);
+
     return {
       totalEvents: rows.length,
       eventsLast24h,
@@ -488,6 +507,7 @@ export default function AdminDashboard() {
       topLowResultSearches: Array.from(topLowResultSearches.entries())
         .sort((a, b) => b[1].count - a[1].count)
         .slice(0, 6),
+      searchRecommendations,
       topProcedures: Array.from(topProcedures.entries())
         .sort((a, b) => b[1] - a[1])
         .slice(0, 6),
@@ -959,6 +979,53 @@ export default function AdminDashboard() {
                             </p>
                           </div>
                           <span className="text-muted-foreground">{stats.count}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border p-4">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Recommended search actions
+                  </h3>
+                  <div className="mt-3 space-y-3">
+                    {overview.searchRecommendations.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        No clear intent clusters yet. Keep collecting search data.
+                      </p>
+                    ) : (
+                      overview.searchRecommendations.map(({ intent, matchedQueries }) => (
+                        <div key={intent.id} className="rounded-lg border border-border/80 p-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-foreground">
+                                {intent.title.en}
+                              </p>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                {buildRecommendationLabel(intent.id)}
+                              </p>
+                            </div>
+                            <Link
+                              to={intent.route}
+                              className="text-sm font-medium text-primary hover:underline"
+                            >
+                              Open path
+                            </Link>
+                          </div>
+                          <p className="mt-3 text-xs uppercase tracking-wide text-muted-foreground">
+                            Queries seen
+                          </p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {matchedQueries.slice(0, 4).map((query) => (
+                              <span
+                                key={`${intent.id}-${query}`}
+                                className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
+                              >
+                                {query}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       ))
                     )}

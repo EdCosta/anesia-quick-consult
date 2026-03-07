@@ -135,3 +135,25 @@ export function resolveSearchIntent(query: string) {
   );
 }
 
+export function getAllSearchIntents() {
+  return SEARCH_INTENTS;
+}
+
+export function getSearchActionRecommendations(
+  queries: string[],
+): Array<{ intent: SearchIntent; matchedQueries: string[] }> {
+  const buckets = new Map<string, { intent: SearchIntent; matchedQueries: string[] }>();
+
+  for (const query of queries) {
+    const intent = resolveSearchIntent(query);
+    if (!intent) continue;
+
+    const bucket = buckets.get(intent.id) || { intent, matchedQueries: [] };
+    bucket.matchedQueries.push(query);
+    buckets.set(intent.id, bucket);
+  }
+
+  return Array.from(buckets.values()).sort(
+    (left, right) => right.matchedQueries.length - left.matchedQueries.length,
+  );
+}

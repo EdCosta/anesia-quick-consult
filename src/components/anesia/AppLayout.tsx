@@ -18,6 +18,7 @@ import {
   Mail,
   Sparkles,
   Layers3,
+  LayoutGrid,
 } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
@@ -237,6 +238,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { to: '/privacy', label: lang === 'fr' ? 'Confidentialite' : lang === 'pt' ? 'Privacidade' : 'Privacy', icon: ShieldCheck },
     { to: '/terms', label: lang === 'fr' ? "Conditions" : lang === 'pt' ? 'Termos' : 'Terms', icon: FileText },
   ];
+  const languageOptions = [
+    { value: 'fr' as const, label: 'FR' },
+    { value: 'en' as const, label: 'EN' },
+    { value: 'pt' as const, label: 'PT' },
+  ];
+  const primaryDesktopNavKeys = ['home', 'preanest', 'guidelines', 'protocoles'];
+  const primaryDesktopNavItems = HEADER_ITEMS.filter((item) => primaryDesktopNavKeys.includes(item.key));
+  const exploreItems = [
+    ...HEADER_ITEMS.filter((item) => !primaryDesktopNavKeys.includes(item.key)).map((item) => ({
+      to: item.to,
+      label: t(item.key),
+      icon: item.icon,
+    })),
+    ...footerLinks.slice(0, 3),
+  ];
   const secondaryNavItems = footerLinks.slice(0, 3);
   const mobileUtilityLinks = user
     ? [
@@ -278,7 +294,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {/* Desktop nav */}
           {!isMobile && (
             <nav className="flex-1 flex items-center justify-center gap-1">
-              {HEADER_ITEMS.map((item) => (
+              {primaryDesktopNavItems.map((item) => (
                 <Link
                   key={item.key}
                   to={item.to}
@@ -292,24 +308,39 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {t(item.key)}
                 </Link>
               ))}
-              {secondaryNavItems.map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                    location.pathname.startsWith(item.to)
-                      ? 'bg-primary-foreground/15 text-primary-foreground'
-                      : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground'
-                  }`}
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                      exploreItems.some((item) => location.pathname.startsWith(item.to))
+                        ? 'bg-primary-foreground/15 text-primary-foreground'
+                        : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground'
+                    }`}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    <span>{lang === 'fr' ? 'Explorer' : lang === 'pt' ? 'Explorar' : 'Explore'}</span>
+                    <ChevronDown className="h-3.5 w-3.5 text-primary-foreground/70" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="center" className="w-56 p-1">
+                  {exploreItems.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </PopoverContent>
+              </Popover>
             </nav>
           )}
 
-          <div className="ml-auto flex items-center gap-2">
+          {!isMobile && (
+            <div className="ml-auto flex items-center gap-2">
             {/* Hospital profile selector */}
             {isPro && viewMode === 'pro' && (
               <Popover>
@@ -378,15 +409,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </PopoverContent>
               </Popover>
             )}
-            {/* Plan badge - links to /account */}
-            {user && isPro && (
-              <Link to={buildPathWithSource('/account', 'header_plan_badge')}>
-                <Badge variant="default" className="text-[10px] gap-0.5 cursor-pointer hover:opacity-80">
-                  <Crown className="h-2.5 w-2.5" />
-                  {t('plan_pro')}
-                </Badge>
-              </Link>
-            )}
             {/* Compact view mode selector */}
             <Popover>
               <PopoverTrigger asChild>
@@ -433,16 +455,26 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    className="inline-flex h-9 items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/5 px-3 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/20 bg-primary-foreground/5 text-primary-foreground transition-colors hover:bg-primary-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
                     aria-label={settingsLabel}
                     title={settingsLabel}
                   >
                     <Settings2 className="h-4 w-4 shrink-0" />
-                    <span>{settingsLabel}</span>
-                    <ChevronDown className="h-3 w-3 text-primary-foreground/70" />
                   </button>
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-44 p-1">
+                  <Link
+                    to={buildPathWithSource('/account', 'header_user_menu')}
+                    className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
+                  >
+                    <Crown className="h-3.5 w-3.5" />
+                    <span>{t('account')}</span>
+                    {isPro && (
+                      <Badge variant="secondary" className="ml-auto text-[9px]">
+                        {t('plan_pro')}
+                      </Badge>
+                    )}
+                  </Link>
                   <Link
                     to="/account/settings"
                     className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
@@ -484,7 +516,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </Link>
               </>
             )}
-          </div>
+            </div>
+          )}
         </div>
       </header>
 
@@ -499,7 +532,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </button>
           <div className="container flex min-h-screen flex-col justify-center gap-8 py-20">
             <div className="space-y-4">
-              {HEADER_ITEMS.map((item) => (
+              {primaryDesktopNavItems.map((item) => (
                 <Link
                   key={item.key}
                   to={item.to}
@@ -518,7 +551,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Explore
               </p>
-              {secondaryNavItems.map((item) => (
+              {exploreItems.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
@@ -533,6 +566,106 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {item.label}
                 </Link>
               ))}
+            </div>
+
+            <div className="space-y-4 border-t border-border/70 pt-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {lang === 'fr' ? 'Contexte' : lang === 'pt' ? 'Contexto' : 'Context'}
+              </p>
+
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  {lang === 'fr' ? 'Langue' : lang === 'pt' ? 'Idioma' : 'Language'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {languageOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setLang(option.value)}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        lang === option.value
+                          ? 'border-accent bg-accent text-accent-foreground'
+                          : 'border-border bg-background text-foreground hover:border-accent/40'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  {t('switch_mode')}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {viewModeOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        if (option.value === 'pro' && !isPro && !loading) {
+                          setMenuOpen(false);
+                          navigate(buildPathWithSource('/account', 'mobile_menu_view_mode'));
+                          return;
+                        }
+
+                        if (option.value === 'normal') {
+                          setViewMode('normal');
+                          return;
+                        }
+
+                        setViewMode('pro');
+                      }}
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        viewMode === option.value
+                          ? 'border-accent bg-accent text-accent-foreground'
+                          : 'border-border bg-background text-foreground hover:border-accent/40'
+                      }`}
+                    >
+                      {option.value === 'pro' && <Crown className="h-3.5 w-3.5" />}
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {isPro && viewMode === 'pro' && profiles.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    {t('hospital_profile')}
+                  </p>
+                  <div className="grid gap-2">
+                    {profiles.map((profile) => (
+                      <button
+                        key={profile.id}
+                        type="button"
+                        onClick={() => applyHospitalMode(profile)}
+                        className={`rounded-xl border px-3 py-2 text-left text-sm transition-colors ${
+                          activeProfile === profile.id
+                            ? 'border-accent bg-accent/10 text-foreground'
+                            : 'border-border bg-background text-foreground hover:border-accent/40'
+                        }`}
+                      >
+                        <span className="block font-medium">{profile.name}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {[profile.country, profile.default_lang.toUpperCase()].filter(Boolean).join(' · ')}
+                        </span>
+                      </button>
+                    ))}
+                    {activeProfile && (
+                      <button
+                        type="button"
+                        onClick={clearHospitalMode}
+                        className="rounded-xl border border-border px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:border-accent/40 hover:text-foreground"
+                      >
+                        {t('clear')}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 border-t border-border/70 pt-6">
@@ -550,6 +683,19 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {item.label}
                 </Link>
               ))}
+              {user && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setMenuOpen(false);
+                    await supabase.auth.signOut();
+                  }}
+                  className="flex items-center gap-3 text-lg font-semibold text-foreground transition-colors hover:text-accent"
+                >
+                  <LogOut className="h-5 w-5" />
+                  {t('sign_out')}
+                </button>
+              )}
             </div>
           </div>
         </div>

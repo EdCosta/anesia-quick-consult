@@ -65,6 +65,7 @@ export default function Index() {
   const [fabOpen, setFabOpen] = useState(false);
   const [showProGate, setShowProGate] = useState(false);
   const [proceduresExpanded, setProceduresExpanded] = useState(false);
+  const [showMoreJourneys, setShowMoreJourneys] = useState(false);
   usePageMeta({
     title: 'AnesIA',
     description:
@@ -272,6 +273,74 @@ export default function Index() {
     ],
     [lang, navigate, t],
   );
+  const primaryJourneyKeys = useMemo(
+    () => ['search-ponv', 'search-airway', 'preanest', 'guidelines'],
+    [],
+  );
+  const primaryJourneys = useMemo(
+    () => guidedJourneys.filter((journey) => primaryJourneyKeys.includes(journey.key)),
+    [guidedJourneys, primaryJourneyKeys],
+  );
+  const secondaryJourneys = useMemo(
+    () => guidedJourneys.filter((journey) => !primaryJourneyKeys.includes(journey.key)),
+    [guidedJourneys, primaryJourneyKeys],
+  );
+  const selectedSpecialtyName = useMemo(() => {
+    if (selectedSpecialties.length !== 1) return null;
+    const selectedId = selectedSpecialties[0];
+    const specialtyRecord = specialtiesData.find((item) => item.id === selectedId);
+    if (!specialtyRecord) return selectedId;
+    return specialtyRecord.name[lang] || specialtyRecord.name.fr || specialtyRecord.id;
+  }, [lang, selectedSpecialties, specialtiesData]);
+  const specialtyQuickPaths = useMemo(() => {
+    if (selectedSpecialties.length !== 1) return [];
+
+    const selectedId = selectedSpecialties[0];
+    const specialtyRecord = specialtiesData.find((item) => item.id === selectedId);
+    const tokens = [
+      selectedId,
+      specialtyRecord?.id,
+      specialtyRecord?.name.fr,
+      specialtyRecord?.name.en,
+      specialtyRecord?.name.pt,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    const pathKeys = new Set<string>();
+
+    if (/(ortho|trauma|hip|knee|osse|os|locomotor|musculo)/.test(tokens)) {
+      pathKeys.add('rapid-alr');
+      pathKeys.add('fragile-patient');
+      pathKeys.add('antibiotic-prophylaxis');
+    }
+
+    if (/(ent|orl|head|neck|thyroid|maxillo|cervic)/.test(tokens)) {
+      pathKeys.add('search-airway');
+      pathKeys.add('ett-sizing');
+      pathKeys.add('guidelines');
+    }
+
+    if (/(card|thorac|vascular|vascu)/.test(tokens)) {
+      pathKeys.add('cardiac-risk');
+      pathKeys.add('urgent-protocols');
+      pathKeys.add('antibiotic-prophylaxis');
+    }
+
+    if (/(digest|abdo|general|visceral|urolog|gyne|gynec|obst)/.test(tokens)) {
+      pathKeys.add('search-ponv');
+      pathKeys.add('antibiotic-prophylaxis');
+      pathKeys.add('preanest');
+    }
+
+    if (pathKeys.size === 0) {
+      pathKeys.add('preanest');
+      pathKeys.add('guidelines');
+    }
+
+    return guidedJourneys.filter((journey) => pathKeys.has(journey.key)).slice(0, 3);
+  }, [guidedJourneys, selectedSpecialties, specialtiesData]);
 
   const sortedSpecialties = useMemo(() => {
     const contentSpecialties = getSpecialtyContentCounts(
@@ -680,15 +749,33 @@ export default function Index() {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {lang === 'fr'
-                    ? 'Des parcours guides pour ne pas toujours partir d une recherche libre.'
+                    ? 'Quatre entrees rapides pour les usages les plus frequents.'
                     : lang === 'pt'
-                      ? 'Percursos guiados para nao depender sempre da pesquisa livre.'
-                      : 'Guided paths so the user does not always start from free search.'}
+                      ? 'Quatro entradas rapidas para os usos mais frequentes.'
+                      : 'Four quick entry points for the most common workflows.'}
                 </p>
               </div>
+              {secondaryJourneys.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowMoreJourneys((current) => !current)}
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-accent/40 hover:text-accent"
+                >
+                  {showMoreJourneys ? (
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  )}
+                  {lang === 'fr'
+                    ? `Autres parcours (${secondaryJourneys.length})`
+                    : lang === 'pt'
+                      ? `Outros percursos (${secondaryJourneys.length})`
+                      : `More paths (${secondaryJourneys.length})`}
+                </button>
+              )}
             </div>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {guidedJourneys.map((journey) => (
+              {primaryJourneys.map((journey) => (
                 <button
                   key={journey.key}
                   type="button"
@@ -705,11 +792,62 @@ export default function Index() {
                 </button>
               ))}
             </div>
+            {showMoreJourneys && secondaryJourneys.length > 0 && (
+              <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {secondaryJourneys.map((journey) => (
+                  <button
+                    key={journey.key}
+                    type="button"
+                    onClick={journey.action}
+                    className="rounded-2xl border border-dashed border-border bg-card/70 px-4 py-3 text-left transition-colors hover:border-accent/40 hover:bg-card/90"
+                  >
+                    <div className="flex items-center gap-2">
+                      <journey.icon className="h-4 w-4 text-accent" />
+                      <p className="text-sm font-semibold text-foreground">{journey.title}</p>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {journey.description}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {isSearching && (
           <div className="w-full max-w-lg mt-3">
+            {specialtyQuickPaths.length > 0 && (
+              <div className="mb-3 rounded-2xl border border-border bg-card/80 p-3 text-left clinical-shadow">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+                  {lang === 'fr'
+                    ? 'Raccourcis de specialite'
+                    : lang === 'pt'
+                      ? 'Atalhos da especialidade'
+                      : 'Specialty shortcuts'}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {lang === 'fr'
+                    ? `Acces rapide pour ${selectedSpecialtyName || 'cette specialite'}.`
+                    : lang === 'pt'
+                      ? `Acesso rapido para ${selectedSpecialtyName || 'esta especialidade'}.`
+                      : `Fast paths for ${selectedSpecialtyName || 'this specialty'}.`}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {specialtyQuickPaths.map((journey) => (
+                    <button
+                      key={journey.key}
+                      type="button"
+                      onClick={journey.action}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent/40 hover:text-accent"
+                    >
+                      <journey.icon className="h-3.5 w-3.5" />
+                      {journey.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <h2 className="text-sm font-semibold text-muted-foreground mb-2">{t('results')}</h2>
             {indexLoading && visibleProcedureIndex.length === 0 ? (
               renderLoadingSkeleton()

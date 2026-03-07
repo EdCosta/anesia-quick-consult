@@ -83,6 +83,29 @@ function formatCompactNumber(value: number) {
   );
 }
 
+function getWeekStartKey(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const weekday = (utcDate.getUTCDay() + 6) % 7;
+  utcDate.setUTCDate(utcDate.getUTCDate() - weekday);
+  return utcDate.toISOString().slice(0, 10);
+}
+
+function addWeeksToKey(weekKey: string, weeks: number) {
+  const date = new Date(`${weekKey}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return weekKey;
+  date.setUTCDate(date.getUTCDate() + weeks * 7);
+  return date.toISOString().slice(0, 10);
+}
+
+function formatWeekLabel(weekKey: string) {
+  const date = new Date(`${weekKey}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return weekKey;
+  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(date);
+}
+
 function matchesEventFilter(row: AnalyticsRow, filter: EventFilter) {
   if (filter === 'all') return true;
   if (filter === 'searches') return row.event_name === 'home_search';
@@ -167,6 +190,7 @@ export default function AdminDashboard() {
     const languageCounts = new Map<string, number>();
     const sessionDays = new Map<string, Set<string>>();
     const sessionEventCounts = new Map<string, number>();
+    const sessionWeeks = new Map<string, Set<string>>();
     const sessionFlags = new Map<string, SessionFlags>();
 
     let eventsLast24h = 0;
@@ -189,9 +213,15 @@ export default function AdminDashboard() {
       };
 
       const day = row.created_at.slice(0, 10);
+      const week = getWeekStartKey(row.created_at);
       const sessionDaySet = sessionDays.get(row.session_id) || new Set<string>();
       sessionDaySet.add(day);
       sessionDays.set(row.session_id, sessionDaySet);
+      const sessionWeekSet = sessionWeeks.get(row.session_id) || new Set<string>();
+      if (week) {
+        sessionWeekSet.add(week);
+        sessionWeeks.set(row.session_id, sessionWeekSet);
+      }
       sessionEventCounts.set(row.session_id, (sessionEventCounts.get(row.session_id) || 0) + 1);
 
       topPaths.set(row.path, (topPaths.get(row.path) || 0) + 1);
@@ -272,6 +302,85 @@ export default function AdminDashboard() {
     const publicToAppSessions = Array.from(sessionFlags.values()).filter(
       (flags) => flags.sawPublicContent && (flags.openedFromPublic || flags.viewedProcedure),
     ).length;
+    const sessionFirstWeeks = new Map<string, string>();
+    const weekSessions = new Map<string, Set<string>>();
+
+    sessionWeeks.forEach((weeks, sessionId) => {
+      const orderedWeeks = Array.from(weeks).sort();
+      if (orderedWeeks.length === 0) return;
+      sessionFirstWeeks.set(sessionId, orderedWeeks[0]);
+
+      orderedWeeks.forEach((weekKey) => {
+        const sessions = weekSessions.get(weekKey) || new Set<string>();
+        sessions.add(sessionId);
+        weekSessions.set(weekKey, sessions);
+      });
+    });
+
+    const cohortBuckets = new Map<string, { visitors: number; retainedWeek1: number; retainedWeek2: number }>();
+
+    sessionWeeks.forEach((weeks, sessionId) => {
+      const orderedWeeks = Array.from(weeks).sort();
+      if (orderedWeeks.length === 0) return;
+      const cohortWeek = orderedWeeks[0];
+      const bucket =
+        cohortBuckets.get(cohortWeek) || { visitors: 0, retainedWeek1: 0, retainedWeek2: 0 };
+      bucket.visitors += 1;
+
+      if (weeks.has(addWeeksToKey(cohortWeek, 1))) {
+        bucket.retainedWeek1 += 1;
+      }
+      if (weeks.has(addWeeksToKey(cohortWeek, 2))) {
+        bucket.retainedWeek2 += 1;
+      }
+
+      cohortBuckets.set(cohortWeek, bucket);
+    });
+
+    const allCohortRows = Array.from(cohortBuckets.entries())
+      .sort((left, right) => right[0].localeCompare(left[0]))
+      .map(([week, bucket]) => ({
+        week,
+        label: formatWeekLabel(week),
+        visitors: bucket.visitors,
+        retainedWeek1: bucket.retainedWeek1,
+        retainedWeek2: bucket.retainedWeek2,
+        retainedWeek1Rate:
+          bucket.visitors > 0 ? Math.round((bucket.retainedWeek1 / bucket.visitors) * 100) : 0,
+        retainedWeek2Rate:
+          bucket.visitors > 0 ? Math.round((bucket.retainedWeek2 / bucket.visitors) * 100) : 0,
+      }));
+    const cohortRows = allCohortRows.slice(0, 6);
+
+    const orderedWeeks = Array.from(weekSessions.keys()).sort();
+    const latestWeek = orderedWeeks.at(-1) || null;
+    const latestWeekSessions = latestWeek ? weekSessions.get(latestWeek) || new Set<string>() : new Set<string>();
+    const weeklyActiveVisitors = latestWeekSessions.size;
+    const weeklyReturningVisitors = Array.from(latestWeekSessions).filter(
+      (sessionId) => sessionFirstWeeks.get(sessionId) !== latestWeek,
+    ).length;
+    const weeklyRepeatRate =
+      weeklyActiveVisitors > 0 ? Math.round((weeklyReturningVisitors / weeklyActiveVisitors) * 100) : 0;
+    const matureWeek1Cohorts = allCohortRows.filter(
+      (row) => addWeeksToKey(row.week, 1) <= (latestWeek || row.week),
+    );
+    const matureWeek2Cohorts = allCohortRows.filter(
+      (row) => addWeeksToKey(row.week, 2) <= (latestWeek || row.week),
+    );
+    const avgWeek1Retention =
+      matureWeek1Cohorts.length > 0
+        ? Math.round(
+            matureWeek1Cohorts.reduce((sum, row) => sum + row.retainedWeek1Rate, 0) /
+              matureWeek1Cohorts.length,
+          )
+        : 0;
+    const avgWeek2Retention =
+      matureWeek2Cohorts.length > 0
+        ? Math.round(
+            matureWeek2Cohorts.reduce((sum, row) => sum + row.retainedWeek2Rate, 0) /
+              matureWeek2Cohorts.length,
+          )
+        : 0;
 
     return {
       totalEvents: rows.length,
@@ -285,6 +394,12 @@ export default function AdminDashboard() {
       engagedSessions,
       proIntentSessions,
       publicToAppSessions,
+      weeklyActiveVisitors,
+      weeklyReturningVisitors,
+      weeklyRepeatRate,
+      avgWeek1Retention,
+      avgWeek2Retention,
+      cohortRows,
       searchCount,
       procedureViews,
       upgradeCount,
@@ -562,8 +677,94 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Weekly active
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.weeklyActiveVisitors}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Visitors active this week</p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Weekly repeat rate
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.weeklyRepeatRate}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {overview.weeklyReturningVisitors} returning this week
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Week +1 retention
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.avgWeek1Retention}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">Average across mature cohorts</p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Week +2 retention
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.avgWeek2Retention}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">Average across mature cohorts</p>
+                </div>
+              </div>
+
               <div className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
                 Showing {filteredRows.length} events for the current filters.
+              </div>
+
+              <div className="rounded-lg border border-border p-4">
+                <h3 className="text-sm font-semibold text-foreground">Weekly cohorts</h3>
+                <div className="mt-3 space-y-2">
+                  {overview.cohortRows.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Not enough repeat data yet for cohort analysis.
+                    </p>
+                  ) : (
+                    overview.cohortRows.map((row) => (
+                      <div
+                        key={row.week}
+                        className="grid gap-2 rounded-lg border border-border/70 bg-background/60 p-3 text-sm md:grid-cols-[120px_1fr_1fr_1fr]"
+                      >
+                        <div>
+                          <p className="font-medium text-foreground">{row.label}</p>
+                          <p className="text-xs text-muted-foreground">{row.visitors} visitors</p>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Week +1
+                          </p>
+                          <p className="font-medium text-foreground">
+                            {row.retainedWeek1Rate}% ({row.retainedWeek1})
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Week +2
+                          </p>
+                          <p className="font-medium text-foreground">
+                            {row.retainedWeek2Rate}% ({row.retainedWeek2})
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Cohort size
+                          </p>
+                          <p className="font-medium text-foreground">{row.visitors}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">

@@ -46,6 +46,7 @@ const AdminQuality = lazy(() => import('./pages/AdminQuality'));
 const AdminBilling = lazy(() => import('./pages/AdminBilling'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const PublicProcedurePage = lazy(() => import('./pages/PublicProcedurePage'));
+const PublicSpecialtyPage = lazy(() => import('./pages/PublicSpecialtyPage'));
 
 const queryClient = new QueryClient();
 
@@ -87,6 +88,7 @@ const App = () => {
                       <Route path="/p/:id" element={<ProcedurePage />} />
                       <Route path="/procedures/:id" element={<PublicProcedurePage />} />
                       <Route path="/procedures/:id/:slug" element={<PublicProcedurePage />} />
+                      <Route path="/specialties/:slug" element={<PublicSpecialtyPage />} />
                       <Route path="/account" element={<Account />} />
                       <Route path="/pricing" element={<Pricing />} />
                       <Route path="/faq" element={<FAQ />} />

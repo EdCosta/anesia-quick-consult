@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BulletList } from '@/components/anesia/Section';
-import { getSpecialtyDisplayName } from '@/lib/specialties';
+import { buildPublicSpecialtyPath, getSpecialtyDisplayName } from '@/lib/specialties';
 import { buildPublicProcedurePath } from '@/lib/procedureSeo';
 import { trackEvent } from '@/lib/analytics';
 
@@ -19,7 +19,7 @@ function estimateReadingMinutesFromQuick(itemCount: number) {
 export default function PublicProcedurePage() {
   const { id = '' } = useParams<{ id: string }>();
   const { lang, resolve, resolveStr } = useLang();
-  const { getProcedure, specialtiesData, loading } = useData();
+  const { getProcedure, procedureIndex, specialtiesData, loading } = useData();
   const procedure = getProcedure(id);
   const title = procedure ? resolveStr(procedure.titles) : 'Procedure';
   const quick = procedure ? resolve(procedure.quick) : null;
@@ -27,6 +27,9 @@ export default function PublicProcedurePage() {
   const specialtyLabel = procedure
     ? getSpecialtyDisplayName(procedure.specialty, specialtiesData, lang)
     : '';
+  const specialtyPath = procedure
+    ? buildPublicSpecialtyPath(procedure.specialty, specialtiesData)
+    : undefined;
   const checklistCount = quick
     ? quick.preop.length + quick.intraop.length + quick.postop.length + quick.red_flags.length
     : 0;
@@ -83,6 +86,16 @@ export default function PublicProcedurePage() {
     return deep.clinical.slice(0, 4);
   }, [deep]);
 
+  const relatedProcedures = useMemo(() => {
+    if (!procedure) return [];
+
+    return procedureIndex
+      .filter(
+        (candidate) => candidate.id !== procedure.id && candidate.specialty === procedure.specialty,
+      )
+      .slice(0, 4);
+  }, [procedure, procedureIndex]);
+
   if (loading && !procedure) {
     return (
       <div className="container max-w-4xl py-10">
@@ -119,7 +132,15 @@ export default function PublicProcedurePage() {
       <div className="container max-w-5xl space-y-6 py-8">
         <section className="rounded-[2rem] border border-border/70 bg-card/90 p-6 clinical-shadow sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary">{specialtyLabel}</Badge>
+            {specialtyPath ? (
+              <Link to={specialtyPath} className="inline-flex">
+                <Badge variant="secondary" className="transition-colors hover:bg-secondary/80">
+                  {specialtyLabel}
+                </Badge>
+              </Link>
+            ) : (
+              <Badge variant="secondary">{specialtyLabel}</Badge>
+            )}
             {procedure.is_pro && (
               <Badge variant="outline" className="border-accent text-accent">
                 PRO
@@ -232,6 +253,53 @@ export default function PublicProcedurePage() {
             </h2>
             <div className="mt-3 text-sm leading-6 text-muted-foreground">
               <BulletList items={clinicalHighlights} />
+            </div>
+          </section>
+        )}
+
+        {relatedProcedures.length > 0 && (
+          <section className="rounded-[1.5rem] border border-border/70 bg-card/80 p-5 clinical-shadow sm:p-6">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-foreground">
+                {lang === 'fr'
+                  ? 'Procedures liees'
+                  : lang === 'pt'
+                    ? 'Procedimentos relacionados'
+                    : 'Related procedures'}
+              </h2>
+              {specialtyPath && (
+                <Link to={specialtyPath} className="text-sm font-medium text-accent hover:underline">
+                  {lang === 'fr'
+                    ? 'Voir la specialite'
+                    : lang === 'pt'
+                      ? 'Ver especialidade'
+                      : 'View specialty'}
+                </Link>
+              )}
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {relatedProcedures.map((candidate) => {
+                const candidateTitle = resolveStr(candidate.titles);
+
+                return (
+                  <Link
+                    key={candidate.id}
+                    to={buildPublicProcedurePath(candidate.id, candidateTitle)}
+                    className="rounded-2xl border border-border/70 bg-background/80 p-4 transition-colors hover:border-accent/40"
+                    onClick={() =>
+                      trackEvent('public_related_procedure_click', {
+                        procedureId: procedure.id,
+                        relatedProcedureId: candidate.id,
+                      })
+                    }
+                  >
+                    <p className="text-sm font-semibold text-foreground">{candidateTitle}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground line-clamp-3">
+                      {candidate.quick[lang]?.preop?.[0] || candidate.quick.fr?.preop?.[0] || ''}
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}

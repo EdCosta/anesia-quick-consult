@@ -15,6 +15,12 @@ function normalizeSpecialtyToken(value: string): string {
     .trim();
 }
 
+export function slugifySpecialtyLabel(value: string): string {
+  return normalizeSpecialtyToken(value)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export function findSpecialtyRecord(
   specialty: string | undefined,
   specialties: SpecialtyLike[],
@@ -41,6 +47,81 @@ export function getSpecialtyDisplayName(
   if (!record?.name) return specialty;
 
   return record.name[lang] || record.name.fr || record.name.en || record.name.pt || specialty;
+}
+
+export function getSpecialtyCanonicalName(
+  specialty: string | undefined,
+  specialties: SpecialtyLike[],
+): string {
+  if (!specialty) return '';
+
+  const record = findSpecialtyRecord(specialty, specialties);
+  if (!record?.name) return specialty;
+
+  return record.name.fr || record.name.en || record.name.pt || specialty;
+}
+
+export function buildPublicSpecialtyPath(
+  specialty: string | undefined,
+  specialties: SpecialtyLike[],
+): string {
+  const canonical = getSpecialtyCanonicalName(specialty, specialties);
+  const slug = slugifySpecialtyLabel(canonical);
+  return slug ? `/specialties/${slug}` : '/';
+}
+
+export interface SpecialtySlugMatch {
+  id: string;
+  label: string;
+  aliases: string[];
+}
+
+export function findSpecialtyBySlug(
+  slug: string,
+  specialties: SpecialtyLike[],
+  fallbackSpecialties: string[] = [],
+): SpecialtySlugMatch | undefined {
+  const target = slugifySpecialtyLabel(slug);
+  if (!target) return undefined;
+
+  const records = specialties.map((record) => {
+    const aliases = [record.id, record.name?.fr, record.name?.en, record.name?.pt].filter(
+      Boolean,
+    ) as string[];
+
+    return {
+      id: record.id,
+      label: record.name?.fr || record.name?.en || record.name?.pt || record.id,
+      aliases,
+    };
+  });
+
+  const fallbackRecords = fallbackSpecialties
+    .filter((specialty) => !records.some((record) => record.aliases.includes(specialty)))
+    .map((specialty) => ({
+      id: specialty,
+      label: specialty,
+      aliases: [specialty],
+    }));
+
+  return [...records, ...fallbackRecords].find((record) =>
+    record.aliases.some((alias) => slugifySpecialtyLabel(alias) === target),
+  );
+}
+
+export function specialtyMatchesSlug(
+  specialty: string | undefined,
+  match: SpecialtySlugMatch | undefined,
+  specialties: SpecialtyLike[],
+): boolean {
+  if (!specialty || !match) return false;
+
+  const record = findSpecialtyRecord(specialty, specialties);
+  if (record?.id && record.id === match.id) return true;
+
+  return match.aliases.some(
+    (candidate) => normalizeSpecialtyToken(candidate) === normalizeSpecialtyToken(specialty),
+  );
 }
 
 export function getSpecialtyTrackingKey(

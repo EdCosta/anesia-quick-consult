@@ -1,3 +1,84 @@
+## Current Product Roadmap -- March 2026
+
+### Delivered in the current product shell
+
+- Simpler homepage with guided shortcuts kept under control
+- Leaner header and clearer app navigation
+- SEO indexable public pages for procedures, specialties, topics, guidelines, protocols, and ALR
+- Pro conversion funnel with admin analytics
+- Procedure prefetch on homepage interactions
+- Stronger procedure detail page metadata and related-content linking
+- Structured AI answers with explicit sections and citations
+- AI thread sync groundwork with Supabase-backed `ai_threads` and `ai_messages`
+
+### Immediate rollout priorities
+
+#### 1. AI Copilot Hardening
+
+- Persist AI threads/messages in production Supabase and verify RLS with real users
+- Add explicit "based on" rendering in the UI for cited procedures, guidelines, and protocols
+- Tighten assistant prompting so every answer returns:
+  - assessment
+  - missing information
+  - pre/intra/post plan
+  - red flags
+  - checklist
+  - citations
+- Add failure fallback messaging when grounding is weak or unavailable
+- Add server-side safeguards for identifiable data patterns before storing prompts
+
+#### 2. Clinical Trust Layer
+
+- Add `last clinical review`, `reviewed by`, `version`, and `evidence level` to procedure pages
+- Show the delta between standard content and hospital overrides
+- Add richer source cards on procedure pages with direct outbound links when available
+- Audit guideline/protocol/ALR matching quality for the most visited interventions
+
+#### 3. Conversion and Analytics
+
+- Move key admin analytics from client-side aggregation to database views/materialized views
+- Add conversion breakdown by:
+  - landing page
+  - source / campaign
+  - public page -> app transition
+- Add alerts for:
+  - search terms with no useful destination
+  - pages with high traffic and low app/open rate
+  - funnel drop-offs after checkout open
+
+#### 4. Public Growth Surface
+
+- Expand internal links between public procedure, topic, specialty, guideline, protocol, and ALR pages
+- Add public thematic pages for highest-intent search terms not yet covered
+- Add sitemap validation and canonical checks in deploy workflow
+
+#### 5. Commercial and Legal Readiness
+
+- Finalize `Privacy` and `Terms` placeholders with legal entity data
+- Review pricing and checkout messaging so the Pro value is explicit before account creation
+- Add institutional purchase/contact path for hospital buyers
+
+#### 6. Reliability and QA
+
+- Add Playwright coverage for:
+  - homepage guided journeys
+  - procedure open flow
+  - Pro funnel
+  - AI chat open/send/persist
+- Continue lazy-loading non-core routes and admin surfaces
+- Add error monitoring around data bootstrap, AI requests, and checkout transitions
+
+### Suggested execution order
+
+1. Ship Supabase AI persistence and validate with real sessions
+2. Finish AI citations/grounding UX in the widget
+3. Add trust metadata to procedure pages
+4. Move analytics aggregation server-side
+5. Finalize legal/commercial pages
+6. Add e2e coverage for critical flows
+
+---
+
 # Plan: Major Refactor -- i18n, DataContext, Guidelines, Dosing, Pro Gating, Drug Groups, Terminology
 
 ## Overview

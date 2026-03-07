@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { SupportedLang } from '@/lib/types';
+import {
+  normalizeStructuredAIAnswer,
+  type StructuredAIAnswer,
+} from '@/components/anesia/AIWidget.types';
 
 interface AIRequestPayload {
   question: string;
@@ -20,6 +24,7 @@ interface AIResponseBody {
   text?: string;
   response?: string;
   message?: string;
+  structured?: StructuredAIAnswer;
 }
 
 interface AIResult {
@@ -27,6 +32,7 @@ interface AIResult {
   flags: string[];
   followUpQuestions: string[];
   threadId?: string;
+  structured?: StructuredAIAnswer;
 }
 
 function normalizeStringArray(value: unknown) {
@@ -61,7 +67,17 @@ function parseResponse(payload: unknown): AIResult {
     flags: normalizeStringArray(body.flags),
     followUpQuestions: normalizeStringArray(body.followUpQuestions),
     threadId: typeof body.threadId === 'string' && body.threadId.trim() ? body.threadId : undefined,
+    structured: normalizeStructuredAIAnswer(body.structured),
   };
+}
+
+function parseErrorMessage(rawText: string) {
+  try {
+    const parsed = JSON.parse(rawText) as { error?: string };
+    return typeof parsed.error === 'string' && parsed.error.trim() ? parsed.error.trim() : rawText;
+  } catch {
+    return rawText;
+  }
 }
 
 export function useAI() {
@@ -114,7 +130,7 @@ export function useAI() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || 'AI request failed.');
+        throw new Error(parseErrorMessage(errorText) || 'AI request failed.');
       }
 
       // Kept on fetch so we can switch to streamed reads from response.body later.

@@ -80,6 +80,113 @@ export type Database = {
         };
         Relationships: [];
       };
+      ai_logs: {
+        Row: {
+          completion_tokens: number;
+          created_at: string;
+          flags: Json;
+          id: string;
+          model: string;
+          pii_detected: boolean;
+          prompt_tokens: number;
+          thread_id: string | null;
+          total_tokens: number;
+          user_id: string;
+        };
+        Insert: {
+          completion_tokens?: number;
+          created_at?: string;
+          flags?: Json;
+          id?: string;
+          model: string;
+          pii_detected?: boolean;
+          prompt_tokens?: number;
+          thread_id?: string | null;
+          total_tokens?: number;
+          user_id: string;
+        };
+        Update: {
+          completion_tokens?: number;
+          created_at?: string;
+          flags?: Json;
+          id?: string;
+          model?: string;
+          pii_detected?: boolean;
+          prompt_tokens?: number;
+          thread_id?: string | null;
+          total_tokens?: number;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      ai_messages: {
+        Row: {
+          content: string;
+          created_at: string;
+          id: string;
+          meta: Json;
+          role: string;
+          thread_id: string;
+          user_id: string;
+        };
+        Insert: {
+          content: string;
+          created_at?: string;
+          id?: string;
+          meta?: Json;
+          role: string;
+          thread_id: string;
+          user_id: string;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          id?: string;
+          meta?: Json;
+          role?: string;
+          thread_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ai_messages_thread_id_fkey';
+            columns: ['thread_id'];
+            isOneToOne: false;
+            referencedRelation: 'ai_threads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      ai_threads: {
+        Row: {
+          created_at: string;
+          id: string;
+          language: string;
+          procedure_id: string | null;
+          title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          language?: string;
+          procedure_id?: string | null;
+          title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          language?: string;
+          procedure_id?: string | null;
+          title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       drugs: {
         Row: {
           class: string | null;

@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { formatAIThreadDate, type Thread } from './AIWidget.types';
 
 interface AIThreadListProps {
+  isLoading?: boolean;
   search: string;
   selectedThreadId: string | null;
   threads: Thread[];
@@ -19,6 +20,7 @@ interface AIThreadListProps {
 }
 
 export default function AIThreadList({
+  isLoading = false,
   search,
   selectedThreadId,
   threads,
@@ -34,6 +36,7 @@ export default function AIThreadList({
       ? {
           search: 'Rechercher par titre',
           empty: 'Aucune conversation trouvee.',
+          loading: 'Chargement des conversations...',
           rename: 'Renommer',
           duplicate: 'Dupliquer vers le Bloc',
           delete: 'Supprimer',
@@ -42,6 +45,7 @@ export default function AIThreadList({
         ? {
             search: 'Pesquisar por titulo',
             empty: 'Nenhuma conversa encontrada.',
+            loading: 'A carregar conversas guardadas...',
             rename: 'Renomear',
             duplicate: 'Duplicar para Bloco',
             delete: 'Apagar',
@@ -49,6 +53,7 @@ export default function AIThreadList({
         : {
             search: 'Search by title',
             empty: 'No conversations found.',
+            loading: 'Loading saved conversations...',
             rename: 'Rename',
             duplicate: 'Duplicate to workspace',
             delete: 'Delete',
@@ -68,7 +73,13 @@ export default function AIThreadList({
 
       <ScrollArea className="h-56 pr-3">
         <div className="space-y-2">
-          {threads.length === 0 && (
+          {isLoading && threads.length === 0 && (
+            <div className="rounded-xl border border-dashed border-border bg-background/80 px-3 py-4 text-sm text-muted-foreground">
+              {copy.loading}
+            </div>
+          )}
+
+          {!isLoading && threads.length === 0 && (
             <div className="rounded-xl border border-dashed border-border bg-background/80 px-3 py-4 text-sm text-muted-foreground">
               {copy.empty}
             </div>

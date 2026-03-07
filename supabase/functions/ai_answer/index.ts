@@ -109,6 +109,46 @@ function normalizeStringArray(value: unknown, limit = 5): string[] {
     .slice(0, limit);
 }
 
+function normalizeCitations(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry) => {
+      if (!isJsonObject(entry)) {
+        return null;
+      }
+
+      const id = typeof entry.id === 'string' ? entry.id.trim() : '';
+      const label = typeof entry.label === 'string' ? entry.label.trim() : '';
+      const kind =
+        entry.kind === 'procedure' || entry.kind === 'guideline' || entry.kind === 'hospital_protocol'
+          ? entry.kind
+          : 'guideline';
+
+      if (!id || !label) {
+        return null;
+      }
+
+      return {
+        id,
+        label,
+        kind,
+        url: typeof entry.url === 'string' && entry.url.trim() ? entry.url.trim() : null,
+        note: typeof entry.note === 'string' && entry.note.trim() ? entry.note.trim() : null,
+      };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => !!entry)
+    .slice(0, 6);
+}
+
+function pushUniqueFlag(flags: string[], flag: string) {
+  if (!flags.includes(flag)) {
+    flags.push(flag);
+  }
+}
+
 function extractOutputText(payload: OpenAIResponsePayload): string {
   if (typeof payload.output_text === 'string' && payload.output_text.trim()) {
     return payload.output_text.trim();
@@ -136,17 +176,46 @@ function parseAIAnswer(rawText: string): ParsedAIAnswer {
     const parsed = JSON.parse(rawText) as Partial<ParsedAIAnswer>;
     const answer =
       typeof parsed.answer === 'string' && parsed.answer.trim() ? parsed.answer.trim() : rawText;
+    const structuredValue = isJsonObject(parsed.structured) ? parsed.structured : {};
+    const planValue = isJsonObject(structuredValue.plan) ? structuredValue.plan : {};
 
     return {
       answer,
       flags: normalizeStringArray(parsed.flags),
       followUpQuestions: normalizeStringArray(parsed.followUpQuestions, 3),
+      structured: {
+        assessment:
+          typeof structuredValue.assessment === 'string' && structuredValue.assessment.trim()
+            ? structuredValue.assessment.trim()
+            : answer,
+        missingInformation: normalizeStringArray(structuredValue.missingInformation, 6),
+        plan: {
+          preop: normalizeStringArray(planValue.preop, 8),
+          intraop: normalizeStringArray(planValue.intraop, 8),
+          postop: normalizeStringArray(planValue.postop, 8),
+        },
+        redFlags: normalizeStringArray(structuredValue.redFlags, 8),
+        checklist: normalizeStringArray(structuredValue.checklist, 10),
+        citations: normalizeCitations(structuredValue.citations),
+      },
     };
   } catch {
     return {
       answer: rawText,
       flags: [],
       followUpQuestions: [],
+      structured: {
+        assessment: rawText,
+        missingInformation: [],
+        plan: {
+          preop: [],
+          intraop: [],
+          postop: [],
+        },
+        redFlags: [],
+        checklist: [],
+        citations: [],
+      },
     };
   }
 }
@@ -331,6 +400,7 @@ async function insertMessage(
     userId: string;
     role: 'user' | 'assistant';
     content: string;
+    meta?: JsonObject;
   },
 ): Promise<void> {
   const { error } = await adminClient.from('ai_messages').insert({
@@ -338,6 +408,7 @@ async function insertMessage(
     user_id: payload.userId,
     role: payload.role,
     content: payload.content,
+    meta: payload.meta ?? {},
   });
 
   if (error) {
@@ -610,8 +681,78 @@ async function callOpenAI(
                   type: 'string',
                 },
               },
+              structured: {
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                  assessment: {
+                    type: 'string',
+                  },
+                  missingInformation: {
+                    type: 'array',
+                    items: { type: 'string' },
+                  },
+                  plan: {
+                    type: 'object',
+                    additionalProperties: false,
+                    properties: {
+                      preop: {
+                        type: 'array',
+                        items: { type: 'string' },
+                      },
+                      intraop: {
+                        type: 'array',
+                        items: { type: 'string' },
+                      },
+                      postop: {
+                        type: 'array',
+                        items: { type: 'string' },
+                      },
+                    },
+                    required: ['preop', 'intraop', 'postop'],
+                  },
+                  redFlags: {
+                    type: 'array',
+                    items: { type: 'string' },
+                  },
+                  checklist: {
+                    type: 'array',
+                    items: { type: 'string' },
+                  },
+                  citations: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      additionalProperties: false,
+                      properties: {
+                        id: { type: 'string' },
+                        label: { type: 'string' },
+                        kind: {
+                          type: 'string',
+                          enum: ['procedure', 'guideline', 'hospital_protocol'],
+                        },
+                        url: {
+                          type: ['string', 'null'],
+                        },
+                        note: {
+                          type: ['string', 'null'],
+                        },
+                      },
+                      required: ['id', 'label', 'kind', 'url', 'note'],
+                    },
+                  },
+                },
+                required: [
+                  'assessment',
+                  'missingInformation',
+                  'plan',
+                  'redFlags',
+                  'checklist',
+                  'citations',
+                ],
+              },
             },
-            required: ['answer', 'flags', 'followUpQuestions'],
+            required: ['answer', 'flags', 'followUpQuestions', 'structured'],
           },
         },
       },
@@ -739,6 +880,11 @@ serve(async (req) => {
       userId,
       role: 'user',
       content: question,
+      meta: {
+        flags: [],
+        followUpQuestions: [],
+        structured: null,
+      },
     });
 
     const hospitalProfileId = resolveHospitalProfileId(constraints);
@@ -761,12 +907,27 @@ serve(async (req) => {
 
     const model = Deno.env.get('OPENAI_MODEL')?.trim() || DEFAULT_OPENAI_MODEL;
     const { parsed, usage } = await callOpenAI(promptMessages, model, constraints);
+    const hasGroundingSources = !!procedure || guidelines.length > 0 || !!hospitalProtocol;
+
+    if (hasGroundingSources && parsed.structured.citations.length === 0) {
+      pushUniqueFlag(parsed.flags, 'missing_grounding');
+      if (!parsed.structured.missingInformation.includes('Grounding source not identified in the current context.')) {
+        parsed.structured.missingInformation.unshift(
+          'Grounding source not identified in the current context.',
+        );
+      }
+    }
 
     await insertMessage(adminClient, {
       threadId: resolvedThreadId,
       userId,
       role: 'assistant',
       content: parsed.answer,
+      meta: {
+        flags: parsed.flags,
+        followUpQuestions: parsed.followUpQuestions,
+        structured: parsed.structured as unknown as JsonObject,
+      },
     });
 
     try {
@@ -790,6 +951,7 @@ serve(async (req) => {
       answer: parsed.answer,
       flags: parsed.flags,
       followUpQuestions: parsed.followUpQuestions,
+      structured: parsed.structured,
     });
   } catch (error) {
     if (error instanceof HttpError) {

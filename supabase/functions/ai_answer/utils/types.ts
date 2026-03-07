@@ -48,6 +48,14 @@ export type GuidelineContext = {
   };
 };
 
+export type SourceCitation = {
+  id: string;
+  label: string;
+  kind: 'procedure' | 'guideline' | 'hospital_protocol';
+  url?: string | null;
+  note?: string | null;
+};
+
 export type HospitalProtocolContext = {
   id: string;
   name: string;
@@ -71,9 +79,21 @@ export type ParsedAIAnswer = {
   answer: string;
   flags: string[];
   followUpQuestions: string[];
+  structured: {
+    assessment: string;
+    missingInformation: string[];
+    plan: {
+      preop: string[];
+      intraop: string[];
+      postop: string[];
+    };
+    redFlags: string[];
+    checklist: string[];
+    citations: SourceCitation[];
+  };
 };
 
-export type PIIType = 'email' | 'phone' | 'long_number';
+export type PIIType = 'date_of_birth' | 'email' | 'hospital_record' | 'long_number' | 'phone';
 
 export type PIIMatch = {
   type: PIIType;

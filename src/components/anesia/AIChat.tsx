@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  ArrowRight,
   Save,
   SendHorizonal,
   Sparkles,
@@ -76,6 +77,16 @@ export default function AIChat({
           generating: 'Generation de la reponse...',
           placeholder: 'Ecrivez votre question...',
           piiDetected: 'PII potentielle detectee',
+          missingInformation: 'Informations manquantes',
+          plan: 'Plan',
+          preop: 'Pre-op',
+          intraop: 'Per-op',
+          postop: 'Post-op',
+          redFlags: 'Red flags',
+          checklist: 'Checklist',
+          citations: 'Sources',
+          groundingMissing: 'Aucune source explicite n a ete reliee a cette reponse.',
+          followUps: 'Questions suivantes',
           clear: 'Effacer',
           saveToHistory: "Enregistrer dans l'historique",
           stop: 'Arreter',
@@ -91,6 +102,16 @@ export default function AIChat({
             generating: 'A gerar resposta...',
             placeholder: 'Escreve a tua pergunta...',
             piiDetected: 'Possivel PII detetada',
+            missingInformation: 'Informacao em falta',
+            plan: 'Plano',
+            preop: 'Pre-op',
+            intraop: 'Intra-op',
+            postop: 'Pos-op',
+            redFlags: 'Red flags',
+            checklist: 'Checklist',
+            citations: 'Fontes',
+            groundingMissing: 'Nenhuma fonte explicita foi ligada a esta resposta.',
+            followUps: 'Perguntas seguintes',
             clear: 'Limpar',
             saveToHistory: 'Guardar no historico',
             stop: 'Parar',
@@ -105,11 +126,154 @@ export default function AIChat({
             generating: 'Generating response...',
             placeholder: 'Write your question...',
             piiDetected: 'Possible PII detected',
+            missingInformation: 'Missing information',
+            plan: 'Plan',
+            preop: 'Pre-op',
+            intraop: 'Intra-op',
+            postop: 'Post-op',
+            redFlags: 'Red flags',
+            checklist: 'Checklist',
+            citations: 'Grounding',
+            groundingMissing: 'No explicit source was attached to this answer.',
+            followUps: 'Follow-up prompts',
             clear: 'Clear',
             saveToHistory: 'Save to history',
             stop: 'Stop',
             send: 'Send',
           };
+
+  const renderStructuredMessage = (message: Message) => {
+    if (!message.structured) {
+      return <p className="whitespace-pre-wrap break-words">{message.content}</p>;
+    }
+
+    const { structured } = message;
+    const planSections = [
+      { key: 'preop', label: copy.preop, items: structured.plan.preop },
+      { key: 'intraop', label: copy.intraop, items: structured.plan.intraop },
+      { key: 'postop', label: copy.postop, items: structured.plan.postop },
+    ].filter((section) => section.items.length > 0);
+
+    return (
+      <div className="space-y-3">
+        <p className="whitespace-pre-wrap break-words font-medium">
+          {structured.assessment || message.content}
+        </p>
+
+        {structured.missingInformation.length > 0 && (
+          <div className="rounded-xl border border-amber-300/60 bg-amber-50/80 px-3 py-2 text-xs text-amber-950">
+            <p className="font-semibold">{copy.missingInformation}</p>
+            <ul className="mt-1 space-y-1">
+              {structured.missingInformation.map((item) => (
+                <li key={item} className="flex gap-2">
+                  <span>•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {planSections.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide opacity-80">{copy.plan}</p>
+            <div className="grid gap-2">
+              {planSections.map((section) => (
+                <div
+                  key={section.key}
+                  className="rounded-xl border border-border/70 bg-background/70 px-3 py-2"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {section.label}
+                  </p>
+                  <ul className="mt-1 space-y-1 text-xs text-foreground">
+                    {section.items.map((item) => (
+                      <li key={`${section.key}-${item}`} className="flex gap-2">
+                        <ArrowRight className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {structured.redFlags.length > 0 && (
+          <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs">
+            <p className="font-semibold text-destructive">{copy.redFlags}</p>
+            <ul className="mt-1 space-y-1 text-foreground">
+              {structured.redFlags.map((item) => (
+                <li key={item} className="flex gap-2">
+                  <span>•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {structured.checklist.length > 0 && (
+          <div className="rounded-xl border border-border/70 bg-background/70 px-3 py-2 text-xs">
+            <p className="font-semibold text-foreground">{copy.checklist}</p>
+            <ul className="mt-1 space-y-1 text-foreground">
+              {structured.checklist.map((item) => (
+                <li key={item} className="flex gap-2">
+                  <span>□</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {structured.citations.length > 0 ? (
+          <div className="space-y-1 rounded-xl border border-border/70 bg-background/70 px-3 py-2 text-xs">
+            <p className="font-semibold text-foreground">{copy.citations}</p>
+            <div className="flex flex-wrap gap-2">
+              {structured.citations.map((citation) => (
+                <a
+                  key={citation.id}
+                  href={citation.url || undefined}
+                  className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1 text-xs text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                  target={citation.url?.startsWith('http') ? '_blank' : undefined}
+                  rel={citation.url?.startsWith('http') ? 'noreferrer' : undefined}
+                >
+                  <span>{citation.label}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-amber-300/60 bg-amber-50/80 px-3 py-2 text-xs text-amber-950">
+            <p className="font-semibold">{copy.citations}</p>
+            <p>{copy.groundingMissing}</p>
+          </div>
+        )}
+
+        {message.followUpQuestions && message.followUpQuestions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground">{copy.followUps}</p>
+            <div className="flex flex-wrap gap-2">
+              {message.followUpQuestions.map((item) => (
+                <Button
+                  key={item}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 rounded-full px-2.5 text-[11px]"
+                  onClick={() => setDraft(item)}
+                >
+                  {item}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const focusTextarea = () => {
     textareaRef.current?.focus();
@@ -174,6 +338,10 @@ export default function AIChat({
         content: result.answer,
         createdAt: new Date().toISOString(),
         ...(result.flags.length > 0 ? { flags: result.flags } : {}),
+        ...(result.followUpQuestions.length > 0
+          ? { followUpQuestions: result.followUpQuestions }
+          : {}),
+        ...(result.structured ? { structured: result.structured } : {}),
       };
 
       setMessages((currentMessages) => [...currentMessages, assistantMessage]);
@@ -269,7 +437,11 @@ export default function AIChat({
                       : 'bg-muted text-foreground',
                   )}
                 >
-                  <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                  {isUser ? (
+                    <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                  ) : (
+                    renderStructuredMessage(message)
+                  )}
                   {message.flags && message.flags.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {message.flags.map((flag) => (
@@ -310,7 +482,9 @@ export default function AIChat({
       <div
         className="space-y-3 rounded-2xl border border-border/70 bg-background p-3"
         data-vaul-no-drag
-        onClick={focusTextarea}
+        onMouseDown={(event) => event.stopPropagation()}
+        onPointerDown={(event) => event.stopPropagation()}
+        onTouchStart={(event) => event.stopPropagation()}
       >
         <Textarea
           ref={textareaRef}
@@ -320,7 +494,10 @@ export default function AIChat({
           className="min-h-[110px] resize-none"
           data-vaul-no-drag
           autoFocus
-          onClick={focusTextarea}
+          onFocus={(event) => event.stopPropagation()}
+          onMouseDown={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+          onTouchStart={(event) => event.stopPropagation()}
           onKeyDown={(event) => {
             if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
               event.preventDefault();

@@ -4,12 +4,20 @@ import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAIProcedureContext } from '@/contexts/AIProcedureContext';
 import { useLang } from '@/contexts/LanguageContext';
+import { useAIThreads } from '@/hooks/useAIThreads';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AIChat from './AIChat';
 import AIThreadList from './AIThreadList';
-import { buildThreadTitle, createAIId, type Message, type Thread } from './AIWidget.types';
+import {
+  buildThreadTitle,
+  createAIId,
+  normalizeAIThread,
+  sortAIThreads,
+  type Message,
+  type Thread,
+} from './AIWidget.types';
 
 const AI_THREADS_STORAGE_KEY = 'ai_threads_v1';
 const AI_THREADS_STORAGE_VERSION = 1;
@@ -21,71 +29,6 @@ type AIStoragePayload = {
 };
 
 type AITab = 'block' | 'history';
-
-function normalizeMessage(value: unknown): Message | null {
-  if (!value || typeof value !== 'object') {
-    return null;
-  }
-
-  const candidate = value as Partial<Message>;
-
-  if (
-    typeof candidate.id !== 'string' ||
-    typeof candidate.content !== 'string' ||
-    typeof candidate.createdAt !== 'string' ||
-    (candidate.role !== 'assistant' && candidate.role !== 'system' && candidate.role !== 'user')
-  ) {
-    return null;
-  }
-
-  return {
-    id: candidate.id,
-    role: candidate.role,
-    content: candidate.content,
-    createdAt: candidate.createdAt,
-    flags: Array.isArray(candidate.flags)
-      ? candidate.flags.filter((flag): flag is string => typeof flag === 'string')
-      : undefined,
-  };
-}
-
-function normalizeThread(value: unknown): Thread | null {
-  if (!value || typeof value !== 'object') {
-    return null;
-  }
-
-  const candidate = value as Partial<Thread>;
-  const language =
-    candidate.language === 'fr' || candidate.language === 'en' || candidate.language === 'pt'
-      ? candidate.language
-      : 'fr';
-  const messages = Array.isArray(candidate.messages)
-    ? candidate.messages
-        .map((message) => normalizeMessage(message))
-        .filter((message): message is Message => !!message)
-    : [];
-
-  if (
-    typeof candidate.id !== 'string' ||
-    typeof candidate.title !== 'string' ||
-    typeof candidate.createdAt !== 'string' ||
-    typeof candidate.updatedAt !== 'string'
-  ) {
-    return null;
-  }
-
-  return {
-    id: candidate.id,
-    title: candidate.title,
-    createdAt: candidate.createdAt,
-    updatedAt: candidate.updatedAt,
-    procedureId: typeof candidate.procedureId === 'string' ? candidate.procedureId : undefined,
-    procedureTitle:
-      typeof candidate.procedureTitle === 'string' ? candidate.procedureTitle : undefined,
-    language,
-    messages,
-  };
-}
 
 function readThreadStorageValue() {
   if (typeof window === 'undefined') {
@@ -125,7 +68,7 @@ function readStoredThreads() {
         : [];
 
     return storedThreads
-      .map((thread) => normalizeThread(thread))
+      .map((thread) => normalizeAIThread(thread))
       .filter((thread): thread is Thread => !!thread);
   } catch (error) {
     console.warn('[AIWidget] Failed to parse stored threads.', error);
@@ -146,13 +89,6 @@ function persistThreads(threads: Thread[]) {
   window.localStorage.setItem(AI_THREADS_STORAGE_KEY, JSON.stringify(payload));
 }
 
-function sortThreads(threads: Thread[]) {
-  return [...threads].sort(
-    (firstThread, secondThread) =>
-      new Date(secondThread.updatedAt).getTime() - new Date(firstThread.updatedAt).getTime(),
-  );
-}
-
 function resolveSetStateAction<T>(value: SetStateAction<T>, currentValue: T) {
   return value instanceof Function ? value(currentValue) : value;
 }
@@ -168,6 +104,30 @@ function isRemoteThreadId(threadId: string | null | undefined) {
   return !!threadId && !threadId.startsWith('thread-');
 }
 
+function mergeThreadsWithRemote(currentThreads: Thread[], remoteThreads: Thread[]) {
+  const localOnlyThreads = currentThreads.filter((thread) => !isRemoteThreadId(thread.id));
+  const currentRemoteThreadMap = new Map(
+    currentThreads
+      .filter((thread) => isRemoteThreadId(thread.id))
+      .map((thread) => [thread.id, thread]),
+  );
+
+  const mergedRemoteThreads = remoteThreads.map((remoteThread) => {
+    const currentThread = currentRemoteThreadMap.get(remoteThread.id);
+
+    if (!currentThread) {
+      return remoteThread;
+    }
+
+    const currentUpdatedAt = new Date(currentThread.updatedAt).getTime();
+    const remoteUpdatedAt = new Date(remoteThread.updatedAt).getTime();
+
+    return currentUpdatedAt > remoteUpdatedAt ? currentThread : remoteThread;
+  });
+
+  return sortAIThreads([...mergedRemoteThreads, ...localOnlyThreads]);
+}
+
 export default function AIWidget() {
   const { lang } = useLang();
   const { procedureContext } = useAIProcedureContext();
@@ -180,6 +140,15 @@ export default function AIWidget() {
   const [threadSearch, setThreadSearch] = useState('');
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [threads, setThreads] = useState<Thread[]>(() => readStoredThreads());
+  const {
+    userId,
+    threads: remoteThreads,
+    isLoading: remoteThreadsLoading,
+    renameRemoteThread,
+    deleteRemoteThread,
+    createRemoteThreadFromMessages,
+    refetch: refetchRemoteThreads,
+  } = useAIThreads();
   const quickPrompts =
     lang === 'fr'
       ? ['Plan pre/intra/post', 'Checklist', 'Red flags', 'NVPO', 'TEV', 'Voie aerienne', 'ALR']
@@ -242,7 +211,15 @@ export default function AIWidget() {
     persistThreads(threads);
   }, [threads]);
 
-  const sortedThreads = useMemo(() => sortThreads(threads), [threads]);
+  useEffect(() => {
+    if (remoteThreads.length === 0) {
+      return;
+    }
+
+    setThreads((currentThreads) => mergeThreadsWithRemote(currentThreads, remoteThreads));
+  }, [remoteThreads]);
+
+  const sortedThreads = useMemo(() => sortAIThreads(threads), [threads]);
   const filteredThreads = useMemo(() => {
     const normalizedSearch = threadSearch.trim().toLowerCase();
 
@@ -264,7 +241,7 @@ export default function AIWidget() {
     }
 
     if (!selectedThreadId || !threads.some((thread) => thread.id === selectedThreadId)) {
-      setSelectedThreadId(sortThreads(threads)[0]?.id || null);
+      setSelectedThreadId(sortAIThreads(threads)[0]?.id || null);
     }
   }, [selectedThreadId, threads]);
 
@@ -279,9 +256,36 @@ export default function AIWidget() {
     }
 
     const now = new Date().toISOString();
-    const newThread: Thread = {
-      id: blockThreadId || createAIId('thread'),
-      title: buildThreadTitle(blockMessages, procedureContext?.procedureTitle),
+    const nextTitle = buildThreadTitle(blockMessages, procedureContext?.procedureTitle);
+
+    if (blockThreadId && isRemoteThreadId(blockThreadId)) {
+      const nextThread: Thread = {
+        id: blockThreadId,
+        title: nextTitle,
+        createdAt: now,
+        updatedAt: now,
+        procedureId: procedureContext?.procedureId,
+        procedureTitle: procedureContext?.procedureTitle,
+        language: lang,
+        messages: cloneMessages(blockMessages),
+      };
+
+      setThreads((currentThreads) => {
+        const remainingThreads = currentThreads.filter((thread) => thread.id !== nextThread.id);
+        return sortAIThreads([nextThread, ...remainingThreads]);
+      });
+      setSelectedThreadId(nextThread.id);
+      setActiveTab('history');
+      toast.success(copy.saved);
+      void renameRemoteThread({ threadId: blockThreadId, title: nextTitle }).finally(() => {
+        void refetchRemoteThreads();
+      });
+      return;
+    }
+
+    const localThread: Thread = {
+      id: createAIId('thread'),
+      title: nextTitle,
       createdAt: now,
       updatedAt: now,
       procedureId: procedureContext?.procedureId,
@@ -290,14 +294,43 @@ export default function AIWidget() {
       messages: cloneMessages(blockMessages),
     };
 
-    setThreads((currentThreads) => {
-      const remainingThreads = currentThreads.filter((thread) => thread.id !== newThread.id);
-      return [newThread, ...remainingThreads];
-    });
-    setSelectedThreadId(newThread.id);
+    setThreads((currentThreads) => sortAIThreads([localThread, ...currentThreads]));
+    setSelectedThreadId(localThread.id);
     setActiveTab('history');
     toast.success(copy.saved);
-  }, [blockMessages, blockThreadId, copy.saved, lang, procedureContext]);
+
+    if (!userId) {
+      return;
+    }
+
+    void createRemoteThreadFromMessages({
+      title: nextTitle,
+      language: lang,
+      procedureId: procedureContext?.procedureId,
+      messages: blockMessages,
+    })
+      .then((remoteThread) => {
+        setThreads((currentThreads) => {
+          const withoutLocal = currentThreads.filter((thread) => thread.id !== localThread.id);
+          return sortAIThreads([remoteThread, ...withoutLocal]);
+        });
+        setSelectedThreadId(remoteThread.id);
+        setBlockThreadId(remoteThread.id);
+      })
+      .catch((error) => {
+        console.warn('[AIWidget] Failed to sync block thread to Supabase.', error);
+      });
+  }, [
+    blockMessages,
+    blockThreadId,
+    copy.saved,
+    createRemoteThreadFromMessages,
+    lang,
+    procedureContext,
+    refetchRemoteThreads,
+    renameRemoteThread,
+    userId,
+  ]);
 
   const handleRenameThread = useCallback((threadId: string) => {
     const targetThread = threads.find((thread) => thread.id === threadId);
@@ -323,7 +356,13 @@ export default function AIWidget() {
           : thread,
       ),
     );
-  }, [copy.renamePrompt, threads]);
+
+    if (isRemoteThreadId(threadId)) {
+      void renameRemoteThread({ threadId, title: nextTitle }).catch((error) => {
+        console.warn('[AIWidget] Failed to rename remote thread.', error);
+      });
+    }
+  }, [copy.renamePrompt, renameRemoteThread, threads]);
 
   const handleDeleteThread = useCallback((threadId: string) => {
     const confirmed = window.confirm(copy.deletePrompt);
@@ -340,7 +379,13 @@ export default function AIWidget() {
     }
 
     toast.success(copy.deleted);
-  }, [blockThreadId, copy.deletePrompt, copy.deleted]);
+
+    if (isRemoteThreadId(threadId)) {
+      void deleteRemoteThread(threadId).catch((error) => {
+        console.warn('[AIWidget] Failed to delete remote thread.', error);
+      });
+    }
+  }, [blockThreadId, copy.deletePrompt, copy.deleted, deleteRemoteThread]);
 
   const handleDuplicateThreadToBlock = useCallback((threadId: string) => {
     const targetThread = threads.find((thread) => thread.id === threadId);
@@ -421,7 +466,10 @@ export default function AIWidget() {
             setMessages={setBlockMessages}
             onClear={handleClearBlock}
             onSaveToHistory={handleSaveBlockToHistory}
-            onThreadResolved={setBlockThreadId}
+            onThreadResolved={(nextThreadId) => {
+              setBlockThreadId(nextThreadId);
+              void refetchRemoteThreads();
+            }}
             canSaveToHistory={blockMessages.length > 0}
             procedureContextOverride={procedureContext}
             threadId={blockThreadId}
@@ -437,6 +485,7 @@ export default function AIWidget() {
             search={threadSearch}
             selectedThreadId={selectedThreadId}
             threads={filteredThreads}
+            isLoading={remoteThreadsLoading}
             onDeleteThread={handleDeleteThread}
             onDuplicateThread={handleDuplicateThreadToBlock}
             onRenameThread={handleRenameThread}
@@ -475,6 +524,7 @@ export default function AIWidget() {
                     ),
                   );
                   setSelectedThreadId(nextThreadId);
+                  void refetchRemoteThreads();
                 }}
                 threadId={isRemoteThreadId(selectedThread.id) ? selectedThread.id : null}
               />
@@ -497,7 +547,12 @@ export default function AIWidget() {
         aria-hidden="true"
       />
       {isMobile ? (
-        <div className="fixed inset-x-0 bottom-0 z-[60] flex max-h-[85vh] flex-col rounded-t-[18px] border bg-background shadow-2xl">
+        <div
+          className="fixed inset-x-0 bottom-0 z-[60] flex max-h-[85vh] flex-col rounded-t-[18px] border bg-background shadow-2xl"
+          onMouseDown={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+          onTouchStart={(event) => event.stopPropagation()}
+        >
           <div className="mx-auto mt-3 h-1.5 w-16 rounded-full bg-muted" />
           <div className="flex justify-end px-3 pt-2">
             <Button
@@ -514,6 +569,9 @@ export default function AIWidget() {
           <div
             className="min-h-0 flex-1 overflow-hidden"
             onClick={(event) => event.stopPropagation()}
+            onMouseDown={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+            onTouchStart={(event) => event.stopPropagation()}
           >
             {panelContent}
           </div>
@@ -522,6 +580,9 @@ export default function AIWidget() {
         <div
           className="fixed inset-y-0 right-0 z-[60] flex h-full w-full flex-col border-l bg-background shadow-2xl sm:max-w-[34rem]"
           onClick={(event) => event.stopPropagation()}
+          onMouseDown={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+          onTouchStart={(event) => event.stopPropagation()}
         >
           <div className="flex justify-end px-3 pt-3">
             <Button

@@ -3,6 +3,8 @@ import type { JsonObject, JsonValue, PIIDetectionResult, PIIMatch, PIIType } fro
 const EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const PHONE_REGEX = /(?:\+?\d[\d\s().-]{7,}\d)/g;
 const LONG_NUMBER_REGEX = /\b\d{8,}\b/g;
+const DATE_OF_BIRTH_REGEX = /\b(?:dob|date of birth|data de nascimento|date de naissance)\b[\s:.-]*(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}[/-]\d{1,2}[/-]\d{1,2})/gi;
+const HOSPITAL_RECORD_REGEX = /\b(?:mrn|record\s*(?:number|id)|numero\s+de\s+processo|numero\s+de\s+dossier|n[úu]mero\s+de\s+doente)\b[\s:#-]*[a-z0-9-]{4,}/gi;
 
 function collectStrings(value: JsonValue | undefined, bucket: string[]) {
   if (typeof value === 'string') {
@@ -60,6 +62,8 @@ export function detectPII(values: Array<string | JsonObject | undefined>): PIIDe
 
   matchPattern(payload, EMAIL_REGEX, 'email', matches);
   matchPattern(payload, PHONE_REGEX, 'phone', matches);
+  matchPattern(payload, DATE_OF_BIRTH_REGEX, 'date_of_birth', matches);
+  matchPattern(payload, HOSPITAL_RECORD_REGEX, 'hospital_record', matches);
   matchPattern(payload, LONG_NUMBER_REGEX, 'long_number', matches);
 
   const dedupedMatches = matches.filter(

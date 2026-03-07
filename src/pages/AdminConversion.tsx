@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useAdminConversionAggregate } from '@/hooks/useAdminAggregates';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type AnalyticsRow = {
@@ -175,6 +176,13 @@ export default function AdminConversion() {
 
       return (data || []) as AnalyticsRow[];
     },
+  });
+  const conversionAggregateQuery = useAdminConversionAggregate({
+    periodDays,
+    surface: selectedSurface === ALL_FILTER ? null : selectedSurface,
+    source: selectedSource === ALL_FILTER ? null : selectedSource,
+    campaign: selectedCampaign === ALL_FILTER ? null : selectedCampaign,
+    segment: selectedSegment === ALL_FILTER ? null : selectedSegment,
   });
 
   const filterOptions = useMemo(() => {
@@ -409,6 +417,7 @@ export default function AdminConversion() {
     selectedSource !== ALL_FILTER ||
     selectedCampaign !== ALL_FILTER ||
     selectedSegment !== ALL_FILTER;
+  const displayedFunnel = conversionAggregateQuery.data || funnel;
 
   return (
     <div className="space-y-6">
@@ -521,17 +530,17 @@ export default function AdminConversion() {
 
       <div className="grid gap-4 md:grid-cols-4">
         {([
-          ['preview', funnel.previewSessions, null],
-          ['click', funnel.clickSessions, asPercent(funnel.clickSessions, funnel.previewSessions)],
+          ['preview', displayedFunnel.previewSessions, null],
+          ['click', displayedFunnel.clickSessions, asPercent(displayedFunnel.clickSessions, displayedFunnel.previewSessions)],
           [
             'checkout',
-            funnel.checkoutSessions,
-            asPercent(funnel.checkoutSessions, funnel.clickSessions),
+            displayedFunnel.checkoutSessions,
+            asPercent(displayedFunnel.checkoutSessions, displayedFunnel.clickSessions),
           ],
           [
             'success',
-            funnel.successSessions,
-            asPercent(funnel.successSessions, funnel.checkoutSessions),
+            displayedFunnel.successSessions,
+            asPercent(displayedFunnel.successSessions, displayedFunnel.checkoutSessions),
           ],
         ] as Array<[StageKey, number, string | null]>).map(([stage, value, ratio]) => (
           <Card key={stage}>
@@ -557,18 +566,19 @@ export default function AdminConversion() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {analyticsQuery.isLoading && (
+            {(analyticsQuery.isLoading || conversionAggregateQuery.isLoading) && (
               <p className="text-sm text-muted-foreground">Loading funnel...</p>
             )}
-            {analyticsQuery.error && (
+            {(analyticsQuery.error || conversionAggregateQuery.error) && (
               <p className="text-sm text-destructive">
-                {(analyticsQuery.error as Error).message || 'Failed to load conversion analytics'}
+                {((conversionAggregateQuery.error || analyticsQuery.error) as Error).message ||
+                  'Failed to load conversion analytics'}
               </p>
             )}
-            {!analyticsQuery.isLoading && funnel.trend.length === 0 && (
+            {!analyticsQuery.isLoading && !conversionAggregateQuery.isLoading && displayedFunnel.trend.length === 0 && (
               <p className="text-sm text-muted-foreground">No Pro conversion data yet.</p>
             )}
-            {funnel.trend.slice(-14).map((row) => (
+            {displayedFunnel.trend.slice(-14).map((row) => (
               <div key={row.day} className="rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-foreground">{row.day}</p>
@@ -601,10 +611,10 @@ export default function AdminConversion() {
             <CardTitle className="text-base">Conversion by language</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {!analyticsQuery.isLoading && funnel.languages.length === 0 && (
+            {!analyticsQuery.isLoading && !conversionAggregateQuery.isLoading && displayedFunnel.languages.length === 0 && (
               <p className="text-sm text-muted-foreground">No language breakdown yet.</p>
             )}
-            {funnel.languages.map((row) => (
+            {displayedFunnel.languages.map((row) => (
               <div key={row.language} className="rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-foreground">{row.language}</p>
@@ -625,10 +635,10 @@ export default function AdminConversion() {
             <CardTitle className="text-base">Conversion by traffic segment</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {!analyticsQuery.isLoading && funnel.segments.length === 0 && (
+            {!analyticsQuery.isLoading && !conversionAggregateQuery.isLoading && displayedFunnel.segments.length === 0 && (
               <p className="text-sm text-muted-foreground">No traffic segment breakdown yet.</p>
             )}
-            {funnel.segments.map((row) => (
+            {displayedFunnel.segments.map((row) => (
               <div key={row.segment} className="rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-foreground">{row.segment}</p>
@@ -650,10 +660,10 @@ export default function AdminConversion() {
           <CardTitle className="text-base">Conversion by surface</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {!analyticsQuery.isLoading && funnel.surfaces.length === 0 && (
+          {!analyticsQuery.isLoading && !conversionAggregateQuery.isLoading && displayedFunnel.surfaces.length === 0 && (
             <p className="text-sm text-muted-foreground">No Pro conversion data yet.</p>
           )}
-          {funnel.surfaces.map((row) => (
+          {displayedFunnel.surfaces.map((row) => (
             <div key={row.surface} className="rounded-lg border border-border p-4">
               <div className="flex items-center justify-between gap-3">
                 <p className="font-medium text-foreground">{row.surface}</p>
@@ -683,10 +693,10 @@ export default function AdminConversion() {
             <CardTitle className="text-base">Conversion by source</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {!analyticsQuery.isLoading && funnel.sources.length === 0 && (
+            {!analyticsQuery.isLoading && !conversionAggregateQuery.isLoading && displayedFunnel.sources.length === 0 && (
               <p className="text-sm text-muted-foreground">No source breakdown yet.</p>
             )}
-            {funnel.sources.map((row) => (
+            {displayedFunnel.sources.map((row) => (
               <div key={row.source} className="rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-foreground">{row.source}</p>
@@ -707,10 +717,10 @@ export default function AdminConversion() {
             <CardTitle className="text-base">Conversion by campaign</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {!analyticsQuery.isLoading && funnel.campaigns.length === 0 && (
+            {!analyticsQuery.isLoading && !conversionAggregateQuery.isLoading && displayedFunnel.campaigns.length === 0 && (
               <p className="text-sm text-muted-foreground">No campaign breakdown yet.</p>
             )}
-            {funnel.campaigns.map((row) => (
+            {displayedFunnel.campaigns.map((row) => (
               <div key={row.campaign} className="rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-foreground">{row.campaign}</p>

@@ -12,14 +12,24 @@ export type SearchIntent = {
   route: string;
   synonyms: string[];
 };
+type SearchIntelligenceOverrides = {
+  redirectOverrides?: SearchRedirectOverride[];
+  synonymOverrides?: SearchIntentSynonymOverride[];
+};
 
-const SEARCH_INTENTS: SearchIntent[] = SEARCH_INTENTS_CONFIG.map((intent) => {
-  const override = SEARCH_INTENT_SYNONYM_OVERRIDES.find((entry) => entry.intentId === intent.id);
-  return {
-    ...intent,
-    synonyms: Array.from(new Set([...(intent.synonyms || []), ...(override?.extraSynonyms || [])])),
-  };
-});
+function buildSearchIntents(overrides?: SearchIntelligenceOverrides) {
+  const synonymOverrides = overrides?.synonymOverrides || SEARCH_INTENT_SYNONYM_OVERRIDES;
+
+  return SEARCH_INTENTS_CONFIG.map((intent) => {
+    const override = synonymOverrides.find((entry) => entry.intentId === intent.id);
+    return {
+      ...intent,
+      synonyms: Array.from(
+        new Set([...(intent.synonyms || []), ...(override?.extraSynonyms || [])]),
+      ),
+    };
+  });
+}
 
 function normalize(value: string) {
   return value
@@ -29,11 +39,16 @@ function normalize(value: string) {
     .trim();
 }
 
-export function getSearchExpansionTerms(query: string) {
+function getRedirectOverrides(overrides?: SearchIntelligenceOverrides) {
+  return overrides?.redirectOverrides || SEARCH_REDIRECT_OVERRIDES;
+}
+
+export function getSearchExpansionTerms(query: string, overrides?: SearchIntelligenceOverrides) {
   const normalizedQuery = normalize(query);
   if (!normalizedQuery) return [];
 
-  const matches = SEARCH_INTENTS.filter((intent) =>
+  const intents = buildSearchIntents(overrides);
+  const matches = intents.filter((intent) =>
     intent.synonyms.some((synonym) => normalizedQuery.includes(normalize(synonym))),
   );
 
@@ -44,16 +59,17 @@ export function getSearchExpansionTerms(query: string) {
   ).slice(0, 6);
 }
 
-export function resolveSearchIntent(query: string) {
+export function resolveSearchIntent(query: string, overrides?: SearchIntelligenceOverrides) {
   const normalizedQuery = normalize(query);
   if (!normalizedQuery) return null;
 
-  const exactOverride = SEARCH_REDIRECT_OVERRIDES.find(
+  const intents = buildSearchIntents(overrides);
+  const exactOverride = getRedirectOverrides(overrides).find(
     (override) => normalize(override.query) === normalizedQuery,
   );
 
   if (exactOverride) {
-    const baseIntent = SEARCH_INTENTS.find((intent) => intent.id === exactOverride.intentId);
+    const baseIntent = intents.find((intent) => intent.id === exactOverride.intentId);
     if (baseIntent) {
       return {
         ...baseIntent,
@@ -63,23 +79,24 @@ export function resolveSearchIntent(query: string) {
   }
 
   return (
-    SEARCH_INTENTS.find((intent) =>
+    intents.find((intent) =>
       intent.synonyms.some((synonym) => normalizedQuery.includes(normalize(synonym))),
     ) || null
   );
 }
 
-export function getAllSearchIntents() {
-  return SEARCH_INTENTS;
+export function getAllSearchIntents(overrides?: SearchIntelligenceOverrides) {
+  return buildSearchIntents(overrides);
 }
 
 export function getSearchActionRecommendations(
   queries: string[],
+  overrides?: SearchIntelligenceOverrides,
 ): Array<{ intent: SearchIntent; matchedQueries: string[] }> {
   const buckets = new Map<string, { intent: SearchIntent; matchedQueries: string[] }>();
 
   for (const query of queries) {
-    const intent = resolveSearchIntent(query);
+    const intent = resolveSearchIntent(query, overrides);
     if (!intent) continue;
 
     const bucket = buckets.get(intent.id) || { intent, matchedQueries: [] };
@@ -99,12 +116,15 @@ export type SearchRedirectSuggestion = {
   kind: 'redirect' | 'synonym';
 };
 
-export function getSearchRedirectSuggestions(queries: string[]): SearchRedirectSuggestion[] {
+export function getSearchRedirectSuggestions(
+  queries: string[],
+  overrides?: SearchIntelligenceOverrides,
+): SearchRedirectSuggestion[] {
   const normalizedSeen = new Set<string>();
   const suggestions: SearchRedirectSuggestion[] = [];
 
   for (const query of queries) {
-    const intent = resolveSearchIntent(query);
+    const intent = resolveSearchIntent(query, overrides);
     if (!intent) continue;
 
     const normalizedQuery = normalize(query);
@@ -125,8 +145,8 @@ export function getSearchRedirectSuggestions(queries: string[]): SearchRedirectS
   return suggestions;
 }
 
-export function buildSearchOverrideConfig(queries: string[]) {
-  const suggestions = getSearchRedirectSuggestions(queries);
+export function buildSearchOverrideConfig(queries: string[], overrides?: SearchIntelligenceOverrides) {
+  const suggestions = getSearchRedirectSuggestions(queries, overrides);
   const synonymBuckets = new Map<string, Set<string>>();
 
   for (const suggestion of suggestions) {

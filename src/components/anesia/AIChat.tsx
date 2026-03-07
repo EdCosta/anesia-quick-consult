@@ -23,6 +23,10 @@ import {
 } from '@/contexts/AIProcedureContext';
 import { useLang } from '@/contexts/LanguageContext';
 import { useAI } from '@/hooks/useAI';
+import {
+  useAITemplates,
+  type PromptScenario,
+} from '@/hooks/useAITemplates';
 import { useHospitalProfile } from '@/hooks/useHospitalProfile';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Badge } from '@/components/ui/badge';
@@ -32,30 +36,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { createAIId, detectPIIInText, type Message } from './AIWidget.types';
 
-type PromptScenario =
-  | 'all'
-  | 'general'
-  | 'fragile'
-  | 'airway'
-  | 'ponv'
-  | 'regional'
-  | 'pacu'
-  | 'hospital';
-type QuickPrompt = { label: string; prompt: string; scenario?: Exclude<PromptScenario, 'all'> };
+type PromptScenarioFilter = 'all' | PromptScenario;
+type QuickPrompt = { label: string; prompt: string; scenario?: PromptScenario };
 type AIResponseMode = 'checklist' | 'plan' | 'quick' | 'risk';
-type SavedPromptTemplate = {
-  id: string;
-  label: string;
-  prompt: string;
-  language: 'fr' | 'pt' | 'en';
-  createdAt: string;
-  pinned: boolean;
-  procedureId?: string | null;
-  procedureTitle?: string | null;
-  scenario?: Exclude<PromptScenario, 'all'>;
-};
-
-const AI_TEMPLATE_STORAGE_KEY = 'anesia-ai-saved-templates-v1';
 
 interface AIChatProps {
   canSaveToHistory?: boolean;
@@ -94,11 +77,9 @@ export default function AIChat({
     'anesia-ai-response-mode',
     'plan',
   );
-  const [savedTemplates, setSavedTemplates] = useLocalStorage<SavedPromptTemplate[]>(
-    AI_TEMPLATE_STORAGE_KEY,
-    [],
-  );
-  const [selectedScenario, setSelectedScenario] = useState<PromptScenario>('all');
+  const { templates: savedTemplates, saveTemplate, deleteTemplate, togglePinnedTemplate } =
+    useAITemplates();
+  const [selectedScenario, setSelectedScenario] = useState<PromptScenarioFilter>('all');
   const endRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const piiIssues = useMemo(() => detectPIIInText(draft), [draft]);
@@ -315,33 +296,37 @@ export default function AIChat({
       return;
     }
 
-    const nextTemplate: SavedPromptTemplate = {
-      id: createAIId('tpl'),
+    void saveTemplate({
       label,
       prompt,
       language: lang,
-      createdAt: new Date().toISOString(),
       pinned: false,
       procedureId: effectiveProcedureContext?.procedureId || null,
       procedureTitle: effectiveProcedureContext?.procedureTitle || null,
       scenario: selectedScenario === 'all' ? 'general' : selectedScenario,
-    };
-
-    setSavedTemplates((current) => [nextTemplate, ...current].slice(0, 18));
-    toast.success(copy.templateSaved);
+    })
+      .then(() => {
+        toast.success(copy.templateSaved);
+      })
+      .catch(() => {
+        toast.success(copy.templateSaved);
+      });
   };
 
   const handleDeleteTemplate = (templateId: string) => {
-    setSavedTemplates((current) => current.filter((template) => template.id !== templateId));
-    toast.success(copy.templateDeleted);
+    void deleteTemplate(templateId)
+      .then(() => {
+        toast.success(copy.templateDeleted);
+      })
+      .catch(() => {
+        toast.success(copy.templateDeleted);
+      });
   };
 
   const handleTogglePinnedTemplate = (templateId: string) => {
-    setSavedTemplates((current) =>
-      current.map((template) =>
-        template.id === templateId ? { ...template, pinned: !template.pinned } : template,
-      ),
-    );
+    void togglePinnedTemplate(templateId).catch(() => {
+      // Keep UI responsive; the hook already falls back locally where possible.
+    });
   };
 
   const renderStructuredMessage = (message: Message) => {

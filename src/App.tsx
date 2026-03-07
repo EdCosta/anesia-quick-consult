@@ -38,6 +38,7 @@ const AdminGuard = lazy(() => import('./components/admin/AdminGuard'));
 const AdminLayout = lazy(() => import('./pages/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminConversion = lazy(() => import('./pages/AdminConversion'));
+const AdminSearchOverrides = lazy(() => import('./pages/AdminSearchOverrides'));
 const AdminContent = lazy(() => import('./pages/AdminContent'));
 const AdminImportProcedures = lazy(() => import('./pages/AdminImportProcedures'));
 const AdminImportGuidelines = lazy(() => import('./pages/AdminImportGuidelines'));
@@ -124,6 +125,7 @@ const App = () => {
                         <Route path="/admin" element={<AdminLayout />}>
                           <Route index element={<AdminDashboard />} />
                           <Route path="conversion" element={<AdminConversion />} />
+                          <Route path="search" element={<AdminSearchOverrides />} />
                           <Route
                             path="import/procedures"
                             element={<AdminImportProcedures />}

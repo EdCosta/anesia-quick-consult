@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 const adminLinks = [
   { to: '/admin', label: 'Dashboard', end: true },
   { to: '/admin/conversion', label: 'Conversion' },
+  { to: '/admin/search', label: 'Search rules' },
   { to: '/admin/import/procedures', label: 'Procedures' },
   { to: '/admin/import/guidelines', label: 'Guidelines' },
   { to: '/admin/logs', label: 'Import logs' },

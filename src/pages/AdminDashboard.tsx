@@ -5,6 +5,8 @@ import { Search, Crown, Activity, RefreshCw, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
+import { useAdminDashboardAggregate } from '@/hooks/useAdminAggregates';
+import { useSearchOverrides } from '@/hooks/useSearchOverrides';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +37,11 @@ const cards = [
     title: 'Pro conversion',
     description: 'Track the Pro funnel from preview to checkout success.',
     to: '/admin/conversion',
+  },
+  {
+    title: 'Search rules',
+    description: 'Manage remote redirects and synonyms without redeploying.',
+    to: '/admin/search',
   },
 ];
 
@@ -162,6 +169,7 @@ export default function AdminDashboard() {
   const [periodDays, setPeriodDays] = useState(30);
   const [eventFilter, setEventFilter] = useState<EventFilter>('all');
   const [queryFilter, setQueryFilter] = useState('');
+  const { overrides: searchOverrides } = useSearchOverrides();
 
   const analyticsQuery = useQuery({
     queryKey: ['admin-analytics-events', periodDays],
@@ -181,6 +189,7 @@ export default function AdminDashboard() {
       return (data || []) as AnalyticsRow[];
     },
   });
+  const dashboardAggregateQuery = useAdminDashboardAggregate(periodDays);
   const runtimeReadiness = useMemo(() => getRuntimeReadiness(), []);
 
   const filteredRows = useMemo(() => {
@@ -212,6 +221,81 @@ export default function AdminDashboard() {
   }, [analyticsQuery.data, eventFilter, queryFilter]);
 
   const overview = useMemo(() => {
+    const canUseAggregate = eventFilter === 'all' && queryFilter.trim().length === 0;
+    if (canUseAggregate && dashboardAggregateQuery.data) {
+      const aggregate = dashboardAggregateQuery.data;
+      const zeroResultRate =
+        aggregate.searchCount > 0
+          ? Math.round((aggregate.zeroResultSearchCount / aggregate.searchCount) * 100)
+          : 0;
+      const searchToProcedureRate =
+        aggregate.uniqueSessions > 0
+          ? Math.round((aggregate.searchToProcedureSessions / aggregate.uniqueSessions) * 100)
+          : 0;
+      const publicToAppRate =
+        aggregate.uniqueSessions > 0
+          ? Math.round((aggregate.publicToAppSessions / aggregate.uniqueSessions) * 100)
+          : 0;
+      const alerts: AnalyticsAlert[] = [];
+
+      if (aggregate.searchCount >= 10 && zeroResultRate >= 20) {
+        alerts.push({
+          id: 'search-gaps',
+          severity: 'high',
+          title: 'Search gaps are too high',
+          detail: `${zeroResultRate}% of searches returned zero results in the current window.`,
+        });
+      }
+
+      if (aggregate.searchCount >= 10 && searchToProcedureRate < 25) {
+        alerts.push({
+          id: 'search-conversion',
+          severity: 'medium',
+          title: 'Search is not leading to procedures enough',
+          detail: `Only ${searchToProcedureRate}% of sessions reached a procedure after searching.`,
+        });
+      }
+
+      if (
+        overviewPublicSignalsNeeded(aggregate.publicToAppSessions, aggregate.totalEvents) &&
+        publicToAppRate < 10
+      ) {
+        alerts.push({
+          id: 'public-to-app',
+          severity: 'medium',
+          title: 'Public content is not sending enough users into the app',
+          detail: `Only ${publicToAppRate}% of sessions moved from public content into product usage.`,
+        });
+      }
+
+      if (aggregate.avgWeek1Retention < 20 && aggregate.cohortRows.length >= 2) {
+        alerts.push({
+          id: 'retention-week1',
+          severity: 'medium',
+          title: 'Week +1 retention is weak',
+          detail: `Average week +1 retention is ${aggregate.avgWeek1Retention}% across mature cohorts.`,
+        });
+      }
+
+      const searchRecommendations = getSearchActionRecommendations(
+        [
+          ...aggregate.topZeroResultSearches.map(([query]) => query),
+          ...aggregate.topLowResultSearches.map((entry) => entry.query),
+        ],
+        searchOverrides,
+      ).slice(0, 4);
+
+      return {
+        ...aggregate,
+        zeroResultRate,
+        searchToProcedureRate,
+        publicToAppRate,
+        alerts,
+        searchRecommendations,
+        recentEvents: filteredRows.slice(0, 10),
+      };
+    }
+
     const rows = filteredRows;
     const since24h = Date.now() - 24 * 60 * 60 * 1000;
     const topPaths = new Map<string, number>();
@@ -475,7 +559,7 @@ export default function AdminDashboard() {
     const searchRecommendations = getSearchActionRecommendations([
       ...Array.from(topZeroResultSearches.keys()),
       ...Array.from(topLowResultSearches.keys()),
-    ]).slice(0, 4);
+    ], searchOverrides).slice(0, 4);
 
     return {
       totalEvents: rows.length,
@@ -521,7 +605,7 @@ export default function AdminDashboard() {
       topLanguages,
       recentEvents: rows.slice(0, 10),
     };
-  }, [filteredRows]);
+  }, [dashboardAggregateQuery.data, eventFilter, filteredRows, queryFilter, searchOverrides]);
 
   const handleExportCsv = () => {
     if (filteredRows.length === 0) {
@@ -560,7 +644,7 @@ export default function AdminDashboard() {
       ...overview.topZeroResultSearches.map(([query]) => query),
       ...overview.topLowResultSearches.map(([query]) => query),
     ];
-    const suggestions = getSearchRedirectSuggestions(queries);
+    const suggestions = getSearchRedirectSuggestions(queries, searchOverrides);
 
     if (suggestions.length === 0) {
       toast.error('No search action suggestions to export');
@@ -577,7 +661,7 @@ export default function AdminDashboard() {
         route: suggestion.route,
         title: suggestion.intent.title.en,
       })),
-      suggestedConfig: buildSearchOverrideConfig(queries),
+      suggestedConfig: buildSearchOverrideConfig(queries, searchOverrides),
     };
 
     const blob = new Blob([JSON.stringify(payload, null, 2)], {

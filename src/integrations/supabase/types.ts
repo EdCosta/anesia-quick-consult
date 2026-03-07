@@ -157,6 +157,48 @@ export type Database = {
           },
         ];
       };
+      ai_prompt_templates: {
+        Row: {
+          created_at: string;
+          id: string;
+          label: string;
+          language: string;
+          pinned: boolean;
+          procedure_id: string | null;
+          procedure_title: string | null;
+          prompt: string;
+          scenario: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          label: string;
+          language?: string;
+          pinned?: boolean;
+          procedure_id?: string | null;
+          procedure_title?: string | null;
+          prompt: string;
+          scenario?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          label?: string;
+          language?: string;
+          pinned?: boolean;
+          procedure_id?: string | null;
+          procedure_title?: string | null;
+          prompt?: string;
+          scenario?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       ai_threads: {
         Row: {
           created_at: string;
@@ -403,6 +445,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      search_override_rules: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          id: string;
+          intent_id: string;
+          kind: string;
+          notes: string | null;
+          query: string;
+          route: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          id?: string;
+          intent_id: string;
+          kind: string;
+          notes?: string | null;
+          query: string;
+          route?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          id?: string;
+          intent_id?: string;
+          kind?: string;
+          notes?: string | null;
+          query?: string;
+          route?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       specialties: {
         Row: {
           created_at: string | null;
@@ -515,6 +593,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      get_admin_dashboard_summary: {
+        Args: {
+          p_period_days?: number;
+        };
+        Returns: Json;
+      };
+      get_admin_pro_conversion_summary: {
+        Args: {
+          p_campaign?: string | null;
+          p_period_days?: number;
+          p_segment?: string | null;
+          p_source?: string | null;
+          p_surface?: string | null;
+        };
+        Returns: Json;
+      };
       has_role: {
         Args: {
           _role: Database['public']['Enums']['app_role'];

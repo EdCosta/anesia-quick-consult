@@ -22,6 +22,7 @@ import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
 import type { Procedure } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useSearchOverrides } from '@/hooks/useSearchOverrides';
 import { useSpecialtyUsage } from '@/hooks/useSpecialtyUsage';
 import { useContentLimits } from '@/hooks/useContentLimits';
 import { useHospitalProfile } from '@/hooks/useHospitalProfile';
@@ -55,6 +56,7 @@ export default function Index() {
   const { procedureIndex, specialtiesData, indexLoading } = useData();
   const navigate = useNavigate();
   const { increment: incrementSpecialty, getSorted: getSortedSpecialties } = useSpecialtyUsage();
+  const { overrides: searchOverrides } = useSearchOverrides();
   const { procedures: procLimit, isLimited } = useContentLimits();
   const hospitalProfile = useHospitalProfile();
   const { isHospitalView } = useViewMode();
@@ -415,7 +417,10 @@ export default function Index() {
 
   const searchResults = useMemo(() => {
     if (!deferredSearchQuery.trim()) return null;
-    const terms = [deferredSearchQuery, ...getSearchExpansionTerms(deferredSearchQuery)];
+    const terms = [
+      deferredSearchQuery,
+      ...getSearchExpansionTerms(deferredSearchQuery, searchOverrides),
+    ];
     const results = new Map<string, Procedure>();
 
     terms.forEach((term) => {
@@ -427,17 +432,17 @@ export default function Index() {
     return Array.from(results.values());
   }, [deferredSearchQuery, fuse]);
   const searchIntent = useMemo(
-    () => resolveSearchIntent(deferredSearchQuery),
-    [deferredSearchQuery],
+    () => resolveSearchIntent(deferredSearchQuery, searchOverrides),
+    [deferredSearchQuery, searchOverrides],
   );
   const searchExpansionTerms = useMemo(
-    () => getSearchExpansionTerms(deferredSearchQuery),
-    [deferredSearchQuery],
+    () => getSearchExpansionTerms(deferredSearchQuery, searchOverrides),
+    [deferredSearchQuery, searchOverrides],
   );
   const alternateSearchIntents = useMemo(() => {
     if (!deferredSearchQuery.trim()) return [];
 
-    return getAllSearchIntents()
+    return getAllSearchIntents(searchOverrides)
       .filter((intent) => intent.id !== searchIntent?.id)
       .filter((intent) =>
         intent.synonyms.some((synonym) =>
@@ -445,7 +450,7 @@ export default function Index() {
         ),
       )
       .slice(0, 2);
-  }, [deferredSearchQuery, searchIntent?.id]);
+  }, [deferredSearchQuery, searchIntent?.id, searchOverrides]);
 
   const filteredResults = useMemo(() => {
     let source = searchResults ?? visibleProcedureIndex;

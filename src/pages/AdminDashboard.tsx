@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+  buildSearchOverrideConfig,
   getSearchActionRecommendations,
   getSearchRedirectSuggestions,
 } from '@/lib/searchIntelligence';
@@ -553,23 +554,29 @@ export default function AdminDashboard() {
   };
 
   const handleExportSearchActions = () => {
-    const suggestions = getSearchRedirectSuggestions([
+    const queries = [
       ...overview.topZeroResultSearches.map(([query]) => query),
       ...overview.topLowResultSearches.map(([query]) => query),
-    ]);
+    ];
+    const suggestions = getSearchRedirectSuggestions(queries);
 
     if (suggestions.length === 0) {
       toast.error('No search action suggestions to export');
       return;
     }
 
-    const payload = suggestions.map((suggestion) => ({
-      query: suggestion.query,
-      kind: suggestion.kind,
-      intent: suggestion.intent.id,
-      route: suggestion.route,
-      title: suggestion.intent.title.en,
-    }));
+    const payload = {
+      configTarget: 'src/lib/searchOverrides.config.ts',
+      generatedAt: new Date().toISOString(),
+      summary: suggestions.map((suggestion) => ({
+        query: suggestion.query,
+        kind: suggestion.kind,
+        intent: suggestion.intent.id,
+        route: suggestion.route,
+        title: suggestion.intent.title.en,
+      })),
+      suggestedConfig: buildSearchOverrideConfig(queries),
+    };
 
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: 'application/json;charset=utf-8',
@@ -1027,6 +1034,9 @@ export default function AdminDashboard() {
                   <h3 className="text-sm font-semibold text-foreground">
                     Recommended search actions
                   </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Export the current suggestions into the search override config.
+                  </p>
                   <div className="mt-3 space-y-3">
                     {overview.searchRecommendations.length === 0 ? (
                       <p className="text-sm text-muted-foreground">

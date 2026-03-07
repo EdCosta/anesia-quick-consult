@@ -32,7 +32,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { createAIId, detectPIIInText, type Message } from './AIWidget.types';
 
-type QuickPrompt = { label: string; prompt: string };
+type PromptScenario =
+  | 'all'
+  | 'general'
+  | 'fragile'
+  | 'airway'
+  | 'ponv'
+  | 'regional'
+  | 'pacu'
+  | 'hospital';
+type QuickPrompt = { label: string; prompt: string; scenario?: Exclude<PromptScenario, 'all'> };
 type AIResponseMode = 'checklist' | 'plan' | 'quick' | 'risk';
 type SavedPromptTemplate = {
   id: string;
@@ -43,6 +52,7 @@ type SavedPromptTemplate = {
   pinned: boolean;
   procedureId?: string | null;
   procedureTitle?: string | null;
+  scenario?: Exclude<PromptScenario, 'all'>;
 };
 
 const AI_TEMPLATE_STORAGE_KEY = 'anesia-ai-saved-templates-v1';
@@ -88,6 +98,7 @@ export default function AIChat({
     AI_TEMPLATE_STORAGE_KEY,
     [],
   );
+  const [selectedScenario, setSelectedScenario] = useState<PromptScenario>('all');
   const endRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const piiIssues = useMemo(() => detectPIIInText(draft), [draft]);
@@ -122,6 +133,7 @@ export default function AIChat({
           templateEmpty: 'Ecrivez un prompt avant de le sauvegarder.',
           templateCase: 'Cas actif',
           templatePinned: 'Epingle',
+          scenariosLabel: 'Scenario',
           clear: 'Effacer',
           saveToHistory: "Enregistrer dans l'historique",
           stop: 'Arreter',
@@ -157,6 +169,7 @@ export default function AIChat({
             templateEmpty: 'Escreve um prompt antes de o guardar.',
             templateCase: 'Caso ativo',
             templatePinned: 'Fixado',
+            scenariosLabel: 'Cenario',
             clear: 'Limpar',
             saveToHistory: 'Guardar no historico',
             stop: 'Parar',
@@ -191,6 +204,7 @@ export default function AIChat({
             templateEmpty: 'Write a prompt before saving it.',
             templateCase: 'Current case',
             templatePinned: 'Pinned',
+            scenariosLabel: 'Scenario',
             clear: 'Clear',
             saveToHistory: 'Save to history',
             stop: 'Stop',
@@ -220,10 +234,47 @@ export default function AIChat({
             ],
     [lang],
   );
+  const scenarioOptions = useMemo(
+    () =>
+      lang === 'fr'
+        ? [
+            { value: 'all' as const, label: 'Tous' },
+            { value: 'general' as const, label: 'General' },
+            { value: 'fragile' as const, label: 'Fragile' },
+            { value: 'airway' as const, label: 'Voie aerienne' },
+            { value: 'ponv' as const, label: 'NVPO' },
+            { value: 'regional' as const, label: 'ALR' },
+            { value: 'pacu' as const, label: 'Reveil' },
+            { value: 'hospital' as const, label: 'Hopital' },
+          ]
+        : lang === 'pt'
+          ? [
+              { value: 'all' as const, label: 'Todos' },
+              { value: 'general' as const, label: 'Geral' },
+              { value: 'fragile' as const, label: 'Fragil' },
+              { value: 'airway' as const, label: 'Via aerea' },
+              { value: 'ponv' as const, label: 'PONV' },
+              { value: 'regional' as const, label: 'ALR' },
+              { value: 'pacu' as const, label: 'Recobro' },
+              { value: 'hospital' as const, label: 'Hospital' },
+            ]
+          : [
+              { value: 'all' as const, label: 'All' },
+              { value: 'general' as const, label: 'General' },
+              { value: 'fragile' as const, label: 'Fragile' },
+              { value: 'airway' as const, label: 'Airway' },
+              { value: 'ponv' as const, label: 'PONV' },
+              { value: 'regional' as const, label: 'Regional' },
+              { value: 'pacu' as const, label: 'PACU' },
+              { value: 'hospital' as const, label: 'Hospital' },
+            ],
+    [lang],
+  );
   const languageTemplates = useMemo(
     () =>
       savedTemplates
         .filter((template) => template.language === lang)
+        .filter((template) => selectedScenario === 'all' || template.scenario === selectedScenario)
         .sort((left, right) => {
           const leftCurrent = left.procedureId && left.procedureId === effectiveProcedureContext?.procedureId;
           const rightCurrent =
@@ -239,7 +290,14 @@ export default function AIChat({
 
           return right.createdAt.localeCompare(left.createdAt);
         }),
-    [effectiveProcedureContext?.procedureId, lang, savedTemplates],
+    [effectiveProcedureContext?.procedureId, lang, savedTemplates, selectedScenario],
+  );
+  const filteredQuickPrompts = useMemo(
+    () =>
+      quickPrompts.filter(
+        (prompt) => selectedScenario === 'all' || prompt.scenario === selectedScenario,
+      ),
+    [quickPrompts, selectedScenario],
   );
 
   const handleSaveTemplate = () => {
@@ -266,6 +324,7 @@ export default function AIChat({
       pinned: false,
       procedureId: effectiveProcedureContext?.procedureId || null,
       procedureTitle: effectiveProcedureContext?.procedureTitle || null,
+      scenario: selectedScenario === 'all' ? 'general' : selectedScenario,
     };
 
     setSavedTemplates((current) => [nextTemplate, ...current].slice(0, 18));
@@ -539,9 +598,31 @@ export default function AIChat({
         </div>
       )}
 
-      {mode === 'block' && quickPrompts.length > 0 && (
+      {mode === 'block' && (
+        <div className="rounded-xl border border-border/70 bg-background px-3 py-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {copy.scenariosLabel}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {scenarioOptions.map((scenario) => (
+              <Button
+                key={scenario.value}
+                type="button"
+                variant={selectedScenario === scenario.value ? 'default' : 'outline'}
+                size="sm"
+                className="h-7 rounded-full px-2.5 text-[11px]"
+                onClick={() => setSelectedScenario(scenario.value)}
+              >
+                {scenario.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {mode === 'block' && filteredQuickPrompts.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {quickPrompts.map((prompt) => (
+          {filteredQuickPrompts.map((prompt) => (
             <Button
               key={prompt.label}
               type="button"

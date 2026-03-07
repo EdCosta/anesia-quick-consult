@@ -138,7 +138,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4 py-10">
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-10" data-testid="auth-page">
       <div className="w-full max-w-sm">
         <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <div className="mb-6 text-center">

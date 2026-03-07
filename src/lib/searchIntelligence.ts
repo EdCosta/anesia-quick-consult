@@ -1,5 +1,9 @@
 import type { SupportedLang } from '@/lib/types';
 import { SEARCH_INTENTS_CONFIG } from '@/lib/searchIntents.config';
+import {
+  SEARCH_INTENT_SYNONYM_OVERRIDES,
+  SEARCH_REDIRECT_OVERRIDES,
+} from '@/lib/searchOverrides.config';
 
 export type SearchIntent = {
   id: string;
@@ -9,7 +13,13 @@ export type SearchIntent = {
   synonyms: string[];
 };
 
-const SEARCH_INTENTS: SearchIntent[] = SEARCH_INTENTS_CONFIG;
+const SEARCH_INTENTS: SearchIntent[] = SEARCH_INTENTS_CONFIG.map((intent) => {
+  const override = SEARCH_INTENT_SYNONYM_OVERRIDES.find((entry) => entry.intentId === intent.id);
+  return {
+    ...intent,
+    synonyms: Array.from(new Set([...(intent.synonyms || []), ...(override?.extraSynonyms || [])])),
+  };
+});
 
 function normalize(value: string) {
   return value
@@ -37,6 +47,20 @@ export function getSearchExpansionTerms(query: string) {
 export function resolveSearchIntent(query: string) {
   const normalizedQuery = normalize(query);
   if (!normalizedQuery) return null;
+
+  const exactOverride = SEARCH_REDIRECT_OVERRIDES.find(
+    (override) => normalize(override.query) === normalizedQuery,
+  );
+
+  if (exactOverride) {
+    const baseIntent = SEARCH_INTENTS.find((intent) => intent.id === exactOverride.intentId);
+    if (baseIntent) {
+      return {
+        ...baseIntent,
+        route: exactOverride.route || baseIntent.route,
+      };
+    }
+  }
 
   return (
     SEARCH_INTENTS.find((intent) =>
@@ -99,4 +123,33 @@ export function getSearchRedirectSuggestions(queries: string[]): SearchRedirectS
   }
 
   return suggestions;
+}
+
+export function buildSearchOverrideConfig(queries: string[]) {
+  const suggestions = getSearchRedirectSuggestions(queries);
+  const synonymBuckets = new Map<string, Set<string>>();
+
+  for (const suggestion of suggestions) {
+    if (suggestion.kind !== 'synonym') continue;
+
+    const bucket = synonymBuckets.get(suggestion.intent.id) || new Set<string>();
+    bucket.add(suggestion.query);
+    synonymBuckets.set(suggestion.intent.id, bucket);
+  }
+
+  return {
+    searchRedirectOverrides: suggestions
+      .filter((suggestion) => suggestion.kind === 'redirect')
+      .map((suggestion) => ({
+        query: suggestion.query,
+        intentId: suggestion.intent.id,
+        route: suggestion.route,
+      })),
+    searchIntentSynonymOverrides: Array.from(synonymBuckets.entries()).map(
+      ([intentId, extraSynonyms]) => ({
+        intentId,
+        extraSynonyms: Array.from(extraSynonyms),
+      }),
+    ),
+  };
 }

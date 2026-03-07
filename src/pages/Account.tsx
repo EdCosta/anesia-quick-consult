@@ -157,7 +157,7 @@ export default function Account() {
       <h1 className="text-xl font-bold text-foreground">{t('account')}</h1>
 
       <Button asChild variant="outline" className="w-full gap-2">
-        <Link to={user ? '/account/settings' : '/auth?mode=signin'}>
+        <Link to={user ? '/account/settings' : '/auth?mode=signin'} data-testid="account-settings-link">
           <Settings2 className="h-4 w-4" />
           {copy.settings}
         </Link>
@@ -248,6 +248,7 @@ export default function Account() {
           <Link
             to={user ? buildCheckoutPath(upgradeSource, { surface: 'account' }) : '/auth?mode=signin'}
             onClick={() => trackEvent('pro_upgrade_click', { surface: 'account' })}
+            data-testid="account-upgrade-cta"
           >
             <Lock className="h-4 w-4" />
             {t('upgrade_pro')}

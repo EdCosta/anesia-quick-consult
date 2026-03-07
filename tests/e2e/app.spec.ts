@@ -55,4 +55,21 @@ test.describe('critical flows', () => {
     await page.getByTestId('pricing-account-cta').click();
     await expect(page).toHaveURL(/\/account/);
   });
+
+  test('account unauth surfaces auth entry points', async ({ page }) => {
+    await page.goto('/account');
+
+    await page.getByTestId('account-settings-link').click();
+    await expect(page).toHaveURL(/\/auth\?mode=signin/);
+    await expect(page.getByTestId('auth-page')).toBeVisible();
+  });
+
+  test('pro checkout unauth redirects to signin on manual invoice intent', async ({ page }) => {
+    await page.goto('/pro/checkout?source=pricing');
+
+    await expect(page.getByTestId('pro-checkout-page')).toBeVisible();
+    await page.getByTestId('checkout-invoice-button').click();
+
+    await expect(page).toHaveURL(/\/auth\?mode=signin/);
+  });
 });

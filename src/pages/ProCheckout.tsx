@@ -451,7 +451,7 @@ export default function ProCheckout() {
   const canceled = searchParams.get('canceled') === '1';
 
   return (
-    <div className="container max-w-3xl space-y-5 py-6">
+    <div className="container max-w-3xl space-y-5 py-6" data-testid="pro-checkout-page">
       <Link to="/account" className="inline-flex items-center gap-1 text-sm text-accent hover:underline">
         <ArrowLeft className="h-4 w-4" />
         {t('back')}
@@ -559,6 +559,7 @@ export default function ProCheckout() {
                 size="sm"
                 onClick={() => void createCheckoutSession()}
                 disabled={checkoutLoading || pricingLoading || !pricing?.enabled}
+                data-testid="checkout-stripe-button"
               >
                 {checkoutLoading
                   ? lang === 'fr'
@@ -628,6 +629,7 @@ export default function ProCheckout() {
                 variant="outline"
                 onClick={() => void createManualRequest('invoice')}
                 disabled={submittingRequest}
+                data-testid="checkout-invoice-button"
               >
                 {lang === 'fr' ? 'Demander facture' : lang === 'pt' ? 'Pedir fatura' : 'Request invoice'}
               </Button>

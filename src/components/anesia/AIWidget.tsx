@@ -30,7 +30,15 @@ type AIStoragePayload = {
 };
 
 type AITab = 'block' | 'history';
-type PromptTemplate = { label: string; prompt: string };
+type PromptScenario =
+  | 'general'
+  | 'fragile'
+  | 'airway'
+  | 'ponv'
+  | 'regional'
+  | 'pacu'
+  | 'hospital';
+type PromptTemplate = { label: string; prompt: string; scenario: PromptScenario };
 
 function readThreadStorageValue() {
   if (typeof window === 'undefined') {
@@ -148,28 +156,34 @@ function buildPromptTemplates(
       {
         label: 'Plan bloc',
         prompt: `Donne un plan pre/intra/post pour ${subject}. Structure la reponse avec informations manquantes, red flags, checklist et sources.`,
+        scenario: 'general',
       },
       {
         label: 'Patient fragile',
         prompt: `Analyse ${subject} chez un patient fragile/polycomorbide. Liste ce qu il faut verifier avant bloc, les risques, et les adaptations per/intra/post.`,
+        scenario: 'fragile',
       },
       {
         label: 'Voie aerienne',
         prompt: `Pour ${subject}, fais une revue rapide du risque voie aerienne: signaux d alerte, ce qu il faut confirmer, plan A/B/C et points d escalation.`,
+        scenario: 'airway',
       },
       {
         label: 'NVPO',
         prompt: `Pour ${subject}, propose une strategie NVPO: facteurs de risque, prophylaxie, rescue post-op et checklist courte.`,
+        scenario: 'ponv',
       },
       {
         label: 'Check reveil',
         prompt: `Pour ${subject}, prepare une checklist de reveil et post-op immediate: analgesie, NVPO, surveillance et red flags.`,
+        scenario: 'pacu',
       },
       {
         label: hasHospitalProfile ? 'Delta hopital' : 'Verification',
         prompt: hasHospitalProfile
           ? `Pour ${subject}, compare le contenu standard au contexte hopital actif. Mets en avant ce qui change vraiment, ce qu il faut verifier, et ce qui manque.`
           : `Pour ${subject}, verifie la coherence clinique de la conduite proposee, ce qu il manque pour conclure, et les sources disponibles.`,
+        scenario: hasHospitalProfile ? 'hospital' : 'general',
       },
     ];
   }
@@ -179,28 +193,34 @@ function buildPromptTemplates(
       {
         label: 'Plano bloco',
         prompt: `Da-me um plano pre/intra/pos para ${subject}. Estrutura com informacao em falta, red flags, checklist e fontes.`,
+        scenario: 'general',
       },
       {
         label: 'Doente fragil',
         prompt: `Analisa ${subject} num doente fragil/policomorbido. Lista o que verificar antes do bloco, riscos e adaptacoes pre/intra/pos.`,
+        scenario: 'fragile',
       },
       {
         label: 'Via aerea',
         prompt: `Para ${subject}, faz uma revisao rapida do risco de via aerea: sinais de alerta, o que falta confirmar, plano A/B/C e criterios de escalacao.`,
+        scenario: 'airway',
       },
       {
         label: 'PONV',
         prompt: `Para ${subject}, propoe uma estrategia PONV: fatores de risco, profilaxia, rescue post-op e checklist curta.`,
+        scenario: 'ponv',
       },
       {
         label: 'Check recobro',
         prompt: `Para ${subject}, prepara uma checklist de recobro e pos-operatorio imediato: analgesia, PONV, vigilancia e red flags.`,
+        scenario: 'pacu',
       },
       {
         label: hasHospitalProfile ? 'Delta hospital' : 'Verificacao',
         prompt: hasHospitalProfile
           ? `Para ${subject}, compara o conteudo standard com o contexto hospitalar ativo. Destaca o que muda mesmo, o que deve ser confirmado e o que falta.`
           : `Para ${subject}, verifica a coerencia clinica da conduta proposta, o que falta para concluir e as fontes disponiveis.`,
+        scenario: hasHospitalProfile ? 'hospital' : 'general',
       },
     ];
   }
@@ -209,28 +229,34 @@ function buildPromptTemplates(
     {
       label: 'OR plan',
       prompt: `Give me a pre/intra/post plan for ${subject}. Structure it with missing information, red flags, checklist, and sources.`,
+      scenario: 'general',
     },
     {
       label: 'Fragile patient',
       prompt: `Assess ${subject} in a frail/high-comorbidity patient. List what must be checked before the OR, key risks, and pre/intra/post adaptations.`,
+      scenario: 'fragile',
     },
     {
       label: 'Airway',
       prompt: `For ${subject}, do a rapid airway-risk review: warning signs, what still needs confirmation, plan A/B/C, and escalation points.`,
+      scenario: 'airway',
     },
     {
       label: 'PONV',
       prompt: `For ${subject}, propose a PONV strategy: risk factors, prophylaxis, postop rescue, and a short checklist.`,
+      scenario: 'ponv',
     },
     {
       label: 'PACU check',
       prompt: `For ${subject}, prepare a PACU and immediate postop checklist: analgesia, PONV, monitoring, and red flags.`,
+      scenario: 'pacu',
     },
     {
       label: hasHospitalProfile ? 'Hospital delta' : 'Verify',
       prompt: hasHospitalProfile
         ? `For ${subject}, compare the standard content with the active hospital context. Highlight what materially changes, what needs confirmation, and what is missing.`
         : `For ${subject}, verify the proposed clinical approach, what information is still missing, and what sources are available.`,
+      scenario: hasHospitalProfile ? 'hospital' : 'general',
     },
   ];
 }

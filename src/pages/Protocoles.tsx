@@ -93,14 +93,6 @@ export default function Protocoles() {
     }
   }, [search, category, expanded, searchParams, setSearchParams]);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">{t('loading')}</p>
-      </div>
-    );
-  }
-
   const visible = isLimited ? filtered.slice(0, protocolLimit) : filtered;
   const hiddenCount = isLimited ? Math.max(filtered.length - visible.length, 0) : 0;
 
@@ -108,6 +100,14 @@ export default function Protocoles() {
     if (!isLimited || hiddenCount <= 0) return;
     trackEvent('pro_preview_view', { surface: 'protocols', hiddenCount });
   }, [hiddenCount, isLimited]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-muted-foreground">{t('loading')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8 space-y-6">

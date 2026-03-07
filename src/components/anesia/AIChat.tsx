@@ -27,8 +27,8 @@ import {
   useAITemplates,
   type PromptScenario,
 } from '@/hooks/useAITemplates';
+import { useAIPreferences, type AIResponseMode } from '@/hooks/useAIPreferences';
 import { useHospitalProfile } from '@/hooks/useHospitalProfile';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -38,7 +38,6 @@ import { createAIId, detectPIIInText, type Message } from './AIWidget.types';
 
 type PromptScenarioFilter = 'all' | PromptScenario;
 type QuickPrompt = { label: string; prompt: string; scenario?: PromptScenario };
-type AIResponseMode = 'checklist' | 'plan' | 'quick' | 'risk';
 
 interface AIChatProps {
   canSaveToHistory?: boolean;
@@ -73,10 +72,7 @@ export default function AIChat({
   const effectiveProcedureContext = procedureContextOverride ?? procedureContext;
   const { ask, cancel, error, isLoading } = useAI();
   const [draft, setDraft] = useState('');
-  const [responseMode, setResponseMode] = useLocalStorage<AIResponseMode>(
-    'anesia-ai-response-mode',
-    'plan',
-  );
+  const { responseMode, setResponseMode } = useAIPreferences();
   const { templates: savedTemplates, saveTemplate, deleteTemplate, togglePinnedTemplate } =
     useAITemplates();
   const [selectedScenario, setSelectedScenario] = useState<PromptScenarioFilter>('all');
@@ -691,7 +687,9 @@ export default function AIChat({
             variant={responseMode === modeOption.value ? 'default' : 'outline'}
             size="sm"
             className="h-7 rounded-full px-2.5 text-[11px]"
-            onClick={() => setResponseMode(modeOption.value)}
+            onClick={() => {
+              void setResponseMode(modeOption.value);
+            }}
           >
             {modeOption.label}
           </Button>

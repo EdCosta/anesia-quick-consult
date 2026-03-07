@@ -430,7 +430,7 @@ export default function Index() {
     });
 
     return Array.from(results.values());
-  }, [deferredSearchQuery, fuse]);
+  }, [deferredSearchQuery, fuse, searchOverrides]);
   const searchIntent = useMemo(
     () => resolveSearchIntent(deferredSearchQuery, searchOverrides),
     [deferredSearchQuery, searchOverrides],

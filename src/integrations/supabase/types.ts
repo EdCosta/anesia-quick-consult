@@ -549,6 +549,27 @@ export type Database = {
           },
         ];
       };
+      user_ui_preferences: {
+        Row: {
+          ai_response_mode: string;
+          created_at: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          ai_response_mode?: string;
+          created_at?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          ai_response_mode?: string;
+          created_at?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_profiles: {
         Row: {
           created_at: string | null;

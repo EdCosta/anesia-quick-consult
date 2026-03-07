@@ -105,7 +105,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     setLoadingProfiles(true);
     supabase
-      .from('hospital_profiles' as any)
+      .from('hospital_profiles')
       .select('id, name, settings, country, default_lang, formulary, protocol_overrides')
       .then(({ data, error }) => {
         if (error) {

@@ -114,14 +114,6 @@ export default function ALR() {
     }
   }, [expanded, region, search, searchParams, setSearchParams]);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">{t('loading')}</p>
-      </div>
-    );
-  }
-
   const visible = isLimited ? filtered.slice(0, alrLimit) : filtered;
   const hiddenCount = isLimited ? Math.max(filtered.length - visible.length, 0) : 0;
 
@@ -129,6 +121,14 @@ export default function ALR() {
     if (!isLimited || hiddenCount <= 0) return;
     trackEvent('pro_preview_view', { surface: 'alr', hiddenCount });
   }, [hiddenCount, isLimited]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-muted-foreground">{t('loading')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-6 space-y-4">

@@ -26,6 +26,7 @@ const QUERY_KEY = ['admin-search-override-rules'];
 export default function AdminSearchOverrides() {
   const queryClient = useQueryClient();
   const intents = useMemo(() => getAllSearchIntents(), []);
+  const [editingRuleId, setEditingRuleId] = useState<string | null>(null);
   const [draft, setDraft] = useState<{
     kind: SearchOverrideKind;
     query: string;
@@ -99,6 +100,32 @@ export default function AdminSearchOverrides() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    },
+  });
+
+  const updateRuleMutation = useMutation({
+    mutationFn: async (rule: SearchOverrideRow) => {
+      const { error } = await supabase
+        .from('search_override_rules')
+        .update({
+          kind: rule.kind,
+          query: rule.query,
+          intent_id: rule.intent_id,
+          route: rule.kind === 'redirect' ? rule.route : null,
+          notes: rule.notes,
+          active: rule.active,
+        })
+        .eq('id', rule.id);
+
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      toast.success('Search override updated.');
+      setEditingRuleId(null);
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    },
+    onError: (error) => {
+      toast.error((error as Error).message || 'Failed to update search override.');
     },
   });
 
@@ -206,22 +233,144 @@ export default function AdminSearchOverrides() {
             >
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Kind</p>
-                <p className="font-medium text-foreground">{rule.kind}</p>
+                {editingRuleId === rule.id ? (
+                  <select
+                    className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
+                    value={rule.kind}
+                    onChange={(event) => {
+                      const nextKind = event.target.value as SearchOverrideKind;
+                      queryClient.setQueryData<SearchOverrideRow[]>(QUERY_KEY, (current = []) =>
+                        current.map((entry) =>
+                          entry.id === rule.id
+                            ? {
+                                ...entry,
+                                kind: nextKind,
+                                route: nextKind === 'redirect' ? entry.route : null,
+                              }
+                            : entry,
+                        ),
+                      );
+                    }}
+                  >
+                    <option value="redirect">redirect</option>
+                    <option value="synonym">synonym</option>
+                  </select>
+                ) : (
+                  <p className="font-medium text-foreground">{rule.kind}</p>
+                )}
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Query</p>
-                <p className="font-medium text-foreground">{rule.query}</p>
-                {rule.notes && <p className="mt-1 text-xs text-muted-foreground">{rule.notes}</p>}
+                {editingRuleId === rule.id ? (
+                  <>
+                    <Input
+                      value={rule.query}
+                      onChange={(event) => {
+                        queryClient.setQueryData<SearchOverrideRow[]>(QUERY_KEY, (current = []) =>
+                          current.map((entry) =>
+                            entry.id === rule.id ? { ...entry, query: event.target.value } : entry,
+                          ),
+                        );
+                      }}
+                    />
+                    <Input
+                      value={rule.notes || ''}
+                      onChange={(event) => {
+                        queryClient.setQueryData<SearchOverrideRow[]>(QUERY_KEY, (current = []) =>
+                          current.map((entry) =>
+                            entry.id === rule.id
+                              ? { ...entry, notes: event.target.value || null }
+                              : entry,
+                          ),
+                        );
+                      }}
+                      placeholder="notes"
+                      className="mt-2"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <p className="font-medium text-foreground">{rule.query}</p>
+                    {rule.notes && <p className="mt-1 text-xs text-muted-foreground">{rule.notes}</p>}
+                  </>
+                )}
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Intent</p>
-                <p className="font-medium text-foreground">{rule.intent_id}</p>
+                {editingRuleId === rule.id ? (
+                  <select
+                    className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
+                    value={rule.intent_id}
+                    onChange={(event) => {
+                      const nextIntentId = event.target.value;
+                      const nextIntent = intents.find((intent) => intent.id === nextIntentId);
+                      queryClient.setQueryData<SearchOverrideRow[]>(QUERY_KEY, (current = []) =>
+                        current.map((entry) =>
+                          entry.id === rule.id
+                            ? {
+                                ...entry,
+                                intent_id: nextIntentId,
+                                route:
+                                  entry.kind === 'redirect'
+                                    ? nextIntent?.route || entry.route
+                                    : entry.route,
+                              }
+                            : entry,
+                        ),
+                      );
+                    }}
+                  >
+                    {intents.map((intent) => (
+                      <option key={intent.id} value={intent.id}>
+                        {intent.title.en}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="font-medium text-foreground">{rule.intent_id}</p>
+                )}
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Route</p>
-                <p className="truncate text-sm text-muted-foreground">{rule.route || '-'}</p>
+                {editingRuleId === rule.id ? (
+                  <Input
+                    value={rule.route || ''}
+                    onChange={(event) => {
+                      queryClient.setQueryData<SearchOverrideRow[]>(QUERY_KEY, (current = []) =>
+                        current.map((entry) =>
+                          entry.id === rule.id
+                            ? { ...entry, route: event.target.value || null }
+                            : entry,
+                        ),
+                      );
+                    }}
+                    disabled={rule.kind !== 'redirect'}
+                    placeholder="/route"
+                  />
+                ) : (
+                  <p className="truncate text-sm text-muted-foreground">{rule.route || '-'}</p>
+                )}
               </div>
               <div className="flex items-center justify-end gap-2">
+                {editingRuleId === rule.id ? (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => updateRuleMutation.mutate(rule)}
+                      disabled={updateRuleMutation.isPending}
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Save
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => void rulesQuery.refetch()}>
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => setEditingRuleId(rule.id)}>
+                    Edit
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"

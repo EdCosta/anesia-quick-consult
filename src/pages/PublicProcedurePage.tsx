@@ -261,6 +261,7 @@ export default function PublicProcedurePage() {
             <Button asChild>
               <Link
                 to={`/p/${procedure.id}`}
+                data-testid="public-procedure-open-app-cta"
                 onClick={() =>
                   trackEvent('public_procedure_cta_click', {
                     procedureId: procedure.id,

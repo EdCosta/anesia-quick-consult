@@ -4,6 +4,7 @@ import {
   Save,
   SendHorizonal,
   Sparkles,
+  Star,
   Square,
   Trash2,
 } from 'lucide-react';
@@ -39,6 +40,9 @@ type SavedPromptTemplate = {
   prompt: string;
   language: 'fr' | 'pt' | 'en';
   createdAt: string;
+  pinned: boolean;
+  procedureId?: string | null;
+  procedureTitle?: string | null;
 };
 
 const AI_TEMPLATE_STORAGE_KEY = 'anesia-ai-saved-templates-v1';
@@ -116,6 +120,8 @@ export default function AIChat({
           templateSaved: 'Template sauvegarde.',
           templateDeleted: 'Template supprime.',
           templateEmpty: 'Ecrivez un prompt avant de le sauvegarder.',
+          templateCase: 'Cas actif',
+          templatePinned: 'Epingle',
           clear: 'Effacer',
           saveToHistory: "Enregistrer dans l'historique",
           stop: 'Arreter',
@@ -149,6 +155,8 @@ export default function AIChat({
             templateSaved: 'Template guardado.',
             templateDeleted: 'Template apagado.',
             templateEmpty: 'Escreve um prompt antes de o guardar.',
+            templateCase: 'Caso ativo',
+            templatePinned: 'Fixado',
             clear: 'Limpar',
             saveToHistory: 'Guardar no historico',
             stop: 'Parar',
@@ -181,6 +189,8 @@ export default function AIChat({
             templateSaved: 'Template saved.',
             templateDeleted: 'Template deleted.',
             templateEmpty: 'Write a prompt before saving it.',
+            templateCase: 'Current case',
+            templatePinned: 'Pinned',
             clear: 'Clear',
             saveToHistory: 'Save to history',
             stop: 'Stop',
@@ -214,8 +224,22 @@ export default function AIChat({
     () =>
       savedTemplates
         .filter((template) => template.language === lang)
-        .sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
-    [lang, savedTemplates],
+        .sort((left, right) => {
+          const leftCurrent = left.procedureId && left.procedureId === effectiveProcedureContext?.procedureId;
+          const rightCurrent =
+            right.procedureId && right.procedureId === effectiveProcedureContext?.procedureId;
+
+          if (leftCurrent !== rightCurrent) {
+            return rightCurrent ? 1 : -1;
+          }
+
+          if (left.pinned !== right.pinned) {
+            return left.pinned ? -1 : 1;
+          }
+
+          return right.createdAt.localeCompare(left.createdAt);
+        }),
+    [effectiveProcedureContext?.procedureId, lang, savedTemplates],
   );
 
   const handleSaveTemplate = () => {
@@ -239,6 +263,9 @@ export default function AIChat({
       prompt,
       language: lang,
       createdAt: new Date().toISOString(),
+      pinned: false,
+      procedureId: effectiveProcedureContext?.procedureId || null,
+      procedureTitle: effectiveProcedureContext?.procedureTitle || null,
     };
 
     setSavedTemplates((current) => [nextTemplate, ...current].slice(0, 18));
@@ -248,6 +275,14 @@ export default function AIChat({
   const handleDeleteTemplate = (templateId: string) => {
     setSavedTemplates((current) => current.filter((template) => template.id !== templateId));
     toast.success(copy.templateDeleted);
+  };
+
+  const handleTogglePinnedTemplate = (templateId: string) => {
+    setSavedTemplates((current) =>
+      current.map((template) =>
+        template.id === templateId ? { ...template, pinned: !template.pinned } : template,
+      ),
+    );
   };
 
   const renderStructuredMessage = (message: Message) => {
@@ -539,7 +574,29 @@ export default function AIChat({
                   className="h-8 rounded-full px-3 text-xs"
                   onClick={() => setDraft(template.prompt)}
                 >
-                  {template.label}
+                  <span>{template.label}</span>
+                  {template.procedureId === effectiveProcedureContext?.procedureId && (
+                    <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
+                      {copy.templateCase}
+                    </span>
+                  )}
+                  {template.pinned && (
+                    <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">
+                      {copy.templatePinned}
+                    </span>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-full"
+                  onClick={() => handleTogglePinnedTemplate(template.id)}
+                  aria-label={copy.templatePinned}
+                >
+                  <Star
+                    className={`h-3.5 w-3.5 ${template.pinned ? 'fill-current text-accent' : ''}`}
+                  />
                 </Button>
                 <Button
                   type="button"

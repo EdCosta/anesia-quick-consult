@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('critical flows', () => {
+  test('guided journey opens emergency protocols', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByTestId('guided-journey-urgent-protocols').click();
+    await expect(page).toHaveURL(/\/protocoles\?category=emergency/);
+  });
+
   test('homepage search assist routes airway intent', async ({ page }) => {
     await page.goto('/');
 
@@ -23,16 +30,29 @@ test.describe('critical flows', () => {
     await expect(textarea).toHaveValue('Plan rapide pour PTH');
   });
 
-  test('public procedure page exposes app CTA', async ({ page }) => {
-    await page.goto('/procedures/pth');
+  test('home search opens an internal procedure', async ({ page }) => {
+    await page.goto('/');
 
-    await expect(page.getByRole('link', { name: /app/i })).toBeVisible();
-    await expect(page.getByText(/Preop|Pre-op/i)).toBeVisible();
+    const search = page.getByTestId('home-search-input');
+    await search.fill('pth');
+    await page.getByText(/Proth[eè]se totale de hanche|Pr[oó]tese total da anca|Total hip replacement/i).first().click();
+
+    await expect(page).toHaveURL(/\/p\/pth/);
   });
 
-  test('pricing page exposes upgrade entry', async ({ page }) => {
+  test('public procedure page opens app procedure CTA', async ({ page }) => {
+    await page.goto('/procedures/pth');
+
+    await expect(page.getByTestId('public-procedure-open-app-cta')).toBeVisible();
+    await page.getByTestId('public-procedure-open-app-cta').click();
+
+    await expect(page).toHaveURL(/\/p\/pth/);
+  });
+
+  test('pricing page routes into account flow', async ({ page }) => {
     await page.goto('/pricing');
 
-    await expect(page.getByTestId('pricing-account-cta')).toBeVisible();
+    await page.getByTestId('pricing-account-cta').click();
+    await expect(page).toHaveURL(/\/account/);
   });
 });

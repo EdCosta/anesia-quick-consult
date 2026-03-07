@@ -4,6 +4,8 @@ import path from 'node:path';
 const rootDir = process.cwd();
 const publicDir = path.join(rootDir, 'public');
 const proceduresPath = path.join(publicDir, 'data', 'procedures.v3.json');
+const guidelinesPath = path.join(publicDir, 'data', 'guidelines.v1.json');
+const protocolsPath = path.join(publicDir, 'data', 'protocoles.v1.json');
 const sitemapPath = path.join(publicDir, 'sitemap.xml');
 const robotsPath = path.join(publicDir, 'robots.txt');
 
@@ -46,6 +48,20 @@ function buildSpecialtyPath(specialty) {
   return slug ? `/specialties/${slug}` : '/';
 }
 
+function buildGuidelinePath(guideline) {
+  const titles = guideline?.titles || {};
+  const title = titles.fr || titles.en || titles.pt || guideline.id;
+  const slug = normalizeText(title);
+  return slug ? `/recommendations/${guideline.id}/${slug}` : `/recommendations/${guideline.id}`;
+}
+
+function buildProtocolPath(protocol) {
+  const titles = protocol?.titles || {};
+  const title = titles.fr || titles.en || titles.pt || protocol.id;
+  const slug = normalizeText(title);
+  return slug ? `/protocols/${protocol.id}/${slug}` : `/protocols/${protocol.id}`;
+}
+
 function toUrlEntry(loc, options = {}) {
   const url = `${siteUrl}${loc}`;
   const lines = ['  <url>', `    <loc>${xmlEscape(url)}</loc>`];
@@ -73,6 +89,8 @@ const staticRoutes = [
 ];
 
 const procedures = JSON.parse(fs.readFileSync(proceduresPath, 'utf8'));
+const guidelines = JSON.parse(fs.readFileSync(guidelinesPath, 'utf8'));
+const protocols = JSON.parse(fs.readFileSync(protocolsPath, 'utf8'));
 const specialties = [...new Set(ensureArray(procedures).map((procedure) => procedure.specialty).filter(Boolean))]
   .sort((left, right) => String(left).localeCompare(String(right)));
 
@@ -86,6 +104,20 @@ const procedureEntries = ensureArray(procedures).map((procedure) =>
 
 const specialtyEntries = specialties.map((specialty) =>
   toUrlEntry(buildSpecialtyPath(specialty), {
+    changefreq: 'weekly',
+    priority: 0.7,
+  }),
+);
+
+const guidelineEntries = ensureArray(guidelines).map((guideline) =>
+  toUrlEntry(buildGuidelinePath(guideline), {
+    changefreq: 'weekly',
+    priority: 0.7,
+  }),
+);
+
+const protocolEntries = ensureArray(protocols).map((protocol) =>
+  toUrlEntry(buildProtocolPath(protocol), {
     changefreq: 'weekly',
     priority: 0.7,
   }),
@@ -105,6 +137,8 @@ const sitemap = [
   ...staticEntries,
   ...topicEntries,
   ...specialtyEntries,
+  ...guidelineEntries,
+  ...protocolEntries,
   ...procedureEntries,
   '</urlset>',
   '',

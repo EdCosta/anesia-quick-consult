@@ -16,6 +16,8 @@ import {
   FileText,
   Info,
   Mail,
+  Sparkles,
+  Layers3,
 } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLang } from '@/contexts/LanguageContext';
@@ -225,6 +227,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { value: 'pro' as const, label: t('mode_pro') },
   ];
   const footerLinks = [
+    { to: '/topics', label: lang === 'fr' ? 'Themes' : lang === 'pt' ? 'Temas' : 'Topics', icon: Sparkles },
+    { to: '/specialties', label: lang === 'fr' ? 'Specialites' : lang === 'pt' ? 'Especialidades' : 'Specialties', icon: Layers3 },
     { to: '/pricing', label: lang === 'fr' ? 'Tarifs' : lang === 'pt' ? 'Precos' : 'Pricing', icon: Crown },
     { to: '/faq', label: 'FAQ', icon: CircleHelp },
     { to: '/about', label: lang === 'fr' ? 'A propos' : lang === 'pt' ? 'Sobre' : 'About', icon: Info },
@@ -276,6 +280,28 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {t(item.key)}
                 </Link>
               ))}
+              <Link
+                to="/topics"
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  location.pathname.startsWith('/topics')
+                    ? 'bg-primary-foreground/15 text-primary-foreground'
+                    : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground'
+                }`}
+              >
+                <Sparkles className="h-4 w-4" />
+                <span>{lang === 'fr' ? 'Themes' : lang === 'pt' ? 'Temas' : 'Topics'}</span>
+              </Link>
+              <Link
+                to="/specialties"
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  location.pathname.startsWith('/specialties')
+                    ? 'bg-primary-foreground/15 text-primary-foreground'
+                    : 'text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground'
+                }`}
+              >
+                <Layers3 className="h-4 w-4" />
+                <span>{lang === 'fr' ? 'Specialites' : lang === 'pt' ? 'Especialidades' : 'Specialties'}</span>
+              </Link>
             </nav>
           )}
 
@@ -480,6 +506,26 @@ export default function AppLayout({ children }: AppLayoutProps) {
               {t(item.key)}
             </Link>
           ))}
+          <Link
+            to="/topics"
+            onClick={() => setMenuOpen(false)}
+            className={`flex items-center gap-3 text-xl font-semibold transition-colors ${
+              location.pathname.startsWith('/topics') ? 'text-accent' : 'text-foreground hover:text-accent'
+            }`}
+          >
+            <Sparkles className="h-6 w-6" />
+            {lang === 'fr' ? 'Themes' : lang === 'pt' ? 'Temas' : 'Topics'}
+          </Link>
+          <Link
+            to="/specialties"
+            onClick={() => setMenuOpen(false)}
+            className={`flex items-center gap-3 text-xl font-semibold transition-colors ${
+              location.pathname.startsWith('/specialties') ? 'text-accent' : 'text-foreground hover:text-accent'
+            }`}
+          >
+            <Layers3 className="h-6 w-6" />
+            {lang === 'fr' ? 'Specialites' : lang === 'pt' ? 'Especialidades' : 'Specialties'}
+          </Link>
         </div>
       )}
 

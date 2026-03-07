@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { trackEvent } from '@/lib/analytics';
 import { PUBLIC_TOPICS, getPublicTopic } from '@/lib/publicTopics';
+import { buildPublicGuidelinePath, buildPublicProtocolPath } from '@/lib/contentSeo';
 import { buildPublicProcedurePath } from '@/lib/procedureSeo';
 
 function normalize(value: string) {
@@ -210,7 +211,11 @@ export default function PublicTopicPage() {
                   {relatedGuidelines.slice(0, 4).map((guideline) => (
                     <Link
                       key={guideline.id}
-                      to={guideline.id === 'antibioprophylaxie' ? '/guidelines/antibioprophylaxie' : '/guidelines'}
+                      to={
+                        guideline.id === 'antibioprophylaxie'
+                          ? '/guidelines/antibioprophylaxie'
+                          : buildPublicGuidelinePath(guideline.id, resolveStr(guideline.titles))
+                      }
                       className="block rounded-xl border border-border/70 bg-background/80 p-3 transition-colors hover:border-accent/40"
                     >
                       <p className="text-sm font-semibold text-foreground">{resolveStr(guideline.titles)}</p>
@@ -231,7 +236,7 @@ export default function PublicTopicPage() {
                   {relatedProtocols.slice(0, 4).map((protocol) => (
                     <Link
                       key={protocol.id}
-                      to={`/protocoles?open=${protocol.id}`}
+                      to={buildPublicProtocolPath(protocol.id, resolveStr(protocol.titles))}
                       className="block rounded-xl border border-border/70 bg-background/80 p-3 transition-colors hover:border-accent/40"
                     >
                       <p className="text-sm font-semibold text-foreground">{resolveStr(protocol.titles)}</p>

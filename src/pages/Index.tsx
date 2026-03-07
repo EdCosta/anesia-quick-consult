@@ -15,6 +15,8 @@ import {
   ChevronDown,
   ChevronUp,
   Lock,
+  Heart,
+  Wind,
 } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 import { useData } from '@/contexts/DataContext';
@@ -214,6 +216,57 @@ export default function Index() {
         action: () => {
           trackEvent('guided_journey_open', { journey: 'antibiotic_prophylaxis' });
           navigate('/guidelines?search=antibioprophylaxie&open=antibioprophylaxie');
+        },
+      },
+      {
+        key: 'ponv-score',
+        title: lang === 'fr' ? 'Score NVPO' : lang === 'pt' ? 'Score NVPO' : 'PONV score',
+        description:
+          lang === 'fr'
+            ? 'Ouvre directement le score d Apfel pour evaluer le risque NVPO.'
+            : lang === 'pt'
+              ? 'Abre diretamente o score de Apfel para avaliar o risco de NVPO.'
+              : 'Open the Apfel score directly to assess PONV risk.',
+        icon: Wind,
+        action: () => {
+          trackEvent('guided_journey_open', { journey: 'ponv_score' });
+          navigate('/calculateurs?open=apfel');
+        },
+      },
+      {
+        key: 'cardiac-risk',
+        title:
+          lang === 'fr'
+            ? 'Risque cardiaque'
+            : lang === 'pt'
+              ? 'Risco cardiaco'
+              : 'Cardiac risk',
+        description:
+          lang === 'fr'
+            ? 'Ouvre directement le score RCRI pour l evaluation pre-operatoire.'
+            : lang === 'pt'
+              ? 'Abre diretamente o score RCRI para avaliacao pre-operatoria.'
+              : 'Open the RCRI score directly for pre-op cardiac risk assessment.',
+        icon: Heart,
+        action: () => {
+          trackEvent('guided_journey_open', { journey: 'cardiac_risk' });
+          navigate('/calculateurs?open=rcri');
+        },
+      },
+      {
+        key: 'ett-sizing',
+        title:
+          lang === 'fr' ? 'ETT rapide' : lang === 'pt' ? 'ETT rapida' : 'Rapid ETT sizing',
+        description:
+          lang === 'fr'
+            ? 'Ouvre directement le calculateur de taille de sonde endotrachéale.'
+            : lang === 'pt'
+              ? 'Abre diretamente o calculador de tamanho do tubo endotraqueal.'
+              : 'Open the endotracheal tube sizing calculator directly.',
+        icon: Zap,
+        action: () => {
+          trackEvent('guided_journey_open', { journey: 'ett_sizing' });
+          navigate('/calculateurs?open=ett');
         },
       },
     ],

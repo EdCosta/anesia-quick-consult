@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ClipboardCheck, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import ShareButton from '@/components/anesia/ShareButton';
+import { buildPublicProtocolPath } from '@/lib/contentSeo';
 import Fuse from 'fuse.js';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useLang } from '@/contexts/LanguageContext';
@@ -250,6 +252,13 @@ export default function Protocoles() {
                           </div>
                         </div>
                       )}
+                      <div className="border-t pt-3 flex justify-end">
+                        <ShareButton
+                          url={buildPublicProtocolPath(p.id, resolveStr(p.titles))}
+                          title={resolveStr(p.titles)}
+                          variant="icon"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

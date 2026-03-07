@@ -43,6 +43,13 @@ type AnalyticsRow = {
 };
 
 type EventFilter = 'all' | 'searches' | 'procedure_views' | 'upgrade_clicks' | 'public_pages';
+type SessionFlags = {
+  searched: boolean;
+  viewedProcedure: boolean;
+  sawPublicContent: boolean;
+  openedFromPublic: boolean;
+  proIntent: boolean;
+};
 
 const PERIOD_OPTIONS = [
   { value: 7, label: '7 days' },
@@ -160,7 +167,7 @@ export default function AdminDashboard() {
     const languageCounts = new Map<string, number>();
     const sessionDays = new Map<string, Set<string>>();
     const sessionEventCounts = new Map<string, number>();
-    const sessionFlags = new Map<string, { searched: boolean; viewedProcedure: boolean }>();
+    const sessionFlags = new Map<string, SessionFlags>();
 
     let eventsLast24h = 0;
     let searchCount = 0;
@@ -172,6 +179,14 @@ export default function AdminDashboard() {
       if (!Number.isNaN(createdAt) && createdAt >= since24h) {
         eventsLast24h += 1;
       }
+
+      const currentFlags = sessionFlags.get(row.session_id) || {
+        searched: false,
+        viewedProcedure: false,
+        sawPublicContent: false,
+        openedFromPublic: false,
+        proIntent: false,
+      };
 
       const day = row.created_at.slice(0, 10);
       const sessionDaySet = sessionDays.get(row.session_id) || new Set<string>();
@@ -195,12 +210,7 @@ export default function AdminDashboard() {
             results: Math.max(current.results, results),
           });
         }
-        const currentFlags = sessionFlags.get(row.session_id) || {
-          searched: false,
-          viewedProcedure: false,
-        };
         currentFlags.searched = true;
-        sessionFlags.set(row.session_id, currentFlags);
       }
 
       if (row.event_name === 'procedure_page_view') {
@@ -209,22 +219,39 @@ export default function AdminDashboard() {
         if (procedureId) {
           topProcedures.set(procedureId, (topProcedures.get(procedureId) || 0) + 1);
         }
-        const currentFlags = sessionFlags.get(row.session_id) || {
-          searched: false,
-          viewedProcedure: false,
-        };
         currentFlags.viewedProcedure = true;
-        sessionFlags.set(row.session_id, currentFlags);
       }
 
       if (
         row.event_name === 'guidelines_upgrade_click' ||
         row.event_name === 'protocols_upgrade_click' ||
-        row.event_name === 'alr_upgrade_click'
+        row.event_name === 'alr_upgrade_click' ||
+        row.event_name === 'pro_upgrade_click' ||
+        row.event_name === 'pro_checkout_view' ||
+        row.event_name === 'pro_checkout_start' ||
+        row.event_name === 'pro_checkout_success'
       ) {
-        upgradeCount += 1;
-        upgradeClicks.set(row.event_name, (upgradeClicks.get(row.event_name) || 0) + 1);
+        if (
+          row.event_name === 'guidelines_upgrade_click' ||
+          row.event_name === 'protocols_upgrade_click' ||
+          row.event_name === 'alr_upgrade_click' ||
+          row.event_name === 'pro_upgrade_click'
+        ) {
+          upgradeCount += 1;
+          upgradeClicks.set(row.event_name, (upgradeClicks.get(row.event_name) || 0) + 1);
+        }
+        currentFlags.proIntent = true;
       }
+
+      if (row.event_name.startsWith('public_')) {
+        currentFlags.sawPublicContent = true;
+      }
+
+      if (row.event_name === 'public_procedure_cta_click') {
+        currentFlags.openedFromPublic = true;
+      }
+
+      sessionFlags.set(row.session_id, currentFlags);
     }
 
     const topLanguages = Array.from(languageCounts.entries())
@@ -235,8 +262,15 @@ export default function AdminDashboard() {
     const activeDays = new Set(rows.map((row) => row.created_at.slice(0, 10))).size;
     const avgEventsPerSession =
       uniqueSessions > 0 ? Math.round((rows.length / uniqueSessions) * 10) / 10 : 0;
+    const avgEventsPerActiveDay =
+      activeDays > 0 ? Math.round((rows.length / activeDays) * 10) / 10 : 0;
     const searchToProcedureSessions = Array.from(sessionFlags.values()).filter(
       (flags) => flags.searched && flags.viewedProcedure,
+    ).length;
+    const engagedSessions = Array.from(sessionEventCounts.values()).filter((count) => count >= 3).length;
+    const proIntentSessions = Array.from(sessionFlags.values()).filter((flags) => flags.proIntent).length;
+    const publicToAppSessions = Array.from(sessionFlags.values()).filter(
+      (flags) => flags.sawPublicContent && (flags.openedFromPublic || flags.viewedProcedure),
     ).length;
 
     return {
@@ -246,7 +280,11 @@ export default function AdminDashboard() {
       returningSessions,
       activeDays,
       avgEventsPerSession,
+      avgEventsPerActiveDay,
       searchToProcedureSessions,
+      engagedSessions,
+      proIntentSessions,
+      publicToAppSessions,
       searchCount,
       procedureViews,
       upgradeCount,
@@ -476,6 +514,51 @@ export default function AdminDashboard() {
                   <p className="text-sm text-muted-foreground">
                     Sessions that searched and opened a procedure
                   </p>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Engaged sessions
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.engagedSessions}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Sessions with at least 3 tracked events
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Pro intent sessions
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.proIntentSessions}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Sessions that reached upgrade or checkout intent
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Public to app
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.publicToAppSessions}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Sessions moving from public content into product usage
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Avg events / day
+                  </div>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {overview.avgEventsPerActiveDay}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Operational usage density</p>
                 </div>
               </div>
 

@@ -5,13 +5,14 @@ interface UsePageMetaInput {
   description?: string;
   canonicalPath?: string;
   type?: string;
+  ogImage?: string;
 }
 
 const DEFAULT_TITLE = "AnesIA - Consultation rapide d'anesthesie";
 const DEFAULT_DESCRIPTION =
   'Support educatif pour consultation rapide d anesthesie par type de chirurgie';
 
-export function usePageMeta({ title, description, canonicalPath, type }: UsePageMetaInput) {
+export function usePageMeta({ title, description, canonicalPath, type, ogImage }: UsePageMetaInput) {
   useEffect(() => {
     const previousTitle = document.title;
     const descriptionElement = document.querySelector('meta[name="description"]');
@@ -19,11 +20,14 @@ export function usePageMeta({ title, description, canonicalPath, type }: UsePage
     const ogDescriptionElement = document.querySelector('meta[property="og:description"]');
     const ogTypeElement = document.querySelector('meta[property="og:type"]');
     const ogUrlElement = document.querySelector('meta[property="og:url"]');
+    const ogImageElement = document.querySelector('meta[property="og:image"]');
+    const twitterImageElement = document.querySelector('meta[name="twitter:image"]');
     const canonicalElement = document.querySelector('link[rel="canonical"]');
     const previousDescription = descriptionElement?.getAttribute('content') || DEFAULT_DESCRIPTION;
     const previousCanonical = canonicalElement?.getAttribute('href') || null;
     const previousOgType = ogTypeElement?.getAttribute('content') || 'website';
     const previousOgUrl = ogUrlElement?.getAttribute('content') || null;
+    const previousOgImage = ogImageElement?.getAttribute('content') || null;
     const nextTitle = title || DEFAULT_TITLE;
     const nextDescription = description || DEFAULT_DESCRIPTION;
     const nextType = type || 'website';
@@ -31,6 +35,13 @@ export function usePageMeta({ title, description, canonicalPath, type }: UsePage
       canonicalPath && typeof window !== 'undefined'
         ? new URL(canonicalPath, window.location.origin).toString()
         : null;
+    const nextOgImage = ogImage
+      ? ogImage.startsWith('http')
+        ? ogImage
+        : typeof window !== 'undefined'
+          ? new URL(ogImage, window.location.origin).toString()
+          : null
+      : null;
 
     document.title = nextTitle;
     descriptionElement?.setAttribute('content', nextDescription);
@@ -39,6 +50,10 @@ export function usePageMeta({ title, description, canonicalPath, type }: UsePage
     ogTypeElement?.setAttribute('content', nextType);
     if (ogUrlElement && nextCanonical) {
       ogUrlElement.setAttribute('content', nextCanonical);
+    }
+    if (nextOgImage) {
+      ogImageElement?.setAttribute('content', nextOgImage);
+      twitterImageElement?.setAttribute('content', nextOgImage);
     }
     if (canonicalElement && nextCanonical) {
       canonicalElement.setAttribute('href', nextCanonical);
@@ -54,10 +69,14 @@ export function usePageMeta({ title, description, canonicalPath, type }: UsePage
         if (previousOgUrl) ogUrlElement.setAttribute('content', previousOgUrl);
         else ogUrlElement.removeAttribute('content');
       }
+      if (nextOgImage && previousOgImage) {
+        ogImageElement?.setAttribute('content', previousOgImage);
+        twitterImageElement?.setAttribute('content', previousOgImage);
+      }
       if (canonicalElement) {
         if (previousCanonical) canonicalElement.setAttribute('href', previousCanonical);
         else canonicalElement.removeAttribute('href');
       }
     };
-  }, [canonicalPath, description, title, type]);
+  }, [canonicalPath, description, ogImage, title, type]);
 }
